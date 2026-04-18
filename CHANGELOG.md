@@ -333,6 +333,14 @@ Public API: `gpu_stack.resolve(target, assignments={}, variants={})`. Errors: `U
 
 Smoke check: resolving `cluster.rack.peak_flops` from `n_nodes=9`, `n_gpus_per_node=8`, and `gpu.peak_flops=15e15` yields 1.08e18 FLOPs and emits a five-step trace including the arith-path identities and the cluster-level rack FLOPs equation. Test suite is now 22 passing.
 
+## Pass 27: scenario preset framework (DONE)
+
+Phase 5 groundwork. Adds `gpu_stack/core/presets.py` with a frozen `Preset` dataclass that bundles scenario assignments, variant selections, and provenance, plus a `combine()` helper that merges presets with later-wins precedence on key collisions. Preset construction validates every variable name against the Registry so typos fail fast rather than silently drifting through a resolver call.
+
+The new `gpu_stack.presets` package ships three helper modules. The only numeric preset is `hardware.demo_rack`, drawn verbatim from `gpu_stack.demo` so no new unsourced numbers enter the codebase. The workload module carries variant-selector presets for dense vs MoE, MFU formulation, and AdamW vs Muon. Combining a hardware preset with a workload selector through `combine_presets` lets the resolver evaluate a training-level target in one call.
+
+`tests/test_presets.py` covers unknown-name rejection, end-to-end resolution (`demo_rack` produces 1.08e18 FLOP/s for `cluster.rack.peak_flops`), combine ordering, variant pinning, and `with_overrides`. The test suite is now 29 passing.
+
 ## Stats trajectory
 
 | After pass | variables | constants | equations | systems |
