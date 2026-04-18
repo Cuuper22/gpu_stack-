@@ -1,6 +1,6 @@
 # gpu_stack improvement map
 
-Audit date: 2026-04-18 (original), refreshed after pass 23 P0 foundation batch.
+Audit date: 2026-04-18 (original), refreshed after pass 31 memory_cell split.
 
 ## Current snapshot
 
@@ -21,7 +21,8 @@ Audit date: 2026-04-18 (original), refreshed after pass 23 P0 foundation batch.
 | Variables with multiple defining relations | 15 |
 | Variables with multiple defining relations, role-tagged | 15 |
 | Inequalities that simplify to `True` in `as_sympy()` | 0 |
-| Scope files at or above 700 lines | 12 |
+| Scope files at or above 700 lines | 7 |
+| Registered pytest tests | 37 |
 
 ## P0 status after pass 23
 
@@ -30,9 +31,36 @@ The Phase 0 semantic hardening and Phase 1 verification spine P0 tickets are lan
 - Relation-role metadata is live. `RelationRole` has four values (`IDENTITY`, `CONSTRAINT`, `APPROXIMATION`, `VARIANT`). Every Equation carries a role, and Variable now exposes `identities()`, `constraints()`, `approximations()`, and `variants(key=None)`.
 - Inequality preservation is fixed. `Inequality.as_sympy()` uses `evaluate=False`, so the stored relation no longer collapses to `True`. The SRAM margin variables dropped their `positive=True` default so the constraints still have semantic force under SymPy's evaluating form.
 - Each of the fifteen multi-definition variables has explicit role coverage. Four are tagged as VARIANT families (`opt.param_next`, `training.flops_per_step`, `training.mfu`, `training.scaling_params`). The remaining eleven carry a clean mix of IDENTITY, CONSTRAINT, and APPROXIMATION roles from subclass defaults.
-- Packaging and tests are in place. `pyproject.toml` at the repo root declares metadata and a `sympy>=1.12` runtime dependency. The new `tests/` directory runs under `pytest -q` and covers import smoke, graph health, demo integration, and the Phase 0 regressions.
+- Packaging and tests are in place. `pyproject.toml` at the repo root declares metadata and a `sympy>=1.12` runtime dependency. The `tests/` directory runs under `pytest -q` and covers import smoke, graph health, demo integration, relation-role regressions, the resolver, the preset framework, and the Phase 2 metadata helpers.
 
-The P1 metadata coverage, scope-file splits, scenario resolver, and preset work remain open for subsequent batches.
+## P1 status after passes 24 through 31
+
+Phase 3 modularization is five files in. The split map below tracks what has shipped and what still waits:
+
+| Current file | Lines | Status | Split into |
+|---|---:|---|---|
+| `cluster.py` | 1115 | DONE (pass 24) | `cluster_node.py`, `cluster_rack.py`, `cluster_site.py`, `cluster_storage.py`, `cluster_reliability.py` |
+| `architecture.py` | 1083 | DONE (pass 25) | `architecture_embeddings.py`, `architecture_positions.py`, `architecture_attention.py`, `architecture_ffn.py`, `architecture_moe.py` |
+| `optimizer.py` | 878 | DONE (pass 28) | `optimizer_first_order.py`, `optimizer_second_order.py`, `optimizer_sharding.py`, `optimizer_schedules.py`, `optimizer_loss_scaling.py` |
+| `economics.py` | 843 | DONE (pass 29) | `economics_capex.py`, `economics_opex.py`, `economics_finance.py`, `economics_recovery.py` |
+| `memory_cell.py` | 700 | DONE (pass 31) | `memory_sram.py`, `memory_dram.py`, `memory_flipflop.py` |
+| `training.py` | 845 | OPEN | `training_compute.py`, `training_comm.py`, `training_memory.py`, `training_overheads.py`, `training_scaling.py` |
+| `precision.py` | 801 | OPEN | `precision_ieee.py`, `precision_rounding.py`, `precision_microscaling.py`, `precision_lowbit.py` |
+| `gpu.py` | 797 | OPEN | `gpu_compute.py`, `gpu_memory.py`, `gpu_io.py`, `gpu_power.py` |
+| `thermal.py` | 793 | OPEN | `thermal_package.py`, `thermal_liquid.py`, `thermal_facility.py`, `thermal_env.py` |
+| `kernel.py` | 775 | OPEN | `kernel_roofline.py`, `kernel_occupancy.py`, `kernel_gemm.py`, `kernel_attention.py` |
+| `memory_subsystem.py` | 752 | OPEN | `memory_regfile.py`, `memory_smem.py`, `memory_cache.py`, `memory_hbm.py`, `memory_virtual.py` |
+| `parallelism.py` | 703 | OPEN | `parallelism_batching.py`, `parallelism_zero_fsdp.py`, `parallelism_pipeline.py`, `parallelism_moe.py` |
+
+Phase 4 scenario resolver landed in pass 26 (`gpu_stack.core.resolver` plus `gpu_stack.resolve`). Phase 5 preset framework landed in pass 27 (`gpu_stack.core.presets` plus `gpu_stack.presets.*`). Phase 2 metadata helpers landed in pass 30 (`Registry.by_kind`, `Registry.by_extensivity`, `Registry.coverage`, and post-load `auto_classify_kinds`). Current `VariableKind` distribution: 519 ROOT_INPUT, 605 DERIVED, 0 MEASURED, 23 DEFINITIONAL.
+
+The remaining P1 work is:
+
+- Finish the seven open scope splits listed above.
+- Populate `sp_units` on the foundational variables that back high-value equations.
+- Populate `references` on the equations that encode canonical formulas.
+- Expand the `gpu_stack.presets` inventory with cited hardware and workload configurations rather than the single demo-derived rack.
+- Optionally add a CLI or notebook front-end that exercises the resolver plus presets end-to-end.
 
 ## Highest leverage repo-wide improvements
 

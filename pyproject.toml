@@ -40,6 +40,9 @@ dev = [
     "pytest>=7",
 ]
 
+[project.scripts]
+gpu-stack = "gpu_stack.cli:main"
+
 [project.urls]
 Homepage = "https://github.com/cuuper22/gpu_stack-"
 
