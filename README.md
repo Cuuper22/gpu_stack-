@@ -189,7 +189,7 @@ The model is broad, but it is still a modeling substrate, not a polished simulat
 
 For the project-wide audit and next-step plan, see:
 
-- [`../IMPROVEMENT_MAP.md`](../IMPROVEMENT_MAP.md)
-- [`../ROADMAP.md`](../ROADMAP.md)
-- [`../HANDOFF.md`](../HANDOFF.md)
-- [`../CHANGELOG.md`](../CHANGELOG.md)
+- [`./IMPROVEMENT_MAP.md`](./IMPROVEMENT_MAP.md)
+- [`./ROADMAP.md`](./ROADMAP.md)
+- [`./HANDOFF.md`](./HANDOFF.md)
+- [`./CHANGELOG.md`](./CHANGELOG.md)
