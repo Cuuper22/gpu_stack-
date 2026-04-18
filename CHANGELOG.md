@@ -301,6 +301,18 @@ Post-batch verification:
 * `find_cycles()` returns an empty list, `topological_sort()` covers all 1147 variables.
 * `pytest -q` passes (13 tests).
 
+## Pass 24: cluster.py split (DONE)
+
+Phase 3 modularization of the largest scope file. `cluster.py` was 1115 lines carrying node, rack, site, scheduler, storage, reliability, and hyperscaler content in one slab. The pass follows the split map in `IMPROVEMENT_MAP.md` and the aggregator pattern already established by `physical.py`.
+
+* `cluster_node.py`: node composition (GPUs, CPU, DRAM, NIC, local SSD, node-level powers) plus node aggregates.
+* `cluster_rack.py`: rack composition and aggregates, intra-rack fabric balance, and the nodes-per-power-domain unit consumed by rack-level failure modeling.
+* `cluster_site.py`: site aggregation, scheduler and provisioning overhead, and hyperscaler scale-across WAN capacity and latency.
+* `cluster_storage.py`: bytes-per-sample, loader efficiency, storage-path sample rate, and stall-fraction estimate.
+* `cluster_reliability.py`: exponential-failure hazard rates, site MTBF, checkpoint timing, Young-style optimal interval, and reliability-only availability.
+
+The public `gpu_stack.scopes.cluster` import is unchanged. `cluster.py` is now a thin aggregator that creates `sys_cluster`, concatenates `CLUSTER_*_VARIABLES` and `CLUSTER_*_EQUATIONS` tuples from the helpers, and registers them. Registry counts unchanged at 1147 / 23 / 620 / 16, zero cycles, topological sort covers all 1147 variables, and the 13 pytest tests still pass.
+
 ## Stats trajectory
 
 | After pass | variables | constants | equations | systems |
@@ -317,3 +329,4 @@ Post-batch verification:
 |21 (batch 17-21)|    1147 |        23 |       620 |      16 |
 |22 (docs + audit)|    1147 |        23 |       620 |      16 |
 |23 (P0 foundation)|  1147 |        23 |       620 |      16 |
+|24 (cluster split)|  1147 |        23 |       620 |      16 |
