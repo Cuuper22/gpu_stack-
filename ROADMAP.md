@@ -1,5 +1,19 @@
 # gpu_stack roadmap
 
+## Status as of pass 33
+
+Phases 0, 1, 4, and 5 of the original plan are landed. Phase 2 has the query scaffolding in place but no scope-level metadata populated. Phase 3 is six of twelve large files split; seven remain. Full pass-by-pass history lives in `CHANGELOG.md`; the rolling coverage snapshot lives in `IMPROVEMENT_MAP.md`.
+
+| Phase | Area | Status |
+|---|---|---|
+| 0 | Semantic hardening: relation roles, inequality preservation, multi-def tagging | DONE (pass 23) |
+| 1 | Verification and packaging spine: pytest suite, pyproject.toml | DONE (pass 23); CLI entry point added in pass 32 |
+| 2 | Metadata and provenance coverage | helpers landed (pass 30); actual population of `sp_units` and references is open |
+| 3 | Modularize large scope files | 5 of 12 done (passes 24, 25, 28, 29, 31, 33); 7 remain |
+| 4 | Scenario resolver | DONE (pass 26) |
+| 5 | Calibrated preset framework | framework DONE (pass 27); inventory expansion is open |
+| 6 | Deepen model where it matters most | not started |
+
 ## Objective
 
 Turn the current symbolic graph into a verifiable, scenario-driven modeling toolkit that can answer end-to-end questions about performance, power, cooling, and cost without relying on ad hoc manual substitution.
