@@ -118,5 +118,59 @@ class Registry:
             "leaves": len(cls.leaves()),
         }
 
+    # ----- metadata introspection -----
+
+    @classmethod
+    def by_kind(cls, kind) -> List["Variable"]:
+        """Return every Variable with the given VariableKind."""
+        return [v for v in cls.variables.values() if v.kind == kind]
+
+    @classmethod
+    def by_extensivity(cls, extensivity) -> List["Variable"]:
+        """Return every Variable with the given Extensivity."""
+        return [v for v in cls.variables.values() if v.extensivity == extensivity]
+
+    @classmethod
+    def auto_classify_kinds(cls) -> int:
+        """
+        Tag every non-Constant Variable with `kind=ROOT_INPUT` if it has no
+        defining equation, otherwise leave the declared `kind` alone. Returns
+        the number of Variables retagged. Safe to call multiple times.
+        """
+        from .variable import Constant, VariableKind
+        changed = 0
+        for v in cls.variables.values():
+            if isinstance(v, Constant):
+                continue
+            target = VariableKind.ROOT_INPUT if not v.defining_equations else v.kind
+            if v.kind != target:
+                v.kind = target
+                changed += 1
+        return changed
+
+    @classmethod
+    def coverage(cls) -> Dict[str, int]:
+        """
+        Report how much of the audit-relevant metadata is actually populated.
+        Useful to track progress on Phase 2 metadata coverage from ROADMAP.md.
+        """
+        from .variable import Constant
+        non_constant = [v for v in cls.variables.values() if not isinstance(v, Constant)]
+        with_sp_units = sum(1 for v in non_constant if v.sp_units is not None)
+        with_refs = sum(1 for v in non_constant if v.references)
+        eqs_with_refs = sum(1 for e in cls.equations.values() if e.references)
+        eqs_with_unit_check = sum(
+            1 for e in cls.equations.values()
+            if getattr(e, "_check_units_flag", False)
+        )
+        return {
+            "non_constant_variables": len(non_constant),
+            "with_sp_units": with_sp_units,
+            "with_references": with_refs,
+            "equations": len(cls.equations),
+            "equations_with_references": eqs_with_refs,
+            "equations_with_unit_check": eqs_with_unit_check,
+        }
+
 
 __all__ = ["Registry"]

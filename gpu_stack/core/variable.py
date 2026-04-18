@@ -123,6 +123,39 @@ class Variable:
     def is_root_input(self) -> bool:
         return not self._defined_by
 
+    # ----- role-filtered defining-equation access -----
+
+    def identities(self) -> List["Equation"]:
+        """Defining relations tagged as IDENTITY (definitional equalities)."""
+        from .equation import RelationRole
+        return [e for e in self._defined_by if e.role == RelationRole.IDENTITY]
+
+    def constraints(self) -> List["Equation"]:
+        """Defining relations tagged as CONSTRAINT (bounds that do not define)."""
+        from .equation import RelationRole
+        return [e for e in self._defined_by if e.role == RelationRole.CONSTRAINT]
+
+    def approximations(self) -> List["Equation"]:
+        """Defining relations tagged as APPROXIMATION (valid under a regime)."""
+        from .equation import RelationRole
+        return [e for e in self._defined_by if e.role == RelationRole.APPROXIMATION]
+
+    def variants(self, key: Optional[str] = None) -> List["Equation"]:
+        """
+        Defining relations tagged as VARIANT. When `key` is provided, only
+        variants whose `variant` string matches `key` are returned. Otherwise
+        all variants are returned.
+        """
+        from .equation import RelationRole
+        vs = [e for e in self._defined_by if e.role == RelationRole.VARIANT]
+        if key is not None:
+            vs = [e for e in vs if e.variant == key]
+        return vs
+
+    def has_multiple_definitions(self) -> bool:
+        """True when the variable carries more than one defining relation."""
+        return len(self._defined_by) > 1
+
     # ----- dependency traversal -----
 
     def direct_dependencies(self) -> Set["Variable"]:

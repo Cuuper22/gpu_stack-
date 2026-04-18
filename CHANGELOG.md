@@ -281,6 +281,98 @@ Finished the last untouched file and added project-level planning docs:
 * Added `ROADMAP.md`, a sequenced plan that prioritizes semantic cleanup, tests, packaging, metadata coverage, modularization, a scenario resolver, and calibrated presets.
 * Cleaned the working artifact so the final source bundle does not rely on checked-in `__pycache__` output.
 
+## Pass 23: P0 foundation batch (DONE)
+
+Landed all five P0 tickets from `ROADMAP.md` as one coherent batch. The pass does not add new variables or equations. It adds the semantic and verification spine that every later phase depends on.
+
+* Added a `RelationRole` enum to `gpu_stack/core/equation.py` with four roles: `IDENTITY`, `CONSTRAINT`, `APPROXIMATION`, and `VARIANT`. Each Equation subclass carries a `default_role` class attribute so `Equation` defaults to identity, `Inequality` to constraint, and `Approximation` to approximation. Every Equation constructor accepts optional `role` and `variant` keyword arguments. The top-level `eq()` factory forwards both.
+* Fixed `Inequality.as_sympy()` to construct the relational with `evaluate=False` so `snm_read >= 0` no longer collapses to `True` under symbol-level positivity assumptions. Added diagnostic helpers `is_trivially_true()` and `is_trivially_false()` that deliberately invoke the evaluating form when a caller explicitly wants the reduced answer.
+* Dropped the `positive=True` default on `memcell.sram.snm_read` and `memcell.sram.wnm_write` so the two SRAM margin constraints now carry real semantic force. A failed memory-cell design can produce a negative margin, which is exactly the case the constraints are supposed to detect.
+* Added role-filtered accessors on `Variable`: `identities()`, `constraints()`, `approximations()`, and `variants(key=None)`. The flat `_defined_by` list is unchanged, so existing code paths still work.
+* Tagged the four variant multi-definition variables with explicit roles. `opt.eq.adam_step` and `opt.eq.muon_step` now register with `role=VARIANT` and `variant="adamw"` / `variant="muon"`. `training.eq.flops_step_dense` / `_moe`, `training.eq.mfu` / `_from_time`, and `training.eq.scaling_params_dense` / `_moe` are tagged the same way with keys `dense`, `moe`, `from_flops`, and `from_time`. The remaining eleven multi-definition cases from `IMPROVEMENT_MAP.md` pick up their correct roles automatically from the subclass defaults.
+* Added `pyproject.toml` at the repo root with PEP 621 metadata, `sympy>=1.12` as the single runtime dependency, `pytest>=7` as an optional dev dependency, and a pytest ini section that scopes collection to `tests/`.
+* Added a `tests/` directory with five files. `test_import.py` asserts the registry snapshot (16 systems, 1147 variables, 23 constants, 620 equations) and verifies every scope module loaded. `test_graph_health.py` asserts zero cycles and a topological order that covers every variable. `test_demo.py` runs `python -m gpu_stack.demo` as a subprocess and asserts exit zero. `test_relation_roles.py` regresses the Phase 0 fixes: the two SRAM margin constraints return `Relational`, not `S.true`, and all fifteen multi-definition variables decompose into the expected role counts.
+
+Post-batch verification:
+
+* `python -c "import gpu_stack; print(gpu_stack.Registry.stats())"` still prints 1147 / 23 / 620 / 16.
+* `python -m gpu_stack.demo` succeeds.
+* `python -m compileall -q gpu_stack` succeeds.
+* `find_cycles()` returns an empty list, `topological_sort()` covers all 1147 variables.
+* `pytest -q` passes (13 tests).
+
+## Pass 24: cluster.py split (DONE)
+
+Phase 3 modularization of the largest scope file. `cluster.py` was 1115 lines carrying node, rack, site, scheduler, storage, reliability, and hyperscaler content in one slab. The pass follows the split map in `IMPROVEMENT_MAP.md` and the aggregator pattern already established by `physical.py`.
+
+* `cluster_node.py`: node composition (GPUs, CPU, DRAM, NIC, local SSD, node-level powers) plus node aggregates.
+* `cluster_rack.py`: rack composition and aggregates, intra-rack fabric balance, and the nodes-per-power-domain unit consumed by rack-level failure modeling.
+* `cluster_site.py`: site aggregation, scheduler and provisioning overhead, and hyperscaler scale-across WAN capacity and latency.
+* `cluster_storage.py`: bytes-per-sample, loader efficiency, storage-path sample rate, and stall-fraction estimate.
+* `cluster_reliability.py`: exponential-failure hazard rates, site MTBF, checkpoint timing, Young-style optimal interval, and reliability-only availability.
+
+The public `gpu_stack.scopes.cluster` import is unchanged. `cluster.py` is now a thin aggregator that creates `sys_cluster`, concatenates `CLUSTER_*_VARIABLES` and `CLUSTER_*_EQUATIONS` tuples from the helpers, and registers them. Registry counts unchanged at 1147 / 23 / 620 / 16, zero cycles, topological sort covers all 1147 variables, and the 13 pytest tests still pass.
+
+## Pass 25: architecture.py split (DONE)
+
+Phase 3 modularization of the second-largest scope file. `architecture.py` was 1083 lines carrying core dimensions, embeddings, positional encoding, attention, activations, normalization, FFN, encoder-decoder, and MoE in one slab. Split per the `IMPROVEMENT_MAP.md` split map.
+
+* `architecture_embeddings.py`: core dimensions, step tokenization, embedding parameters, and per-layer attention, FFN, and normalization parameter counts that roll up to block and dense totals.
+* `architecture_positions.py`: sinusoidal, RoPE, ALiBi, and YaRN positional encoding.
+* `architecture_attention.py`: attention math, QK scale, attention FLOP accounting, KV cache for MHA, GQA, and MLA, activation functions, and normalization.
+* `architecture_ffn.py`: FFN FLOPs per layer and per token, dense-model step FLOPs, and the encoder-decoder parameter split.
+* `architecture_moe.py`: MoE routing, expert capacity, load-balance and z-loss, total and active MoE parameter counts, and MoE step FLOPs.
+
+`architecture.py` is now a thin aggregator. Registry counts unchanged at 1147 / 23 / 620 / 16, zero cycles, topological sort covers all 1147 variables, and pytest -q still passes.
+
+## Pass 26: scenario resolver (DONE)
+
+Phase 4 P1 landed as `gpu_stack/core/resolver.py` plus a new `tests/test_resolver.py`. The resolver takes a target Variable plus a dict of scenario assignments, walks the dependency cone in topological order, substitutes values equation by equation, and returns both the result and a trace of which equations fired. It respects the Phase 0 relation-role semantics: IDENTITY wins by default, VARIANT relations require a caller-supplied selector, APPROXIMATION is used only when there is no IDENTITY, and CONSTRAINT relations are never used as defining relations.
+
+Public API: `gpu_stack.resolve(target, assignments={}, variants={})`. Errors: `Underdetermined` when a needed variable has no assignment and no usable defining relation, `AmbiguousVariant` when multiple relations match without a selector.
+
+Smoke check: resolving `cluster.rack.peak_flops` from `n_nodes=9`, `n_gpus_per_node=8`, and `gpu.peak_flops=15e15` yields 1.08e18 FLOPs and emits a five-step trace including the arith-path identities and the cluster-level rack FLOPs equation. Test suite is now 22 passing.
+
+## Pass 27: scenario preset framework (DONE)
+
+Phase 5 groundwork. Adds `gpu_stack/core/presets.py` with a frozen `Preset` dataclass that bundles scenario assignments, variant selections, and provenance, plus a `combine()` helper that merges presets with later-wins precedence on key collisions. Preset construction validates every variable name against the Registry so typos fail fast rather than silently drifting through a resolver call.
+
+The new `gpu_stack.presets` package ships three helper modules. The only numeric preset is `hardware.demo_rack`, drawn verbatim from `gpu_stack.demo` so no new unsourced numbers enter the codebase. The workload module carries variant-selector presets for dense vs MoE, MFU formulation, and AdamW vs Muon. Combining a hardware preset with a workload selector through `combine_presets` lets the resolver evaluate a training-level target in one call.
+
+`tests/test_presets.py` covers unknown-name rejection, end-to-end resolution (`demo_rack` produces 1.08e18 FLOP/s for `cluster.rack.peak_flops`), combine ordering, variant pinning, and `with_overrides`. The test suite is now 29 passing.
+
+## Pass 32: gpu-stack CLI + roadmap status refresh (DONE)
+
+Adds `gpu_stack/cli.py` with three subcommands: `stats` (Registry counts plus the coverage report from pass 30), `list-presets` (enumerates every `Preset` instance under `gpu_stack.presets.*`), and `resolve TARGET` (scenario evaluation accepting `--assign`, `--variant`, and repeatable `--preset` flags, with `--trace` and `--missing` for diagnostics). `pyproject.toml` registers `gpu-stack = "gpu_stack.cli:main"` as a console script. `tests/test_cli.py` exercises stats, list-presets, inline assignments, preset-driven resolution reproducing the 1.08 EFLOP/s demo number, trace output, and unknown-preset errors. Also refreshes `IMPROVEMENT_MAP.md` to track the split-map progress.
+
+## Pass 33: training.py split (DONE)
+
+Phase 3 modularization continues. `training.py` was 845 lines carrying the full step-time model. Split into `training_compute.py` (step FLOPs and their VARIANTs, peak aggregates, MFU / HFU variants; foundation), `training_comm.py` (DP / TP / EP / CP exposed comm), `training_memory.py` (parameter / gradient / optimizer / activation IO, memory-bound time), `training_overheads.py` (bubble, straggler, restart, eval overhead, full step time), and `training_scaling.py` (tokens/s, energy, wall clock, Chinchilla ratio with the two VARIANT scaling_params equations).
+
+## Pass 34: precision.py split (DONE)
+
+`precision.py` was 801 lines carrying IEEE-754 structure, rounding models, microscaling, and low-bit formats. Split into `precision_ieee.py` (bits, bias, normal / subnormal / NaN / Inf structure; foundation), `precision_rounding.py` (quantization step, RN / RZ / RP / RM, stochastic rounding StochasticRelation), `precision_microscaling.py` (MXFP4 / NVFP4 scales, block floating point, dynamic fixed-point), and `precision_lowbit.py` (TF32, INT, posit useed, LNS, FP16 loss scaling, Random Hadamard Transform).
+
+## Pass 35: gpu.py split (DONE)
+
+`gpu.py` was 797 lines carrying compute, memory, IO, and power aggregation for one GPU package. Split into `gpu_compute.py` (SM count, Tensor Core count, raw / effective / sparse / power-limited peak FLOPs, DP4A, DP2A, SFU; foundation), `gpu_memory.py` (register file, shared memory, TMEM, L2, HBM capacity and bandwidth at package level), `gpu_io.py` (PCIe, CXL, NVLink, NIC bandwidth aliases), and `gpu_power.py` (compute / memory / fabric power, TDP headroom, throttle factor, HBM sweep, energy efficiency, roofline balance points).
+
+## Pass 36: thermal.py split (DONE)
+
+`thermal.py` was 793 lines carrying package-path thermals, liquid loop, facility cooling, and environmental constraints. Split into `thermal_package.py` (die attach / TIM / spreader / cold plate / fluid film resistances, case and junction temperatures, thermal headroom), `thermal_liquid.py` (coolant flow, sensible-heat relation, pump and CDU power), `thermal_facility.py` (fan power, chiller, cooling tower, humidity control, free-cooling piecewise, `pue_definition` and `dc_total_power` component sum preserving the pass 18 cycle fix), and `thermal_env.py` (water balance, WUE, dew-point headroom, condensation margin, ASHRAE CONSTRAINT inequalities).
+
+## Pass 37: kernel.py split (DONE)
+
+`kernel.py` was 775 lines carrying roofline, CTA occupancy, tiled GEMM, and attention IO modeling. Split into `kernel_roofline.py` (per-level bytes and arithmetic intensities, generalized roofline, compute / HBM / L2 / SMEM / register / latency time lower bounds; foundation), `kernel_occupancy.py` (CTA resource accounting, active-block / occupancy / latency-hiding, and the downstream step-time aggregates that depend on occupancy), `kernel_gemm.py` (tiled GEMM tile counts, traffic, AI), and `kernel_attention.py` (naive vs FlashAttention IO and AI). An unused `n_sms` import from `.gpu` is dropped rather than carried into a helper.
+
+## Pass 38: memory_subsystem.py split (DONE)
+
+`memory_subsystem.py` was 752 lines carrying register file, shared memory, caches, HBM, and virtual-memory path modeling. Split into `memory_regfile.py` (array clock, warp size, threads per SM, register-file capacity and bandwidth; foundation), `memory_smem.py` (SMEM / TMEM bandwidth, L1 / SMEM carveout), `memory_cache.py` (L1 / L2 organization and miss penalty, average global-load latency assembly), `memory_hbm.py` (usable HBM bandwidth and capacity after refresh, ECC, compression), and `memory_virtual.py` (TLB, huge pages, translation latency, PCIe / CXL, unified memory migration, NUMA penalties).
+
+## Pass 39: parallelism.py split (DONE, final Phase 3 split)
+
+`parallelism.py` was 703 lines carrying SP, batching, activation memory, ZeRO, FSDP, pipeline schedules, and TP / EP / CP communication. Split into `parallelism_batching.py` (SP, batch decomposition, tokens-per-step, activation memory, recomputation, and the `n_params` Variable that `optimizer_first_order.py` imports directly; foundation), `parallelism_zero_fsdp.py` (ZeRO-1 / 2 / 3, FSDP all-gather, CPU / NVMe offload), `parallelism_pipeline.py` (GPipe, 1F1B, interleaved, DualPipe, Chimera, zero-bubble), and `parallelism_moe.py` (TP payload and exposed-time, MoE capacity and all-to-all, CP ring-hops). With this pass every file in the IMPROVEMENT_MAP.md split map is processed; Phase 3 modularization is complete.
+
 ## Stats trajectory
 
 | After pass | variables | constants | equations | systems |
@@ -296,3 +388,20 @@ Finished the last untouched file and added project-level planning docs:
 |16 (batch 12-16)|     959 |        23 |       512 |      16 |
 |21 (batch 17-21)|    1147 |        23 |       620 |      16 |
 |22 (docs + audit)|    1147 |        23 |       620 |      16 |
+|23 (P0 foundation)|  1147 |        23 |       620 |      16 |
+|24 (cluster split)|  1147 |        23 |       620 |      16 |
+|25 (arch split)|     1147 |        23 |       620 |      16 |
+|26 (resolver)|       1147 |        23 |       620 |      16 |
+|27 (presets)|        1147 |        23 |       620 |      16 |
+|28 (optimizer split)| 1147 |        23 |       620 |      16 |
+|29 (economics split)| 1147 |        23 |       620 |      16 |
+|30 (metadata helpers)| 1147 |       23 |       620 |      16 |
+|31 (memcell split)|  1147 |        23 |       620 |      16 |
+|32 (CLI)|            1147 |        23 |       620 |      16 |
+|33 (training split)| 1147 |        23 |       620 |      16 |
+|34 (precision split)| 1147 |        23 |       620 |      16 |
+|35 (gpu split)|      1147 |        23 |       620 |      16 |
+|36 (thermal split)|  1147 |        23 |       620 |      16 |
+|37 (kernel split)|   1147 |        23 |       620 |      16 |
+|38 (memsub split)|   1147 |        23 |       620 |      16 |
+|39 (parallelism split)| 1147 |      23 |       620 |      16 |
