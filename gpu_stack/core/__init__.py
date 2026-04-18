@@ -34,6 +34,7 @@ from .resolver import (
     Underdetermined,
     resolve,
 )
+from .presets import Preset, combine as combine_presets
 from .units import UnitError, check_dimensional_consistency
 
 
@@ -65,5 +66,6 @@ __all__ = [
     "topological_sort", "find_cycles", "subgraph", "to_dot",
     "resolve", "ResolverResult", "TraceStep",
     "ResolverError", "Underdetermined", "AmbiguousVariant",
+    "Preset", "combine_presets",
     "UnitError", "check_dimensional_consistency",
 ]
