@@ -180,8 +180,11 @@ V_read_disturb = var(
 )
 snm_read = var(
     "memcell.sram.snm_read", "SNM_read", "V",
-    "Read static-noise margin.",
+    "Read static-noise margin. Not declared positive because a failed design "
+    "can drive this negative, which is exactly the failure mode that the "
+    "memcell.eq.sram_read_margin_constraint inequality guards against.",
     scope="memory_cell",
+    positive=False,
 )
 V_write_internal = var(
     "memcell.sram.v_write_internal", "V_wr_int", "V",
@@ -190,8 +193,11 @@ V_write_internal = var(
 )
 wnm_write = var(
     "memcell.sram.wnm_write", "WNM_write", "V",
-    "Write noise margin.",
+    "Write noise margin. Not declared positive because a failed write "
+    "design produces a negative margin, which is exactly the failure mode "
+    "the memcell.eq.sram_write_margin_constraint inequality guards against.",
     scope="memory_cell",
+    positive=False,
 )
 e_internal_write = var(
     "memcell.sram.e_internal_write", "E_int_write", "J",

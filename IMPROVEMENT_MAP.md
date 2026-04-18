@@ -1,6 +1,6 @@
 # gpu_stack improvement map
 
-Audit date: 2026-04-18
+Audit date: 2026-04-18 (original), refreshed after pass 23 P0 foundation batch.
 
 ## Current snapshot
 
@@ -19,8 +19,20 @@ Audit date: 2026-04-18
 | Non-constant variables with `sp_units` | 0 |
 | Equations with `check_units=True` | 0 |
 | Variables with multiple defining relations | 15 |
-| Inequalities that simplify to `True` | 2 |
+| Variables with multiple defining relations, role-tagged | 15 |
+| Inequalities that simplify to `True` in `as_sympy()` | 0 |
 | Scope files at or above 700 lines | 12 |
+
+## P0 status after pass 23
+
+The Phase 0 semantic hardening and Phase 1 verification spine P0 tickets are landed:
+
+- Relation-role metadata is live. `RelationRole` has four values (`IDENTITY`, `CONSTRAINT`, `APPROXIMATION`, `VARIANT`). Every Equation carries a role, and Variable now exposes `identities()`, `constraints()`, `approximations()`, and `variants(key=None)`.
+- Inequality preservation is fixed. `Inequality.as_sympy()` uses `evaluate=False`, so the stored relation no longer collapses to `True`. The SRAM margin variables dropped their `positive=True` default so the constraints still have semantic force under SymPy's evaluating form.
+- Each of the fifteen multi-definition variables has explicit role coverage. Four are tagged as VARIANT families (`opt.param_next`, `training.flops_per_step`, `training.mfu`, `training.scaling_params`). The remaining eleven carry a clean mix of IDENTITY, CONSTRAINT, and APPROXIMATION roles from subclass defaults.
+- Packaging and tests are in place. `pyproject.toml` at the repo root declares metadata and a `sympy>=1.12` runtime dependency. The new `tests/` directory runs under `pytest -q` and covers import smoke, graph health, demo integration, and the Phase 0 regressions.
+
+The P1 metadata coverage, scope-file splits, scenario resolver, and preset work remain open for subsequent batches.
 
 ## Highest leverage repo-wide improvements
 
