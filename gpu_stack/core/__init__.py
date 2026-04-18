@@ -26,6 +26,14 @@ from .equation import (
 )
 from .system import System
 from .graph import topological_sort, find_cycles, subgraph, to_dot
+from .resolver import (
+    AmbiguousVariant,
+    ResolverError,
+    ResolverResult,
+    TraceStep,
+    Underdetermined,
+    resolve,
+)
 from .units import UnitError, check_dimensional_consistency
 
 
@@ -55,5 +63,7 @@ __all__ = [
     "System",
     "var", "eq",
     "topological_sort", "find_cycles", "subgraph", "to_dot",
+    "resolve", "ResolverResult", "TraceStep",
+    "ResolverError", "Underdetermined", "AmbiguousVariant",
     "UnitError", "check_dimensional_consistency",
 ]

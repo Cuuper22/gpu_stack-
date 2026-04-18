@@ -313,6 +313,26 @@ Phase 3 modularization of the largest scope file. `cluster.py` was 1115 lines ca
 
 The public `gpu_stack.scopes.cluster` import is unchanged. `cluster.py` is now a thin aggregator that creates `sys_cluster`, concatenates `CLUSTER_*_VARIABLES` and `CLUSTER_*_EQUATIONS` tuples from the helpers, and registers them. Registry counts unchanged at 1147 / 23 / 620 / 16, zero cycles, topological sort covers all 1147 variables, and the 13 pytest tests still pass.
 
+## Pass 25: architecture.py split (DONE)
+
+Phase 3 modularization of the second-largest scope file. `architecture.py` was 1083 lines carrying core dimensions, embeddings, positional encoding, attention, activations, normalization, FFN, encoder-decoder, and MoE in one slab. Split per the `IMPROVEMENT_MAP.md` split map.
+
+* `architecture_embeddings.py`: core dimensions, step tokenization, embedding parameters, and per-layer attention, FFN, and normalization parameter counts that roll up to block and dense totals.
+* `architecture_positions.py`: sinusoidal, RoPE, ALiBi, and YaRN positional encoding.
+* `architecture_attention.py`: attention math, QK scale, attention FLOP accounting, KV cache for MHA, GQA, and MLA, activation functions, and normalization.
+* `architecture_ffn.py`: FFN FLOPs per layer and per token, dense-model step FLOPs, and the encoder-decoder parameter split.
+* `architecture_moe.py`: MoE routing, expert capacity, load-balance and z-loss, total and active MoE parameter counts, and MoE step FLOPs.
+
+`architecture.py` is now a thin aggregator. Registry counts unchanged at 1147 / 23 / 620 / 16, zero cycles, topological sort covers all 1147 variables, and pytest -q still passes.
+
+## Pass 26: scenario resolver (DONE)
+
+Phase 4 P1 landed as `gpu_stack/core/resolver.py` plus a new `tests/test_resolver.py`. The resolver takes a target Variable plus a dict of scenario assignments, walks the dependency cone in topological order, substitutes values equation by equation, and returns both the result and a trace of which equations fired. It respects the Phase 0 relation-role semantics: IDENTITY wins by default, VARIANT relations require a caller-supplied selector, APPROXIMATION is used only when there is no IDENTITY, and CONSTRAINT relations are never used as defining relations.
+
+Public API: `gpu_stack.resolve(target, assignments={}, variants={})`. Errors: `Underdetermined` when a needed variable has no assignment and no usable defining relation, `AmbiguousVariant` when multiple relations match without a selector.
+
+Smoke check: resolving `cluster.rack.peak_flops` from `n_nodes=9`, `n_gpus_per_node=8`, and `gpu.peak_flops=15e15` yields 1.08e18 FLOPs and emits a five-step trace including the arith-path identities and the cluster-level rack FLOPs equation. Test suite is now 22 passing.
+
 ## Stats trajectory
 
 | After pass | variables | constants | equations | systems |
@@ -330,3 +350,5 @@ The public `gpu_stack.scopes.cluster` import is unchanged. `cluster.py` is now a
 |22 (docs + audit)|    1147 |        23 |       620 |      16 |
 |23 (P0 foundation)|  1147 |        23 |       620 |      16 |
 |24 (cluster split)|  1147 |        23 |       620 |      16 |
+|25 (arch split)|     1147 |        23 |       620 |      16 |
+|26 (resolver)|       1147 |        23 |       620 |      16 |
