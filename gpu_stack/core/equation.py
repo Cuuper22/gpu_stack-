@@ -52,6 +52,32 @@ class EquationKind(Enum):
     DEFINITIONAL = auto()
 
 
+class RelationRole(Enum):
+    """
+    Semantic role of a relation that touches a Variable's back-references.
+
+    IDENTITY is a definitional equality. The algebraic `Equation` base class
+    defaults to this. Most scope equations are identities.
+
+    CONSTRAINT bounds a Variable without defining it. `Inequality` defaults
+    to this so that `snm_read >= 0` stays a constraint even when SymPy would
+    otherwise resolve it to True under a positivity assumption.
+
+    APPROXIMATION is an identity that only holds under a stated validity
+    region. `Approximation` defaults to this.
+
+    VARIANT marks one of several alternative model forms for the same
+    left-hand variable. Variant relations carry an additional `variant`
+    string (for example "dense" vs "moe", "adamw" vs "lion") so a resolver
+    can select among them rather than treating them as conflicting
+    identities.
+    """
+    IDENTITY = auto()
+    CONSTRAINT = auto()
+    APPROXIMATION = auto()
+    VARIANT = auto()
+
+
 # ---------------------------------------------------------------------------
 # Base Equation (algebraic)
 # ---------------------------------------------------------------------------
@@ -64,6 +90,7 @@ class Equation:
     """
 
     kind: EquationKind = EquationKind.ALGEBRAIC
+    default_role: RelationRole = RelationRole.IDENTITY
 
     def __init__(
         self,
@@ -73,12 +100,16 @@ class Equation:
         description: str,
         references: Optional[List[Union[str, Reference]]] = None,
         check_units: bool = False,
+        role: Optional[RelationRole] = None,
+        variant: Optional[str] = None,
     ):
         self.name = name
         self.lhs: sp.Expr = _to_expr(lhs)
         self.rhs: sp.Expr = _to_expr(rhs)
         self.description = description
         self.references: List[Reference] = self._normalize_refs(references)
+        self.role: RelationRole = role if role is not None else self.default_role
+        self.variant: Optional[str] = variant
         Registry.register_equation(self)
         self._wire()
         if check_units:
@@ -181,24 +212,53 @@ class Inequality(Equation):
     """
     lhs <op> rhs where op is one of <, <=, >, >=.
     Used for constraints (setup time + prop delay < clock period).
+
+    Inequalities are stored structurally, not eagerly evaluated. SymPy's
+    default constructor resolves `positive_symbol >= 0` to True at
+    construction time, which erases the constraint. `as_sympy()` uses
+    `evaluate=False` to preserve the relational object. Use
+    `is_trivially_true()` or `is_trivially_false()` when the evaluated
+    form is actually what you want.
     """
     kind = EquationKind.INEQUALITY
+    default_role = RelationRole.CONSTRAINT
 
     _OPS = {"<", "<=", ">", ">="}
+    _REL_CLS = {
+        "<":  sp.StrictLessThan,
+        "<=": sp.LessThan,
+        ">":  sp.StrictGreaterThan,
+        ">=": sp.GreaterThan,
+    }
 
     def __init__(self, name, lhs, rhs, op: str, description: str,
-                 references=None, check_units: bool = False):
+                 references=None, check_units: bool = False,
+                 role: Optional[RelationRole] = None,
+                 variant: Optional[str] = None):
         if op not in self._OPS:
             raise ValueError(f"op must be one of {self._OPS}; got {op!r}")
         self.op = op
-        super().__init__(name, lhs, rhs, description, references, check_units)
+        super().__init__(name, lhs, rhs, description, references, check_units,
+                         role=role, variant=variant)
 
     def as_sympy(self):
-        match self.op:
-            case "<":  return sp.StrictLessThan(self.lhs, self.rhs)
-            case "<=": return sp.LessThan(self.lhs, self.rhs)
-            case ">":  return sp.StrictGreaterThan(self.lhs, self.rhs)
-            case ">=": return sp.GreaterThan(self.lhs, self.rhs)
+        return self._REL_CLS[self.op](self.lhs, self.rhs, evaluate=False)
+
+    def is_trivially_true(self) -> bool:
+        """
+        Evaluate the relation under current symbol assumptions. Returns True
+        only when SymPy can prove the constraint is vacuous. A False return
+        means the constraint is either strictly nontrivial or at least not
+        provably vacuous.
+        """
+        return self._REL_CLS[self.op](self.lhs, self.rhs) is sp.S.true
+
+    def is_trivially_false(self) -> bool:
+        """
+        Counterpart to `is_trivially_true()`: True when SymPy can prove the
+        relation is never satisfiable under current assumptions.
+        """
+        return self._REL_CLS[self.op](self.lhs, self.rhs) is sp.S.false
 
 
 # ---------------------------------------------------------------------------
@@ -211,11 +271,15 @@ class Approximation(Equation):
     validity is a SymPy expression over Variables (e.g. x << 1).
     """
     kind = EquationKind.APPROXIMATION
+    default_role = RelationRole.APPROXIMATION
 
     def __init__(self, name, lhs, rhs, validity: sp.Expr,
-                 description: str, references=None, check_units: bool = False):
+                 description: str, references=None, check_units: bool = False,
+                 role: Optional[RelationRole] = None,
+                 variant: Optional[str] = None):
         self.validity = validity
-        super().__init__(name, lhs, rhs, description, references, check_units)
+        super().__init__(name, lhs, rhs, description, references, check_units,
+                         role=role, variant=variant)
 
     def as_sympy(self):
         # No native "approximately equal" in sympy, use Relational with a marker
@@ -385,5 +449,6 @@ __all__ = [
     "IterativeEquation",
     "StochasticRelation",
     "EquationKind",
+    "RelationRole",
     "ExprLike",
 ]

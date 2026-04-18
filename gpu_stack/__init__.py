@@ -18,11 +18,15 @@ from . import constants, core, scopes
 from .core import (
     Constant,
     Equation,
+    Inequality,
+    RelationRole,
     Registry,
+    ResolverResult,
     System,
     Variable,
     eq,
     find_cycles,
+    resolve,
     subgraph,
     to_dot,
     topological_sort,
@@ -39,6 +43,11 @@ for _scope_name in SCOPE_MODULES:
 
 del _scope_name, _module
 
+# Phase 2 metadata: once every scope has registered, mark Variables that
+# carry no defining equation as ROOT_INPUT so downstream code can query by
+# VariableKind without depending on the runtime presence of defining_equations.
+Registry.auto_classify_kinds()
+
 
 __all__ = [
     "core",
@@ -48,6 +57,9 @@ __all__ = [
     "Variable",
     "Constant",
     "Equation",
+    "Inequality",
+    "RelationRole",
+    "ResolverResult",
     "System",
     "var",
     "eq",
@@ -55,6 +67,7 @@ __all__ = [
     "find_cycles",
     "subgraph",
     "to_dot",
+    "resolve",
     "SCOPE_MODULES",
     "SCOPE_DESCRIPTIONS",
     "LOADED_SCOPE_MODULES",

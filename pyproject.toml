@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gpu_stack"
+version = "0.23.0"
+description = "A SymPy-backed symbolic model of the GPU training stack, from physical transport through cluster economics."
+readme = "gpu_stack/README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "gpu_stack contributors" },
+]
+keywords = [
+    "gpu",
+    "training",
+    "sympy",
+    "modeling",
+    "transformer",
+    "roofline",
+    "cost-model",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "sympy>=1.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7",
+]
+
+[project.scripts]
+gpu-stack = "gpu_stack.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/cuuper22/gpu_stack-"
+
+[tool.setuptools.packages.find]
+include = ["gpu_stack*"]
+exclude = ["tests*", "__pycache__", "*.__pycache__"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"

@@ -1,0 +1,131 @@
+"""
+scopes/precision_microscaling.py
+================================
+
+Microscaling, block floating point, and dynamic fixed-point.
+
+First-level and second-level microscale factors (MXFP4 / NVFP4 style),
+effective-bits-per-value accounting after amortizing scale metadata,
+block-floating-point shared-exponent overhead, and dynamic fixed-point
+scale.
+"""
+
+from ..core import eq, var
+from .precision_ieee import n_bits
+
+
+# ---------------------------------------------------------------------------
+# Microscaling, block floating point, and dynamic fixed point
+# ---------------------------------------------------------------------------
+
+block_size = var(
+    "precision.microscale.block_size", "B_blk_ms", "elements",
+    "Number of values sharing one microscale factor.",
+    scope="precision",
+)
+scale_bits = var(
+    "precision.microscale.scale_bits", "b_scale_ms", "bit",
+    "Bits used for the first-level per-block scale.",
+    scope="precision",
+)
+second_scale_bits = var(
+    "precision.microscale.second_scale_bits", "b_scale2_ms", "bit",
+    "Bits used for the optional second-level tensor scale.",
+    scope="precision",
+)
+second_scale_fanout = var(
+    "precision.microscale.second_scale_fanout", "N_scale2_ms", "elements",
+    "Number of values amortizing one second-level scale.",
+    scope="precision",
+)
+eff_bits_per_val = var(
+    "precision.microscale.effective_bits", "b_eff_ms", "bit",
+    "Effective bits per value after amortizing scale metadata.",
+    scope="precision",
+)
+bfp_block_size = var(
+    "precision.bfp.block_size", "B_blk_bfp", "elements",
+    "Block size for block-floating-point.",
+    scope="precision",
+)
+bfp_shared_exp_bits = var(
+    "precision.bfp.shared_exp_bits", "b_exp_bfp", "bit",
+    "Shared exponent bits per BFP block.",
+    scope="precision",
+)
+bfp_eff_bits = var(
+    "precision.bfp.effective_bits", "b_eff_bfp", "bit",
+    "Effective bits per BFP value including amortized shared exponent overhead.",
+    scope="precision",
+)
+fixed_frac_bits = var(
+    "precision.fixed.frac_bits", "b_frac_fix", "bit",
+    "Fractional bits in a dynamic fixed-point format.",
+    scope="precision",
+)
+fixed_scale = var(
+    "precision.fixed.scale", "s_fix", "value",
+    "Dynamic fixed-point scale factor for one least-significant step.",
+    scope="precision",
+)
+
+
+eq_effective_bits = eq(
+    "precision.eq.effective_bits",
+    eff_bits_per_val.symbol,
+    n_bits.symbol + scale_bits.symbol / block_size.symbol + second_scale_bits.symbol / second_scale_fanout.symbol,
+    "Effective bits per value equal payload bits plus amortized first-level and second-level scale overheads.",
+)
+
+eq_bfp_eff_bits = eq(
+    "precision.eq.bfp_effective_bits",
+    bfp_eff_bits.symbol,
+    n_bits.symbol + bfp_shared_exp_bits.symbol / bfp_block_size.symbol,
+    "BFP effective bits equal payload bits plus amortized shared exponent metadata.",
+)
+
+eq_fixed_scale = eq(
+    "precision.eq.fixed_scale",
+    fixed_scale.symbol,
+    2 ** (-fixed_frac_bits.symbol),
+    "A dynamic fixed-point step is 2^(-fractional_bits) in the chosen local scale frame.",
+)
+
+
+PRECISION_MICROSCALING_VARIABLES = (
+    block_size,
+    scale_bits,
+    second_scale_bits,
+    second_scale_fanout,
+    eff_bits_per_val,
+    bfp_block_size,
+    bfp_shared_exp_bits,
+    bfp_eff_bits,
+    fixed_frac_bits,
+    fixed_scale,
+)
+
+PRECISION_MICROSCALING_EQUATIONS = (
+    eq_effective_bits,
+    eq_bfp_eff_bits,
+    eq_fixed_scale,
+)
+
+
+__all__ = [
+    "block_size",
+    "scale_bits",
+    "second_scale_bits",
+    "second_scale_fanout",
+    "eff_bits_per_val",
+    "bfp_block_size",
+    "bfp_shared_exp_bits",
+    "bfp_eff_bits",
+    "fixed_frac_bits",
+    "fixed_scale",
+    "eq_effective_bits",
+    "eq_bfp_eff_bits",
+    "eq_fixed_scale",
+    "PRECISION_MICROSCALING_VARIABLES",
+    "PRECISION_MICROSCALING_EQUATIONS",
+]
