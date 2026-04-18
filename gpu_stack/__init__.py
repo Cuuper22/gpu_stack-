@@ -43,6 +43,11 @@ for _scope_name in SCOPE_MODULES:
 
 del _scope_name, _module
 
+# Phase 2 metadata: once every scope has registered, mark Variables that
+# carry no defining equation as ROOT_INPUT so downstream code can query by
+# VariableKind without depending on the runtime presence of defining_equations.
+Registry.auto_classify_kinds()
+
 
 __all__ = [
     "core",
