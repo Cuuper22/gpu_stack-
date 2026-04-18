@@ -19,7 +19,7 @@ This version does. It now carries through:
 
 import sympy as sp
 
-from ..core import System, eq, var
+from ..core import RelationRole, System, eq, var
 from .architecture import (
     flops_step_dense,
     flops_step_moe,
@@ -171,13 +171,17 @@ eq_flops_step_dense = eq(
     "training.eq.flops_step_dense",
     flops_step.symbol,
     flops_step_dense.symbol,
-    "One valid specialization of training FLOPs per step is the dense-model FLOP count.",
+    "Dense specialization of training FLOPs per step: the dense-model FLOP count.",
+    role=RelationRole.VARIANT,
+    variant="dense",
 )
 eq_flops_step_moe = eq(
     "training.eq.flops_step_moe",
     flops_step.symbol,
     flops_step_moe.symbol,
-    "Another valid specialization of training FLOPs per step is the active-MoE FLOP count.",
+    "MoE specialization of training FLOPs per step: the active-MoE FLOP count.",
+    role=RelationRole.VARIANT,
+    variant="moe",
 )
 eq_recompute_overhead = eq(
     "training.eq.recompute_overhead",
@@ -238,12 +242,16 @@ eq_mfu_from_ratio = eq(
     mfu.symbol,
     achieved_flops_run.symbol / peak_flops_run.symbol,
     "MFU equals achieved model FLOPs divided by aggregate raw peak FLOPs.",
+    role=RelationRole.VARIANT,
+    variant="from_flops",
 )
 eq_mfu_from_time = eq(
     "training.eq.mfu_from_time",
     mfu.symbol,
     T_compute_ideal.symbol / T_step.symbol,
     "MFU also equals ideal raw-peak compute time divided by actual step time.",
+    role=RelationRole.VARIANT,
+    variant="from_time",
 )
 eq_hfu = eq(
     "training.eq.hfu",
@@ -688,13 +696,17 @@ eq_scaling_params_dense = eq(
     "training.eq.scaling_params_dense",
     scaling_params.symbol,
     params_dense_total.symbol,
-    "One valid scaling-parameter specialization is the dense total-parameter count.",
+    "Dense scaling-parameter specialization: the dense total-parameter count.",
+    role=RelationRole.VARIANT,
+    variant="dense",
 )
 eq_scaling_params_moe = eq(
     "training.eq.scaling_params_moe",
     scaling_params.symbol,
     params_active_moe.symbol,
-    "Another valid scaling-parameter specialization is the active-parameter count of an MoE model.",
+    "MoE scaling-parameter specialization: the active-parameter count of an MoE model.",
+    role=RelationRole.VARIANT,
+    variant="moe",
 )
 eq_chinchilla_ratio_actual = eq(
     "training.eq.chinchilla_ratio_actual",

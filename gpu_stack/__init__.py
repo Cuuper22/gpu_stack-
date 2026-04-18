@@ -18,6 +18,8 @@ from . import constants, core, scopes
 from .core import (
     Constant,
     Equation,
+    Inequality,
+    RelationRole,
     Registry,
     System,
     Variable,
@@ -48,6 +50,8 @@ __all__ = [
     "Variable",
     "Constant",
     "Equation",
+    "Inequality",
+    "RelationRole",
     "System",
     "var",
     "eq",

@@ -12,7 +12,7 @@ pass had left stranded in prose.
 """
 
 import sympy as sp
-from ..core import IterativeEquation, PiecewiseEquation, System, eq, var
+from ..core import IterativeEquation, PiecewiseEquation, RelationRole, System, eq, var
 from .parallelism import n_params
 
 
@@ -151,6 +151,8 @@ eq_adam_step = eq(
     theta.symbol - lr.symbol * (m_hat.symbol / (sp.sqrt(v_hat.symbol) + eps_adam.symbol) + wd.symbol * theta.symbol),
     "AdamW subtracts the adaptive update and decoupled weight decay.",
     references=["Loshchilov and Hutter, Decoupled Weight Decay Regularization, ICLR 2019."],
+    role=RelationRole.VARIANT,
+    variant="adamw",
 )
 
 
@@ -289,6 +291,8 @@ eq_muon_step = eq(
     theta_next.symbol,
     theta.symbol - lr.symbol * muon_update.symbol,
     "Muon subtracts the orthogonalized momentum scaled by the learning rate.",
+    role=RelationRole.VARIANT,
+    variant="muon",
 )
 
 

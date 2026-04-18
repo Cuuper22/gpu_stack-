@@ -281,6 +281,26 @@ Finished the last untouched file and added project-level planning docs:
 * Added `ROADMAP.md`, a sequenced plan that prioritizes semantic cleanup, tests, packaging, metadata coverage, modularization, a scenario resolver, and calibrated presets.
 * Cleaned the working artifact so the final source bundle does not rely on checked-in `__pycache__` output.
 
+## Pass 23: P0 foundation batch (DONE)
+
+Landed all five P0 tickets from `ROADMAP.md` as one coherent batch. The pass does not add new variables or equations. It adds the semantic and verification spine that every later phase depends on.
+
+* Added a `RelationRole` enum to `gpu_stack/core/equation.py` with four roles: `IDENTITY`, `CONSTRAINT`, `APPROXIMATION`, and `VARIANT`. Each Equation subclass carries a `default_role` class attribute so `Equation` defaults to identity, `Inequality` to constraint, and `Approximation` to approximation. Every Equation constructor accepts optional `role` and `variant` keyword arguments. The top-level `eq()` factory forwards both.
+* Fixed `Inequality.as_sympy()` to construct the relational with `evaluate=False` so `snm_read >= 0` no longer collapses to `True` under symbol-level positivity assumptions. Added diagnostic helpers `is_trivially_true()` and `is_trivially_false()` that deliberately invoke the evaluating form when a caller explicitly wants the reduced answer.
+* Dropped the `positive=True` default on `memcell.sram.snm_read` and `memcell.sram.wnm_write` so the two SRAM margin constraints now carry real semantic force. A failed memory-cell design can produce a negative margin, which is exactly the case the constraints are supposed to detect.
+* Added role-filtered accessors on `Variable`: `identities()`, `constraints()`, `approximations()`, and `variants(key=None)`. The flat `_defined_by` list is unchanged, so existing code paths still work.
+* Tagged the four variant multi-definition variables with explicit roles. `opt.eq.adam_step` and `opt.eq.muon_step` now register with `role=VARIANT` and `variant="adamw"` / `variant="muon"`. `training.eq.flops_step_dense` / `_moe`, `training.eq.mfu` / `_from_time`, and `training.eq.scaling_params_dense` / `_moe` are tagged the same way with keys `dense`, `moe`, `from_flops`, and `from_time`. The remaining eleven multi-definition cases from `IMPROVEMENT_MAP.md` pick up their correct roles automatically from the subclass defaults.
+* Added `pyproject.toml` at the repo root with PEP 621 metadata, `sympy>=1.12` as the single runtime dependency, `pytest>=7` as an optional dev dependency, and a pytest ini section that scopes collection to `tests/`.
+* Added a `tests/` directory with five files. `test_import.py` asserts the registry snapshot (16 systems, 1147 variables, 23 constants, 620 equations) and verifies every scope module loaded. `test_graph_health.py` asserts zero cycles and a topological order that covers every variable. `test_demo.py` runs `python -m gpu_stack.demo` as a subprocess and asserts exit zero. `test_relation_roles.py` regresses the Phase 0 fixes: the two SRAM margin constraints return `Relational`, not `S.true`, and all fifteen multi-definition variables decompose into the expected role counts.
+
+Post-batch verification:
+
+* `python -c "import gpu_stack; print(gpu_stack.Registry.stats())"` still prints 1147 / 23 / 620 / 16.
+* `python -m gpu_stack.demo` succeeds.
+* `python -m compileall -q gpu_stack` succeeds.
+* `find_cycles()` returns an empty list, `topological_sort()` covers all 1147 variables.
+* `pytest -q` passes (13 tests).
+
 ## Stats trajectory
 
 | After pass | variables | constants | equations | systems |
@@ -296,3 +316,4 @@ Finished the last untouched file and added project-level planning docs:
 |16 (batch 12-16)|     959 |        23 |       512 |      16 |
 |21 (batch 17-21)|    1147 |        23 |       620 |      16 |
 |22 (docs + audit)|    1147 |        23 |       620 |      16 |
+|23 (P0 foundation)|  1147 |        23 |       620 |      16 |

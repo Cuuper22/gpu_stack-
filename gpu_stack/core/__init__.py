@@ -22,7 +22,7 @@ from .variable import (
 from .equation import (
     Equation, Inequality, Approximation, PiecewiseEquation,
     DifferentialEquation, IterativeEquation, StochasticRelation,
-    EquationKind, ExprLike,
+    EquationKind, RelationRole, ExprLike,
 )
 from .system import System
 from .graph import topological_sort, find_cycles, subgraph, to_dot
@@ -35,9 +35,15 @@ def var(name: str, symbol: str, units: str, description: str,
     return Variable(name, symbol, units, description, scope, **kwargs)
 
 
-def eq(name, lhs, rhs, description, references=None, check_units=False) -> Equation:
-    """Shorthand for creating an (algebraic) Equation."""
-    return Equation(name, lhs, rhs, description, references, check_units)
+def eq(name, lhs, rhs, description, references=None, check_units=False,
+       role=None, variant=None) -> Equation:
+    """
+    Shorthand for creating an (algebraic) Equation. `role` and `variant` are
+    forwarded to the Equation constructor so variant tagging stays ergonomic
+    in scope files that otherwise use this factory.
+    """
+    return Equation(name, lhs, rhs, description, references, check_units,
+                    role=role, variant=variant)
 
 
 __all__ = [
@@ -45,7 +51,7 @@ __all__ = [
     "Variable", "Constant", "VariableKind", "Extensivity", "Reference",
     "Equation", "Inequality", "Approximation", "PiecewiseEquation",
     "DifferentialEquation", "IterativeEquation", "StochasticRelation",
-    "EquationKind", "ExprLike",
+    "EquationKind", "RelationRole", "ExprLike",
     "System",
     "var", "eq",
     "topological_sort", "find_cycles", "subgraph", "to_dot",
