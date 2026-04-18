@@ -341,6 +341,38 @@ The new `gpu_stack.presets` package ships three helper modules. The only numeric
 
 `tests/test_presets.py` covers unknown-name rejection, end-to-end resolution (`demo_rack` produces 1.08e18 FLOP/s for `cluster.rack.peak_flops`), combine ordering, variant pinning, and `with_overrides`. The test suite is now 29 passing.
 
+## Pass 32: gpu-stack CLI + roadmap status refresh (DONE)
+
+Adds `gpu_stack/cli.py` with three subcommands: `stats` (Registry counts plus the coverage report from pass 30), `list-presets` (enumerates every `Preset` instance under `gpu_stack.presets.*`), and `resolve TARGET` (scenario evaluation accepting `--assign`, `--variant`, and repeatable `--preset` flags, with `--trace` and `--missing` for diagnostics). `pyproject.toml` registers `gpu-stack = "gpu_stack.cli:main"` as a console script. `tests/test_cli.py` exercises stats, list-presets, inline assignments, preset-driven resolution reproducing the 1.08 EFLOP/s demo number, trace output, and unknown-preset errors. Also refreshes `IMPROVEMENT_MAP.md` to track the split-map progress.
+
+## Pass 33: training.py split (DONE)
+
+Phase 3 modularization continues. `training.py` was 845 lines carrying the full step-time model. Split into `training_compute.py` (step FLOPs and their VARIANTs, peak aggregates, MFU / HFU variants; foundation), `training_comm.py` (DP / TP / EP / CP exposed comm), `training_memory.py` (parameter / gradient / optimizer / activation IO, memory-bound time), `training_overheads.py` (bubble, straggler, restart, eval overhead, full step time), and `training_scaling.py` (tokens/s, energy, wall clock, Chinchilla ratio with the two VARIANT scaling_params equations).
+
+## Pass 34: precision.py split (DONE)
+
+`precision.py` was 801 lines carrying IEEE-754 structure, rounding models, microscaling, and low-bit formats. Split into `precision_ieee.py` (bits, bias, normal / subnormal / NaN / Inf structure; foundation), `precision_rounding.py` (quantization step, RN / RZ / RP / RM, stochastic rounding StochasticRelation), `precision_microscaling.py` (MXFP4 / NVFP4 scales, block floating point, dynamic fixed-point), and `precision_lowbit.py` (TF32, INT, posit useed, LNS, FP16 loss scaling, Random Hadamard Transform).
+
+## Pass 35: gpu.py split (DONE)
+
+`gpu.py` was 797 lines carrying compute, memory, IO, and power aggregation for one GPU package. Split into `gpu_compute.py` (SM count, Tensor Core count, raw / effective / sparse / power-limited peak FLOPs, DP4A, DP2A, SFU; foundation), `gpu_memory.py` (register file, shared memory, TMEM, L2, HBM capacity and bandwidth at package level), `gpu_io.py` (PCIe, CXL, NVLink, NIC bandwidth aliases), and `gpu_power.py` (compute / memory / fabric power, TDP headroom, throttle factor, HBM sweep, energy efficiency, roofline balance points).
+
+## Pass 36: thermal.py split (DONE)
+
+`thermal.py` was 793 lines carrying package-path thermals, liquid loop, facility cooling, and environmental constraints. Split into `thermal_package.py` (die attach / TIM / spreader / cold plate / fluid film resistances, case and junction temperatures, thermal headroom), `thermal_liquid.py` (coolant flow, sensible-heat relation, pump and CDU power), `thermal_facility.py` (fan power, chiller, cooling tower, humidity control, free-cooling piecewise, `pue_definition` and `dc_total_power` component sum preserving the pass 18 cycle fix), and `thermal_env.py` (water balance, WUE, dew-point headroom, condensation margin, ASHRAE CONSTRAINT inequalities).
+
+## Pass 37: kernel.py split (DONE)
+
+`kernel.py` was 775 lines carrying roofline, CTA occupancy, tiled GEMM, and attention IO modeling. Split into `kernel_roofline.py` (per-level bytes and arithmetic intensities, generalized roofline, compute / HBM / L2 / SMEM / register / latency time lower bounds; foundation), `kernel_occupancy.py` (CTA resource accounting, active-block / occupancy / latency-hiding, and the downstream step-time aggregates that depend on occupancy), `kernel_gemm.py` (tiled GEMM tile counts, traffic, AI), and `kernel_attention.py` (naive vs FlashAttention IO and AI). An unused `n_sms` import from `.gpu` is dropped rather than carried into a helper.
+
+## Pass 38: memory_subsystem.py split (DONE)
+
+`memory_subsystem.py` was 752 lines carrying register file, shared memory, caches, HBM, and virtual-memory path modeling. Split into `memory_regfile.py` (array clock, warp size, threads per SM, register-file capacity and bandwidth; foundation), `memory_smem.py` (SMEM / TMEM bandwidth, L1 / SMEM carveout), `memory_cache.py` (L1 / L2 organization and miss penalty, average global-load latency assembly), `memory_hbm.py` (usable HBM bandwidth and capacity after refresh, ECC, compression), and `memory_virtual.py` (TLB, huge pages, translation latency, PCIe / CXL, unified memory migration, NUMA penalties).
+
+## Pass 39: parallelism.py split (DONE, final Phase 3 split)
+
+`parallelism.py` was 703 lines carrying SP, batching, activation memory, ZeRO, FSDP, pipeline schedules, and TP / EP / CP communication. Split into `parallelism_batching.py` (SP, batch decomposition, tokens-per-step, activation memory, recomputation, and the `n_params` Variable that `optimizer_first_order.py` imports directly; foundation), `parallelism_zero_fsdp.py` (ZeRO-1 / 2 / 3, FSDP all-gather, CPU / NVMe offload), `parallelism_pipeline.py` (GPipe, 1F1B, interleaved, DualPipe, Chimera, zero-bubble), and `parallelism_moe.py` (TP payload and exposed-time, MoE capacity and all-to-all, CP ring-hops). With this pass every file in the IMPROVEMENT_MAP.md split map is processed; Phase 3 modularization is complete.
+
 ## Stats trajectory
 
 | After pass | variables | constants | equations | systems |
@@ -360,3 +392,16 @@ The new `gpu_stack.presets` package ships three helper modules. The only numeric
 |24 (cluster split)|  1147 |        23 |       620 |      16 |
 |25 (arch split)|     1147 |        23 |       620 |      16 |
 |26 (resolver)|       1147 |        23 |       620 |      16 |
+|27 (presets)|        1147 |        23 |       620 |      16 |
+|28 (optimizer split)| 1147 |        23 |       620 |      16 |
+|29 (economics split)| 1147 |        23 |       620 |      16 |
+|30 (metadata helpers)| 1147 |       23 |       620 |      16 |
+|31 (memcell split)|  1147 |        23 |       620 |      16 |
+|32 (CLI)|            1147 |        23 |       620 |      16 |
+|33 (training split)| 1147 |        23 |       620 |      16 |
+|34 (precision split)| 1147 |        23 |       620 |      16 |
+|35 (gpu split)|      1147 |        23 |       620 |      16 |
+|36 (thermal split)|  1147 |        23 |       620 |      16 |
+|37 (kernel split)|   1147 |        23 |       620 |      16 |
+|38 (memsub split)|   1147 |        23 |       620 |      16 |
+|39 (parallelism split)| 1147 |      23 |       620 |      16 |

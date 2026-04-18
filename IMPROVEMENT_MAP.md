@@ -35,32 +35,32 @@ The Phase 0 semantic hardening and Phase 1 verification spine P0 tickets are lan
 
 ## P1 status after passes 24 through 31
 
-Phase 3 modularization is five files in. The split map below tracks what has shipped and what still waits:
+Phase 3 modularization finished in pass 39. Every file in the original split map is now split into focused helpers behind a thin aggregator, and public imports still resolve exactly as before.
 
 | Current file | Lines | Status | Split into |
 |---|---:|---|---|
 | `cluster.py` | 1115 | DONE (pass 24) | `cluster_node.py`, `cluster_rack.py`, `cluster_site.py`, `cluster_storage.py`, `cluster_reliability.py` |
 | `architecture.py` | 1083 | DONE (pass 25) | `architecture_embeddings.py`, `architecture_positions.py`, `architecture_attention.py`, `architecture_ffn.py`, `architecture_moe.py` |
 | `optimizer.py` | 878 | DONE (pass 28) | `optimizer_first_order.py`, `optimizer_second_order.py`, `optimizer_sharding.py`, `optimizer_schedules.py`, `optimizer_loss_scaling.py` |
+| `training.py` | 845 | DONE (pass 33) | `training_compute.py`, `training_comm.py`, `training_memory.py`, `training_overheads.py`, `training_scaling.py` |
 | `economics.py` | 843 | DONE (pass 29) | `economics_capex.py`, `economics_opex.py`, `economics_finance.py`, `economics_recovery.py` |
+| `precision.py` | 801 | DONE (pass 34) | `precision_ieee.py`, `precision_rounding.py`, `precision_microscaling.py`, `precision_lowbit.py` |
+| `gpu.py` | 797 | DONE (pass 35) | `gpu_compute.py`, `gpu_memory.py`, `gpu_io.py`, `gpu_power.py` |
+| `thermal.py` | 793 | DONE (pass 36) | `thermal_package.py`, `thermal_liquid.py`, `thermal_facility.py`, `thermal_env.py` |
+| `kernel.py` | 775 | DONE (pass 37) | `kernel_roofline.py`, `kernel_occupancy.py`, `kernel_gemm.py`, `kernel_attention.py` |
+| `memory_subsystem.py` | 752 | DONE (pass 38) | `memory_regfile.py`, `memory_smem.py`, `memory_cache.py`, `memory_hbm.py`, `memory_virtual.py` |
 | `memory_cell.py` | 700 | DONE (pass 31) | `memory_sram.py`, `memory_dram.py`, `memory_flipflop.py` |
-| `training.py` | 845 | OPEN | `training_compute.py`, `training_comm.py`, `training_memory.py`, `training_overheads.py`, `training_scaling.py` |
-| `precision.py` | 801 | OPEN | `precision_ieee.py`, `precision_rounding.py`, `precision_microscaling.py`, `precision_lowbit.py` |
-| `gpu.py` | 797 | OPEN | `gpu_compute.py`, `gpu_memory.py`, `gpu_io.py`, `gpu_power.py` |
-| `thermal.py` | 793 | OPEN | `thermal_package.py`, `thermal_liquid.py`, `thermal_facility.py`, `thermal_env.py` |
-| `kernel.py` | 775 | OPEN | `kernel_roofline.py`, `kernel_occupancy.py`, `kernel_gemm.py`, `kernel_attention.py` |
-| `memory_subsystem.py` | 752 | OPEN | `memory_regfile.py`, `memory_smem.py`, `memory_cache.py`, `memory_hbm.py`, `memory_virtual.py` |
-| `parallelism.py` | 703 | OPEN | `parallelism_batching.py`, `parallelism_zero_fsdp.py`, `parallelism_pipeline.py`, `parallelism_moe.py` |
+| `parallelism.py` | 703 | DONE (pass 39) | `parallelism_batching.py`, `parallelism_zero_fsdp.py`, `parallelism_pipeline.py`, `parallelism_moe.py` |
 
-Phase 4 scenario resolver landed in pass 26 (`gpu_stack.core.resolver` plus `gpu_stack.resolve`). Phase 5 preset framework landed in pass 27 (`gpu_stack.core.presets` plus `gpu_stack.presets.*`). Phase 2 metadata helpers landed in pass 30 (`Registry.by_kind`, `Registry.by_extensivity`, `Registry.coverage`, and post-load `auto_classify_kinds`). Current `VariableKind` distribution: 519 ROOT_INPUT, 605 DERIVED, 0 MEASURED, 23 DEFINITIONAL.
+Phase 4 scenario resolver landed in pass 26 (`gpu_stack.core.resolver` plus `gpu_stack.resolve`). Phase 5 preset framework landed in pass 27 (`gpu_stack.core.presets` plus `gpu_stack.presets.*`). Phase 2 metadata helpers landed in pass 30 (`Registry.by_kind`, `Registry.by_extensivity`, `Registry.coverage`, and post-load `auto_classify_kinds`). Current `VariableKind` distribution: 519 ROOT_INPUT, 605 DERIVED, 0 MEASURED, 23 DEFINITIONAL. A CLI entry point landed in pass 32 (`gpu-stack stats`, `list-presets`, `resolve`).
 
-The remaining P1 work is:
+The remaining work from the original plan is:
 
-- Finish the seven open scope splits listed above.
-- Populate `sp_units` on the foundational variables that back high-value equations.
-- Populate `references` on the equations that encode canonical formulas.
+- Populate `sp_units` on the foundational variables that back high-value equations. The scaffolding is in place in `core/variable.py` and `core/units.py`; scope-level adoption is still at zero.
+- Populate `references` on the equations that encode canonical formulas. Currently 13 / 620 carry references.
+- Turn on `check_units=True` on a curated subset of foundational equations once their inputs have `sp_units` populated.
 - Expand the `gpu_stack.presets` inventory with cited hardware and workload configurations rather than the single demo-derived rack.
-- Optionally add a CLI or notebook front-end that exercises the resolver plus presets end-to-end.
+- Phase 6 deepening where the model still leaves important effects as root inputs.
 
 ## Highest leverage repo-wide improvements
 
