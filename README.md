@@ -35,8 +35,9 @@ The package is now internally consistent as a graph: importing `gpu_stack` regis
 ## Package layout
 
 ```text
+README.md
+pyproject.toml
 gpu_stack/
-├── README.md
 ├── __init__.py
 ├── constants.py
 ├── demo.py

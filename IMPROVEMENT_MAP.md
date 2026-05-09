@@ -22,7 +22,7 @@ Audit date: 2026-04-18 (original), refreshed after pass 31 memory_cell split.
 | Variables with multiple defining relations, role-tagged | 15 |
 | Inequalities that simplify to `True` in `as_sympy()` | 0 |
 | Scope files at or above 700 lines | 7 |
-| Registered pytest tests | 37 |
+| Registered pytest tests | 44 |
 
 ## P0 status after pass 23
 

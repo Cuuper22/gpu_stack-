@@ -5,11 +5,11 @@
 You are continuing a systematic review-and-expansion pass on a Python package
 called `gpu_stack`. The package models every equation and variable in the
 GPU training stack, from single electrons up through hyperscale clusters,
-using OOP + SymPy. The user (codename: Cúper) wants a specific iterative
-loop performed on every file. All 22 planned passes are now done.
-The next agent should treat this document as a project-status handoff plus a pointer to the new audit and roadmap docs.
-As of April 18, 2026, the user changed the workflow and now wants roughly
-five adjacent files per response when practical. Preserve dependency order.
+using OOP + SymPy. The project has been developed through a specific
+iterative review loop on every file. All 22 planned passes are now done.
+The next reviewer should treat this document as a project-status handoff plus a pointer to the new audit and roadmap docs.
+As of April 18, 2026, the review workflow changed to roughly five adjacent
+files per pass when practical. Preserve dependency order.
 
 Do not say "I can't because..." before trying. Say "here is how."
 
@@ -47,17 +47,16 @@ The ONLY Constants are the ones in `constants.py`. Currently 23 of them
 yourself writing a literal number that looks universal, it still goes in as
 a Variable unless it appears in a fundamental physical law.
 
-### 1.3 User context
+### 1.3 Context boundary
 
-The user is an AI researcher named Cúper who requested this module for a
-purpose he will reveal later. He explicitly said "this is totally unrelated
-to the topic [of our prior conversation about GPU training and MFU]." Don't
-speculate on the purpose. Just build the thing correctly.
+Do not speculate on downstream use. Treat this package as a technical
+modeling substrate whose job is to keep the GPU training stack explicit,
+navigable, and testable.
 
-## 2. User preferences (strict)
+## 2. Writing constraints
 
-These are non-negotiable style rules. Violate them and the user will
-reject the output.
+These are project-local documentation constraints. They exist to keep the
+repo precise rather than theatrical.
 
 * NO em dashes. Use comma, period, parenthesis, or colon.
 * NO tricolons (rhetorical "three short punchy phrases"). Write in
