@@ -97,13 +97,25 @@ gpu_stack/
 
 ## Quick start
 
-Install SymPy, put the repo on `PYTHONPATH`, and import the package.
+Install the package from the checkout, then inspect the registry.
 
 ```bash
-pip install sympy
+pip install -e .
 python -c "import gpu_stack; print(gpu_stack.Registry.stats())"
 python -m gpu_stack.demo
 ```
+
+### Use the CLI
+
+The installed `gpu-stack` command is the fastest way to inspect the project without writing Python:
+
+```bash
+gpu-stack stats
+gpu-stack list-presets
+gpu-stack resolve cluster.rack.peak_flops --preset hardware.demo_rack --trace
+```
+
+That last command resolves the demo rack peak-FLOPs path and prints the equation trace, so you can see which assumptions and equations produced the value.
 
 ### Inspect the registry
 
@@ -196,6 +208,7 @@ What this repo shows about me: I like building explanatory infrastructure. If a 
 - Writing and checking new equations in a single consistent registry.
 - Exporting dependency cones and debugging graph structure.
 - Demonstrating how training throughput and cost metrics reduce to lower-level assumptions.
+- Using the CLI to inspect registry health, list scenario presets, and resolve traceable targets without custom scripts.
 
 ## Current limitations
 
