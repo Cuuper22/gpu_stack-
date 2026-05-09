@@ -1,3 +1,11 @@
+## Why
+
+I built `gpu_stack` because frontier training systems are usually explained in disconnected slices. One conversation is about MOSFET switching, another is about HBM bandwidth, another is about Tensor Core math, another is about all-reduce latency, and then someone jumps straight to model FLOPs utilization (MFU) or dollars per token as if the path between those layers were obvious.
+
+I wanted one symbolic surface where those layers could sit in the same dependency graph. Not a simulator that pretends the world is solved, and not a spreadsheet with hidden assumptions, but a map of what depends on what: physics, memory, arithmetic, kernels, collectives, architecture, thermal limits, and economics.
+
+The useful thing here is the shape of the graph. If a quantity is still a root input, the package makes that visible. If a throughput metric depends on an interconnect assumption five layers down, you can walk the dependency cone instead of trusting a handwave.
+
 # gpu_stack
 
 `gpu_stack` is a SymPy-backed symbolic model of the GPU training stack. It tracks named variables and equations from semiconductor transport and MOSFET behavior through memory hierarchy, arithmetic units, kernels, collectives, model architecture, optimizer math, training throughput, cluster composition, thermal plant behavior, and run economics.
@@ -160,6 +168,18 @@ cone = sorted(subgraph(root, direction="dependencies"), key=lambda v: v.name)
 dot_text = to_dot(cone)
 print(dot_text[:400])
 ```
+
+## How to inspect it
+
+If you are looking at this as a hiring signal, start with the graph health instead of the domain breadth:
+
+1. Run `python -m gpu_stack.demo` and check that the registry imports cleanly, topological sort succeeds, and cycle detection returns empty.
+2. Read `gpu_stack/core/registry.py`, `gpu_stack/core/equation.py`, and `gpu_stack/core/graph.py` to see the modeling substrate.
+3. Skim one low-level scope and one high-level scope side by side, for example `gpu_stack/scopes/physical_mosfet.py` and `gpu_stack/scopes/training.py`.
+4. Open `gpu_stack/scopes/collective.py` and `gpu_stack/scopes/economics.py` to see how communication and cost are represented as first-class math, not notes in prose.
+5. Check `tests/test_graph_health.py`, `tests/test_import.py`, and `tests/test_resolver.py` for the guardrails that keep the registry from quietly becoming nonsense.
+
+What this repo shows about me: I like building explanatory infrastructure. If a technical domain feels like a stack of disconnected facts, my instinct is to turn it into a navigable system with names, invariants, and tests.
 
 ## Core types
 
