@@ -6,13 +6,31 @@ ZeRO-1, ZeRO-2, and ZeRO-3 per-GPU memory breakdowns, CPU and NVMe
 offload transfer-time models, and FSDP all-gather buffer sizing.
 """
 
-from ..core import eq, var
+import sympy as sp
+
+from ..core import Reference, eq, var
+from ..core.units import BPS, SECOND, byte
 from .parallelism_batching import (
     mem_act_per_gpu,
     mem_grads,
     mem_opt,
     mem_params,
     shard_factor,
+)
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+ZERO_FSDP_REF = Reference(
+    "ZeRO and FSDP memory model: parameters, gradients, optimizer state, "
+    "all-gather windows, and offload traffic are represented as byte-valued "
+    "state partitioned by dimensionless shard factors.",
+    kind="model",
+)
+ZERO_OFFLOAD_REF = Reference(
+    "ZeRO offload transfer model: CPU and NVMe migration costs are "
+    "bandwidth-limited byte transfers on the critical path.",
+    kind="model",
 )
 
 
@@ -24,26 +42,36 @@ mem_zero1_per_gpu = var(
     "par.zero1.mem_per_gpu", "M_zero1_par", "byte",
     "Per-GPU memory under ZeRO-1, where only optimizer state is sharded.",
     scope="parallelism",
+    sp_units=byte,
+    references=[ZERO_FSDP_REF],
 )
 mem_zero2_per_gpu = var(
     "par.zero2.mem_per_gpu", "M_zero2_par", "byte",
     "Per-GPU memory under ZeRO-2, where optimizer state and gradients are sharded.",
     scope="parallelism",
+    sp_units=byte,
+    references=[ZERO_FSDP_REF],
 )
 mem_zero3_per_gpu = var(
     "par.zero3.mem_per_gpu", "M_zero3_par", "byte",
     "Per-GPU memory under ZeRO-3, where params, gradients, and optimizer state are all sharded.",
     scope="parallelism",
+    sp_units=byte,
+    references=[ZERO_FSDP_REF],
 )
 fsdp_live_param_fraction = var(
     "par.fsdp.live_param_fraction", "rho_live_par", "dimensionless",
     "Fraction of the full parameter set materialized transiently by an all-gather window.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[ZERO_FSDP_REF],
 )
 fsdp_allgather_buffer = var(
     "par.fsdp.allgather_buffer", "M_gather_par", "byte",
     "Transient parameter buffer materialized during FSDP all-gather.",
     scope="parallelism",
+    sp_units=byte,
+    references=[ZERO_FSDP_REF],
 )
 
 
@@ -52,6 +80,8 @@ eq_mem_zero1 = eq(
     mem_zero1_per_gpu.symbol,
     mem_params.symbol + mem_grads.symbol + mem_opt.symbol / shard_factor.symbol + mem_act_per_gpu.symbol,
     "ZeRO-1 shards optimizer state only.",
+    references=[ZERO_FSDP_REF],
+    check_units=True,
 )
 
 eq_mem_zero2 = eq(
@@ -59,6 +89,8 @@ eq_mem_zero2 = eq(
     mem_zero2_per_gpu.symbol,
     mem_params.symbol + mem_grads.symbol / shard_factor.symbol + mem_opt.symbol / shard_factor.symbol + mem_act_per_gpu.symbol,
     "ZeRO-2 shards gradients and optimizer state but still keeps full parameter replicas.",
+    references=[ZERO_FSDP_REF],
+    check_units=True,
 )
 
 eq_mem_zero3 = eq(
@@ -66,6 +98,8 @@ eq_mem_zero3 = eq(
     mem_zero3_per_gpu.symbol,
     mem_params.symbol / shard_factor.symbol + mem_grads.symbol / shard_factor.symbol + mem_opt.symbol / shard_factor.symbol + mem_act_per_gpu.symbol,
     "ZeRO-3 shards params, gradients, and optimizer state.",
+    references=[ZERO_FSDP_REF],
+    check_units=True,
 )
 
 eq_fsdp_allgather_buffer = eq(
@@ -73,6 +107,8 @@ eq_fsdp_allgather_buffer = eq(
     fsdp_allgather_buffer.symbol,
     mem_params.symbol * fsdp_live_param_fraction.symbol,
     "A layer-wise all-gather window only materializes the live slice of the parameter set, not the whole model at once.",
+    references=[ZERO_FSDP_REF],
+    check_units=True,
 )
 
 
@@ -84,36 +120,50 @@ cpu_offload_bytes = var(
     "par.offload.cpu.bytes", "B_cpu_off_par", "byte",
     "State migrated from GPU memory to CPU memory.",
     scope="parallelism",
+    sp_units=byte,
+    references=[ZERO_OFFLOAD_REF],
 )
 cpu_offload_bw = var(
     "par.offload.cpu.bw", "BW_cpu_off_par", "byte/s",
     "Usable host-device bandwidth for CPU offload traffic.",
     scope="parallelism",
+    sp_units=BPS,
+    references=[ZERO_OFFLOAD_REF],
 )
 cpu_offload_time = var(
     "par.offload.cpu.time", "T_cpu_off_par", "s",
     "Communication time required to move the CPU-offloaded state.",
     scope="parallelism",
+    sp_units=SECOND,
+    references=[ZERO_OFFLOAD_REF],
 )
 mem_after_cpu_offload = var(
     "par.offload.cpu.mem_after", "M_cpu_after_par", "byte",
     "Remaining on-GPU memory footprint after CPU offload.",
     scope="parallelism",
+    sp_units=byte,
+    references=[ZERO_OFFLOAD_REF],
 )
 nvme_offload_bytes = var(
     "par.offload.nvme.bytes", "B_nvme_off_par", "byte",
     "State migrated from GPU or CPU memory to NVMe.",
     scope="parallelism",
+    sp_units=byte,
+    references=[ZERO_OFFLOAD_REF],
 )
 nvme_offload_bw = var(
     "par.offload.nvme.bw", "BW_nvme_off_par", "byte/s",
     "Usable NVMe bandwidth for optimizer or parameter offload.",
     scope="parallelism",
+    sp_units=BPS,
+    references=[ZERO_OFFLOAD_REF],
 )
 nvme_offload_time = var(
     "par.offload.nvme.time", "T_nvme_off_par", "s",
     "Communication time required to move the NVMe-offloaded state.",
     scope="parallelism",
+    sp_units=SECOND,
+    references=[ZERO_OFFLOAD_REF],
 )
 
 
@@ -122,6 +172,8 @@ eq_cpu_offload_time = eq(
     cpu_offload_time.symbol,
     cpu_offload_bytes.symbol / cpu_offload_bw.symbol,
     "CPU offload time is bytes moved divided by effective host-device bandwidth.",
+    references=[ZERO_OFFLOAD_REF],
+    check_units=True,
 )
 
 eq_mem_after_cpu_offload = eq(
@@ -129,6 +181,8 @@ eq_mem_after_cpu_offload = eq(
     mem_after_cpu_offload.symbol,
     mem_zero3_per_gpu.symbol - cpu_offload_bytes.symbol,
     "CPU offload reduces the GPU-resident memory footprint by the amount migrated off the device.",
+    references=[ZERO_OFFLOAD_REF],
+    check_units=True,
 )
 
 eq_nvme_offload_time = eq(
@@ -136,6 +190,8 @@ eq_nvme_offload_time = eq(
     nvme_offload_time.symbol,
     nvme_offload_bytes.symbol / nvme_offload_bw.symbol,
     "NVMe offload time is bytes moved divided by usable storage bandwidth.",
+    references=[ZERO_OFFLOAD_REF],
+    check_units=True,
 )
 
 

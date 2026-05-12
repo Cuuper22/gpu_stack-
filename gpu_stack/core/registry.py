@@ -94,11 +94,11 @@ class Registry:
 
     @classmethod
     def roots(cls) -> List["Variable"]:
-        """Variables with no defining equation (pure inputs)."""
+        """Variables with no value-defining relation (pure value inputs)."""
         from .variable import Constant
         return [
             v for v in cls.variables.values()
-            if not v.defining_equations and not isinstance(v, Constant)
+            if v.is_root_input and not isinstance(v, Constant)
         ]
 
     @classmethod
@@ -134,15 +134,22 @@ class Registry:
     def auto_classify_kinds(cls) -> int:
         """
         Tag every non-Constant Variable with `kind=ROOT_INPUT` if it has no
-        defining equation, otherwise leave the declared `kind` alone. Returns
-        the number of Variables retagged. Safe to call multiple times.
+        value-defining relation, otherwise leave the declared `kind` alone.
+        Constraints do not define values, so constraint-only variables remain
+        roots. Returns the number of Variables retagged. Safe to call multiple
+        times.
         """
         from .variable import Constant, VariableKind
         changed = 0
         for v in cls.variables.values():
             if isinstance(v, Constant):
                 continue
-            target = VariableKind.ROOT_INPUT if not v.defining_equations else v.kind
+            if v.is_root_input:
+                target = VariableKind.ROOT_INPUT
+            elif v.kind == VariableKind.ROOT_INPUT:
+                target = VariableKind.DERIVED
+            else:
+                target = v.kind
             if v.kind != target:
                 v.kind = target
                 changed += 1

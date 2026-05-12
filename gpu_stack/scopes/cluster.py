@@ -30,7 +30,7 @@ from .cluster_reliability import (
 sys_cluster = System(
     name="cluster",
     scope="cluster",
-    description="Node, rack, site, and hyperscaler aggregation with reliability and storage-path detail.",
+    description="Node NIC topology, rack, site, and hyperscaler aggregation with reliability and storage-path detail.",
 )
 
 

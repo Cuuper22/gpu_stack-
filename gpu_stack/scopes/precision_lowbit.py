@@ -12,8 +12,49 @@ block used by microscaled low-bit formats.
 
 import sympy as sp
 
-from ..core import Approximation, eq, var
+from ..core import Approximation, Reference, eq, var
+from ..core.units import bit, byte
 from .precision_ieee import min_normal
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+LOWBIT_STORAGE_REF = Reference(
+    "Low-bit precision storage widths for FP32, BF16, FP16, TF32, FP8, "
+    "FP6, FP4, INT8, and INT4.",
+    kind="model",
+)
+
+TF32_REF = Reference(
+    "NVIDIA TensorFloat-32 uses an FP32-range format with a 10-bit "
+    "explicit mantissa in Tensor Core arithmetic.",
+    kind="datasheet",
+)
+
+POSIT_LNS_REF = Reference(
+    "Gustafson and Yonemoto, Beating Floating Point at its Own Game: "
+    "Posit Arithmetic, 2017, and logarithmic number-system quantization models.",
+    kind="paper",
+    year=2017,
+)
+
+LOSS_SCALING_REF = Reference(
+    "Micikevicius et al., Mixed Precision Training, 2017.",
+    kind="paper",
+    year=2017,
+)
+
+RHT_REF = Reference(
+    "Randomized Hadamard transforms spread coordinate outliers while preserving "
+    "vector norm.",
+    kind="model",
+)
+
+
+def _annotate_variables(variables, sp_units, references):
+    for variable in variables:
+        variable.sp_units = sp_units
+        variable.references.extend(references)
 
 
 # ---------------------------------------------------------------------------
@@ -96,21 +137,100 @@ ratio_vs_bf16 = var(
     scope="precision",
 )
 
+_annotate_variables(
+    (
+        bytes_fp32,
+        bytes_bf16,
+        bytes_fp16,
+        bytes_tf32,
+        bytes_fp8,
+        bytes_fp6,
+        bytes_fp4,
+        bytes_int8,
+        bytes_int4,
+    ),
+    byte,
+    [LOWBIT_STORAGE_REF],
+)
+_annotate_variables((tf32_man_bits,), bit, [TF32_REF])
+_annotate_variables((posit_es,), bit, [POSIT_LNS_REF])
+_annotate_variables(
+    (posit_useed, lns_step, lns_rel_error),
+    DIMENSIONLESS,
+    [POSIT_LNS_REF],
+)
+_annotate_variables((ratio_vs_bf16,), DIMENSIONLESS, [LOWBIT_STORAGE_REF])
 
-eq_bytes_fp32 = eq("precision.eq.bytes_fp32", bytes_fp32.symbol, 4, "FP32 stores four bytes per value.")
-eq_bytes_bf16 = eq("precision.eq.bytes_bf16", bytes_bf16.symbol, 2, "BF16 stores two bytes per value.")
-eq_bytes_fp16 = eq("precision.eq.bytes_fp16", bytes_fp16.symbol, 2, "FP16 stores two bytes per value.")
-eq_bytes_tf32 = eq("precision.eq.bytes_tf32", bytes_tf32.symbol, 4, "TF32 is typically carried in FP32 storage.")
-eq_bytes_fp8 = eq("precision.eq.bytes_fp8", bytes_fp8.symbol, 1, "FP8 stores one byte per value.")
-eq_bytes_fp6 = eq("precision.eq.bytes_fp6", bytes_fp6.symbol, sp.Rational(3, 4), "Packed FP6 stores three quarters of a byte per value.")
-eq_bytes_fp4 = eq("precision.eq.bytes_fp4", bytes_fp4.symbol, sp.Rational(1, 2), "Packed FP4 stores half a byte per value.")
-eq_bytes_int8 = eq("precision.eq.bytes_int8", bytes_int8.symbol, 1, "INT8 stores one byte per value.")
-eq_bytes_int4 = eq("precision.eq.bytes_int4", bytes_int4.symbol, sp.Rational(1, 2), "Packed INT4 stores half a byte per value.")
+
+eq_bytes_fp32 = eq(
+    "precision.eq.bytes_fp32",
+    bytes_fp32.symbol,
+    4,
+    "FP32 stores four bytes per value.",
+    references=[LOWBIT_STORAGE_REF],
+)
+eq_bytes_bf16 = eq(
+    "precision.eq.bytes_bf16",
+    bytes_bf16.symbol,
+    2,
+    "BF16 stores two bytes per value.",
+    references=[LOWBIT_STORAGE_REF],
+)
+eq_bytes_fp16 = eq(
+    "precision.eq.bytes_fp16",
+    bytes_fp16.symbol,
+    2,
+    "FP16 stores two bytes per value.",
+    references=[LOWBIT_STORAGE_REF],
+)
+eq_bytes_tf32 = eq(
+    "precision.eq.bytes_tf32",
+    bytes_tf32.symbol,
+    4,
+    "TF32 is typically carried in FP32 storage.",
+    references=[TF32_REF],
+)
+eq_bytes_fp8 = eq(
+    "precision.eq.bytes_fp8",
+    bytes_fp8.symbol,
+    1,
+    "FP8 stores one byte per value.",
+    references=[LOWBIT_STORAGE_REF],
+)
+eq_bytes_fp6 = eq(
+    "precision.eq.bytes_fp6",
+    bytes_fp6.symbol,
+    sp.Rational(3, 4),
+    "Packed FP6 stores three quarters of a byte per value.",
+    references=[LOWBIT_STORAGE_REF],
+)
+eq_bytes_fp4 = eq(
+    "precision.eq.bytes_fp4",
+    bytes_fp4.symbol,
+    sp.Rational(1, 2),
+    "Packed FP4 stores half a byte per value.",
+    references=[LOWBIT_STORAGE_REF],
+)
+eq_bytes_int8 = eq(
+    "precision.eq.bytes_int8",
+    bytes_int8.symbol,
+    1,
+    "INT8 stores one byte per value.",
+    references=[LOWBIT_STORAGE_REF],
+)
+eq_bytes_int4 = eq(
+    "precision.eq.bytes_int4",
+    bytes_int4.symbol,
+    sp.Rational(1, 2),
+    "Packed INT4 stores half a byte per value.",
+    references=[LOWBIT_STORAGE_REF],
+)
 eq_tf32_man_bits = eq(
     "precision.eq.tf32_man_bits",
     tf32_man_bits.symbol,
     10,
     "TF32 preserves 10 explicit mantissa bits in its Tensor Core arithmetic path.",
+    references=[TF32_REF],
 )
 
 eq_posit_useed = eq(
@@ -118,6 +238,7 @@ eq_posit_useed = eq(
     posit_useed.symbol,
     2 ** (2 ** posit_es.symbol),
     "Posit useed equals 2 raised to 2^es.",
+    references=[POSIT_LNS_REF],
 )
 
 eq_lns_rel_error = eq(
@@ -125,6 +246,8 @@ eq_lns_rel_error = eq(
     lns_rel_error.symbol,
     sp.exp(lns_step.symbol / 2) - 1,
     "A half-step on a logarithmic lattice produces multiplicative relative error exp(Delta/2) - 1.",
+    references=[POSIT_LNS_REF],
+    check_units=True,
 )
 
 
@@ -163,12 +286,27 @@ grad_unscaled = var(
     scope="precision",
 )
 
+_annotate_variables(
+    (
+        grad_min_magnitude,
+        loss_scale,
+        scaled_grad_min,
+        min_loss_scale_safe,
+        grad_scaled,
+        grad_unscaled,
+    ),
+    DIMENSIONLESS,
+    [LOSS_SCALING_REF],
+)
+
 
 eq_scaled_grad_min = eq(
     "precision.eq.scaled_grad_min",
     scaled_grad_min.symbol,
     loss_scale.symbol * grad_min_magnitude.symbol,
     "Scaling the loss scales the backward gradient by the same factor.",
+    references=[LOSS_SCALING_REF],
+    check_units=True,
 )
 
 eq_min_loss_scale_safe = eq(
@@ -176,6 +314,8 @@ eq_min_loss_scale_safe = eq(
     min_loss_scale_safe.symbol,
     min_normal.symbol / grad_min_magnitude.symbol,
     "Minimum safe loss scale is the normal underflow threshold divided by the smallest gradient magnitude worth retaining.",
+    references=[LOSS_SCALING_REF],
+    check_units=True,
 )
 
 eq_grad_unscaled = eq(
@@ -183,6 +323,8 @@ eq_grad_unscaled = eq(
     grad_unscaled.symbol,
     grad_scaled.symbol / loss_scale.symbol,
     "Unscaling divides the accumulated low-precision gradient by the loss scale before the optimizer update.",
+    references=[LOSS_SCALING_REF],
+    check_units=True,
 )
 
 
@@ -241,12 +383,31 @@ rht_outlier_out = var(
     scope="precision",
 )
 
+_annotate_variables(
+    (
+        rht_dim,
+        rht_hadamard,
+        rht_sign_diag,
+        rht_input,
+        rht_output,
+        rht_scale,
+        rht_input_norm,
+        rht_output_norm,
+        rht_outlier_in,
+        rht_outlier_out,
+    ),
+    DIMENSIONLESS,
+    [RHT_REF],
+)
+
 
 eq_rht_scale = eq(
     "precision.eq.rht_scale",
     rht_scale.symbol,
     1 / sp.sqrt(rht_dim.symbol),
     "The normalized Hadamard transform uses 1/sqrt(m).",
+    references=[RHT_REF],
+    check_units=True,
 )
 
 eq_rht_output = eq(
@@ -254,6 +415,8 @@ eq_rht_output = eq(
     rht_output.symbol,
     rht_hadamard.symbol * rht_sign_diag.symbol * rht_input.symbol * rht_scale.symbol,
     "The random Hadamard transform is H_m D x / sqrt(m), represented here with abstract matrix-valued factors.",
+    references=[RHT_REF],
+    check_units=True,
 )
 
 eq_rht_norm = eq(
@@ -261,6 +424,8 @@ eq_rht_norm = eq(
     rht_output_norm.symbol,
     rht_input_norm.symbol,
     "The normalized Hadamard transform preserves vector norm.",
+    references=[RHT_REF],
+    check_units=True,
 )
 
 eq_rht_outlier = Approximation(
@@ -269,6 +434,8 @@ eq_rht_outlier = Approximation(
     rht_outlier_in.symbol / sp.sqrt(rht_dim.symbol),
     sp.Abs(rht_outlier_in.symbol) > 0,
     "When an outlier is concentrated in one coordinate, a random Hadamard rotation spreads it across the block by about sqrt(m).",
+    references=[RHT_REF],
+    check_units=True,
 )
 
 

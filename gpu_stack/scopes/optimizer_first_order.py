@@ -12,7 +12,56 @@ weights.
 """
 
 import sympy as sp
-from ..core import RelationRole, eq, var
+from ..core import Reference, RelationRole, eq, var
+from ..core.units import byte
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+OPT_FIRST_ORDER_REF = Reference(
+    "First-order optimizer bookkeeping treats parameters, gradients, "
+    "moments, learning-rate coefficients, and signed update directions as "
+    "dimensionless tensor values; storage state is tracked separately in "
+    "bytes.",
+    kind="model",
+)
+ADAM_REF = Reference(
+    "Kingma and Ba, Adam: A Method for Stochastic Optimization, ICLR 2015.",
+    kind="paper",
+    year=2015,
+)
+ADAMW_REF = Reference(
+    "Loshchilov and Hutter, Decoupled Weight Decay Regularization, ICLR 2019.",
+    kind="paper",
+    year=2019,
+)
+SGD_MOMENTUM_REF = Reference(
+    "SGD momentum and Nesterov updates are represented as first-moment "
+    "velocity-buffer recurrences over optimizer steps.",
+    kind="model",
+)
+RMSPROP_REF = Reference(
+    "Tieleman and Hinton, RMSProp, Neural Networks for Machine Learning "
+    "lecture notes, 2012.",
+    kind="memo",
+    year=2012,
+)
+LAMB_REF = Reference(
+    "You et al., Large Batch Optimization for Deep Learning: Training BERT "
+    "in 76 minutes, ICLR 2020.",
+    kind="paper",
+    year=2020,
+)
+LION_REF = Reference(
+    "Chen et al., Symbolic Discovery of Optimization Algorithms, 2023.",
+    kind="paper",
+    year=2023,
+)
+EMA_REF = Reference(
+    "Optimizer EMA deployment weights are modeled as a standard exponential "
+    "moving average over post-update parameters.",
+    kind="model",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -24,34 +73,47 @@ g = var(
     "Gradient at step t.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[OPT_FIRST_ORDER_REF],
 )
 lr = var(
     "opt.lr", "eta_opt", "dimensionless",
     "Selected learning rate used by the optimizer update.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[OPT_FIRST_ORDER_REF],
 )
 wd = var(
     "opt.weight_decay", "lambda_wd_opt", "dimensionless",
     "Weight-decay coefficient.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[ADAMW_REF],
 )
 theta = var(
     "opt.param", "theta_opt", "param",
     "Parameter value at step t.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[OPT_FIRST_ORDER_REF],
 )
 theta_next = var(
     "opt.param_next", "theta_next_opt", "param",
     "Parameter value at step t + 1 under the selected optimizer.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[OPT_FIRST_ORDER_REF],
 )
 t_step = var(
     "opt.step_index", "t_opt", "step",
     "Optimizer step index, starting at one.",
     scope="optimizer",
     integer=True,
+    positive=True,
+    sp_units=DIMENSIONLESS,
+    references=[OPT_FIRST_ORDER_REF],
 )
 
 
@@ -63,6 +125,8 @@ bytes_per_opt_param = var(
     "opt.bytes_per_param", "B_opt_state_opt", "byte/param",
     "Bytes per optimizer-state value.",
     scope="optimizer",
+    sp_units=byte,
+    references=[OPT_FIRST_ORDER_REF],
 )
 
 
@@ -75,48 +139,66 @@ m = var(
     "AdamW first-moment estimate.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[ADAM_REF],
 )
 v_adam = var(
     "opt.adam.v", "v_adam_opt", "moment",
     "AdamW second-moment estimate.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[ADAM_REF],
 )
 m_prev = var(
     "opt.adam.m_prev", "m_prev_adam_opt", "moment",
     "Previous AdamW first moment.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[ADAM_REF],
 )
 v_prev = var(
     "opt.adam.v_prev", "v_prev_adam_opt", "moment",
     "Previous AdamW second moment.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[ADAM_REF],
 )
 beta1 = var(
     "opt.adam.beta1", "beta1_adam_opt", "dimensionless",
     "EMA coefficient for AdamW first moment.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[ADAM_REF],
 )
 beta2 = var(
     "opt.adam.beta2", "beta2_adam_opt", "dimensionless",
     "EMA coefficient for AdamW second moment.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[ADAM_REF],
 )
 eps_adam = var(
     "opt.adam.eps", "eps_adam_opt", "dimensionless",
     "Numerical stability epsilon in AdamW.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[ADAM_REF],
 )
 m_hat = var(
     "opt.adam.m_hat", "mhat_adam_opt", "moment",
     "Bias-corrected AdamW first moment.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[ADAM_REF],
 )
 v_hat = var(
     "opt.adam.v_hat", "vhat_adam_opt", "moment",
     "Bias-corrected AdamW second moment.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[ADAM_REF],
 )
 
 
@@ -125,6 +207,8 @@ eq_adam_m = eq(
     m.symbol,
     beta1.symbol * m_prev.symbol + (1 - beta1.symbol) * g.symbol,
     "AdamW first-moment update.",
+    references=[ADAM_REF],
+    check_units=True,
 )
 
 eq_adam_v = eq(
@@ -132,6 +216,8 @@ eq_adam_v = eq(
     v_adam.symbol,
     beta2.symbol * v_prev.symbol + (1 - beta2.symbol) * g.symbol ** 2,
     "AdamW second-moment update.",
+    references=[ADAM_REF],
+    check_units=True,
 )
 
 eq_adam_m_hat = eq(
@@ -139,6 +225,8 @@ eq_adam_m_hat = eq(
     m_hat.symbol,
     m.symbol / (1 - beta1.symbol ** t_step.symbol),
     "Bias correction for the first moment.",
+    references=[ADAM_REF],
+    check_units=True,
 )
 
 eq_adam_v_hat = eq(
@@ -146,6 +234,8 @@ eq_adam_v_hat = eq(
     v_hat.symbol,
     v_adam.symbol / (1 - beta2.symbol ** t_step.symbol),
     "Bias correction for the second moment.",
+    references=[ADAM_REF],
+    check_units=True,
 )
 
 eq_adam_step = eq(
@@ -153,7 +243,8 @@ eq_adam_step = eq(
     theta_next.symbol,
     theta.symbol - lr.symbol * (m_hat.symbol / (sp.sqrt(v_hat.symbol) + eps_adam.symbol) + wd.symbol * theta.symbol),
     "AdamW subtracts the adaptive update and decoupled weight decay.",
-    references=["Loshchilov and Hutter, Decoupled Weight Decay Regularization, ICLR 2019."],
+    references=[ADAM_REF, ADAMW_REF],
+    check_units=True,
     role=RelationRole.VARIANT,
     variant="adamw",
 )
@@ -168,110 +259,150 @@ sgd_velocity_prev = var(
     "Previous SGD momentum buffer.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[SGD_MOMENTUM_REF],
 )
 sgd_velocity = var(
     "opt.sgd.velocity", "v_sgd_opt", "moment",
     "Current SGD momentum buffer.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[SGD_MOMENTUM_REF],
 )
 sgd_momentum_coeff = var(
     "opt.sgd.momentum", "mu_sgd_opt", "dimensionless",
     "Momentum coefficient for SGD.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[SGD_MOMENTUM_REF],
 )
 theta_next_sgd = var(
     "opt.sgd.theta_next", "theta_next_sgd_opt", "param",
     "Parameter after an SGD-with-momentum update.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[SGD_MOMENTUM_REF],
 )
 theta_next_nesterov = var(
     "opt.sgd.theta_next_nesterov", "theta_next_nest_opt", "param",
     "Parameter after a Nesterov update.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[SGD_MOMENTUM_REF],
 )
 rmsprop_avg_prev = var(
     "opt.rmsprop.avg_prev", "v_prev_rms_opt", "moment",
     "Previous RMSProp second-moment accumulator.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[RMSPROP_REF],
 )
 rmsprop_avg = var(
     "opt.rmsprop.avg", "v_rms_opt", "moment",
     "Current RMSProp second-moment accumulator.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[RMSPROP_REF],
 )
 beta_rms = var(
     "opt.rmsprop.beta", "beta_rms_opt", "dimensionless",
     "RMSProp averaging coefficient.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[RMSPROP_REF],
 )
 eps_rms = var(
     "opt.rmsprop.eps", "eps_rms_opt", "dimensionless",
     "RMSProp denominator epsilon.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[RMSPROP_REF],
 )
 theta_next_rms = var(
     "opt.rmsprop.theta_next", "theta_next_rms_opt", "param",
     "Parameter after an RMSProp update.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[RMSPROP_REF],
 )
 weight_norm = var(
     "opt.lamb.weight_norm", "n_w_lamb_opt", "value",
     "Layer weight norm used by LAMB.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[LAMB_REF],
 )
 update_norm = var(
     "opt.lamb.update_norm", "n_u_lamb_opt", "value",
     "Norm of the Adam-like update inside LAMB.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[LAMB_REF],
 )
 trust_ratio = var(
     "opt.lamb.trust_ratio", "r_trust_lamb_opt", "dimensionless",
     "LAMB trust ratio.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[LAMB_REF],
 )
 theta_next_lamb = var(
     "opt.lamb.theta_next", "theta_next_lamb_opt", "param",
     "Parameter after a LAMB update.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[LAMB_REF],
 )
 lion_m_prev = var(
     "opt.lion.m_prev", "m_prev_lion_opt", "moment",
     "Previous Lion momentum-like buffer.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[LION_REF],
 )
 lion_m = var(
     "opt.lion.m", "m_lion_opt", "moment",
     "Current Lion momentum-like buffer.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[LION_REF],
 )
 lion_beta1 = var(
     "opt.lion.beta1", "beta1_lion_opt", "dimensionless",
     "Lion coefficient for the signed update direction.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[LION_REF],
 )
 lion_beta2 = var(
     "opt.lion.beta2", "beta2_lion_opt", "dimensionless",
     "Lion coefficient for the momentum buffer update.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[LION_REF],
 )
 lion_direction = var(
     "opt.lion.direction", "d_lion_opt", "dimensionless",
     "Signed Lion update direction.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[LION_REF],
 )
 theta_next_lion = var(
     "opt.lion.theta_next", "theta_next_lion_opt", "param",
     "Parameter after a Lion update.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[LION_REF],
 )
 
 
@@ -280,6 +411,8 @@ eq_sgd_velocity = eq(
     sgd_velocity.symbol,
     sgd_momentum_coeff.symbol * sgd_velocity_prev.symbol + g.symbol,
     "SGD with momentum updates its velocity buffer by adding the new gradient to the decayed previous buffer.",
+    references=[SGD_MOMENTUM_REF],
+    check_units=True,
 )
 
 eq_sgd_step = eq(
@@ -287,6 +420,8 @@ eq_sgd_step = eq(
     theta_next_sgd.symbol,
     theta.symbol - lr.symbol * sgd_velocity.symbol,
     "SGD with momentum subtracts the velocity buffer scaled by the learning rate.",
+    references=[SGD_MOMENTUM_REF],
+    check_units=True,
 )
 
 eq_nesterov_step = eq(
@@ -294,6 +429,8 @@ eq_nesterov_step = eq(
     theta_next_nesterov.symbol,
     theta.symbol - lr.symbol * (g.symbol + sgd_momentum_coeff.symbol * sgd_velocity.symbol),
     "Nesterov evaluates the gradient at a look-ahead point by adding a momentum correction to the immediate gradient.",
+    references=[SGD_MOMENTUM_REF],
+    check_units=True,
 )
 
 eq_rmsprop_avg = eq(
@@ -301,6 +438,8 @@ eq_rmsprop_avg = eq(
     rmsprop_avg.symbol,
     beta_rms.symbol * rmsprop_avg_prev.symbol + (1 - beta_rms.symbol) * g.symbol ** 2,
     "RMSProp tracks an EMA of squared gradients.",
+    references=[RMSPROP_REF],
+    check_units=True,
 )
 
 eq_rmsprop_step = eq(
@@ -308,6 +447,8 @@ eq_rmsprop_step = eq(
     theta_next_rms.symbol,
     theta.symbol - lr.symbol * g.symbol / (sp.sqrt(rmsprop_avg.symbol) + eps_rms.symbol),
     "RMSProp rescales the gradient by the square root of its running second moment.",
+    references=[RMSPROP_REF],
+    check_units=True,
 )
 
 eq_trust_ratio = eq(
@@ -315,6 +456,8 @@ eq_trust_ratio = eq(
     trust_ratio.symbol,
     weight_norm.symbol / update_norm.symbol,
     "LAMB uses the ratio of weight norm to update norm to set a layer-wise trust ratio.",
+    references=[LAMB_REF],
+    check_units=True,
 )
 
 eq_lamb_step = eq(
@@ -322,6 +465,8 @@ eq_lamb_step = eq(
     theta_next_lamb.symbol,
     theta.symbol - lr.symbol * trust_ratio.symbol * (m_hat.symbol / (sp.sqrt(v_hat.symbol) + eps_adam.symbol) + wd.symbol * theta.symbol),
     "LAMB scales an Adam-like update by the layer-wise trust ratio.",
+    references=[ADAM_REF, ADAMW_REF, LAMB_REF],
+    check_units=True,
 )
 
 eq_lion_direction = eq(
@@ -329,6 +474,8 @@ eq_lion_direction = eq(
     lion_direction.symbol,
     sp.sign(lion_beta1.symbol * lion_m_prev.symbol + (1 - lion_beta1.symbol) * g.symbol),
     "Lion uses the sign of a momentum-filtered gradient as the update direction.",
+    references=[LION_REF],
+    check_units=True,
 )
 
 eq_lion_m = eq(
@@ -336,6 +483,8 @@ eq_lion_m = eq(
     lion_m.symbol,
     lion_beta2.symbol * lion_m_prev.symbol + (1 - lion_beta2.symbol) * g.symbol,
     "Lion keeps a low-memory momentum-like buffer.",
+    references=[LION_REF],
+    check_units=True,
 )
 
 eq_lion_step = eq(
@@ -343,6 +492,8 @@ eq_lion_step = eq(
     theta_next_lion.symbol,
     theta.symbol - lr.symbol * (lion_direction.symbol + wd.symbol * theta.symbol),
     "Lion subtracts the signed update direction and decoupled weight decay.",
+    references=[LION_REF, ADAMW_REF],
+    check_units=True,
 )
 
 
@@ -354,18 +505,24 @@ ema_decay = var(
     "opt.ema.decay", "beta_ema_opt", "dimensionless",
     "Exponential-moving-average decay for deployment weights.",
     scope="optimizer",
+    sp_units=DIMENSIONLESS,
+    references=[EMA_REF],
 )
 ema_prev = var(
     "opt.ema.prev", "theta_ema_prev_opt", "param",
     "Previous EMA weights.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[EMA_REF],
 )
 ema_theta = var(
     "opt.ema.theta", "theta_ema_opt", "param",
     "Current EMA weights.",
     scope="optimizer",
     positive=False,
+    sp_units=DIMENSIONLESS,
+    references=[EMA_REF],
 )
 
 
@@ -374,6 +531,8 @@ eq_ema_theta = eq(
     ema_theta.symbol,
     ema_decay.symbol * ema_prev.symbol + (1 - ema_decay.symbol) * theta_next.symbol,
     "EMA weights blend the previous EMA with the latest parameter value.",
+    references=[EMA_REF],
+    check_units=True,
 )
 
 

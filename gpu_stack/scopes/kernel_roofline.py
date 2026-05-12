@@ -11,7 +11,8 @@ scope.
 
 import sympy as sp
 
-from ..core import eq, var
+from ..core import Reference, eq, var
+from ..core.units import FLOP, FLOPS, SECOND, byte
 from .gpu import (
     hbm_bw_gpu_effective,
     peak_flops_gpu_power_limited,
@@ -20,6 +21,27 @@ from .gpu import (
 )
 from .memory_subsystem import (
     l2_bw,
+)
+
+
+DIMENSIONLESS = sp.Integer(1)
+ARITH_INTENSITY_UNIT = FLOP / byte
+
+KERNEL_ROOFLINE_REF = Reference(
+    "Williams, Waterman, and Patterson, Roofline: An Insightful Visual "
+    "Performance Model for Multicore Architectures, CACM 2009.",
+    kind="paper",
+    year=2009,
+)
+KERNEL_MEMORY_ROOFLINE_REF = Reference(
+    "GPU memory-hierarchy roofline model: separate HBM, L2, shared-memory, "
+    "and register-file bandwidth ceilings bound kernel throughput.",
+    kind="model",
+)
+KERNEL_TIME_BOUND_REF = Reference(
+    "Kernel runtime lower-bound model: compute work, memory traffic, and "
+    "launch latency produce independent time ceilings.",
+    kind="model",
 )
 
 
@@ -138,59 +160,101 @@ global_load_count = var(
     scope="kernel",
 )
 
+for _v in (flops_kernel,):
+    _v.sp_units = FLOP
+    _v.references.append(KERNEL_ROOFLINE_REF)
+
+for _v in (bytes_kernel, bytes_l2, bytes_smem, bytes_reg):
+    _v.sp_units = byte
+    _v.references.append(KERNEL_MEMORY_ROOFLINE_REF)
+
+for _v in (arith_intensity, ai_l2, ai_smem, ai_reg):
+    _v.sp_units = ARITH_INTENSITY_UNIT
+    _v.references.append(KERNEL_ROOFLINE_REF)
+
+for _v in (compute_efficiency, global_load_count):
+    _v.sp_units = DIMENSIONLESS
+    _v.references.append(KERNEL_TIME_BOUND_REF)
+
+for _v in (compute_ceiling, hbm_ceiling, l2_ceiling, smem_ceiling, reg_ceiling, roofline_flops):
+    _v.sp_units = FLOPS
+    _v.references.append(KERNEL_ROOFLINE_REF)
+
+for _v in (t_compute_bound, t_hbm_bound, t_l2_bound, t_smem_bound, t_reg_bound):
+    _v.sp_units = SECOND
+    _v.references.append(KERNEL_TIME_BOUND_REF)
+
 eq_arith_intensity = eq(
     "kernel.eq.arith_intensity",
     arith_intensity.symbol,
     flops_kernel.symbol / bytes_kernel.symbol,
     "HBM arithmetic intensity equals kernel FLOPs divided by HBM bytes.",
+    references=[KERNEL_ROOFLINE_REF],
+    check_units=True,
 )
 eq_ai_l2 = eq(
     "kernel.eq.l2_arith_intensity",
     ai_l2.symbol,
     flops_kernel.symbol / bytes_l2.symbol,
     "L2 arithmetic intensity equals kernel FLOPs divided by L2 bytes.",
+    references=[KERNEL_MEMORY_ROOFLINE_REF],
+    check_units=True,
 )
 eq_ai_smem = eq(
     "kernel.eq.smem_arith_intensity",
     ai_smem.symbol,
     flops_kernel.symbol / bytes_smem.symbol,
     "SMEM arithmetic intensity equals kernel FLOPs divided by SMEM bytes.",
+    references=[KERNEL_MEMORY_ROOFLINE_REF],
+    check_units=True,
 )
 eq_ai_reg = eq(
     "kernel.eq.reg_arith_intensity",
     ai_reg.symbol,
     flops_kernel.symbol / bytes_reg.symbol,
     "Register arithmetic intensity equals kernel FLOPs divided by register bytes.",
+    references=[KERNEL_MEMORY_ROOFLINE_REF],
+    check_units=True,
 )
 eq_compute_ceiling = eq(
     "kernel.eq.compute_ceiling",
     compute_ceiling.symbol,
     compute_efficiency.symbol * peak_flops_gpu_power_limited.symbol,
     "Compute ceiling equals the GPU's power-limited effective peak scaled by kernel-specific compute efficiency.",
+    references=[KERNEL_ROOFLINE_REF],
+    check_units=True,
 )
 eq_hbm_ceiling = eq(
     "kernel.eq.hbm_ceiling",
     hbm_ceiling.symbol,
     hbm_bw_gpu_effective.symbol * arith_intensity.symbol,
     "HBM roofline ceiling equals effective HBM bandwidth times HBM arithmetic intensity.",
+    references=[KERNEL_ROOFLINE_REF],
+    check_units=True,
 )
 eq_l2_ceiling = eq(
     "kernel.eq.l2_ceiling",
     l2_ceiling.symbol,
     l2_bw.symbol * ai_l2.symbol,
     "L2 roofline ceiling equals L2 bandwidth times L2 arithmetic intensity.",
+    references=[KERNEL_MEMORY_ROOFLINE_REF],
+    check_units=True,
 )
 eq_smem_ceiling = eq(
     "kernel.eq.smem_ceiling",
     smem_ceiling.symbol,
     smem_bw_gpu.symbol * ai_smem.symbol,
     "SMEM roofline ceiling equals aggregate SMEM bandwidth times SMEM arithmetic intensity.",
+    references=[KERNEL_MEMORY_ROOFLINE_REF],
+    check_units=True,
 )
 eq_reg_ceiling = eq(
     "kernel.eq.reg_ceiling",
     reg_ceiling.symbol,
     reg_bw_gpu.symbol * ai_reg.symbol,
     "Register-file roofline ceiling equals aggregate register bandwidth times register arithmetic intensity.",
+    references=[KERNEL_MEMORY_ROOFLINE_REF],
+    check_units=True,
 )
 eq_roofline = eq(
     "kernel.eq.roofline",
@@ -198,38 +262,49 @@ eq_roofline = eq(
     sp.Min(compute_ceiling.symbol, hbm_ceiling.symbol, l2_ceiling.symbol, smem_ceiling.symbol, reg_ceiling.symbol),
     "The generalized roofline ceiling is the minimum of the compute and memory-level ceilings.",
     references=[
-        "Williams, Waterman, and Patterson, Roofline, CACM 2009.",
+        KERNEL_ROOFLINE_REF,
     ],
+    check_units=True,
 )
 eq_t_compute_bound = eq(
     "kernel.eq.time_compute_bound",
     t_compute_bound.symbol,
     flops_kernel.symbol / compute_ceiling.symbol,
     "Compute-bound time lower bound equals FLOPs divided by the compute ceiling.",
+    references=[KERNEL_TIME_BOUND_REF],
+    check_units=True,
 )
 eq_t_hbm_bound = eq(
     "kernel.eq.time_hbm_bound",
     t_hbm_bound.symbol,
     bytes_kernel.symbol / hbm_bw_gpu_effective.symbol,
     "HBM-bound time lower bound equals HBM bytes divided by effective HBM bandwidth.",
+    references=[KERNEL_TIME_BOUND_REF],
+    check_units=True,
 )
 eq_t_l2_bound = eq(
     "kernel.eq.time_l2_bound",
     t_l2_bound.symbol,
     bytes_l2.symbol / l2_bw.symbol,
     "L2-bound time lower bound equals L2 bytes divided by L2 bandwidth.",
+    references=[KERNEL_TIME_BOUND_REF],
+    check_units=True,
 )
 eq_t_smem_bound = eq(
     "kernel.eq.time_smem_bound",
     t_smem_bound.symbol,
     bytes_smem.symbol / smem_bw_gpu.symbol,
     "SMEM-bound time lower bound equals SMEM bytes divided by aggregate SMEM bandwidth.",
+    references=[KERNEL_TIME_BOUND_REF],
+    check_units=True,
 )
 eq_t_reg_bound = eq(
     "kernel.eq.time_reg_bound",
     t_reg_bound.symbol,
     bytes_reg.symbol / reg_bw_gpu.symbol,
     "Register-bound time lower bound equals register bytes divided by aggregate register bandwidth.",
+    references=[KERNEL_TIME_BOUND_REF],
+    check_units=True,
 )
 
 

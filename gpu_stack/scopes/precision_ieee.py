@@ -13,7 +13,23 @@ minimum-nonzero model that distinguishes subnormal support from flush-to-zero.
 
 import sympy as sp
 
-from ..core import PiecewiseEquation, eq, var
+from ..core import PiecewiseEquation, Reference, eq, var
+from ..core.units import bit, byte
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+IEEE_754_REF = Reference(
+    "IEEE Std 754-2019, IEEE Standard for Floating-Point Arithmetic.",
+    kind="standard",
+    year=2019,
+)
+
+
+def _annotate_variables(variables, sp_units, references):
+    for variable in variables:
+        variable.sp_units = sp_units
+        variable.references.extend(references)
 
 
 # ---------------------------------------------------------------------------
@@ -99,8 +115,7 @@ subnormal_enabled = var(
     "precision.subnormals.enabled", "I_sub_fmt", "flag",
     "1 if the format preserves subnormals, 0 if it flushes them to zero.",
     scope="precision",
-    positive=False,
-    integer=True,
+    binary=True,
 )
 inf_code_count = var(
     "precision.inf_code_count", "N_inf_fmt", "codes",
@@ -113,12 +128,36 @@ nan_code_count = var(
     scope="precision",
 )
 
+_annotate_variables((n_sign, n_exp, n_man, n_bits), bit, [IEEE_754_REF])
+_annotate_variables((bytes_per_val,), byte, [IEEE_754_REF])
+_annotate_variables(
+    (
+        exp_bias,
+        exp_min_normal,
+        exp_max_normal,
+        min_normal,
+        min_subnormal,
+        min_nonzero,
+        max_normal,
+        dyn_range,
+        epsilon_machine,
+        ulp_at_one,
+        subnormal_enabled,
+        inf_code_count,
+        nan_code_count,
+    ),
+    DIMENSIONLESS,
+    [IEEE_754_REF],
+)
+
 
 eq_total_bits = eq(
     "precision.eq.total_bits",
     n_bits.symbol,
     n_sign.symbol + n_exp.symbol + n_man.symbol,
     "Format width is the sum of sign, exponent, and mantissa bits.",
+    references=[IEEE_754_REF],
+    check_units=True,
 )
 
 eq_bytes_per_value = eq(
@@ -126,6 +165,8 @@ eq_bytes_per_value = eq(
     bytes_per_val.symbol,
     n_bits.symbol / 8,
     "Bytes per value equals bits per value divided by eight.",
+    references=[IEEE_754_REF],
+    check_units=True,
 )
 
 eq_exp_bias = eq(
@@ -133,6 +174,7 @@ eq_exp_bias = eq(
     exp_bias.symbol,
     2 ** (n_exp.symbol - 1) - 1,
     "IEEE-like exponent bias.",
+    references=[IEEE_754_REF],
 )
 
 eq_exp_min_normal = eq(
@@ -140,6 +182,8 @@ eq_exp_min_normal = eq(
     exp_min_normal.symbol,
     1 - exp_bias.symbol,
     "Minimum unbiased normal exponent equals 1 minus the exponent bias.",
+    references=[IEEE_754_REF],
+    check_units=True,
 )
 
 eq_exp_max_normal = eq(
@@ -147,6 +191,8 @@ eq_exp_max_normal = eq(
     exp_max_normal.symbol,
     exp_bias.symbol,
     "Maximum unbiased normal exponent equals the exponent bias when all-ones exponents are reserved.",
+    references=[IEEE_754_REF],
+    check_units=True,
 )
 
 eq_machine_eps = eq(
@@ -154,6 +200,7 @@ eq_machine_eps = eq(
     epsilon_machine.symbol,
     2 ** (-n_man.symbol),
     "Machine epsilon near one is 2^(-mantissa_bits).",
+    references=[IEEE_754_REF],
 )
 
 eq_ulp_at_one = eq(
@@ -161,6 +208,7 @@ eq_ulp_at_one = eq(
     ulp_at_one.symbol,
     2 ** (-n_man.symbol),
     "ULP spacing around one matches machine epsilon for an IEEE-like normal encoding.",
+    references=[IEEE_754_REF],
 )
 
 eq_min_normal = eq(
@@ -168,6 +216,8 @@ eq_min_normal = eq(
     min_normal.symbol,
     2 ** exp_min_normal.symbol,
     "Smallest positive normal value is 2^(minimum normal exponent).",
+    references=[IEEE_754_REF],
+    check_units=True,
 )
 
 eq_min_subnormal = eq(
@@ -175,6 +225,7 @@ eq_min_subnormal = eq(
     min_subnormal.symbol,
     2 ** (exp_min_normal.symbol - n_man.symbol),
     "Smallest positive subnormal extends the exponent ladder downward by mantissa_bits.",
+    references=[IEEE_754_REF],
 )
 
 eq_min_nonzero = PiecewiseEquation(
@@ -185,6 +236,7 @@ eq_min_nonzero = PiecewiseEquation(
         (min_normal.symbol, True),
     ],
     description="Minimum positive nonzero value depends on whether subnormals are preserved or flushed.",
+    references=[IEEE_754_REF],
 )
 
 eq_max_normal = eq(
@@ -192,6 +244,7 @@ eq_max_normal = eq(
     max_normal.symbol,
     (2 - 2 ** (-n_man.symbol)) * 2 ** exp_max_normal.symbol,
     "Largest finite normal value uses the largest non-reserved exponent and an all-ones mantissa.",
+    references=[IEEE_754_REF],
 )
 
 eq_dynamic_range = eq(
@@ -199,6 +252,8 @@ eq_dynamic_range = eq(
     dyn_range.symbol,
     max_normal.symbol / min_nonzero.symbol,
     "Dynamic range is max finite magnitude divided by min positive nonzero magnitude.",
+    references=[IEEE_754_REF],
+    check_units=True,
 )
 
 eq_inf_code_count = eq(
@@ -206,6 +261,8 @@ eq_inf_code_count = eq(
     inf_code_count.symbol,
     2,
     "IEEE-like formats have two infinity encodings, positive and negative.",
+    references=[IEEE_754_REF],
+    check_units=True,
 )
 
 eq_nan_code_count = eq(
@@ -213,6 +270,7 @@ eq_nan_code_count = eq(
     nan_code_count.symbol,
     2 * (2 ** n_man.symbol - 1),
     "NaN codes use all-ones exponents and any nonzero mantissa, with both sign choices.",
+    references=[IEEE_754_REF],
 )
 
 
