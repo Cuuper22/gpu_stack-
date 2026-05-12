@@ -10,8 +10,36 @@ block-floating-point shared-exponent overhead, and dynamic fixed-point
 scale.
 """
 
-from ..core import eq, var
+import sympy as sp
+
+from ..core import Reference, eq, var
+from ..core.units import bit
 from .precision_ieee import n_bits
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+MICROSCALING_REF = Reference(
+    "Open Compute Project, Microscaling Formats (MX) Specification, 2023.",
+    kind="standard",
+    year=2023,
+)
+
+BFP_REF = Reference(
+    "Block floating point stores shared exponent metadata amortized across a block.",
+    kind="model",
+)
+
+DYNAMIC_FIXED_POINT_REF = Reference(
+    "Dynamic fixed-point quantization models use a local scale and fractional-bit step.",
+    kind="model",
+)
+
+
+def _annotate_variables(variables, sp_units, references):
+    for variable in variables:
+        variable.sp_units = sp_units
+        variable.references.extend(references)
 
 
 # ---------------------------------------------------------------------------
@@ -69,12 +97,40 @@ fixed_scale = var(
     scope="precision",
 )
 
+_annotate_variables(
+    (
+        block_size,
+        second_scale_fanout,
+    ),
+    DIMENSIONLESS,
+    [MICROSCALING_REF],
+)
+_annotate_variables(
+    (
+        scale_bits,
+        second_scale_bits,
+        eff_bits_per_val,
+    ),
+    bit,
+    [MICROSCALING_REF],
+)
+_annotate_variables((bfp_block_size,), DIMENSIONLESS, [BFP_REF])
+_annotate_variables((bfp_shared_exp_bits, bfp_eff_bits), bit, [BFP_REF])
+_annotate_variables((fixed_frac_bits,), bit, [DYNAMIC_FIXED_POINT_REF])
+_annotate_variables((fixed_scale,), DIMENSIONLESS, [DYNAMIC_FIXED_POINT_REF])
+
 
 eq_effective_bits = eq(
     "precision.eq.effective_bits",
     eff_bits_per_val.symbol,
-    n_bits.symbol + scale_bits.symbol / block_size.symbol + second_scale_bits.symbol / second_scale_fanout.symbol,
+    (
+        n_bits.symbol
+        + scale_bits.symbol / block_size.symbol
+        + second_scale_bits.symbol / second_scale_fanout.symbol
+    ),
     "Effective bits per value equal payload bits plus amortized first-level and second-level scale overheads.",
+    references=[MICROSCALING_REF],
+    check_units=True,
 )
 
 eq_bfp_eff_bits = eq(
@@ -82,6 +138,8 @@ eq_bfp_eff_bits = eq(
     bfp_eff_bits.symbol,
     n_bits.symbol + bfp_shared_exp_bits.symbol / bfp_block_size.symbol,
     "BFP effective bits equal payload bits plus amortized shared exponent metadata.",
+    references=[BFP_REF],
+    check_units=True,
 )
 
 eq_fixed_scale = eq(
@@ -89,6 +147,7 @@ eq_fixed_scale = eq(
     fixed_scale.symbol,
     2 ** (-fixed_frac_bits.symbol),
     "A dynamic fixed-point step is 2^(-fractional_bits) in the chosen local scale frame.",
+    references=[DYNAMIC_FIXED_POINT_REF],
 )
 
 

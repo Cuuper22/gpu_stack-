@@ -41,9 +41,9 @@ SCOPE_MODULES = [
 
 
 SCOPE_DESCRIPTIONS = {
-    "physical":         "electrons, current, transistor, gate, RC delay, CMOS power, time-of-flight",
+    "physical":         "lithography, process pitch, self-heating, transport, transistor, interconnect, CMOS logic",
     "memory_cell":      "SRAM 6T, DRAM 1T1C, flip-flop",
-    "memory_subsystem": "register file, SMEM, TMEM, L1, L2, HBM bandwidth and latency",
+    "memory_subsystem": "register file, SMEM, TMEM, L1, L2, stacked-die/channelized HBM",
     "precision":        "FP formats, microscaling (MXFP4/NVFP4), stochastic rounding",
     "parallelism":      "DP, TP, PP, EP, CP, FSDP memory, pipeline bubbles",
     "architecture":     "transformer block, attention variants, MoE, KV cache, 6*P*T",
@@ -54,7 +54,7 @@ SCOPE_DESCRIPTIONS = {
     "kernel":           "arithmetic intensity, roofline, matmul + attention kernels",
     "collective":       "AllReduce, AllGather, ReduceScatter, All-to-all, async-TP",
     "training":         "T_step = T_compute + T_ec + T_mb + T_bub, MFU, tokens/s",
-    "cluster":          "node -> rack -> cluster -> hyperscaler aggregation",
+    "cluster":          "node NIC topology -> rack -> cluster -> hyperscaler aggregation",
     "thermal":          "junction-to-ambient resistance, coolant flow, PUE",
     "economics":        "GPU amortization, $/kWh, $/token, run cost",
 }

@@ -29,8 +29,8 @@ if TYPE_CHECKING:
 
 
 class VariableKind(Enum):
-    ROOT_INPUT    = auto()  # Must be supplied externally; no defining equation.
-    DERIVED       = auto()  # Has one or more defining equations.
+    ROOT_INPUT    = auto()  # Must be supplied externally; no value-defining relation.
+    DERIVED       = auto()  # Has one or more value-defining relations.
     MEASURED      = auto()  # Has an empirical value (e.g., a benchmark number).
     DEFINITIONAL  = auto()  # A name for a concept, not a quantity (e.g. "vocab").
 
@@ -60,7 +60,11 @@ class Variable:
     Parameters
     ----------
     name, symbol, units, description, scope : core identification
-    positive, real, integer : sympy symbol constraints
+    positive, real, integer : sympy symbol constraints. By default, Variables
+        are real but unconstrained in sign and integrality.
+    negative, nonnegative, nonpositive, noninteger, binary, signed : explicit
+        domain switches for cases where SymPy assumptions should be stronger
+        than the default.
     value_range : optional (min, max) bounds
     kind : VariableKind
     extensivity : Extensivity
@@ -76,9 +80,15 @@ class Variable:
         units: str,
         description: str,
         scope: str = "unknown",
-        positive: bool = True,
-        real: bool = True,
-        integer: bool = False,
+        positive: Optional[bool] = None,
+        real: Optional[bool] = True,
+        integer: Optional[bool] = None,
+        negative: bool = False,
+        nonnegative: bool = False,
+        nonpositive: bool = False,
+        noninteger: bool = False,
+        binary: bool = False,
+        signed: bool = False,
         value_range: Optional[Tuple[float, float]] = None,
         kind: VariableKind = VariableKind.DERIVED,
         extensivity: Extensivity = Extensivity.NONE,
@@ -87,7 +97,49 @@ class Variable:
         references: Optional[List[Reference]] = None,
     ):
         self.name = name
-        self.symbol = sp.Symbol(symbol, positive=positive, real=real, integer=integer)
+        if binary:
+            if noninteger:
+                raise ValueError(f"{name}: binary variables must be integer.")
+            integer = True
+            nonnegative = True
+            if value_range is None:
+                value_range = (0.0, 1.0)
+
+        sign_constraints = [
+            positive is True,
+            negative,
+            nonnegative,
+            nonpositive,
+        ]
+        if sum(1 for flag in sign_constraints if flag) > 1:
+            raise ValueError(
+                f"{name}: choose only one sign constraint among positive, "
+                "negative, nonnegative, and nonpositive."
+            )
+        if integer is True and noninteger:
+            raise ValueError(f"{name}: integer and noninteger cannot both be true.")
+
+        assumptions = {}
+        if real is not None:
+            assumptions["real"] = real
+        if positive is True:
+            assumptions["positive"] = True
+        elif negative:
+            assumptions["negative"] = True
+        elif nonnegative:
+            assumptions["nonnegative"] = True
+        elif nonpositive:
+            assumptions["nonpositive"] = True
+
+        if integer is True:
+            assumptions["integer"] = True
+        elif noninteger:
+            assumptions["integer"] = False
+
+        self.symbol = sp.Symbol(symbol, **assumptions)
+        self.assumptions = dict(assumptions)
+        self.signed = bool(signed or positive is False)
+        self.binary = binary
         self.units = units
         self.description = description
         self.scope = scope
@@ -121,7 +173,8 @@ class Variable:
 
     @property
     def is_root_input(self) -> bool:
-        return not self._defined_by
+        from .equation import RelationRole
+        return not any(e.role is not RelationRole.CONSTRAINT for e in self._defined_by)
 
     # ----- role-filtered defining-equation access -----
 
@@ -158,16 +211,36 @@ class Variable:
 
     # ----- dependency traversal -----
 
-    def direct_dependencies(self) -> Set["Variable"]:
-        """Variables directly referenced on the RHS of any defining equation."""
+    def direct_dependencies(
+        self,
+        include_constraints: bool = False,
+    ) -> Set["Variable"]:
+        """
+        Variables directly referenced by value-defining relations.
+
+        Constraints are excluded by default because a bound is not a
+        derivation. Pass `include_constraints=True` for feasibility or audit
+        views that intentionally want constraint RHS variables too.
+        """
+        from .equation import RelationRole
         deps: Set[Variable] = set()
         for eq in self._defined_by:
-            for v in eq.variables_on_rhs():
+            if not include_constraints and eq.role == RelationRole.CONSTRAINT:
+                continue
+            if include_constraints and eq.role == RelationRole.CONSTRAINT:
+                related = eq.variables_in_relation()
+            else:
+                related = eq.variables_on_rhs()
+            for v in related:
                 if v is not self:
                     deps.add(v)
         return deps
 
-    def dependencies(self, _seen: Optional[Set["Variable"]] = None) -> Set["Variable"]:
+    def dependencies(
+        self,
+        _seen: Optional[Set["Variable"]] = None,
+        include_constraints: bool = False,
+    ) -> Set["Variable"]:
         """All Variables this one transitively depends on (cycle-safe)."""
         if _seen is None:
             _seen = set()
@@ -175,33 +248,48 @@ class Variable:
             return set()
         _seen.add(self)
         out: Set[Variable] = set()
-        for v in self.direct_dependencies():
+        for v in self.direct_dependencies(include_constraints=include_constraints):
             if v in _seen:
                 continue
             out.add(v)
-            out |= v.dependencies(_seen)
+            out |= v.dependencies(_seen, include_constraints=include_constraints)
         return out
 
-    def direct_dependents(self) -> Set["Variable"]:
+    def direct_dependents(
+        self,
+        include_constraints: bool = False,
+    ) -> Set["Variable"]:
+        from .equation import RelationRole
         deps: Set[Variable] = set()
         for eq in self._used_in:
+            if not include_constraints and eq.role == RelationRole.CONSTRAINT:
+                continue
+            if include_constraints and eq.role == RelationRole.CONSTRAINT:
+                for lhs in eq.variables_on_lhs():
+                    if lhs is not self:
+                        deps.add(lhs)
+                continue
             lhs = eq.lhs_variable()
             if lhs is not None and lhs is not self:
                 deps.add(lhs)
         return deps
 
-    def dependents(self, _seen: Optional[Set["Variable"]] = None) -> Set["Variable"]:
+    def dependents(
+        self,
+        _seen: Optional[Set["Variable"]] = None,
+        include_constraints: bool = False,
+    ) -> Set["Variable"]:
         if _seen is None:
             _seen = set()
         if self in _seen:
             return set()
         _seen.add(self)
         out: Set[Variable] = set()
-        for v in self.direct_dependents():
+        for v in self.direct_dependents(include_constraints=include_constraints):
             if v in _seen:
                 continue
             out.add(v)
-            out |= v.dependents(_seen)
+            out |= v.dependents(_seen, include_constraints=include_constraints)
         return out
 
     # ----- validation -----
@@ -248,6 +336,7 @@ class Constant(Variable):
         super().__init__(
             name=name, symbol=symbol, units=units, description=description,
             scope="physics",
+            positive=True,
             kind=VariableKind.DEFINITIONAL,
             extensivity=Extensivity.NONE,
             sp_units=sp_units,

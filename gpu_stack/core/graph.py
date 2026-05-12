@@ -107,7 +107,7 @@ def to_dot(
             attrs.append('style=filled, fillcolor="#fff3b0"')
         elif v in highlight:
             attrs.append('style=filled, fillcolor="#c8e6c9"')
-        elif not v.defining_equations:
+        elif v.is_root_input:
             attrs.append('style=filled, fillcolor="#ffcdd2"')  # root input
         label = v.name.replace('"', r'\"')
         units = v.units.replace('"', r'\"')

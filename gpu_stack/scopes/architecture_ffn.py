@@ -7,7 +7,10 @@ the attention and FFN per-layer costs into per-token and per-step totals, and
 extends the dense parameter accounting to encoder-decoder models.
 """
 
-from ..core import eq, var
+import sympy as sp
+
+from ..core import Reference, eq, var
+from ..core.units import FLOP
 
 from .architecture_embeddings import (
     seq_len_ctx,
@@ -21,6 +24,21 @@ from .architecture_embeddings import (
     params_output_proj,
 )
 from .architecture_attention import attn_flops_mha_per_layer
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+FFN_FLOP_REF = Reference(
+    "Dense transformer FLOP accounting separates FFN, attention, and "
+    "miscellaneous per-layer work before converting full-sequence work to "
+    "per-token work.",
+    kind="model",
+)
+ENCODER_DECODER_REF = Reference(
+    "Encoder-decoder parameter accounting adds decoder cross-attention "
+    "projection blocks to the ordinary transformer block stack.",
+    kind="model",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -48,6 +66,13 @@ flops_step_dense = var(
     scope="architecture",
 )
 
+for _v in (
+    flops_ffn_per_layer, flops_misc_per_layer, flops_per_tok_dense,
+    flops_step_dense,
+):
+    _v.sp_units = FLOP
+    _v.references.append(FFN_FLOP_REF)
+
 
 eq_flops_ffn_per_layer = eq(
     "arch.eq.flops_ffn_per_layer",
@@ -61,6 +86,7 @@ eq_flops_per_token_dense = eq(
     flops_per_tok_dense.symbol,
     n_layers.symbol * (attn_flops_mha_per_layer.symbol + flops_ffn_per_layer.symbol + flops_misc_per_layer.symbol) / seq_len_ctx.symbol,
     "Dense forward FLOPs per token equal the per-layer full-sequence cost divided by sequence length, summed over layers.",
+    check_units=True,
 )
 
 eq_flops_step_dense = eq(
@@ -97,12 +123,20 @@ params_encoder_decoder_total = var(
     scope="architecture",
 )
 
+for _v in (
+    n_encoder_layers, n_decoder_layers, params_cross_attn_per_layer,
+    params_encoder_decoder_total,
+):
+    _v.sp_units = DIMENSIONLESS
+    _v.references.append(ENCODER_DECODER_REF)
+
 
 eq_params_cross_attn_per_layer = eq(
     "arch.eq.params_cross_attn_per_layer",
     params_cross_attn_per_layer.symbol,
     params_attn_per_layer.symbol,
     "Cross-attention uses the same Q, K, V, O projection structure as self-attention.",
+    check_units=True,
 )
 
 eq_params_encoder_decoder_total = eq(
@@ -110,6 +144,7 @@ eq_params_encoder_decoder_total = eq(
     params_encoder_decoder_total.symbol,
     params_token_embed.symbol + params_output_proj.symbol + n_encoder_layers.symbol * params_block_total.symbol + n_decoder_layers.symbol * (params_block_total.symbol + params_cross_attn_per_layer.symbol),
     "Encoder-decoder models add cross-attention blocks to decoder layers on top of the ordinary dense block structure.",
+    check_units=True,
 )
 
 
@@ -127,6 +162,12 @@ ARCH_FFN_EQUATIONS = [
     eq_params_cross_attn_per_layer,
     eq_params_encoder_decoder_total,
 ]
+
+for _e in (eq_flops_ffn_per_layer, eq_flops_per_token_dense, eq_flops_step_dense):
+    _e.references.append(FFN_FLOP_REF)
+
+for _e in (eq_params_cross_attn_per_layer, eq_params_encoder_decoder_total):
+    _e.references.append(ENCODER_DECODER_REF)
 
 
 __all__ = [

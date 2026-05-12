@@ -9,10 +9,25 @@ ASHRAE-style inlet and humidity inequality constraints.
 
 import sympy as sp
 
-from ..core import Inequality, eq, var
+from ..core import Inequality, Reference, eq, var
+from ..core.units import JOULE, KELVIN, KILOGRAM, METER, SECOND
 from .cluster import cluster_power_it
 from .thermal_package import T_ambient, T_coolant_inlet
 from .thermal_facility import heat_to_reject
+
+
+DIMENSIONLESS = sp.Integer(1)
+LATENT_HEAT = JOULE / KILOGRAM
+MASS_FLOW = KILOGRAM / SECOND
+LIQUID_DENSITY = KILOGRAM / METER**3
+VOLUMETRIC_FLOW = METER**3 / SECOND
+WUE_RATE = METER**3 / JOULE
+
+THERMAL_ENV_REF = Reference(
+    "Thermal environment model uses cooling-tower evaporation, blowdown, "
+    "drift, WUE, dew-point margin, and inlet humidity constraints.",
+    kind="model",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -23,46 +38,64 @@ water_latent_heat = var(
     "thermal.water.latent_heat", "h_fg", "J/kg",
     "Latent heat used to evaporate tower water.",
     scope="thermal",
+    sp_units=LATENT_HEAT,
+    references=[THERMAL_ENV_REF],
 )
 water_density = var(
     "thermal.water.density", "rho_wL", "kg/L",
     "Water density expressed in kilograms per liter for WUE conversions.",
     scope="thermal",
+    sp_units=LIQUID_DENSITY,
+    references=[THERMAL_ENV_REF],
 )
 water_cycles_of_concentration = var(
     "thermal.water.cycles_of_concentration", "N_coc", "dimensionless",
     "Cycles of concentration in the cooling tower.",
     scope="thermal",
+    sp_units=DIMENSIONLESS,
+    references=[THERMAL_ENV_REF],
 )
 tower_drift_fraction = var(
     "thermal.water.drift_fraction", "f_drift", "dimensionless",
     "Fractional tower drift loss relative to evaporated water mass.",
     scope="thermal",
+    sp_units=DIMENSIONLESS,
+    references=[THERMAL_ENV_REF],
 )
 water_evap_rate = var(
     "thermal.water.evap_rate", "m_evap", "kg/s",
     "Evaporation mass-flow rate needed to reject the site heat load through evaporative cooling.",
     scope="thermal",
+    sp_units=MASS_FLOW,
+    references=[THERMAL_ENV_REF],
 )
 water_blowdown_rate = var(
     "thermal.water.blowdown_rate", "m_blow", "kg/s",
     "Blowdown mass-flow rate required by cooling-tower chemistry control.",
     scope="thermal",
+    sp_units=MASS_FLOW,
+    references=[THERMAL_ENV_REF],
 )
 water_drift_rate = var(
     "thermal.water.drift_rate", "m_drift", "kg/s",
     "Drift mass-flow rate from cooling-tower droplets lost to the environment.",
     scope="thermal",
+    sp_units=MASS_FLOW,
+    references=[THERMAL_ENV_REF],
 )
 water_usage_rate = var(
     "thermal.water.usage_rate", "Wdot_use", "L/s",
     "Total site water usage rate.",
     scope="thermal",
+    sp_units=VOLUMETRIC_FLOW,
+    references=[THERMAL_ENV_REF],
 )
 wue = var(
     "thermal.water.wue", "WUE", "L/kWh",
     "Water Usage Effectiveness of the site.",
     scope="thermal",
+    sp_units=WUE_RATE,
+    references=[THERMAL_ENV_REF],
 )
 
 
@@ -74,41 +107,57 @@ ashrae_a1_inlet_min = var(
     "thermal.env.ashrae_a1_inlet_min", "T_A1_min", "K",
     "Lower inlet-temperature bound for an ASHRAE A1-style operating window.",
     scope="thermal",
+    sp_units=KELVIN,
+    references=[THERMAL_ENV_REF],
 )
 ashrae_a1_inlet_max = var(
     "thermal.env.ashrae_a1_inlet_max", "T_A1_max", "K",
     "Upper inlet-temperature bound for an ASHRAE A1-style operating window.",
     scope="thermal",
+    sp_units=KELVIN,
+    references=[THERMAL_ENV_REF],
 )
 relative_humidity = var(
     "thermal.env.relative_humidity", "RH", "dimensionless",
     "Relative humidity in the IT room or inlet air stream.",
     scope="thermal",
+    sp_units=DIMENSIONLESS,
+    references=[THERMAL_ENV_REF],
 )
 relative_humidity_min = var(
     "thermal.env.relative_humidity_min", "RH_min", "dimensionless",
     "Lower relative-humidity limit for safe operation.",
     scope="thermal",
+    sp_units=DIMENSIONLESS,
+    references=[THERMAL_ENV_REF],
 )
 relative_humidity_max = var(
     "thermal.env.relative_humidity_max", "RH_max", "dimensionless",
     "Upper relative-humidity limit for safe operation.",
     scope="thermal",
+    sp_units=DIMENSIONLESS,
+    references=[THERMAL_ENV_REF],
 )
 dew_point = var(
     "thermal.env.dew_point", "T_dew", "K",
     "Dew-point temperature of the local air stream.",
     scope="thermal",
+    sp_units=KELVIN,
+    references=[THERMAL_ENV_REF],
 )
 condensation_margin = var(
     "thermal.env.condensation_margin", "dT_cond", "K",
     "Minimum temperature margin between coolant supply and dew point required to avoid condensation.",
     scope="thermal",
+    sp_units=KELVIN,
+    references=[THERMAL_ENV_REF],
 )
 dew_point_headroom = var(
     "thermal.env.dew_point_headroom", "dT_dew", "K",
     "Difference between coolant supply temperature and dew point.",
     scope="thermal",
+    sp_units=KELVIN,
+    references=[THERMAL_ENV_REF],
 )
 
 
@@ -117,6 +166,8 @@ eq_water_evap_rate = eq(
     water_evap_rate.symbol,
     heat_to_reject.symbol / water_latent_heat.symbol,
     "Evaporation mass-flow rate equals rejected heat divided by latent heat of vaporization.",
+    references=[THERMAL_ENV_REF],
+    check_units=True,
 )
 
 eq_water_blowdown_rate = eq(
@@ -124,6 +175,8 @@ eq_water_blowdown_rate = eq(
     water_blowdown_rate.symbol,
     water_evap_rate.symbol / (water_cycles_of_concentration.symbol - 1),
     "Cooling-tower blowdown follows the usual cycles-of-concentration relation.",
+    references=[THERMAL_ENV_REF],
+    check_units=True,
 )
 
 eq_water_drift_rate = eq(
@@ -131,6 +184,8 @@ eq_water_drift_rate = eq(
     water_drift_rate.symbol,
     tower_drift_fraction.symbol * water_evap_rate.symbol,
     "Tower drift is modeled as a fixed fraction of evaporated water mass.",
+    references=[THERMAL_ENV_REF],
+    check_units=True,
 )
 
 eq_water_usage_rate = eq(
@@ -138,6 +193,8 @@ eq_water_usage_rate = eq(
     water_usage_rate.symbol,
     (water_evap_rate.symbol + water_blowdown_rate.symbol + water_drift_rate.symbol) / water_density.symbol,
     "Total site water usage in liters per second equals total water mass loss divided by water density expressed in kilograms per liter.",
+    references=[THERMAL_ENV_REF],
+    check_units=True,
 )
 
 eq_wue = eq(
@@ -145,6 +202,7 @@ eq_wue = eq(
     wue.symbol,
     water_usage_rate.symbol * sp.Integer(3_600_000) / cluster_power_it.symbol,
     "WUE in liters per kWh equals liters per second divided by watts, with the standard kWh conversion factor applied.",
+    references=[THERMAL_ENV_REF],
 )
 
 eq_dew_point_headroom = eq(
@@ -152,6 +210,8 @@ eq_dew_point_headroom = eq(
     dew_point_headroom.symbol,
     T_coolant_inlet.symbol - dew_point.symbol,
     "Dew-point headroom is coolant supply temperature minus dew point.",
+    references=[THERMAL_ENV_REF],
+    check_units=True,
 )
 
 ineq_ashrae_a1_low = Inequality(
@@ -160,6 +220,8 @@ ineq_ashrae_a1_low = Inequality(
     ashrae_a1_inlet_min.symbol,
     ">=",
     "Ambient inlet temperature must stay above the lower ASHRAE A1 bound.",
+    references=[THERMAL_ENV_REF],
+    check_units=True,
 )
 ineq_ashrae_a1_high = Inequality(
     "thermal.ineq.ashrae_a1_high",
@@ -167,6 +229,8 @@ ineq_ashrae_a1_high = Inequality(
     ashrae_a1_inlet_max.symbol,
     "<=",
     "Ambient inlet temperature must stay below the upper ASHRAE A1 bound.",
+    references=[THERMAL_ENV_REF],
+    check_units=True,
 )
 ineq_relative_humidity_low = Inequality(
     "thermal.ineq.relative_humidity_low",
@@ -174,6 +238,8 @@ ineq_relative_humidity_low = Inequality(
     relative_humidity_min.symbol,
     ">=",
     "Relative humidity must stay above the lower safe-operating bound.",
+    references=[THERMAL_ENV_REF],
+    check_units=True,
 )
 ineq_relative_humidity_high = Inequality(
     "thermal.ineq.relative_humidity_high",
@@ -181,6 +247,8 @@ ineq_relative_humidity_high = Inequality(
     relative_humidity_max.symbol,
     "<=",
     "Relative humidity must stay below the upper safe-operating bound.",
+    references=[THERMAL_ENV_REF],
+    check_units=True,
 )
 ineq_condensation_margin = Inequality(
     "thermal.ineq.condensation_margin",
@@ -188,6 +256,8 @@ ineq_condensation_margin = Inequality(
     condensation_margin.symbol,
     ">=",
     "Coolant supply temperature must exceed dew point by at least the configured condensation margin.",
+    references=[THERMAL_ENV_REF],
+    check_units=True,
 )
 
 

@@ -29,7 +29,7 @@ from .memory_virtual import MEMSUB_VIRTUAL_EQUATIONS, MEMSUB_VIRTUAL_VARIABLES
 sys_mem = System(
     name="memory_subsystem",
     scope="memory_subsystem",
-    description="Register file, SMEM, TMEM, L1, L2, HBM, translation, and host-memory interfaces.",
+    description="Register file, SMEM, TMEM, L1, L2, stacked-die/channelized HBM, translation, and host-memory interfaces.",
 )
 
 

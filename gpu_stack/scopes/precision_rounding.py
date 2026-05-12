@@ -11,7 +11,29 @@ two-point StochasticRelation whose mean matches the exact input.
 
 import sympy as sp
 
-from ..core import StochasticRelation, eq, var
+from ..core import Reference, StochasticRelation, eq, var
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+ROUNDING_MODEL_REF = Reference(
+    "Higham, Accuracy and Stability of Numerical Algorithms, 2nd ed., "
+    "for floating-point rounding and local quantization-error models.",
+    kind="textbook",
+    year=2002,
+)
+
+STOCHASTIC_ROUNDING_REF = Reference(
+    "Higham and Mary, A New Approach to Probabilistic Rounding Error Analysis, 2019.",
+    kind="paper",
+    year=2019,
+)
+
+
+def _annotate_variables(variables, sp_units, references):
+    for variable in variables:
+        variable.sp_units = sp_units
+        variable.references.extend(references)
 
 
 # ---------------------------------------------------------------------------
@@ -91,12 +113,41 @@ x_quantized = var(
     scope="precision",
 )
 
+_annotate_variables(
+    (
+        x_in,
+        x_lo,
+        x_hi,
+        q_step,
+        q_error_var,
+        q_error_rms,
+        rn_mean_error,
+        rn_error_var,
+        rz_abs_bias,
+        rp_bias,
+        rm_bias,
+    ),
+    DIMENSIONLESS,
+    [ROUNDING_MODEL_REF],
+)
+_annotate_variables(
+    (
+        p_sr,
+        sr_error_var,
+        x_quantized,
+    ),
+    DIMENSIONLESS,
+    [STOCHASTIC_ROUNDING_REF],
+)
+
 
 eq_q_step = eq(
     "precision.eq.quant_step",
     q_step.symbol,
     x_hi.symbol - x_lo.symbol,
     "The local quantization step is the gap between adjacent representable values.",
+    references=[ROUNDING_MODEL_REF],
+    check_units=True,
 )
 
 eq_q_error_var = eq(
@@ -104,6 +155,8 @@ eq_q_error_var = eq(
     q_error_var.symbol,
     q_step.symbol ** 2 / 12,
     "Uniform-quantizer error variance on a uniform residual is q^2 / 12.",
+    references=[ROUNDING_MODEL_REF],
+    check_units=True,
 )
 
 eq_q_error_rms = eq(
@@ -111,6 +164,8 @@ eq_q_error_rms = eq(
     q_error_rms.symbol,
     sp.sqrt(q_error_var.symbol),
     "RMS quantization error is the square root of the variance.",
+    references=[ROUNDING_MODEL_REF],
+    check_units=True,
 )
 
 eq_rn_mean_error = eq(
@@ -118,6 +173,8 @@ eq_rn_mean_error = eq(
     rn_mean_error.symbol,
     0,
     "Round-to-nearest-even is unbiased on a symmetric local residual distribution.",
+    references=[ROUNDING_MODEL_REF],
+    check_units=True,
 )
 
 eq_rn_error_var = eq(
@@ -125,6 +182,8 @@ eq_rn_error_var = eq(
     rn_error_var.symbol,
     q_step.symbol ** 2 / 12,
     "Round-to-nearest has the same local variance as uniform quantization noise under a uniform residual model.",
+    references=[ROUNDING_MODEL_REF],
+    check_units=True,
 )
 
 eq_rz_abs_bias = eq(
@@ -132,6 +191,8 @@ eq_rz_abs_bias = eq(
     rz_abs_bias.symbol,
     q_step.symbol / 2,
     "Round-toward-zero can shift values by up to half a cell in one direction.",
+    references=[ROUNDING_MODEL_REF],
+    check_units=True,
 )
 
 eq_rp_bias = eq(
@@ -139,6 +200,8 @@ eq_rp_bias = eq(
     rp_bias.symbol,
     q_step.symbol / 2,
     "Round-toward-plus-infinity biases upward by half a cell under a uniform local residual model.",
+    references=[ROUNDING_MODEL_REF],
+    check_units=True,
 )
 
 eq_rm_bias = eq(
@@ -146,6 +209,8 @@ eq_rm_bias = eq(
     rm_bias.symbol,
     -q_step.symbol / 2,
     "Round-toward-minus-infinity biases downward by half a cell under a uniform local residual model.",
+    references=[ROUNDING_MODEL_REF],
+    check_units=True,
 )
 
 eq_sr_probability = eq(
@@ -153,6 +218,8 @@ eq_sr_probability = eq(
     p_sr.symbol,
     (x_in.symbol - x_lo.symbol) / (x_hi.symbol - x_lo.symbol),
     "Stochastic rounding chooses the upper grid point with probability proportional to the distance from the lower grid point.",
+    references=[STOCHASTIC_ROUNDING_REF],
+    check_units=True,
 )
 
 eq_sr_error_var = eq(
@@ -160,6 +227,8 @@ eq_sr_error_var = eq(
     sr_error_var.symbol,
     (x_in.symbol - x_lo.symbol) * (x_hi.symbol - x_in.symbol),
     "Two-point stochastic rounding has variance (x - x_lo) * (x_hi - x).",
+    references=[STOCHASTIC_ROUNDING_REF],
+    check_units=True,
 )
 sr_distribution = StochasticRelation(
     "precision.eq.sr_distribution",
@@ -173,6 +242,7 @@ sr_distribution = StochasticRelation(
     mean=x_in.symbol,
     variance=sr_error_var.symbol,
     description="Stochastic rounding emits x_lo or x_hi with probabilities chosen so the expected value equals the exact input.",
+    references=[STOCHASTIC_ROUNDING_REF],
 )
 
 

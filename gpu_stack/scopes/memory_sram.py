@@ -11,164 +11,234 @@ write internal node, WNM, and the two SRAM margin constraint inequalities.
 
 import sympy as sp
 
-from ..core import Inequality, eq, var
+from ..core import Inequality, Reference, eq, var
+from ..core.units import AMPERE, FARAD, JOULE, METER, OHM, SECOND, VOLT, WATT
 
 
 # ---------------------------------------------------------------------------
 # SRAM cell family: 6T, 8T, 10T
 # ---------------------------------------------------------------------------
 
+DIMENSIONLESS = sp.Integer(1)
+
+SRAM_CELL_REF = Reference(
+    "CMOS memory-cell texts and SRAM bitcell literature describe 6T, 8T, "
+    "and 10T cell topology, bitline energy, access delay, leakage, and "
+    "read/write margin models.",
+    kind="textbook",
+)
+
 n_tx_per_sram = var(
     "memcell.sram.transistors", "N_Tx_SRAM", "dimensionless",
     "Transistor count of the selected SRAM cell implementation.",
     scope="memory_cell",
+    sp_units=DIMENSIONLESS,
+    references=[SRAM_CELL_REF],
 )
 a_sram = var(
     "memcell.sram.area", "A_SRAM", "m^2",
     "Physical area of the selected SRAM cell implementation.",
     scope="memory_cell",
+    sp_units=METER**2,
+    references=[SRAM_CELL_REF],
 )
 t_access_sram = var(
     "memcell.sram.access_time", "t_acc_SRAM", "s",
     "Read access latency of the SRAM cell path.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[SRAM_CELL_REF],
 )
 p_leak_sram = var(
     "memcell.sram.leakage", "P_leak_SRAM", "W",
     "Per-cell SRAM leakage power.",
     scope="memory_cell",
+    sp_units=WATT,
+    references=[SRAM_CELL_REF],
 )
 e_read_sram = var(
     "memcell.sram.read_energy", "E_read_SRAM", "J",
     "Energy to read one bit from one SRAM cell.",
     scope="memory_cell",
+    sp_units=JOULE,
+    references=[SRAM_CELL_REF],
 )
 e_write_sram = var(
     "memcell.sram.write_energy", "E_write_SRAM", "J",
     "Energy to write one bit in one SRAM cell.",
     scope="memory_cell",
+    sp_units=JOULE,
+    references=[SRAM_CELL_REF],
 )
 c_bitline = var(
     "memcell.sram.c_bitline", "C_bl_SRAM", "F",
     "Bitline capacitance seen during SRAM access.",
     scope="memory_cell",
+    sp_units=FARAD,
+    references=[SRAM_CELL_REF],
 )
 V_swing = var(
     "memcell.sram.v_swing", "V_sw_SRAM", "V",
     "Bitline voltage swing during SRAM read.",
     scope="memory_cell",
+    sp_units=VOLT,
+    references=[SRAM_CELL_REF],
 )
 V_cell_supply = var(
     "memcell.sram.v_supply", "V_SRAM", "V",
     "SRAM supply voltage.",
     scope="memory_cell",
+    sp_units=VOLT,
+    references=[SRAM_CELL_REF],
 )
 i_leak_sram = var(
     "memcell.sram.i_leak", "I_leak_SRAM", "A",
     "Per-cell SRAM leakage current.",
     scope="memory_cell",
+    sp_units=AMPERE,
+    references=[SRAM_CELL_REF],
 )
 r_access_sram = var(
     "memcell.sram.r_access", "R_acc_SRAM", "ohm",
     "Effective access-transistor resistance into the bitline.",
     scope="memory_cell",
+    sp_units=OHM,
+    references=[SRAM_CELL_REF],
 )
 t_wordline_sram = var(
     "memcell.sram.t_wordline", "t_wl_SRAM", "s",
     "Wordline assertion and decode delay for a cell access.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[SRAM_CELL_REF],
 )
 t_sense_sram = var(
     "memcell.sram.t_sense", "t_sense_SRAM", "s",
     "Sense-amplifier decision time for the SRAM read.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[SRAM_CELL_REF],
 )
 e_sense_sram = var(
     "memcell.sram.e_sense", "E_sense_SRAM", "J",
     "Energy burned by the SRAM sense path during one access.",
     scope="memory_cell",
+    sp_units=JOULE,
+    references=[SRAM_CELL_REF],
 )
 a_tx_sram = var(
     "memcell.sram.tx_area", "A_tx_SRAM", "m^2",
     "Effective transistor area unit used for SRAM cell area estimates.",
     scope="memory_cell",
+    sp_units=METER**2,
+    references=[SRAM_CELL_REF],
 )
 area_overhead_sram = var(
     "memcell.sram.area_overhead", "k_area_SRAM", "dimensionless",
     "Layout overhead multiplier capturing diffusion sharing and routing overhead.",
     scope="memory_cell",
+    sp_units=DIMENSIONLESS,
+    references=[SRAM_CELL_REF],
 )
 
 n_tx_sram_6t = var(
     "memcell.sram6t.transistors", "N_Tx_6T", "dimensionless",
     "Transistor count in a canonical 6T SRAM cell.",
     scope="memory_cell",
+    sp_units=DIMENSIONLESS,
+    references=[SRAM_CELL_REF],
 )
 n_tx_sram_8t = var(
     "memcell.sram8t.transistors", "N_Tx_8T", "dimensionless",
     "Transistor count in an 8T SRAM cell.",
     scope="memory_cell",
+    sp_units=DIMENSIONLESS,
+    references=[SRAM_CELL_REF],
 )
 n_tx_sram_10t = var(
     "memcell.sram10t.transistors", "N_Tx_10T", "dimensionless",
     "Transistor count in a 10T SRAM cell.",
     scope="memory_cell",
+    sp_units=DIMENSIONLESS,
+    references=[SRAM_CELL_REF],
 )
 n_read_ports_6t = var(
     "memcell.sram6t.read_ports", "N_r_6T", "dimensionless",
     "Independent read ports in a 6T SRAM cell.",
     scope="memory_cell",
+    sp_units=DIMENSIONLESS,
+    references=[SRAM_CELL_REF],
 )
 n_read_ports_8t = var(
     "memcell.sram8t.read_ports", "N_r_8T", "dimensionless",
     "Independent read ports in an 8T SRAM cell.",
     scope="memory_cell",
+    sp_units=DIMENSIONLESS,
+    references=[SRAM_CELL_REF],
 )
 n_read_ports_10t = var(
     "memcell.sram10t.read_ports", "N_r_10T", "dimensionless",
     "Independent read ports in a 10T SRAM cell.",
     scope="memory_cell",
+    sp_units=DIMENSIONLESS,
+    references=[SRAM_CELL_REF],
 )
 a_sram_6t = var(
     "memcell.sram6t.area", "A_6T", "m^2",
     "Area of a 6T SRAM cell.",
     scope="memory_cell",
+    sp_units=METER**2,
+    references=[SRAM_CELL_REF],
 )
 a_sram_8t = var(
     "memcell.sram8t.area", "A_8T", "m^2",
     "Area of an 8T SRAM cell.",
     scope="memory_cell",
+    sp_units=METER**2,
+    references=[SRAM_CELL_REF],
 )
 a_sram_10t = var(
     "memcell.sram10t.area", "A_10T", "m^2",
     "Area of a 10T SRAM cell.",
     scope="memory_cell",
+    sp_units=METER**2,
+    references=[SRAM_CELL_REF],
 )
 
 g_access = var(
     "memcell.sram.g_access", "g_acc", "S",
     "Access-transistor conductance during read or write.",
     scope="memory_cell",
+    sp_units=1 / OHM,
+    references=[SRAM_CELL_REF],
 )
 g_pullup = var(
     "memcell.sram.g_pullup", "g_pu", "S",
     "Pull-up PMOS conductance in the storage inverter.",
     scope="memory_cell",
+    sp_units=1 / OHM,
+    references=[SRAM_CELL_REF],
 )
 g_pulldown = var(
     "memcell.sram.g_pulldown", "g_pd", "S",
     "Pull-down NMOS conductance in the storage inverter.",
     scope="memory_cell",
+    sp_units=1 / OHM,
+    references=[SRAM_CELL_REF],
 )
 V_trip_inv = var(
     "memcell.sram.v_trip", "V_trip_SRAM", "V",
     "Inverter trip point of the SRAM cross-coupled pair.",
     scope="memory_cell",
+    sp_units=VOLT,
+    references=[SRAM_CELL_REF],
 )
 V_read_disturb = var(
     "memcell.sram.v_read_disturb", "V_rd_dist", "V",
     "Internal storage-node rise caused by read disturb through the access path.",
     scope="memory_cell",
+    sp_units=VOLT,
+    references=[SRAM_CELL_REF],
 )
 snm_read = var(
     "memcell.sram.snm_read", "SNM_read", "V",
@@ -177,11 +247,15 @@ snm_read = var(
     "memcell.eq.sram_read_margin_constraint inequality guards against.",
     scope="memory_cell",
     positive=False,
+    sp_units=VOLT,
+    references=[SRAM_CELL_REF],
 )
 V_write_internal = var(
     "memcell.sram.v_write_internal", "V_wr_int", "V",
     "Internal node voltage during a forced write against the pull-up device.",
     scope="memory_cell",
+    sp_units=VOLT,
+    references=[SRAM_CELL_REF],
 )
 wnm_write = var(
     "memcell.sram.wnm_write", "WNM_write", "V",
@@ -190,11 +264,15 @@ wnm_write = var(
     "the memcell.eq.sram_write_margin_constraint inequality guards against.",
     scope="memory_cell",
     positive=False,
+    sp_units=VOLT,
+    references=[SRAM_CELL_REF],
 )
 e_internal_write = var(
     "memcell.sram.e_internal_write", "E_int_write", "J",
     "Additional internal node energy during an SRAM write.",
     scope="memory_cell",
+    sp_units=JOULE,
+    references=[SRAM_CELL_REF],
 )
 
 
@@ -203,6 +281,8 @@ eq_sram6t_tx = eq(
     n_tx_sram_6t.symbol,
     6,
     "6T SRAM uses six transistors per bit cell.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram8t_tx = eq(
@@ -210,6 +290,8 @@ eq_sram8t_tx = eq(
     n_tx_sram_8t.symbol,
     8,
     "8T SRAM adds a decoupled read path.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram10t_tx = eq(
@@ -217,6 +299,8 @@ eq_sram10t_tx = eq(
     n_tx_sram_10t.symbol,
     10,
     "10T SRAM spends more devices to buy margin or additional ports.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram6t_read_ports = eq(
@@ -224,6 +308,8 @@ eq_sram6t_read_ports = eq(
     n_read_ports_6t.symbol,
     1,
     "Canonical 6T SRAM has one shared read port.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram8t_read_ports = eq(
@@ -231,6 +317,8 @@ eq_sram8t_read_ports = eq(
     n_read_ports_8t.symbol,
     1,
     "Canonical 8T SRAM still exposes one logical read port, but isolates it from the storage nodes.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram10t_read_ports = eq(
@@ -238,6 +326,8 @@ eq_sram10t_read_ports = eq(
     n_read_ports_10t.symbol,
     2,
     "10T SRAM commonly supports dual-port or at least more strongly isolated access.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram6t_area = eq(
@@ -245,6 +335,8 @@ eq_sram6t_area = eq(
     a_sram_6t.symbol,
     area_overhead_sram.symbol * a_tx_sram.symbol * n_tx_sram_6t.symbol,
     "6T SRAM area from transistor count times effective transistor area and layout overhead.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram8t_area = eq(
@@ -252,6 +344,8 @@ eq_sram8t_area = eq(
     a_sram_8t.symbol,
     area_overhead_sram.symbol * a_tx_sram.symbol * n_tx_sram_8t.symbol,
     "8T SRAM area estimate.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram10t_area = eq(
@@ -259,6 +353,8 @@ eq_sram10t_area = eq(
     a_sram_10t.symbol,
     area_overhead_sram.symbol * a_tx_sram.symbol * n_tx_sram_10t.symbol,
     "10T SRAM area estimate.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram_access_time = eq(
@@ -266,6 +362,8 @@ eq_sram_access_time = eq(
     t_access_sram.symbol,
     t_wordline_sram.symbol + r_access_sram.symbol * c_bitline.symbol + t_sense_sram.symbol,
     "SRAM access time as wordline delay plus bitline RC plus sense time.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram_read_energy = eq(
@@ -273,6 +371,8 @@ eq_sram_read_energy = eq(
     e_read_sram.symbol,
     sp.Rational(1, 2) * c_bitline.symbol * V_swing.symbol**2 + e_sense_sram.symbol,
     "SRAM read energy dominated by bitline swing plus sense energy.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram_write_energy = eq(
@@ -280,6 +380,8 @@ eq_sram_write_energy = eq(
     e_write_sram.symbol,
     sp.Rational(1, 2) * c_bitline.symbol * V_cell_supply.symbol**2 + e_internal_write.symbol,
     "SRAM write energy from charging the line and forcing the internal node.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram_leakage_power = eq(
@@ -287,6 +389,8 @@ eq_sram_leakage_power = eq(
     p_leak_sram.symbol,
     i_leak_sram.symbol * V_cell_supply.symbol,
     "Per-cell SRAM leakage power is leakage current times supply.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram_read_disturb = eq(
@@ -294,6 +398,8 @@ eq_sram_read_disturb = eq(
     V_read_disturb.symbol,
     V_cell_supply.symbol * g_access.symbol / (g_access.symbol + g_pulldown.symbol),
     "Read disturb modeled as a divider between access and pull-down strength.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram_read_snm = eq(
@@ -301,6 +407,8 @@ eq_sram_read_snm = eq(
     snm_read.symbol,
     V_trip_inv.symbol - V_read_disturb.symbol,
     "Read SNM is the inverter trip point minus the read-disturb excursion.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram_write_internal = eq(
@@ -308,6 +416,8 @@ eq_sram_write_internal = eq(
     V_write_internal.symbol,
     V_cell_supply.symbol * g_pullup.symbol / (g_access.symbol + g_pullup.symbol),
     "Internal node during write is a divider between access strength and pull-up strength.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 
 eq_sram_write_wnm = eq(
@@ -315,6 +425,8 @@ eq_sram_write_wnm = eq(
     wnm_write.symbol,
     V_trip_inv.symbol - V_write_internal.symbol,
     "Write margin is the gap between inverter trip point and the driven internal node.",
+    references=[SRAM_CELL_REF],
+    check_units=True,
 )
 ineq_sram_read_margin = Inequality(
     "memcell.eq.sram_read_margin_constraint",
@@ -322,6 +434,7 @@ ineq_sram_read_margin = Inequality(
     0,
     ">=",
     "Read SNM must stay non-negative if the cell is to survive a read disturb event.",
+    references=[SRAM_CELL_REF],
 )
 ineq_sram_write_margin = Inequality(
     "memcell.eq.sram_write_margin_constraint",
@@ -329,6 +442,7 @@ ineq_sram_write_margin = Inequality(
     0,
     ">=",
     "Write margin must stay non-negative if a write is to flip the cell reliably.",
+    references=[SRAM_CELL_REF],
 )
 
 
