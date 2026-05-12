@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="gpu_stack is a visual-first symbolic model of AI training infrastructure, from datacenters and GPU clusters down toward physical limits.">
+  <meta property="og:title" content="gpu_stack">
+  <meta property="og:description" content="A symbolic map from cost per token down to the physics it keeps borrowing from.">
+  <meta property="og:image" content="assets/readme-hero.png">
+  <title>gpu_stack</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: oklch(96.8% 0.012 83);
+      --paper-soft: oklch(93.2% 0.015 82);
+      --ink: oklch(18% 0.026 73);
+      --ink-soft: oklch(34% 0.028 76);
+      --muted: oklch(56% 0.025 76);
+      --line: oklch(82% 0.02 78);
+      --field: oklch(24% 0.028 73);
+      --field-soft: oklch(31% 0.034 73);
+      --signal: oklch(68% 0.13 43);
+      --cool: oklch(63% 0.095 197);
+      --leaf: oklch(58% 0.1 143);
+      --warn: oklch(67% 0.14 80);
+      --deep: oklch(16% 0.025 74);
+      --shadow: 0 20px 70px oklch(20% 0.03 75 / 0.18);
+      --max: 1180px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      min-width: 320px;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.94em;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 86svh;
+      display: grid;
+      align-items: end;
+      isolation: isolate;
+      background:
+        linear-gradient(90deg, oklch(13% 0.025 73 / 0.86), oklch(14% 0.025 73 / 0.48) 48%, oklch(14% 0.025 73 / 0.12)),
+        url("assets/readme-hero.png") center / cover no-repeat;
+      color: oklch(97% 0.012 83);
+    }
+
+    .topbar {
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: min(100% - 32px, var(--max));
+      margin: 0 auto;
+      padding-block: 22px;
+      font-size: 0.9rem;
+      color: oklch(92% 0.012 83 / 0.86);
+    }
+
+    .brand {
+      letter-spacing: 0;
+      font-weight: 760;
+    }
+
+    .nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .nav a,
+    .button {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid oklch(96% 0.012 83 / 0.32);
+      border-radius: 8px;
+      padding: 0 14px;
+      text-decoration: none;
+      background: oklch(98% 0.012 83 / 0.08);
+      backdrop-filter: blur(12px);
+      color: inherit;
+    }
+
+    .button.primary {
+      border-color: transparent;
+      color: var(--deep);
+      background: var(--signal);
+      box-shadow: 0 10px 34px oklch(20% 0.03 73 / 0.24);
+      font-weight: 760;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      width: min(100% - 32px, var(--max));
+      margin: 0 auto;
+      padding: 130px 0 8svh;
+    }
+
+    .kicker {
+      margin: 0 0 16px;
+      color: oklch(84% 0.06 43);
+      font-size: 0.9rem;
+      font-weight: 760;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 12ch;
+      font-size: clamp(4rem, 11vw, 9.5rem);
+      line-height: 0.82;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      max-width: 740px;
+      margin: 28px 0 0;
+      font-size: clamp(1.12rem, 2.3vw, 1.65rem);
+      line-height: 1.42;
+      color: oklch(93% 0.012 83 / 0.92);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .below-hint {
+      position: absolute;
+      left: max(16px, calc((100vw - var(--max)) / 2));
+      bottom: 18px;
+      z-index: 2;
+      font-size: 0.82rem;
+      color: oklch(92% 0.012 83 / 0.72);
+    }
+
+    section {
+      padding: 88px 0;
+    }
+
+    .band-dark {
+      background: var(--deep);
+      color: oklch(95% 0.012 83);
+    }
+
+    .band-mid {
+      background: var(--paper-soft);
+    }
+
+    .wrap {
+      width: min(100% - 32px, var(--max));
+      margin: 0 auto;
+    }
+
+    .section-head {
+      max-width: 850px;
+      margin-bottom: 34px;
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--signal);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 4.4rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .lede {
+      margin: 18px 0 0;
+      color: var(--ink-soft);
+      font-size: clamp(1.04rem, 1.6vw, 1.28rem);
+      line-height: 1.62;
+    }
+
+    .band-dark .lede {
+      color: oklch(86% 0.014 83 / 0.82);
+    }
+
+    .thesis {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 42px;
+      align-items: center;
+    }
+
+    .statement {
+      margin: 0;
+      font-size: clamp(1.7rem, 3.4vw, 4rem);
+      line-height: 1.05;
+      letter-spacing: 0;
+      color: oklch(95% 0.012 83);
+    }
+
+    .statement strong {
+      color: var(--signal);
+      font-weight: 820;
+    }
+
+    .plain-list {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: oklch(87% 0.014 83 / 0.85);
+      line-height: 1.56;
+    }
+
+    .plain-list li {
+      padding-left: 18px;
+      border-left: 2px solid oklch(72% 0.11 43 / 0.75);
+    }
+
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      min-height: 146px;
+      padding: 22px;
+      background: var(--paper);
+      display: grid;
+      align-content: space-between;
+      gap: 18px;
+    }
+
+    .metric b {
+      font-size: clamp(1.9rem, 4vw, 3.7rem);
+      line-height: 0.9;
+      letter-spacing: 0;
+      color: var(--field);
+    }
+
+    .metric span {
+      color: var(--ink-soft);
+      line-height: 1.38;
+    }
+
+    .layer-layout {
+      display: grid;
+      grid-template-columns: 310px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+
+    .layer-tabs {
+      display: grid;
+      gap: 8px;
+      position: sticky;
+      top: 18px;
+    }
+
+    .layer-tab {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: oklch(98% 0.012 83);
+      color: var(--ink);
+      text-align: left;
+      padding: 12px 14px;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .layer-tab[aria-selected="true"] {
+      background: var(--field);
+      color: oklch(97% 0.012 83);
+      border-color: var(--field);
+    }
+
+    .layer-panel {
+      min-height: 520px;
+      border: 1px solid var(--line);
+      background: oklch(98% 0.012 83);
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      overflow: hidden;
+    }
+
+    .layer-copy {
+      padding: clamp(24px, 4vw, 46px);
+      display: grid;
+      align-content: center;
+      gap: 18px;
+    }
+
+    .layer-copy h3 {
+      margin: 0;
+      font-size: clamp(1.8rem, 3vw, 3.2rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .layer-copy p {
+      margin: 0;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+
+    .layer-facts {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .layer-facts li {
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+
+    .layer-visual {
+      position: relative;
+      min-height: 420px;
+      background:
+        linear-gradient(180deg, oklch(25% 0.03 73), oklch(18% 0.025 73));
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      color: oklch(96% 0.012 83);
+    }
+
+    .dependency-stack {
+      width: min(84%, 560px);
+      display: grid;
+      gap: 9px;
+    }
+
+    .dependency-row {
+      min-height: 42px;
+      border: 1px solid oklch(86% 0.012 83 / 0.24);
+      background: oklch(96% 0.012 83 / 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    .dependency-row.active {
+      background: var(--signal);
+      color: var(--deep);
+      border-color: transparent;
+      font-weight: 760;
+    }
+
+    .dependency-row small {
+      color: inherit;
+      opacity: 0.75;
+    }
+
+    .cone-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 34px;
+      align-items: center;
+    }
+
+    .cone-image {
+      border: 1px solid oklch(88% 0.014 83);
+      background: oklch(98% 0.012 83);
+      box-shadow: var(--shadow);
+      padding: clamp(12px, 2vw, 24px);
+    }
+
+    .code-block {
+      overflow: auto;
+      background: oklch(18% 0.025 73);
+      color: oklch(94% 0.012 83);
+      border: 1px solid oklch(40% 0.03 73);
+      padding: 18px;
+      border-radius: 8px;
+      line-height: 1.55;
+      box-shadow: var(--shadow);
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 28px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: oklch(98% 0.012 83);
+      padding: clamp(22px, 3vw, 34px);
+      min-height: 260px;
+    }
+
+    .panel h3 {
+      margin: 0 0 14px;
+      font-size: 1.28rem;
+      line-height: 1.2;
+    }
+
+    .panel p,
+    .panel li {
+      color: var(--ink-soft);
+      line-height: 1.58;
+    }
+
+    .panel ul {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 18px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 22px;
+      padding-block: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .timeline-item b {
+      color: var(--field);
+    }
+
+    .timeline-item p {
+      margin: 0;
+      color: var(--ink-soft);
+      line-height: 1.55;
+    }
+
+    footer {
+      padding: 34px 0;
+      background: var(--deep);
+      color: oklch(89% 0.012 83);
+    }
+
+    .footer-inner {
+      width: min(100% - 32px, var(--max));
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      color: oklch(87% 0.012 83 / 0.8);
+      line-height: 1.45;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 900px) {
+      .topbar {
+        align-items: flex-start;
+        gap: 18px;
+      }
+
+      .nav {
+        max-width: 280px;
+      }
+
+      .thesis,
+      .layer-layout,
+      .layer-panel,
+      .cone-layout,
+      .split {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .layer-tabs {
+        position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .hero {
+        min-height: 90svh;
+        background-position: 58% center;
+      }
+
+      .topbar {
+        position: relative;
+        width: min(100% - 24px, var(--max));
+        padding-top: 14px;
+      }
+
+      .nav a {
+        min-height: 36px;
+        padding-inline: 10px;
+      }
+
+      .hero-inner {
+        width: min(100% - 24px, var(--max));
+        padding-top: 60px;
+      }
+
+      h1 {
+        font-size: clamp(3.3rem, 20vw, 5.2rem);
+      }
+
+      section {
+        padding: 58px 0;
+      }
+
+      .metric-strip,
+      .layer-tabs {
+        grid-template-columns: 1fr;
+      }
+
+      .layer-panel {
+        min-height: auto;
+      }
+
+      .layer-visual {
+        min-height: 360px;
+      }
+
+      .timeline-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="topbar" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="gpu_stack home">gpu_stack</a>
+      <nav class="nav">
+        <a href="#model">Model</a>
+        <a href="#layers">Layers</a>
+        <a href="#run">Run</a>
+        <a href="https://github.com/Cuuper22/gpu_stack-">GitHub</a>
+      </nav>
+    </div>
+
+    <div class="hero-inner" id="top">
+      <p class="kicker">Visual-first systems physics</p>
+      <h1>gpu_stack</h1>
+      <p class="hero-copy">
+        A symbolic map from cost per token down to the physical and economic assumptions it keeps borrowing from.
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="https://github.com/Cuuper22/gpu_stack-#readme">Read the article</a>
+        <a class="button" href="#layers">Explore the layers</a>
+        <a class="button" href="#run">Try the CLI</a>
+      </div>
+    </div>
+    <div class="below-hint">Scroll for the dependency cone, the layer map, and the current graph stats.</div>
+  </header>
+
+  <main>
+    <section class="band-dark" id="model">
+      <div class="wrap thesis">
+        <p class="statement">
+          The point is not to simulate a GPU cluster. The point is to make the hidden chain of <strong>dependencies</strong> visible.
+        </p>
+        <ul class="plain-list">
+          <li>Every output is treated as the visible tip of a dependency graph.</li>
+          <li>Scenario values are allowed, but the model keeps track of where they enter.</li>
+          <li>Equations, unit checks, provenance, and root inputs stay attached to the claim.</li>
+          <li>The long-term direction is recursive decomposition, from hyperscale economics down toward particle-scale constraints.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="band-mid">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Current graph</p>
+          <h2>Big enough to be useful, small enough to still inspect.</h2>
+          <p class="lede">
+            The package already has a real symbolic registry: systems, variables, equations, constants, unit metadata, reference metadata, and diagnostic commands that expose the unfinished edges.
+          </p>
+        </div>
+        <div class="metric-strip" aria-label="Current graph statistics">
+          <div class="metric"><b>1517</b><span>registered variables across the stack</span></div>
+          <div class="metric"><b>959</b><span>equations connecting variables</span></div>
+          <div class="metric"><b>619</b><span>root inputs still carrying scenario debt</span></div>
+          <div class="metric"><b>799</b><span>variables covered by unit checks</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="layers">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Layer explorer</p>
+          <h2>Start anywhere. The graph should keep pulling you deeper.</h2>
+          <p class="lede">
+            This is the README idea turned into a small control surface: pick a layer and watch the model shift from object to object, always asking what each number depends on.
+          </p>
+        </div>
+
+        <div class="layer-layout">
+          <div class="layer-tabs" role="tablist" aria-label="Model layers">
+            <button class="layer-tab" type="button" role="tab" aria-selected="true" data-layer="datacenter">Datacenter</button>
+            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="cluster">Cluster</button>
+            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="gpu">GPU</button>
+            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="kernel">Kernel</button>
+            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="model">Model</button>
+            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="lithography">Lithography</button>
+            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="physics">Physical limits</button>
+            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="economics">Economics</button>
+          </div>
+
+          <article class="layer-panel" aria-live="polite">
+            <div class="layer-copy">
+              <p class="eyebrow" id="layer-kicker">Power, land, cooling</p>
+              <h3 id="layer-title">Datacenter</h3>
+              <p id="layer-text">
+                The visible machine is a building, but the model treats it as a constraint bundle: grid interconnect, substations, cooling loops, water, occupancy, capex, operations, and uptime.
+              </p>
+              <ul class="layer-facts" id="layer-facts">
+                <li>Inputs include power envelope, PUE, utilization, cooling load, and build cost.</li>
+                <li>Outputs feed cluster capacity, cost allocation, emissions, and schedule pressure.</li>
+                <li>Open work is marked as root debt instead of being hidden in prose.</li>
+              </ul>
+            </div>
+            <div class="layer-visual" aria-hidden="true">
+              <div class="dependency-stack" id="dependency-stack"></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="band-mid">
+      <div class="wrap cone-layout">
+        <div class="cone-image">
+          <img src="assets/readme-equation-cone.svg" alt="Dependency cone showing cost per token expanding into upstream equations and root inputs.">
+        </div>
+        <div>
+          <p class="eyebrow">Equation cone</p>
+          <h2>One output can have hundreds of upstream assumptions.</h2>
+          <p class="lede">
+            For <code>econ.cost.per_token</code>, the local dependency cone currently reaches 704 upstream variables and 289 root inputs. The useful part is not the number itself. The useful part is that the tool can show what the number is standing on.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="band-dark" id="run">
+      <div class="wrap split">
+        <div>
+          <p class="eyebrow">Try it</p>
+          <h2>Use the command line as a microscope.</h2>
+          <p class="lede">
+            The package is still closer to a research instrument than a polished app. That is useful right now. You can ask it what exists, what is unresolved, and where a claim bottoms out.
+          </p>
+        </div>
+        <pre class="code-block"><code>python -m gpu_stack.cli stats
+python -m gpu_stack.cli inspect econ.cost.per_token --cone
+python -m gpu_stack.cli root-debt --top 10
+python -m gpu_stack.cli scenario-report docs/examples/scenario.example.yaml</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap split">
+        <article class="panel">
+          <h3>Good for now</h3>
+          <ul>
+            <li>Teaching the stack without flattening it into vibes.</li>
+            <li>Auditing which numbers are constants, equations, measured values, or scenario inputs.</li>
+            <li>Tracing a claim from economics into infrastructure, performance, manufacturing, and physics.</li>
+          </ul>
+        </article>
+        <article class="panel">
+          <h3>Not finished yet</h3>
+          <ul>
+            <li>It is not a full digital twin of a datacenter.</li>
+            <li>It still contains many root inputs that deserve deeper decomposition.</li>
+            <li>The visual language is early. The long-term target is closer to a living explorable proof.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="band-mid">
+      <div class="wrap">
+        <div class="section-head">
+          <p class="eyebrow">Direction</p>
+          <h2>Where the page wants to go next.</h2>
+        </div>
+        <div class="timeline">
+          <div class="timeline-item">
+            <b>1. Cone viewer</b>
+            <p>A browser view where any variable expands into dependencies, equations, references, unit checks, and unresolved root inputs.</p>
+          </div>
+          <div class="timeline-item">
+            <b>2. Stack atlas</b>
+            <p>A visual atlas from campus power to accelerator kernels, with toggles that reveal what a number is made of.</p>
+          </div>
+          <div class="timeline-item">
+            <b>3. Scenario lab</b>
+            <p>A way to change assumptions and watch costs, emissions, latency, manufacturing limits, and utilization move together.</p>
+          </div>
+          <div class="timeline-item">
+            <b>4. Physical floor</b>
+            <p>A deeper chain that keeps pushing root inputs toward material properties, thermal limits, geometry, nuclei, and quarks where the model can justify that move.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Made from the strange useful overlap between AI systems work and physics curiosity.</span>
+      <div class="footer-links">
+        <a href="https://github.com/Cuuper22/gpu_stack-">Repository</a>
+        <a href="https://github.com/Cuuper22/gpu_stack-#readme">README</a>
+        <a href="#top">Top</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const layers = {
+      datacenter: {
+        kicker: "Power, land, cooling",
+        title: "Datacenter",
+        text: "The visible machine is a building, but the model treats it as a constraint bundle: grid interconnect, substations, cooling loops, water, occupancy, capex, operations, and uptime.",
+        facts: [
+          "Inputs include power envelope, PUE, utilization, cooling load, and build cost.",
+          "Outputs feed cluster capacity, cost allocation, emissions, and schedule pressure.",
+          "Open work is marked as root debt instead of being hidden in prose."
+        ],
+        stack: ["Grid", "Substation", "Cooling", "Power envelope", "Cluster capacity", "Cost per token"]
+      },
+      cluster: {
+        kicker: "Network, placement, availability",
+        title: "Cluster",
+        text: "A cluster is where hardware becomes coordination. The model can connect node counts, topology, network bandwidth, collective communication, checkpointing, and utilization.",
+        facts: [
+          "Collectives and network fabric change the effective training throughput.",
+          "Availability and failures turn neat FLOP math into real calendar time.",
+          "Placement choices propagate into energy, cost, and schedule."
+        ],
+        stack: ["Nodes", "Topology", "Collectives", "Checkpointing", "Utilization", "Training time"]
+      },
+      gpu: {
+        kicker: "Silicon as a system",
+        title: "GPU",
+        text: "The GPU layer ties compute units, memory bandwidth, HBM capacity, interconnect, thermal limits, and board power to the throughput the training job actually sees.",
+        facts: [
+          "Peak FLOP/s is only one ceiling among several.",
+          "Memory bandwidth, precision, and activation traffic can dominate.",
+          "The graph separates advertised specs from reachable performance."
+        ],
+        stack: ["SMs", "Tensor cores", "HBM", "Package power", "MFU", "Tokens per second"]
+      },
+      kernel: {
+        kicker: "Math meets machine code",
+        title: "Kernel",
+        text: "The kernel layer is where high-level operations become instructions, memory movement, occupancy, launch overhead, and numerical format choices.",
+        facts: [
+          "A model-level equation can hide several kernel-level bottlenecks.",
+          "PTX, tiling, fusion, and quantization all change the usable machine.",
+          "This layer is where visual demos can become extremely teachable."
+        ],
+        stack: ["Operation", "Tiling", "Fusion", "Memory traffic", "Occupancy", "Effective throughput"]
+      },
+      model: {
+        kicker: "Architecture, data, objective",
+        title: "Model",
+        text: "The model layer asks how parameters, sequence length, batch size, optimizer state, activation storage, and data schedule become compute and memory demand.",
+        facts: [
+          "Training cost is not one equation. It is a stack of coupled choices.",
+          "Context length and activation strategy reshape the memory problem.",
+          "The graph is designed to expose those coupling points."
+        ],
+        stack: ["Parameters", "Tokens", "Context", "Batch", "Optimizer", "Compute demand"]
+      },
+      lithography: {
+        kicker: "Manufacturing constraints",
+        title: "Lithography",
+        text: "The manufacturing layer connects node process, yield, reticle limits, packaging, HBM supply, and wafer economics to the hardware that can exist at all.",
+        facts: [
+          "A GPU cluster is downstream of fabs, packages, substrates, and supply chains.",
+          "Yield and packaging constraints can matter as much as architecture.",
+          "The long-term model should make that dependency legible."
+        ],
+        stack: ["Wafer", "Reticle", "Yield", "Package", "Supply", "Fleet size"]
+      },
+      physics: {
+        kicker: "Lower floors",
+        title: "Physical limits",
+        text: "The physical-limit layer is the project's north star: keep decomposing until a number is grounded in a measured property, a derivable relation, or an explicitly marked scenario assumption.",
+        facts: [
+          "Thermal, electrical, optical, and material limits are not background color.",
+          "Universal constants are the preferred hard numerical floor.",
+          "The model should say when it has reached knowledge and when it has reached debt."
+        ],
+        stack: ["Geometry", "Materials", "Heat", "Charge", "Constants", "Constraint floor"]
+      },
+      economics: {
+        kicker: "Money as dependency graph",
+        title: "Economics",
+        text: "The economic layer is where hardware, power, time, reliability, labor, utilization, financing, and token demand meet inside outputs like cost per token.",
+        facts: [
+          "A price is not a primitive number. It has upstream machinery.",
+          "Scenario reports separate assumptions from derived outputs.",
+          "Root debt is especially useful here because economics tempts hand-waving."
+        ],
+        stack: ["Capex", "Opex", "Utilization", "Amortization", "Throughput", "Cost per token"]
+      }
+    };
+
+    const tabs = document.querySelectorAll("[data-layer]");
+    const kicker = document.getElementById("layer-kicker");
+    const title = document.getElementById("layer-title");
+    const text = document.getElementById("layer-text");
+    const facts = document.getElementById("layer-facts");
+    const stack = document.getElementById("dependency-stack");
+
+    function renderLayer(key) {
+      const layer = layers[key];
+      kicker.textContent = layer.kicker;
+      title.textContent = layer.title;
+      text.textContent = layer.text;
+      facts.replaceChildren(...layer.facts.map((fact) => {
+        const li = document.createElement("li");
+        li.textContent = fact;
+        return li;
+      }));
+      stack.replaceChildren(...layer.stack.map((item, index) => {
+        const row = document.createElement("div");
+        row.className = `dependency-row${index === layer.stack.length - 1 ? " active" : ""}`;
+        const label = document.createElement("span");
+        label.textContent = item;
+        const depth = document.createElement("small");
+        depth.textContent = index === layer.stack.length - 1 ? "output" : `depth ${index + 1}`;
+        row.append(label, depth);
+        return row;
+      }));
+      tabs.forEach((tab) => {
+        tab.setAttribute("aria-selected", String(tab.dataset.layer === key));
+      });
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => renderLayer(tab.dataset.layer));
+    });
+
+    renderLayer("datacenter");
+  </script>
+</body>
+</html>
