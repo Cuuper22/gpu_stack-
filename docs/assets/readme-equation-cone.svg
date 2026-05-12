@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" role="img" aria-labelledby="title desc">
+  <title id="title">gpu_stack equation cone</title>
+  <desc id="desc">A dependency cone showing datacenter questions narrowing through cluster, GPU, kernel, transistor, lithography, atoms, nucleons, quarks, and equations.</desc>
+  <defs>
+    <linearGradient id="coneFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9f0ee"/>
+      <stop offset="0.55" stop-color="#f2e8d5"/>
+      <stop offset="1" stop-color="#f6d1a9"/>
+    </linearGradient>
+    <linearGradient id="bandFill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ebf5f3"/>
+      <stop offset="1" stop-color="#f7efe2"/>
+    </linearGradient>
+    <style>
+      .bg { fill: #f7f2e8; }
+      .ink { fill: #2e332f; }
+      .muted { fill: #59645f; }
+      .line { stroke: #404842; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .soft-line { stroke: #7a827c; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+      .cone { fill: url(#coneFill); stroke: #343b36; stroke-width: 2.2; }
+      .band { fill: url(#bandFill); stroke: #48514b; stroke-width: 1.6; }
+      .root { fill: #f6c07b; stroke: #4a3320; stroke-width: 1.6; }
+      .constant { fill: #d2eee9; stroke: #2d5b58; stroke-width: 1.6; }
+      .node { fill: #fff8ec; stroke: #48514b; stroke-width: 1.5; }
+      .caption { fill: #59645f; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 17px; }
+      .label { fill: #2e332f; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 21px; font-weight: 700; }
+      .small { fill: #39413c; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 15px; }
+      .tiny { fill: #39413c; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 13px; }
+      .eq { fill: #2e332f; font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace; font-size: 15px; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="960" height="620" rx="0"/>
+  <path class="cone" d="M112 78 H848 L574 540 H386 Z"/>
+
+  <g opacity="0.72">
+    <path class="soft-line" d="M205 178 H755"/>
+    <path class="soft-line" d="M257 268 H703"/>
+    <path class="soft-line" d="M309 358 H651"/>
+    <path class="soft-line" d="M361 448 H599"/>
+  </g>
+
+  <g>
+    <rect class="band" x="162" y="101" width="636" height="72" rx="8"/>
+    <text class="label" x="480" y="132" text-anchor="middle">Datacenter question</text>
+    <text class="small" x="480" y="157" text-anchor="middle">cost per token, tokens per second, site power, run cost</text>
+  </g>
+
+  <g>
+    <rect class="band" x="210" y="191" width="540" height="68" rx="8"/>
+    <text class="label" x="480" y="221" text-anchor="middle">Cluster, rack, node</text>
+    <text class="small" x="480" y="245" text-anchor="middle">NIC topology, bisection, BOM power, PUE, facility capex</text>
+  </g>
+
+  <g>
+    <rect class="band" x="258" y="281" width="444" height="68" rx="8"/>
+    <text class="label" x="480" y="311" text-anchor="middle">GPU, memory, kernels</text>
+    <text class="small" x="480" y="335" text-anchor="middle">FLOPs, HBM, roofline, collectives, MFU, optimizer state</text>
+  </g>
+
+  <g>
+    <rect class="band" x="306" y="371" width="348" height="68" rx="8"/>
+    <text class="label" x="480" y="401" text-anchor="middle">Transistor and process</text>
+    <text class="small" x="480" y="425" text-anchor="middle">gate pitch, RC delay, leakage, thermal transport</text>
+  </g>
+
+  <g>
+    <rect class="band" x="354" y="461" width="252" height="64" rx="8"/>
+    <text class="label" x="480" y="489" text-anchor="middle">Lithography matter</text>
+    <text class="small" x="480" y="512" text-anchor="middle">plasma, medium, atoms</text>
+  </g>
+
+  <g>
+    <circle class="root" cx="390" cy="566" r="31"/>
+    <circle class="root" cx="480" cy="566" r="31"/>
+    <circle class="root" cx="570" cy="566" r="31"/>
+    <text class="eq" x="390" y="571" text-anchor="middle">u,d</text>
+    <text class="eq" x="480" y="571" text-anchor="middle">p,n</text>
+    <text class="eq" x="570" y="571" text-anchor="middle">E=hv</text>
+  </g>
+
+  <g>
+    <path class="line" d="M480 173 V191"/>
+    <path class="line" d="M480 259 V281"/>
+    <path class="line" d="M480 349 V371"/>
+    <path class="line" d="M480 439 V461"/>
+    <path class="line" d="M445 525 L407 546"/>
+    <path class="line" d="M480 525 V535"/>
+    <path class="line" d="M515 525 L553 546"/>
+  </g>
+
+  <g transform="translate(40 90)">
+    <rect class="node" x="0" y="0" width="98" height="70" rx="8"/>
+    <rect class="node" x="16" y="13" width="20" height="44" rx="2"/>
+    <rect class="node" x="43" y="13" width="20" height="44" rx="2"/>
+    <rect class="node" x="70" y="13" width="20" height="44" rx="2"/>
+    <path class="soft-line" d="M0 86 C78 112, 100 128, 151 137"/>
+    <text class="tiny" x="49" y="104" text-anchor="middle">human question</text>
+  </g>
+
+  <g transform="translate(822 103)">
+    <rect class="node" x="0" y="0" width="92" height="50" rx="8"/>
+    <path class="line" d="M14 31 H78"/>
+    <path class="line" d="M24 19 H68"/>
+    <circle class="constant" cx="23" cy="31" r="5"/>
+    <circle class="constant" cx="46" cy="31" r="5"/>
+    <circle class="constant" cx="69" cy="31" r="5"/>
+    <path class="soft-line" d="M0 83 C-72 95, -108 107, -151 122"/>
+    <text class="tiny" x="46" y="73" text-anchor="middle">equation graph</text>
+  </g>
+
+  <g transform="translate(58 291)">
+    <circle class="constant" cx="22" cy="20" r="11"/>
+    <circle class="constant" cx="52" cy="20" r="11"/>
+    <circle class="constant" cx="82" cy="20" r="11"/>
+    <path class="line" d="M33 20 H41 M63 20 H71"/>
+    <text class="tiny" x="52" y="55" text-anchor="middle">constants</text>
+  </g>
+
+  <g transform="translate(804 304)">
+    <rect class="root" x="0" y="0" width="110" height="46" rx="8"/>
+    <text class="eq" x="55" y="29" text-anchor="middle">root inputs</text>
+    <path class="soft-line" d="M0 60 C-64 61, -100 73, -151 91"/>
+  </g>
+
+  <g transform="translate(72 506)">
+    <text class="caption" x="0" y="0">Walk downward to explain.</text>
+    <text class="caption" x="0" y="25">Walk upward to see blast radius.</text>
+  </g>
+
+  <g transform="translate(674 506)">
+    <text class="caption" x="0" y="0">No hidden simulator magic.</text>
+    <text class="caption" x="0" y="25">Just named variables plus relations.</text>
+  </g>
+</svg>
