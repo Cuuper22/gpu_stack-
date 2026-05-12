@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-05-11T18:45:00-07:00",
+  "title": "Design System: gpu_stack",
+  "extensions": {
+    "colorMeta": {
+      "desktop-bg": {
+        "role": "secondary",
+        "displayName": "Desktop Teal",
+        "canonical": "oklch(0.45 0.10 195)",
+        "tonalRamp": ["oklch(0.18 0.04 195)", "oklch(0.28 0.07 195)", "oklch(0.38 0.09 195)", "oklch(0.45 0.10 195)", "oklch(0.56 0.10 195)", "oklch(0.68 0.08 195)", "oklch(0.82 0.04 195)", "oklch(0.94 0.02 195)"]
+      },
+      "title-bar": {
+        "role": "primary",
+        "displayName": "CuperOS Indigo",
+        "canonical": "oklch(0.40 0.15 260)",
+        "tonalRamp": ["oklch(0.18 0.06 260)", "oklch(0.28 0.10 260)", "oklch(0.40 0.15 260)", "oklch(0.50 0.16 260)", "oklch(0.62 0.13 260)", "oklch(0.74 0.09 260)", "oklch(0.86 0.05 260)", "oklch(0.95 0.02 260)"]
+      },
+      "accent-gold": {
+        "role": "tertiary",
+        "displayName": "Attention Gold",
+        "canonical": "oklch(0.82 0.15 88)",
+        "tonalRamp": ["oklch(0.25 0.06 88)", "oklch(0.38 0.10 88)", "oklch(0.52 0.13 88)", "oklch(0.66 0.15 88)", "oklch(0.82 0.15 88)", "oklch(0.88 0.10 88)", "oklch(0.93 0.06 88)", "oklch(0.97 0.03 88)"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Pixel Display",
+        "purpose": "Window chrome, project names, section headings, and controls."
+      },
+      "body": {
+        "displayName": "Readable Body",
+        "purpose": "Long explanations and honest technical caveats."
+      },
+      "mono": {
+        "displayName": "Console Mono",
+        "purpose": "Commands, file paths, registry output, and code-like labels."
+      }
+    },
+    "shadows": [
+      {
+        "name": "pixel-window",
+        "value": "2px 2px 0 oklch(0.08 0.004 250)",
+        "purpose": "Crisp top-level window separation."
+      }
+    ],
+    "motion": [
+      {
+        "name": "snappy-hover",
+        "value": "120ms ease-out",
+        "purpose": "Small hover movement on desktop icons and controls."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "desktop-collapse",
+        "value": "980px"
+      },
+      {
+        "name": "mobile",
+        "value": "620px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Retro Button",
+      "kind": "button",
+      "refersTo": "retro-button",
+      "description": "Square OS control with outset border and inset active state.",
+      "html": "<button class=\"ds-retro-btn\">Open layers</button>",
+      "css": ".ds-retro-btn { min-height: 36px; display: inline-flex; align-items: center; gap: 7px; border: 2px outset oklch(0.85 0.005 250); border-radius: 0; background: oklch(0.85 0.005 250); color: oklch(0.15 0.005 250); padding: 5px 10px; font: 600 14px 'Pixelify Sans', monospace; } .ds-retro-btn:hover { background: oklch(0.88 0.005 250); } .ds-retro-btn:focus-visible { outline: 2px solid oklch(0.82 0.15 88); outline-offset: 2px; } .ds-retro-btn:active { border-style: inset; }"
+    },
+    {
+      "name": "Project Window",
+      "kind": "custom",
+      "refersTo": "window",
+      "description": "CuperOS chrome wrapper for project content.",
+      "html": "<section class=\"ds-window\"><div class=\"ds-title-bar\">gpu_stack.exe</div><div class=\"ds-window-body\">Project content</div></section>",
+      "css": ".ds-window { background: oklch(0.85 0.005 250); border: 2px outset oklch(0.85 0.005 250); border-radius: 0; box-shadow: 2px 2px 0 oklch(0.08 0.004 250); color: oklch(0.15 0.005 250); font-family: 'Pixelify Sans', monospace; } .ds-title-bar { background: linear-gradient(90deg, oklch(0.40 0.15 260), oklch(0.45 0.15 260)); color: oklch(0.95 0.003 90); padding: 5px 7px; border-bottom: 2px solid oklch(0.40 0.005 250); font-weight: 700; } .ds-window-body { margin: 4px; padding: 14px; background: oklch(0.97 0.002 90); border: 2px inset oklch(0.85 0.005 250); font: 500 15px/1.62 'IBM Plex Sans', system-ui, sans-serif; } .ds-window h1 { font-size: clamp(48px, 8vw, 98px); line-height: 1.05; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "A project window inside CuperOS",
+    "overview": "The GitHub Pages site must feel like it belongs to Cuper's live portfolio, not like a separate AI-generated landing page. The surface is a retro desktop app: teal dotted desktop, zero-radius window chrome, indigo title bars, pixel icons, inset content panes, taskbar, and project-copy voice that sounds human, technical, and slightly amused.",
+    "keyCharacteristics": [
+      "Pixel OS chrome first, modern landing-page composition never.",
+      "Display type uses Pixelify Sans. Reading copy uses IBM Plex Sans. Commands use IBM Plex Mono.",
+      "Border radius is zero. Depth comes from outset, inset, and 2px pixel shadows.",
+      "The site teaches the stack by making files, windows, controls, and dependency panes inspectable."
+    ],
+    "rules": [
+      {
+        "name": "The No New Brand Rule",
+        "body": "Do not invent a separate gpu_stack palette. The project page is a child window inside CuperOS.",
+        "section": "colors"
+      },
+      {
+        "name": "The Chrome Is Structure Rule",
+        "body": "If an element needs hierarchy, give it a real OS affordance: title bar, inset pane, status light, or taskbar.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve the CuperOS desktop metaphor from the portfolio.",
+      "Do use Pixelify Sans for OS chrome and IBM Plex Sans for readable explanation.",
+      "Do show the stack before explaining the stack.",
+      "Do expose root inputs as visible modeling debt."
+    ],
+    "donts": [
+      "Don't make the GitHub.io page look like a standalone SaaS landing page.",
+      "Don't use full-bleed datacenter hero imagery as the primary identity.",
+      "Don't use feature-card grids, hero metrics, glassmorphism, gradient text, or purple-blue AI gradients.",
+      "Don't introduce a new design system when the portfolio already has one."
+    ]
+  }
+}

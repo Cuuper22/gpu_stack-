@@ -3,30 +3,39 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="gpu_stack is a visual-first symbolic model of AI training infrastructure, from datacenters and GPU clusters down toward physical limits.">
+  <meta name="description" content="gpu_stack is a visual-first symbolic model of AI training infrastructure, styled as a CuperOS project window.">
   <meta property="og:title" content="gpu_stack">
-  <meta property="og:description" content="A symbolic map from cost per token down to the physics it keeps borrowing from.">
+  <meta property="og:description" content="A symbolic dependency graph from cost per token down toward the physical assumptions underneath it.">
   <meta property="og:image" content="assets/readme-hero.png">
-  <title>gpu_stack</title>
+  <title>gpu_stack - CuperOS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: light;
-      --paper: oklch(96.8% 0.012 83);
-      --paper-soft: oklch(93.2% 0.015 82);
-      --ink: oklch(18% 0.026 73);
-      --ink-soft: oklch(34% 0.028 76);
-      --muted: oklch(56% 0.025 76);
-      --line: oklch(82% 0.02 78);
-      --field: oklch(24% 0.028 73);
-      --field-soft: oklch(31% 0.034 73);
-      --signal: oklch(68% 0.13 43);
-      --cool: oklch(63% 0.095 197);
-      --leaf: oklch(58% 0.1 143);
-      --warn: oklch(67% 0.14 80);
-      --deep: oklch(16% 0.025 74);
-      --shadow: 0 20px 70px oklch(20% 0.03 75 / 0.18);
+      --desktop-bg: oklch(0.45 0.10 195);
+      --desktop-dot: oklch(0.50 0.12 195);
+      --window-chrome: oklch(0.85 0.005 250);
+      --window-body: oklch(0.97 0.002 90);
+      --button-face: oklch(0.85 0.005 250);
+      --button-hover: oklch(0.88 0.005 250);
+      --inset-dark: oklch(0.40 0.005 250);
+      --inset-light: oklch(0.95 0.003 90);
+      --title-bar: oklch(0.40 0.15 260);
+      --title-bar-end: oklch(0.45 0.15 260);
+      --text-dark: oklch(0.15 0.005 250);
+      --text-soft: oklch(0.33 0.006 250);
+      --text-light: oklch(0.95 0.003 90);
+      --link-color: oklch(0.40 0.15 260);
+      --link-hover: oklch(0.50 0.18 260);
+      --accent-cyan: oklch(0.50 0.10 195);
+      --accent-gold: oklch(0.82 0.15 88);
+      --accent-green: oklch(0.70 0.20 130);
+      --danger-red: oklch(0.58 0.19 28);
+      --shadow: 2px 2px 0 oklch(0.08 0.004 250);
       --max: 1180px;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: "Pixelify Sans", monospace;
     }
 
     * {
@@ -39,830 +48,926 @@
 
     body {
       margin: 0;
-      background: var(--paper);
-      color: var(--ink);
       min-width: 320px;
+      min-height: 100vh;
+      background-color: var(--desktop-bg);
+      background-image: radial-gradient(circle, var(--desktop-dot) 1px, transparent 1px);
+      background-size: 4px 4px;
+      color: var(--text-dark);
+      font-family: "Pixelify Sans", monospace;
+      line-height: 1.6;
+      overflow-x: hidden;
+      padding-bottom: 54px;
     }
 
     a {
-      color: inherit;
+      color: var(--link-color);
+      text-decoration: underline;
+    }
+
+    a:hover {
+      color: var(--link-hover);
     }
 
     img {
       display: block;
       max-width: 100%;
+      height: auto;
     }
 
-    code {
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-      font-size: 0.94em;
+    code,
+    pre,
+    .mono {
+      font-family: "IBM Plex Mono", "Courier New", monospace;
     }
 
-    .hero {
-      position: relative;
-      min-height: 86svh;
-      display: grid;
-      align-items: end;
-      isolation: isolate;
-      background:
-        linear-gradient(90deg, oklch(13% 0.025 73 / 0.86), oklch(14% 0.025 73 / 0.48) 48%, oklch(14% 0.025 73 / 0.12)),
-        url("assets/readme-hero.png") center / cover no-repeat;
-      color: oklch(97% 0.012 83);
+    button,
+    a {
+      touch-action: manipulation;
     }
 
-    .topbar {
-      position: absolute;
-      inset: 0 0 auto;
-      z-index: 2;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: min(100% - 32px, var(--max));
+    :focus-visible {
+      outline: 2px solid var(--accent-gold);
+      outline-offset: 2px;
+    }
+
+    .desktop {
+      width: min(100% - 20px, var(--max));
       margin: 0 auto;
-      padding-block: 22px;
-      font-size: 0.9rem;
-      color: oklch(92% 0.012 83 / 0.86);
+      padding: 18px 0 26px;
+      min-height: calc(100vh - 54px);
+      position: relative;
     }
 
-    .brand {
+    .desktop-icons {
+      position: absolute;
+      top: 22px;
+      left: 0;
+      display: grid;
+      gap: 14px;
+      z-index: 1;
+    }
+
+    .desktop-icon {
+      width: 86px;
+      min-height: 78px;
+      display: grid;
+      justify-items: center;
+      align-content: start;
+      gap: 6px;
+      color: var(--text-light);
+      text-decoration: none;
+      text-align: center;
+      text-shadow: 1px 1px 0 oklch(0.08 0.004 250);
+      font-size: 13px;
+    }
+
+    .desktop-icon:hover .icon-image,
+    .desktop-icon:focus-visible .icon-image {
+      transform: translate(-1px, -1px);
+    }
+
+    .icon-image {
+      width: 36px;
+      height: 36px;
+      image-rendering: pixelated;
+      transition: transform 120ms ease-out;
+    }
+
+    .icon-label {
+      padding: 1px 4px;
+      background: oklch(0.28 0.08 195 / 0.62);
+    }
+
+    .desktop-logo {
+      position: absolute;
+      top: 18px;
+      right: 0;
+      display: grid;
+      justify-items: end;
+      gap: 0;
+      color: var(--text-light);
+      text-shadow: 2px 2px 0 oklch(0.08 0.004 250);
+      user-select: none;
+      z-index: 1;
+    }
+
+    .logo-text {
+      font-size: 30px;
+      font-size: clamp(30px, 4vw, 58px);
+      font-weight: 700;
+      line-height: 0.9;
+    }
+
+    .logo-version {
+      font-size: 14px;
       letter-spacing: 0;
-      font-weight: 760;
+      color: oklch(0.90 0.06 88);
     }
 
-    .nav {
+    .window {
+      background: var(--window-chrome);
+      border: 2px outset var(--button-face);
+      box-shadow: var(--shadow);
+    }
+
+    .title-bar {
+      background: linear-gradient(90deg, var(--title-bar), var(--title-bar-end));
+      color: var(--text-light);
+      padding: 5px 7px;
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      user-select: none;
+      border-bottom: 2px solid var(--inset-dark);
     }
 
-    .nav a,
-    .button {
-      min-height: 40px;
+    .title-text {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 4px;
+      flex: 0 0 auto;
+    }
+
+    .window-btn {
+      width: 22px;
+      height: 22px;
+      display: inline-grid;
+      place-items: center;
+      border: 2px outset var(--button-face);
+      border-radius: 0;
+      background: var(--button-face);
+      color: var(--text-dark);
+      padding: 0;
+      font: 700 12px "Pixelify Sans", monospace;
+    }
+
+    .window-btn:active {
+      border-style: inset;
+    }
+
+    .window-content {
+      background: var(--window-body);
+      border: 2px inset var(--window-chrome);
+      margin: 4px;
+    }
+
+    .app-window {
+      width: min(100% - 112px, 980px);
+      margin: 74px auto 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 214px minmax(0, 1fr);
+      min-height: 620px;
+    }
+
+    .app-nav {
+      background: oklch(0.90 0.008 250);
+      border-right: 2px solid var(--inset-dark);
+      padding: 10px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .tree-label {
+      color: var(--text-soft);
+      font-size: 12px;
+      margin: 2px 0 4px;
+    }
+
+    .tree-button,
+    .retro-btn {
+      min-height: 36px;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      border: 1px solid oklch(96% 0.012 83 / 0.32);
-      border-radius: 8px;
-      padding: 0 14px;
+      gap: 7px;
+      border: 2px outset var(--button-face);
+      border-radius: 0;
+      background: var(--button-face);
+      color: var(--text-dark);
+      padding: 5px 10px;
+      font: 600 14px "Pixelify Sans", monospace;
       text-decoration: none;
-      background: oklch(98% 0.012 83 / 0.08);
-      backdrop-filter: blur(12px);
-      color: inherit;
+      cursor: pointer;
+      text-align: left;
     }
 
-    .button.primary {
-      border-color: transparent;
-      color: var(--deep);
-      background: var(--signal);
-      box-shadow: 0 10px 34px oklch(20% 0.03 73 / 0.24);
-      font-weight: 760;
+    .tree-button {
+      width: 100%;
     }
 
-    .hero-inner {
-      position: relative;
-      z-index: 1;
-      width: min(100% - 32px, var(--max));
-      margin: 0 auto;
-      padding: 130px 0 8svh;
+    .tree-button:hover,
+    .retro-btn:hover {
+      background: var(--button-hover);
+      color: var(--text-dark);
+      text-decoration: none;
     }
 
-    .kicker {
-      margin: 0 0 16px;
-      color: oklch(84% 0.06 43);
-      font-size: 0.9rem;
-      font-weight: 760;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+    .tree-button[aria-selected="true"],
+    .retro-btn.primary {
+      border-style: inset;
+      background: var(--title-bar);
+      color: var(--text-light);
+    }
+
+    .app-main {
+      min-width: 0;
+      padding: clamp(14px, 2vw, 22px);
+      display: grid;
+      gap: 16px;
+      align-content: start;
+    }
+
+    .hero-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 230px;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .headline {
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.98 0.002 90);
+      padding: clamp(16px, 3vw, 28px);
+      min-width: 0;
+    }
+
+    .file-path {
+      margin: 0 0 8px;
+      color: var(--title-bar);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: "Pixelify Sans", monospace;
+      line-height: 1.05;
+      letter-spacing: 0;
     }
 
     h1 {
       margin: 0;
-      max-width: 12ch;
-      font-size: clamp(4rem, 11vw, 9.5rem);
-      line-height: 0.82;
-      letter-spacing: 0;
+      color: var(--title-bar);
+      font-size: 48px;
+      font-size: clamp(48px, 8vw, 98px);
+      overflow-wrap: anywhere;
     }
 
-    .hero-copy {
-      max-width: 740px;
-      margin: 28px 0 0;
-      font-size: clamp(1.12rem, 2.3vw, 1.65rem);
-      line-height: 1.42;
-      color: oklch(93% 0.012 83 / 0.92);
+    .tagline {
+      margin: 12px 0 0;
+      max-width: 58ch;
+      color: var(--text-dark);
+      font: 500 16px "IBM Plex Sans", system-ui, sans-serif;
+      font: 500 clamp(16px, 1.8vw, 19px) "IBM Plex Sans", system-ui, sans-serif;
+      line-height: 1.55;
     }
 
-    .hero-actions {
+    .action-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 30px;
+      gap: 8px;
+      margin-top: 18px;
     }
 
-    .below-hint {
-      position: absolute;
-      left: max(16px, calc((100vw - var(--max)) / 2));
-      bottom: 18px;
-      z-index: 2;
-      font-size: 0.82rem;
-      color: oklch(92% 0.012 83 / 0.72);
+    .status-panel {
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.93 0.006 250);
+      padding: 10px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
     }
 
-    section {
-      padding: 88px 0;
+    .status-light {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 8px;
+      align-items: start;
+      font: 13px "IBM Plex Mono", monospace;
     }
 
-    .band-dark {
-      background: var(--deep);
-      color: oklch(95% 0.012 83);
+    .led {
+      width: 14px;
+      height: 14px;
+      margin-top: 3px;
+      border: 2px inset var(--button-face);
+      background: var(--accent-green);
     }
 
-    .band-mid {
-      background: var(--paper-soft);
+    .led.warn {
+      background: var(--accent-gold);
     }
 
-    .wrap {
-      width: min(100% - 32px, var(--max));
-      margin: 0 auto;
+    .led.red {
+      background: var(--danger-red);
     }
 
-    .section-head {
-      max-width: 850px;
-      margin-bottom: 34px;
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border: 2px inset var(--window-chrome);
+      background: var(--inset-dark);
+      gap: 1px;
+    }
+
+    .stat {
+      min-height: 104px;
+      padding: 10px;
+      background: oklch(0.98 0.002 90);
+      display: grid;
+      align-content: space-between;
+      gap: 8px;
+    }
+
+    .stat b {
+      color: var(--title-bar);
+      font-size: 24px;
+      font-size: clamp(24px, 4vw, 40px);
+      line-height: 0.95;
+    }
+
+    .stat span {
+      color: var(--text-soft);
+      font: 13px "IBM Plex Sans", system-ui, sans-serif;
+      line-height: 1.35;
+    }
+
+    .section-window {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      gap: 0;
+      border: 2px inset var(--window-chrome);
+      background: var(--inset-dark);
+      overflow: hidden;
+    }
+
+    .section-copy,
+    .section-visual {
+      background: oklch(0.98 0.002 90);
+      padding: clamp(14px, 2vw, 22px);
+      min-width: 0;
+    }
+
+    .section-copy {
+      border-right: 2px solid var(--inset-dark);
     }
 
     .eyebrow {
-      margin: 0 0 12px;
-      color: var(--signal);
-      font-size: 0.82rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      margin: 0 0 7px;
+      color: var(--accent-cyan);
+      font-size: 13px;
+      font-weight: 700;
     }
 
     h2 {
       margin: 0;
-      font-size: clamp(2rem, 4vw, 4.4rem);
-      line-height: 0.98;
-      letter-spacing: 0;
+      color: var(--title-bar);
+      font-size: 30px;
+      font-size: clamp(30px, 4vw, 50px);
     }
 
-    .lede {
-      margin: 18px 0 0;
-      color: var(--ink-soft);
-      font-size: clamp(1.04rem, 1.6vw, 1.28rem);
+    h3 {
+      margin: 0 0 10px;
+      color: var(--title-bar);
+      font-size: 20px;
+    }
+
+    .body-copy,
+    .section-copy p,
+    .note-list li,
+    .dialog-body p {
+      font: 500 15px "IBM Plex Sans", system-ui, sans-serif;
       line-height: 1.62;
+      color: var(--text-dark);
     }
 
-    .band-dark .lede {
-      color: oklch(86% 0.014 83 / 0.82);
-    }
-
-    .thesis {
-      display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: 42px;
-      align-items: center;
-    }
-
-    .statement {
-      margin: 0;
-      font-size: clamp(1.7rem, 3.4vw, 4rem);
-      line-height: 1.05;
-      letter-spacing: 0;
-      color: oklch(95% 0.012 83);
-    }
-
-    .statement strong {
-      color: var(--signal);
-      font-weight: 820;
-    }
-
-    .plain-list {
-      display: grid;
-      gap: 14px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      color: oklch(87% 0.014 83 / 0.85);
-      line-height: 1.56;
-    }
-
-    .plain-list li {
+    .note-list {
+      margin: 14px 0 0;
       padding-left: 18px;
-      border-left: 2px solid oklch(72% 0.11 43 / 0.75);
-    }
-
-    .metric-strip {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 1px;
-      background: var(--line);
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
+      gap: 7px;
     }
 
-    .metric {
-      min-height: 146px;
-      padding: 22px;
-      background: var(--paper);
-      display: grid;
-      align-content: space-between;
-      gap: 18px;
-    }
-
-    .metric b {
-      font-size: clamp(1.9rem, 4vw, 3.7rem);
-      line-height: 0.9;
-      letter-spacing: 0;
-      color: var(--field);
-    }
-
-    .metric span {
-      color: var(--ink-soft);
-      line-height: 1.38;
-    }
-
-    .layer-layout {
-      display: grid;
-      grid-template-columns: 310px minmax(0, 1fr);
-      gap: 28px;
-      align-items: start;
-    }
-
-    .layer-tabs {
-      display: grid;
-      gap: 8px;
-      position: sticky;
-      top: 18px;
-    }
-
-    .layer-tab {
-      width: 100%;
-      min-height: 48px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: oklch(98% 0.012 83);
-      color: var(--ink);
-      text-align: left;
-      padding: 12px 14px;
-      font: inherit;
-      cursor: pointer;
-    }
-
-    .layer-tab[aria-selected="true"] {
-      background: var(--field);
-      color: oklch(97% 0.012 83);
-      border-color: var(--field);
-    }
-
-    .layer-panel {
-      min-height: 520px;
-      border: 1px solid var(--line);
-      background: oklch(98% 0.012 83);
-      box-shadow: var(--shadow);
-      display: grid;
-      grid-template-columns: 0.9fr 1.1fr;
-      overflow: hidden;
-    }
-
-    .layer-copy {
-      padding: clamp(24px, 4vw, 46px);
+    .section-visual {
       display: grid;
       align-content: center;
-      gap: 18px;
+      gap: 12px;
     }
 
-    .layer-copy h3 {
+    .visual-frame {
+      background: oklch(0.91 0.006 250);
+      border: 2px inset var(--window-chrome);
+      padding: 10px;
+    }
+
+    .visual-frame img {
+      width: 100%;
+      background: oklch(0.98 0.002 90);
+      border: 1px solid oklch(0.72 0.006 250);
+    }
+
+    .caption {
       margin: 0;
-      font-size: clamp(1.8rem, 3vw, 3.2rem);
-      line-height: 1;
-      letter-spacing: 0;
-    }
-
-    .layer-copy p {
-      margin: 0;
-      color: var(--ink-soft);
-      line-height: 1.6;
-    }
-
-    .layer-facts {
-      display: grid;
-      gap: 10px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .layer-facts li {
-      border-top: 1px solid var(--line);
-      padding-top: 10px;
-      color: var(--ink-soft);
+      color: var(--text-soft);
+      font: 13px "IBM Plex Sans", system-ui, sans-serif;
       line-height: 1.45;
     }
 
-    .layer-visual {
-      position: relative;
-      min-height: 420px;
-      background:
-        linear-gradient(180deg, oklch(25% 0.03 73), oklch(18% 0.025 73));
-      overflow: hidden;
-      display: grid;
-      place-items: center;
-      color: oklch(96% 0.012 83);
-    }
-
     .dependency-stack {
-      width: min(84%, 560px);
       display: grid;
-      gap: 9px;
+      gap: 6px;
+      margin-top: 8px;
     }
 
     .dependency-row {
-      min-height: 42px;
-      border: 1px solid oklch(86% 0.012 83 / 0.24);
-      background: oklch(96% 0.012 83 / 0.08);
+      min-height: 34px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 0 14px;
-      backdrop-filter: blur(10px);
+      gap: 10px;
+      border: 2px outset var(--button-face);
+      background: var(--button-face);
+      padding: 4px 8px;
+      font: 13px "IBM Plex Mono", monospace;
     }
 
     .dependency-row.active {
-      background: var(--signal);
-      color: var(--deep);
-      border-color: transparent;
-      font-weight: 760;
+      background: var(--accent-gold);
+      color: var(--text-dark);
+      border-style: inset;
+      font-weight: 700;
     }
 
-    .dependency-row small {
-      color: inherit;
-      opacity: 0.75;
-    }
-
-    .cone-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
-      gap: 34px;
-      align-items: center;
-    }
-
-    .cone-image {
-      border: 1px solid oklch(88% 0.014 83);
-      background: oklch(98% 0.012 83);
-      box-shadow: var(--shadow);
-      padding: clamp(12px, 2vw, 24px);
-    }
-
-    .code-block {
+    .console-window {
+      background: oklch(0.09 0.008 250);
+      color: oklch(0.78 0.18 132);
+      border: 2px inset var(--window-chrome);
+      padding: 14px;
       overflow: auto;
-      background: oklch(18% 0.025 73);
-      color: oklch(94% 0.012 83);
-      border: 1px solid oklch(40% 0.03 73);
-      padding: 18px;
-      border-radius: 8px;
-      line-height: 1.55;
-      box-shadow: var(--shadow);
+      min-height: 194px;
+      font: 13px/1.55 "IBM Plex Mono", "Courier New", monospace;
+      white-space: pre;
     }
 
-    .split {
+    .dialog-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 28px;
+      gap: 12px;
     }
 
-    .panel {
-      border: 1px solid var(--line);
-      background: oklch(98% 0.012 83);
-      padding: clamp(22px, 3vw, 34px);
-      min-height: 260px;
+    .dialog-body {
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.98 0.002 90);
+      padding: 14px;
+      min-width: 0;
     }
 
-    .panel h3 {
-      margin: 0 0 14px;
-      font-size: 1.28rem;
-      line-height: 1.2;
-    }
-
-    .panel p,
-    .panel li {
-      color: var(--ink-soft);
-      line-height: 1.58;
-    }
-
-    .panel ul {
-      display: grid;
-      gap: 10px;
-      margin: 0;
-      padding-left: 18px;
+    .dialog-body p:last-child {
+      margin-bottom: 0;
     }
 
     .timeline {
       display: grid;
-      gap: 18px;
+      gap: 8px;
     }
 
-    .timeline-item {
+    .timeline-row {
       display: grid;
-      grid-template-columns: 150px minmax(0, 1fr);
-      gap: 22px;
-      padding-block: 18px;
-      border-top: 1px solid var(--line);
+      grid-template-columns: 130px minmax(0, 1fr);
+      gap: 10px;
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.98 0.002 90);
+      padding: 10px;
+      font: 14px "IBM Plex Sans", system-ui, sans-serif;
     }
 
-    .timeline-item b {
-      color: var(--field);
+    .timeline-row b {
+      color: var(--title-bar);
+      font-family: "Pixelify Sans", monospace;
     }
 
-    .timeline-item p {
-      margin: 0;
-      color: var(--ink-soft);
-      line-height: 1.55;
-    }
-
-    footer {
-      padding: 34px 0;
-      background: var(--deep);
-      color: oklch(89% 0.012 83);
-    }
-
-    .footer-inner {
-      width: min(100% - 32px, var(--max));
-      margin: 0 auto;
+    .taskbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+      height: 48px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      gap: 20px;
-      flex-wrap: wrap;
-      color: oklch(87% 0.012 83 / 0.8);
-      line-height: 1.45;
+      gap: 12px;
+      padding: 0 8px;
+      background: oklch(0.75 0.005 250);
+      border-top: 2px solid var(--inset-light);
+      box-shadow: 0 -2px 0 var(--inset-dark);
     }
 
-    .footer-links {
+    .taskbar-left {
       display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
     }
 
-    @media (max-width: 900px) {
-      .topbar {
-        align-items: flex-start;
-        gap: 18px;
+    .start-button,
+    .task-button,
+    .taskbar-clock {
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 2px outset var(--button-face);
+      border-radius: 0;
+      background: var(--button-face);
+      color: var(--text-dark);
+      padding: 4px 10px;
+      font: 700 14px "Pixelify Sans", monospace;
+      white-space: nowrap;
+    }
+
+    .task-button {
+      max-width: min(42vw, 260px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .taskbar-clock {
+      border-style: inset;
+      font-weight: 600;
+    }
+
+    .px-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: center;
+      image-rendering: pixelated;
+      vertical-align: middle;
+      flex: 0 0 auto;
+    }
+
+    .px-start {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='2' y='2' width='5' height='5' fill='%23FF0000'/%3E%3Crect x='9' y='2' width='5' height='5' fill='%2300A000'/%3E%3Crect x='2' y='9' width='5' height='5' fill='%230000FF'/%3E%3Crect x='9' y='9' width='5' height='5' fill='%23FFD800'/%3E%3C/svg%3E");
+    }
+
+    .px-folder {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='1' y='5' width='14' height='9' fill='%23FFC800' stroke='%23996600'/%3E%3Crect x='1' y='3' width='6' height='3' fill='%23FFE040' stroke='%23996600'/%3E%3C/svg%3E");
+    }
+
+    .px-doc {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cpath d='M3 1h7l3 3v11H3V1z' fill='%23F8F7ED' stroke='%231A1A1A'/%3E%3Cpath d='M10 1v3h3' fill='%23C9C9C9' stroke='%23808080'/%3E%3Crect x='5' y='6' width='6' height='1' fill='%23000080'/%3E%3Crect x='5' y='8' width='6' height='1' fill='%23000080'/%3E%3Crect x='5' y='10' width='4' height='1' fill='%23000080'/%3E%3C/svg%3E");
+    }
+
+    .px-graph {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cline x1='3' y1='3' x2='13' y2='3' stroke='%23000080'/%3E%3Cline x1='3' y1='3' x2='8' y2='13' stroke='%23000080'/%3E%3Cline x1='13' y1='3' x2='8' y2='13' stroke='%23000080'/%3E%3Ccircle cx='3' cy='3' r='2' fill='%234444FF'/%3E%3Ccircle cx='13' cy='3' r='2' fill='%234444FF'/%3E%3Ccircle cx='8' cy='13' r='2' fill='%234444FF'/%3E%3C/svg%3E");
+    }
+
+    .px-term {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='1' y='1' width='14' height='14' fill='%23101010' stroke='%23808080'/%3E%3Cpath d='M4 5l3 3-3 3' stroke='%2300ff00' stroke-width='1.5' fill='none'/%3E%3Cline x1='8' y1='11' x2='12' y2='11' stroke='%2300ff00' stroke-width='1.5'/%3E%3C/svg%3E");
+    }
+
+    .px-chip {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='3' y='3' width='10' height='10' fill='%23808080' stroke='%231A1A1A'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23C0C0C0' stroke='%23404040'/%3E%3Cg stroke='%231A1A1A'%3E%3Cline x1='1' y1='5' x2='3' y2='5'/%3E%3Cline x1='1' y1='8' x2='3' y2='8'/%3E%3Cline x1='1' y1='11' x2='3' y2='11'/%3E%3Cline x1='13' y1='5' x2='15' y2='5'/%3E%3Cline x1='13' y1='8' x2='15' y2='8'/%3E%3Cline x1='13' y1='11' x2='15' y2='11'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .px-atom {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cellipse cx='8' cy='8' rx='7' ry='2.5' fill='none' stroke='%23000080'/%3E%3Cellipse cx='8' cy='8' rx='2.5' ry='7' fill='none' stroke='%23000080'/%3E%3Ccircle cx='8' cy='8' r='2' fill='%23FFD800' stroke='%23996600'/%3E%3C/svg%3E");
+    }
+
+    @media (max-width: 980px) {
+      .desktop-icons {
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: 160px;
+        margin-bottom: 10px;
       }
 
-      .nav {
-        max-width: 280px;
+      .desktop-icon {
+        width: 74px;
       }
 
-      .thesis,
-      .layer-layout,
-      .layer-panel,
-      .cone-layout,
-      .split {
+      .app-window {
+        width: 100%;
+        margin-top: 12px;
+      }
+
+      .app-shell,
+      .hero-row,
+      .section-window,
+      .dialog-grid {
         grid-template-columns: 1fr;
       }
 
-      .metric-strip {
+      .app-nav {
+        border-right: 0;
+        border-bottom: 2px solid var(--inset-dark);
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .layer-tabs {
-        position: static;
+      .tree-label {
+        grid-column: 1 / -1;
+      }
+
+      .section-copy {
+        border-right: 0;
+        border-bottom: 2px solid var(--inset-dark);
+      }
+
+      .stat-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
     @media (max-width: 620px) {
-      .hero {
-        min-height: 90svh;
-        background-position: 58% center;
+      body {
+        padding-bottom: 58px;
       }
 
-      .topbar {
-        position: relative;
-        width: min(100% - 24px, var(--max));
-        padding-top: 14px;
+      .desktop {
+        width: min(100% - 12px, var(--max));
+        padding-top: 8px;
       }
 
-      .nav a {
-        min-height: 36px;
-        padding-inline: 10px;
+      .desktop-logo {
+        position: static;
+        align-items: start;
+        justify-items: start;
+        margin-bottom: 8px;
       }
 
-      .hero-inner {
-        width: min(100% - 24px, var(--max));
-        padding-top: 60px;
+      .desktop-icons {
+        margin-right: 0;
       }
 
-      h1 {
-        font-size: clamp(3.3rem, 20vw, 5.2rem);
+      .app-main {
+        padding: 10px;
       }
 
-      section {
-        padding: 58px 0;
-      }
-
-      .metric-strip,
-      .layer-tabs {
+      .stat-grid,
+      .app-nav {
         grid-template-columns: 1fr;
       }
 
-      .layer-panel {
-        min-height: auto;
-      }
-
-      .layer-visual {
-        min-height: 360px;
-      }
-
-      .timeline-item {
+      .timeline-row {
         grid-template-columns: 1fr;
-        gap: 8px;
+      }
+
+      .task-button {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
       }
     }
   </style>
 </head>
 <body>
-  <header class="hero">
-    <div class="topbar" aria-label="Primary navigation">
-      <a class="brand" href="#top" aria-label="gpu_stack home">gpu_stack</a>
-      <nav class="nav">
-        <a href="#model">Model</a>
-        <a href="#layers">Layers</a>
-        <a href="#run">Run</a>
-        <a href="https://github.com/Cuuper22/gpu_stack-">GitHub</a>
-      </nav>
+  <div class="desktop">
+    <div class="desktop-icons" aria-label="CuperOS shortcuts">
+      <a class="desktop-icon" href="https://cuuper22.github.io/" aria-label="Back to CuperOS desktop">
+        <span class="icon-image px-icon px-folder" style="width:36px;height:36px;"></span>
+        <span class="icon-label">Desktop</span>
+      </a>
+      <a class="desktop-icon" href="https://github.com/Cuuper22/gpu_stack-#readme">
+        <span class="icon-image px-icon px-doc" style="width:36px;height:36px;"></span>
+        <span class="icon-label">README.md</span>
+      </a>
+      <a class="desktop-icon" href="#run">
+        <span class="icon-image px-icon px-term" style="width:36px;height:36px;"></span>
+        <span class="icon-label">CLI.exe</span>
+      </a>
+      <a class="desktop-icon" href="#layers">
+        <span class="icon-image px-icon px-atom" style="width:36px;height:36px;"></span>
+        <span class="icon-label">layers.sys</span>
+      </a>
     </div>
 
-    <div class="hero-inner" id="top">
-      <p class="kicker">Visual-first systems physics</p>
-      <h1>gpu_stack</h1>
-      <p class="hero-copy">
-        A symbolic map from cost per token down to the physical and economic assumptions it keeps borrowing from.
-      </p>
-      <div class="hero-actions">
-        <a class="button primary" href="https://github.com/Cuuper22/gpu_stack-#readme">Read the article</a>
-        <a class="button" href="#layers">Explore the layers</a>
-        <a class="button" href="#run">Try the CLI</a>
-      </div>
+    <div class="desktop-logo">
+      <span class="logo-text">CuperOS</span>
+      <span class="logo-version">GPUSTACK V0.23</span>
     </div>
-    <div class="below-hint">Scroll for the dependency cone, the layer map, and the current graph stats.</div>
-  </header>
 
-  <main>
-    <section class="band-dark" id="model">
-      <div class="wrap thesis">
-        <p class="statement">
-          The point is not to simulate a GPU cluster. The point is to make the hidden chain of <strong>dependencies</strong> visible.
-        </p>
-        <ul class="plain-list">
-          <li>Every output is treated as the visible tip of a dependency graph.</li>
-          <li>Scenario values are allowed, but the model keeps track of where they enter.</li>
-          <li>Equations, unit checks, provenance, and root inputs stay attached to the claim.</li>
-          <li>The long-term direction is recursive decomposition, from hyperscale economics down toward particle-scale constraints.</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="band-mid">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">Current graph</p>
-          <h2>Big enough to be useful, small enough to still inspect.</h2>
-          <p class="lede">
-            The package already has a real symbolic registry: systems, variables, equations, constants, unit metadata, reference metadata, and diagnostic commands that expose the unfinished edges.
-          </p>
-        </div>
-        <div class="metric-strip" aria-label="Current graph statistics">
-          <div class="metric"><b>1517</b><span>registered variables across the stack</span></div>
-          <div class="metric"><b>959</b><span>equations connecting variables</span></div>
-          <div class="metric"><b>619</b><span>root inputs still carrying scenario debt</span></div>
-          <div class="metric"><b>799</b><span>variables covered by unit checks</span></div>
+    <main class="window app-window" id="top" aria-label="gpu_stack project window">
+      <div class="title-bar">
+        <div class="title-text"><span class="px-icon px-chip"></span> gpu_stack.exe</div>
+        <div class="window-controls" aria-hidden="true">
+          <span class="window-btn">_</span>
+          <span class="window-btn">□</span>
+          <span class="window-btn">x</span>
         </div>
       </div>
-    </section>
+      <div class="window-content app-shell">
+        <nav class="app-nav" aria-label="Page sections">
+          <div class="tree-label">D:\CUPEROS\PROJECTS\GPU_STACK</div>
+          <a class="tree-button" href="#what"><span class="px-icon px-doc"></span> What is it?</a>
+          <a class="tree-button" href="#stats"><span class="px-icon px-graph"></span> Registry stats</a>
+          <a class="tree-button" href="#layers"><span class="px-icon px-atom"></span> Layer viewer</a>
+          <a class="tree-button" href="#run"><span class="px-icon px-term"></span> Run commands</a>
+          <a class="tree-button" href="#next"><span class="px-icon px-folder"></span> Next work</a>
+          <a class="tree-button" href="https://github.com/Cuuper22/gpu_stack-"><span class="px-icon px-folder"></span> GitHub repo</a>
+        </nav>
 
-    <section id="layers">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">Layer explorer</p>
-          <h2>Start anywhere. The graph should keep pulling you deeper.</h2>
-          <p class="lede">
-            This is the README idea turned into a small control surface: pick a layer and watch the model shift from object to object, always asking what each number depends on.
-          </p>
-        </div>
+        <div class="app-main">
+          <section class="hero-row" id="what" aria-labelledby="page-title">
+            <div class="headline">
+              <p class="file-path">gpu_stack/readme/frontdoor.txt</p>
+              <h1 id="page-title">gpu_stack</h1>
+              <p class="tagline">
+                A symbolic map of AI training infrastructure, from datacenter economics and GPU kernels down toward the physics the numbers keep borrowing from.
+              </p>
+              <div class="action-row">
+                <a class="retro-btn primary" href="https://github.com/Cuuper22/gpu_stack-#readme"><span class="px-icon px-doc"></span> Read article</a>
+                <a class="retro-btn" href="#layers"><span class="px-icon px-atom"></span> Open layers</a>
+                <a class="retro-btn" href="#run"><span class="px-icon px-term"></span> Try CLI</a>
+              </div>
+            </div>
+            <aside class="status-panel" aria-label="Project status lights">
+              <div class="status-light"><span class="led"></span><span>registry import graph coherent</span></div>
+              <div class="status-light"><span class="led"></span><span>fast verifier clean</span></div>
+              <div class="status-light"><span class="led warn"></span><span>619 root inputs still visible</span></div>
+              <div class="status-light"><span class="led red"></span><span>not a calibrated cost oracle yet</span></div>
+            </aside>
+          </section>
 
-        <div class="layer-layout">
-          <div class="layer-tabs" role="tablist" aria-label="Model layers">
-            <button class="layer-tab" type="button" role="tab" aria-selected="true" data-layer="datacenter">Datacenter</button>
-            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="cluster">Cluster</button>
-            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="gpu">GPU</button>
-            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="kernel">Kernel</button>
-            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="model">Model</button>
-            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="lithography">Lithography</button>
-            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="physics">Physical limits</button>
-            <button class="layer-tab" type="button" role="tab" aria-selected="false" data-layer="economics">Economics</button>
-          </div>
+          <section class="stat-grid" id="stats" aria-label="Current registry statistics">
+            <div class="stat"><b>1517</b><span>registered variables</span></div>
+            <div class="stat"><b>959</b><span>equations connecting them</span></div>
+            <div class="stat"><b>619</b><span>root inputs, named instead of hidden</span></div>
+            <div class="stat"><b>799</b><span>equations with unit checks</span></div>
+          </section>
 
-          <article class="layer-panel" aria-live="polite">
-            <div class="layer-copy">
-              <p class="eyebrow" id="layer-kicker">Power, land, cooling</p>
-              <h3 id="layer-title">Datacenter</h3>
+          <section class="section-window" aria-labelledby="model-heading">
+            <div class="section-copy">
+              <p class="eyebrow">Not a bounded simulator</p>
+              <h2 id="model-heading">The point is to expose what each number is standing on.</h2>
+              <p>
+                Most training-cost talk jumps straight to a satisfying number. `gpu_stack` keeps the ancestry attached: equations, units, references, constraints, scenario assumptions, and the exact places where the graph has not decomposed reality yet.
+              </p>
+              <ul class="note-list">
+                <li>Only universal physics constants belong in `Constant`.</li>
+                <li>Everything else stays a `Variable`: clocks, voltages, tariffs, GPU counts, batch sizes, and facility assumptions.</li>
+                <li>A root input is visible modeling debt. That is much better than hidden modeling debt with a haircut.</li>
+              </ul>
+            </div>
+            <div class="section-visual">
+              <div class="visual-frame">
+                <img src="assets/readme-equation-cone.svg" alt="Dependency cone showing cost per token expanding into upstream equations and root inputs." loading="lazy">
+              </div>
+              <p class="caption">One output, many upstream obligations. The useful part is that the obligations stay inspectable.</p>
+            </div>
+          </section>
+
+          <section class="section-window" id="layers" aria-labelledby="layers-heading">
+            <div class="section-copy">
+              <p class="eyebrow">layers.sys</p>
+              <h2 id="layers-heading">Click a layer. Watch the dependency chain move.</h2>
               <p id="layer-text">
                 The visible machine is a building, but the model treats it as a constraint bundle: grid interconnect, substations, cooling loops, water, occupancy, capex, operations, and uptime.
               </p>
-              <ul class="layer-facts" id="layer-facts">
+              <ul class="note-list" id="layer-facts">
                 <li>Inputs include power envelope, PUE, utilization, cooling load, and build cost.</li>
                 <li>Outputs feed cluster capacity, cost allocation, emissions, and schedule pressure.</li>
-                <li>Open work is marked as root debt instead of being hidden in prose.</li>
               </ul>
             </div>
-            <div class="layer-visual" aria-hidden="true">
-              <div class="dependency-stack" id="dependency-stack"></div>
+            <div class="section-visual">
+              <div class="action-row" role="tablist" aria-label="Model layers">
+                <button class="tree-button" type="button" role="tab" aria-selected="true" data-layer="datacenter">Datacenter</button>
+                <button class="tree-button" type="button" role="tab" aria-selected="false" data-layer="gpu">GPU</button>
+                <button class="tree-button" type="button" role="tab" aria-selected="false" data-layer="kernel">Kernel</button>
+                <button class="tree-button" type="button" role="tab" aria-selected="false" data-layer="model">Model</button>
+                <button class="tree-button" type="button" role="tab" aria-selected="false" data-layer="physics">Physical floor</button>
+                <button class="tree-button" type="button" role="tab" aria-selected="false" data-layer="economics">Economics</button>
+              </div>
+              <div class="dependency-stack" id="dependency-stack" aria-label="Dependency stack for selected layer"></div>
             </div>
-          </article>
-        </div>
-      </div>
-    </section>
+          </section>
 
-    <section class="band-mid">
-      <div class="wrap cone-layout">
-        <div class="cone-image">
-          <img src="assets/readme-equation-cone.svg" alt="Dependency cone showing cost per token expanding into upstream equations and root inputs.">
-        </div>
-        <div>
-          <p class="eyebrow">Equation cone</p>
-          <h2>One output can have hundreds of upstream assumptions.</h2>
-          <p class="lede">
-            For <code>econ.cost.per_token</code>, the local dependency cone currently reaches 704 upstream variables and 289 root inputs. The useful part is not the number itself. The useful part is that the tool can show what the number is standing on.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section class="band-dark" id="run">
-      <div class="wrap split">
-        <div>
-          <p class="eyebrow">Try it</p>
-          <h2>Use the command line as a microscope.</h2>
-          <p class="lede">
-            The package is still closer to a research instrument than a polished app. That is useful right now. You can ask it what exists, what is unresolved, and where a claim bottoms out.
-          </p>
-        </div>
-        <pre class="code-block"><code>python -m gpu_stack.cli stats
+          <section class="section-window" id="run" aria-labelledby="run-heading">
+            <div class="section-copy">
+              <p class="eyebrow">CLI.exe</p>
+              <h2 id="run-heading">Use the command line as a microscope.</h2>
+              <p>
+                The package is still closer to a research instrument than a polished app. That is useful right now. Ask it what exists, what is unresolved, and where a claim bottoms out.
+              </p>
+            </div>
+            <pre class="console-window" aria-label="Example gpu_stack commands"><code>python -m gpu_stack.cli stats
+python -m gpu_stack.cli verify --profile fast
 python -m gpu_stack.cli inspect econ.cost.per_token --cone
-python -m gpu_stack.cli root-debt --top 10
-python -m gpu_stack.cli scenario-report docs/examples/scenario.example.yaml</code></pre>
-      </div>
-    </section>
+python -m gpu_stack.cli root-debt --families --limit 5
+python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --json</code></pre>
+          </section>
 
-    <section>
-      <div class="wrap split">
-        <article class="panel">
-          <h3>Good for now</h3>
-          <ul>
-            <li>Teaching the stack without flattening it into vibes.</li>
-            <li>Auditing which numbers are constants, equations, measured values, or scenario inputs.</li>
-            <li>Tracing a claim from economics into infrastructure, performance, manufacturing, and physics.</li>
-          </ul>
-        </article>
-        <article class="panel">
-          <h3>Not finished yet</h3>
-          <ul>
-            <li>It is not a full digital twin of a datacenter.</li>
-            <li>It still contains many root inputs that deserve deeper decomposition.</li>
-            <li>The visual language is early. The long-term target is closer to a living explorable proof.</li>
-          </ul>
-        </article>
-      </div>
-    </section>
+          <section class="dialog-grid" aria-label="Current usefulness and limitations">
+            <article class="dialog-body">
+              <h3>Good for now</h3>
+              <p>Teaching the stack without flattening it into vibes. Auditing which numbers are constants, equations, measured values, or scenario inputs. Tracing an output from economics into infrastructure, performance, manufacturing, and physics.</p>
+            </article>
+            <article class="dialog-body">
+              <h3>Not finished yet</h3>
+              <p>It does not solve simultaneous systems. It is not a full digital twin of a datacenter. It still contains root inputs that deserve deeper decomposition, sourcing, or an explicit scenario boundary.</p>
+            </article>
+          </section>
 
-    <section class="band-mid">
-      <div class="wrap">
-        <div class="section-head">
-          <p class="eyebrow">Direction</p>
-          <h2>Where the page wants to go next.</h2>
-        </div>
-        <div class="timeline">
-          <div class="timeline-item">
-            <b>1. Cone viewer</b>
-            <p>A browser view where any variable expands into dependencies, equations, references, unit checks, and unresolved root inputs.</p>
-          </div>
-          <div class="timeline-item">
-            <b>2. Stack atlas</b>
-            <p>A visual atlas from campus power to accelerator kernels, with toggles that reveal what a number is made of.</p>
-          </div>
-          <div class="timeline-item">
-            <b>3. Scenario lab</b>
-            <p>A way to change assumptions and watch costs, emissions, latency, manufacturing limits, and utilization move together.</p>
-          </div>
-          <div class="timeline-item">
-            <b>4. Physical floor</b>
-            <p>A deeper chain that keeps pushing root inputs toward material properties, thermal limits, geometry, nuclei, and quarks where the model can justify that move.</p>
-          </div>
+          <section class="timeline" id="next" aria-labelledby="next-heading">
+            <div class="dialog-body">
+              <p class="eyebrow">next_work.exe</p>
+              <h2 id="next-heading">Where the page wants to go next.</h2>
+            </div>
+            <div class="timeline-row"><b>1. Cone viewer</b><span>A browser view where any variable expands into dependencies, equations, references, unit checks, and unresolved root inputs.</span></div>
+            <div class="timeline-row"><b>2. Stack atlas</b><span>A visual atlas from campus power to accelerator kernels, with toggles that reveal what a number is made of.</span></div>
+            <div class="timeline-row"><b>3. Scenario lab</b><span>Change assumptions and watch costs, emissions, latency, manufacturing limits, and utilization move together.</span></div>
+            <div class="timeline-row"><b>4. Physical floor</b><span>Push roots toward material properties, thermal limits, geometry, nuclei, and quarks where the model can justify that move.</span></div>
+          </section>
         </div>
       </div>
-    </section>
-  </main>
+    </main>
+  </div>
 
-  <footer>
-    <div class="footer-inner">
-      <span>Made from the strange useful overlap between AI systems work and physics curiosity.</span>
-      <div class="footer-links">
-        <a href="https://github.com/Cuuper22/gpu_stack-">Repository</a>
-        <a href="https://github.com/Cuuper22/gpu_stack-#readme">README</a>
-        <a href="#top">Top</a>
-      </div>
+  <footer class="taskbar" aria-label="CuperOS taskbar">
+    <div class="taskbar-left">
+      <a class="start-button" href="https://cuuper22.github.io/"><span class="px-icon px-start"></span> Start</a>
+      <span class="task-button"><span class="px-icon px-chip"></span> gpu_stack.exe</span>
     </div>
+    <div class="taskbar-clock" id="clock">12:00 PM</div>
   </footer>
 
   <script>
     const layers = {
       datacenter: {
-        kicker: "Power, land, cooling",
-        title: "Datacenter",
         text: "The visible machine is a building, but the model treats it as a constraint bundle: grid interconnect, substations, cooling loops, water, occupancy, capex, operations, and uptime.",
         facts: [
           "Inputs include power envelope, PUE, utilization, cooling load, and build cost.",
-          "Outputs feed cluster capacity, cost allocation, emissions, and schedule pressure.",
-          "Open work is marked as root debt instead of being hidden in prose."
+          "Outputs feed cluster capacity, cost allocation, emissions, and schedule pressure."
         ],
         stack: ["Grid", "Substation", "Cooling", "Power envelope", "Cluster capacity", "Cost per token"]
       },
-      cluster: {
-        kicker: "Network, placement, availability",
-        title: "Cluster",
-        text: "A cluster is where hardware becomes coordination. The model can connect node counts, topology, network bandwidth, collective communication, checkpointing, and utilization.",
-        facts: [
-          "Collectives and network fabric change the effective training throughput.",
-          "Availability and failures turn neat FLOP math into real calendar time.",
-          "Placement choices propagate into energy, cost, and schedule."
-        ],
-        stack: ["Nodes", "Topology", "Collectives", "Checkpointing", "Utilization", "Training time"]
-      },
       gpu: {
-        kicker: "Silicon as a system",
-        title: "GPU",
         text: "The GPU layer ties compute units, memory bandwidth, HBM capacity, interconnect, thermal limits, and board power to the throughput the training job actually sees.",
         facts: [
           "Peak FLOP/s is only one ceiling among several.",
-          "Memory bandwidth, precision, and activation traffic can dominate.",
-          "The graph separates advertised specs from reachable performance."
+          "Memory bandwidth, precision, and activation traffic can dominate."
         ],
         stack: ["SMs", "Tensor cores", "HBM", "Package power", "MFU", "Tokens per second"]
       },
       kernel: {
-        kicker: "Math meets machine code",
-        title: "Kernel",
         text: "The kernel layer is where high-level operations become instructions, memory movement, occupancy, launch overhead, and numerical format choices.",
         facts: [
           "A model-level equation can hide several kernel-level bottlenecks.",
-          "PTX, tiling, fusion, and quantization all change the usable machine.",
-          "This layer is where visual demos can become extremely teachable."
+          "PTX, tiling, fusion, and quantization all change the usable machine."
         ],
         stack: ["Operation", "Tiling", "Fusion", "Memory traffic", "Occupancy", "Effective throughput"]
       },
       model: {
-        kicker: "Architecture, data, objective",
-        title: "Model",
         text: "The model layer asks how parameters, sequence length, batch size, optimizer state, activation storage, and data schedule become compute and memory demand.",
         facts: [
           "Training cost is not one equation. It is a stack of coupled choices.",
-          "Context length and activation strategy reshape the memory problem.",
-          "The graph is designed to expose those coupling points."
+          "Context length and activation strategy reshape the memory problem."
         ],
         stack: ["Parameters", "Tokens", "Context", "Batch", "Optimizer", "Compute demand"]
       },
-      lithography: {
-        kicker: "Manufacturing constraints",
-        title: "Lithography",
-        text: "The manufacturing layer connects node process, yield, reticle limits, packaging, HBM supply, and wafer economics to the hardware that can exist at all.",
-        facts: [
-          "A GPU cluster is downstream of fabs, packages, substrates, and supply chains.",
-          "Yield and packaging constraints can matter as much as architecture.",
-          "The long-term model should make that dependency legible."
-        ],
-        stack: ["Wafer", "Reticle", "Yield", "Package", "Supply", "Fleet size"]
-      },
       physics: {
-        kicker: "Lower floors",
-        title: "Physical limits",
-        text: "The physical-limit layer is the project's north star: keep decomposing until a number is grounded in a measured property, a derivable relation, or an explicitly marked scenario assumption.",
+        text: "The physical-floor layer is the north star: keep decomposing until a number is grounded in a measured property, a derivable relation, or an honestly marked scenario assumption.",
         facts: [
           "Thermal, electrical, optical, and material limits are not background color.",
-          "Universal constants are the preferred hard numerical floor.",
-          "The model should say when it has reached knowledge and when it has reached debt."
+          "Universal constants are the preferred hard numerical floor."
         ],
         stack: ["Geometry", "Materials", "Heat", "Charge", "Constants", "Constraint floor"]
       },
       economics: {
-        kicker: "Money as dependency graph",
-        title: "Economics",
         text: "The economic layer is where hardware, power, time, reliability, labor, utilization, financing, and token demand meet inside outputs like cost per token.",
         facts: [
           "A price is not a primitive number. It has upstream machinery.",
-          "Scenario reports separate assumptions from derived outputs.",
           "Root debt is especially useful here because economics tempts hand-waving."
         ],
         stack: ["Capex", "Opex", "Utilization", "Amortization", "Throughput", "Cost per token"]
@@ -870,28 +975,25 @@ python -m gpu_stack.cli scenario-report docs/examples/scenario.example.yaml</cod
     };
 
     const tabs = document.querySelectorAll("[data-layer]");
-    const kicker = document.getElementById("layer-kicker");
-    const title = document.getElementById("layer-title");
-    const text = document.getElementById("layer-text");
-    const facts = document.getElementById("layer-facts");
+    const layerText = document.getElementById("layer-text");
+    const layerFacts = document.getElementById("layer-facts");
     const stack = document.getElementById("dependency-stack");
+    const clock = document.getElementById("clock");
 
     function renderLayer(key) {
       const layer = layers[key];
-      kicker.textContent = layer.kicker;
-      title.textContent = layer.title;
-      text.textContent = layer.text;
-      facts.replaceChildren(...layer.facts.map((fact) => {
-        const li = document.createElement("li");
-        li.textContent = fact;
-        return li;
+      layerText.textContent = layer.text;
+      layerFacts.replaceChildren(...layer.facts.map((fact) => {
+        const item = document.createElement("li");
+        item.textContent = fact;
+        return item;
       }));
       stack.replaceChildren(...layer.stack.map((item, index) => {
         const row = document.createElement("div");
         row.className = `dependency-row${index === layer.stack.length - 1 ? " active" : ""}`;
         const label = document.createElement("span");
         label.textContent = item;
-        const depth = document.createElement("small");
+        const depth = document.createElement("span");
         depth.textContent = index === layer.stack.length - 1 ? "output" : `depth ${index + 1}`;
         row.append(label, depth);
         return row;
@@ -901,11 +1003,20 @@ python -m gpu_stack.cli scenario-report docs/examples/scenario.example.yaml</cod
       });
     }
 
+    function updateClock() {
+      const now = new Date();
+      const h = now.getHours() % 12 || 12;
+      const m = now.getMinutes().toString().padStart(2, "0");
+      clock.textContent = `${h}:${m} ${now.getHours() >= 12 ? "PM" : "AM"}`;
+    }
+
     tabs.forEach((tab) => {
       tab.addEventListener("click", () => renderLayer(tab.dataset.layer));
     });
 
     renderLayer("datacenter");
+    updateClock();
+    setInterval(updateClock, 1000);
   </script>
 </body>
 </html>
