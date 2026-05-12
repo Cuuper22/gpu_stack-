@@ -1,42 +1,175 @@
-# Design
+---
+name: gpu_stack
+description: CuperOS project-window language for a visual-first symbolic GPU training-stack model.
+colors:
+  desktop-bg: "oklch(0.45 0.10 195)"
+  desktop-dot: "oklch(0.50 0.12 195)"
+  window-chrome: "oklch(0.85 0.005 250)"
+  window-body: "oklch(0.97 0.002 90)"
+  title-bar: "oklch(0.40 0.15 260)"
+  title-bar-end: "oklch(0.45 0.15 260)"
+  text-dark: "oklch(0.15 0.005 250)"
+  text-light: "oklch(0.95 0.003 90)"
+  accent-cyan: "oklch(0.50 0.10 195)"
+  accent-gold: "oklch(0.82 0.15 88)"
+typography:
+  display:
+    fontFamily: "Pixelify Sans, monospace"
+    fontSize: "clamp(48px, 8vw, 98px)"
+    fontWeight: 700
+    lineHeight: 1.05
+    letterSpacing: "0"
+  body:
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 500
+    lineHeight: 1.62
+    letterSpacing: "0"
+  mono:
+    fontFamily: "IBM Plex Mono, Courier New, monospace"
+    fontSize: "13px"
+    fontWeight: 500
+    lineHeight: 1.55
+    letterSpacing: "0"
+rounded:
+  none: "0"
+spacing:
+  xs: "4px"
+  sm: "8px"
+  md: "14px"
+  lg: "22px"
+  xl: "28px"
+components:
+  window:
+    backgroundColor: "{colors.window-chrome}"
+    textColor: "{colors.text-dark}"
+    rounded: "{rounded.none}"
+    padding: "4px"
+  title-bar:
+    backgroundColor: "{colors.title-bar}"
+    textColor: "{colors.text-light}"
+    rounded: "{rounded.none}"
+    padding: "5px 7px"
+  retro-button:
+    backgroundColor: "{colors.window-chrome}"
+    textColor: "{colors.text-dark}"
+    rounded: "{rounded.none}"
+    padding: "5px 10px"
+---
 
-## Format
+# Design System: gpu_stack
 
-GitHub Markdown README with a long-form article feel. The page must still work as documentation, but the first impression should be narrative and visual rather than package-index administrative.
+## 1. Overview
 
-## Visual Theme
+**Creative North Star: "A project window inside CuperOS"**
 
-Physical scene: a curious technical reader is reading this late at night on a laptop, half learning and half trying to see the machine behind the machine. The visual direction should feel like a field notebook from a physics lab collided with an infrastructure map.
+The GitHub Pages site must feel like it belongs to Cuper's live portfolio, not like a separate AI-generated landing page. The surface is a retro desktop app: teal dotted desktop, zero-radius window chrome, indigo title bars, pixel icons, inset content panes, taskbar, and project-copy voice that sounds human, technical, and slightly amused.
 
-Use a restrained GitHub-compatible surface, because the renderer controls most typography and color. Spend distinctiveness on structure, diagrams, image art direction, captions, and prose rhythm.
+The README remains a GitHub-rendered article, but any browser page for the project should inherit the CuperOS design language. The page can be visual and interactive, but it should do that as an OS control surface, not as a full-bleed marketing hero.
 
-## Color
+**Key Characteristics:**
+- Pixel OS chrome first, modern landing-page composition never.
+- Display type uses Pixelify Sans. Reading copy uses IBM Plex Sans. Commands use IBM Plex Mono.
+- Border radius is zero. Depth comes from outset, inset, and 2px pixel shadows.
+- The site teaches the stack by making files, windows, controls, and dependency panes inspectable.
 
-README Markdown has limited reliable color. Use:
+## 2. Colors
 
-- SVG diagrams with warm graphite, muted cyan, tin-orange, and off-white backgrounds.
-- No pure black or pure white inside generated visual assets.
-- Avoid purple-blue AI gradients, beige startup calm, and dark-blue observability default.
+The palette is inherited from the portfolio OS: teal desktop, gray chrome, indigo title bars, off-white document panes, and small utility accents.
 
-## Typography
+### Primary
+- **CuperOS Indigo** (`title-bar`, `title-bar-end`): title bars, selected controls, primary project identity.
 
-GitHub controls primary fonts. Simulate Medium-style pacing with:
+### Secondary
+- **Desktop Teal** (`desktop-bg`, `desktop-dot`): the surrounding operating-system surface.
+- **Attention Gold** (`accent-gold`): warnings, active output rows, small status emphasis.
 
-- short opening paragraphs
-- strong section titles
-- captions under visuals
-- compact tables only where data needs scanning
-- code blocks only when the reader can run them
+### Neutral
+- **Window Chrome** (`window-chrome`): OS frames, controls, and button faces.
+- **Document Body** (`window-body`): readable panes and article surfaces.
+- **Console Ink** (`text-dark`, `text-light`): body text and title-bar text.
 
-## Components
+### Named Rules
 
-- Hero image with no embedded text.
-- One equation-cone diagram.
-- One "run this first" command block.
-- One honest status table.
-- One compact section for limitations.
-- One "next visual demos" section for future interactive work.
+**The No New Brand Rule.** Do not invent a separate gpu_stack palette. The project page is a child window inside CuperOS.
 
-## Motion
+**The Small Accent Rule.** Gold, green, and red are status lights, not brand washes. Use them as signals, not backgrounds.
 
-No motion in README. Future demos may use browser-native visualizations, but the README itself should be static and dependable.
+## 3. Typography
+
+**Display Font:** Pixelify Sans with monospace fallback
+
+**Body Font:** IBM Plex Sans with system fallback
+**Label/Mono Font:** IBM Plex Mono with Courier fallback
+
+**Character:** Display type should feel like a desktop shell and a project file title. Body copy should stay readable and less gimmicky, because the equations are already dense enough.
+
+### Hierarchy
+- **Display** (700, `clamp(48px, 8vw, 98px)`, 1.05): page title and very large OS labels only.
+- **Headline** (700, `clamp(30px, 4vw, 50px)`, 1.05): window-section titles.
+- **Title** (700, `20px`, 1.05): pane titles and dialog headings.
+- **Body** (500, `15px`, 1.62): explanatory prose, capped near 65-75 characters when possible.
+- **Label** (700, `13px`, 1.2): file paths, status labels, tabs, window title text.
+
+### Named Rules
+
+**The Pixel Display Rule.** Pixelify Sans carries chrome, titles, buttons, and labels. It must not be forced onto long paragraphs.
+
+**The No Negative Tracking Rule.** Letter spacing stays at `0`.
+
+## 4. Elevation
+
+Depth is not blur, glass, or soft shadow. It is the retro OS physical model: `2px outset` for buttons and frames, `2px inset` for content wells, and a crisp `2px 2px 0` shadow behind windows.
+
+### Shadow Vocabulary
+- **Pixel Window Shadow** (`2px 2px 0 oklch(0.08 0.004 250)`): top-level windows only.
+- **Inset Pane** (`border: 2px inset var(--window-chrome)`): documents, consoles, diagrams, stats, and visual wells.
+- **Outset Control** (`border: 2px outset var(--button-face)`): buttons, tabs, and fake OS controls.
+
+### Named Rules
+
+**The Chrome Is Structure Rule.** If an element needs hierarchy, give it a real OS affordance: title bar, inset pane, status light, or taskbar. Do not fake hierarchy with decorative cards.
+
+## 5. Components
+
+### Windows
+- **Shape:** square corners (`0` radius).
+- **Frame:** `2px outset` gray chrome with a crisp 2px pixel shadow.
+- **Title bar:** indigo gradient, Pixelify Sans, icon plus filename.
+- **Content:** off-white document body inset into the frame.
+
+### Buttons
+- **Shape:** square corners (`0` radius), minimum 36px high.
+- **Primary:** selected state uses the indigo title bar color with light text.
+- **Hover / Focus:** hover slightly lightens chrome; focus uses a gold outline.
+- **Active:** border switches to inset.
+
+### Navigation
+- **Style:** file-tree buttons in a left OS pane on desktop, stacked above content on mobile.
+- **Labels:** concrete file/app names such as `CLI.exe`, `layers.sys`, `README.md`.
+
+### Diagrams and Visual Panes
+- **Style:** diagrams live inside inset document wells, never as a full-bleed hero background.
+- **Caption:** one short IBM Plex Sans sentence under the visual.
+
+### Console
+- **Style:** dark terminal inset with green mono text.
+- **Purpose:** runnable commands and output-like examples only.
+
+## 6. Do's and Don'ts
+
+### Do:
+- **Do** preserve the CuperOS desktop metaphor from the portfolio.
+- **Do** use Pixelify Sans for OS chrome and IBM Plex Sans for readable explanation.
+- **Do** show the stack before explaining the stack.
+- **Do** expose root inputs as visible modeling debt.
+- **Do** make interactive controls look like OS controls, not SaaS pills.
+- **Do** keep diagrams inspectable inside panes with real alt text.
+
+### Don't:
+- **Don't** make the GitHub.io page look like a standalone SaaS landing page.
+- **Don't** use full-bleed datacenter hero imagery as the primary identity.
+- **Don't** use feature-card grids, hero metrics, glassmorphism, gradient text, or purple-blue AI gradients.
+- **Don't** use rounded cards inside rounded cards.
+- **Don't** use em dashes in page copy.
+- **Don't** introduce a new design system when the portfolio already has one.
