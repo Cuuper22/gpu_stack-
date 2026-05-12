@@ -23,6 +23,27 @@ def test_root_inputs_are_classified_as_root_input():
     assert root_inputs_by_kind == root_inputs_by_stats
 
 
+def test_constraint_only_variables_still_count_as_root_inputs():
+    v = Registry.variables["thermal.t_ambient"]
+    assert v.constraints()
+    assert not v.identities()
+    assert not v.approximations()
+    assert not v.variants()
+    assert v.is_root_input
+
+
+def test_constraints_do_not_create_definitional_dependencies():
+    v = Registry.variables["thermal.t_ambient"]
+    assert v.direct_dependencies() == set()
+    deps_with_constraints = {
+        d.name for d in v.direct_dependencies(include_constraints=True)
+    }
+    assert {
+        "thermal.env.ashrae_a1_inlet_min",
+        "thermal.env.ashrae_a1_inlet_max",
+    } <= deps_with_constraints
+
+
 def test_derived_variables_are_not_tagged_root_input():
     # Pick a variable that is unambiguously derived in the graph.
     v = Registry.variables["cluster.rack.peak_flops"]
@@ -59,9 +80,10 @@ def test_coverage_report_fields_present():
 
 
 def test_auto_classify_is_idempotent():
+    before = len(Registry.variables)
     first = Registry.auto_classify_kinds()
     second = Registry.auto_classify_kinds()
     # First call may be zero if already classified; second must be zero.
     assert second == 0
     # Repeating it does not blow up the registry.
-    assert len(Registry.variables) == 1147
+    assert len(Registry.variables) == before

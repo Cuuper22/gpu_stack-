@@ -6,9 +6,43 @@ Positional encoding schemes. Covers sinusoidal encodings, RoPE, ALiBi, and a
 YaRN-style context-extension scale factor.
 """
 
-from ..core import eq, var
+import sympy as sp
+
+from ..core import Reference, eq, var
 
 from .architecture_embeddings import d_model
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+POSITION_COUNT_REF = Reference(
+    "Positional indices, relative distances, phases, angles, slopes, and "
+    "context-extension ratios are represented as dimensionless counts or "
+    "dimensionless angular quantities for unit checking.",
+    kind="model",
+)
+SINUSOIDAL_POSITION_REF = Reference(
+    "Vaswani et al., Attention Is All You Need, 2017.",
+    kind="paper",
+    year=2017,
+)
+ROPE_REF = Reference(
+    "Su et al., RoFormer: Enhanced Transformer with Rotary Position "
+    "Embedding, 2021.",
+    kind="paper",
+    year=2021,
+)
+ALIBI_REF = Reference(
+    "Press et al., Train Short, Test Long: Attention with Linear Biases "
+    "Enables Input Length Extrapolation.",
+    kind="paper",
+)
+YARN_REF = Reference(
+    "Peng et al., YaRN: Efficient Context Window Extension of Large Language "
+    "Models, 2023.",
+    kind="paper",
+    year=2023,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -91,12 +125,34 @@ yarn_scale = var(
     scope="architecture",
 )
 
+for _v in (
+    position_index, head_pair_index, sinusoid_base, sinusoid_inv_freq,
+    sinusoid_phase, rope_theta_base, rope_rotary_dim, rope_inv_freq,
+    rope_angle, relative_distance, alibi_slope, alibi_bias,
+    context_train_len, context_target_len, yarn_scale,
+):
+    _v.sp_units = DIMENSIONLESS
+    _v.references.append(POSITION_COUNT_REF)
+
+for _v in (sinusoid_base, sinusoid_inv_freq, sinusoid_phase):
+    _v.references.append(SINUSOIDAL_POSITION_REF)
+
+for _v in (rope_theta_base, rope_rotary_dim, rope_inv_freq, rope_angle):
+    _v.references.append(ROPE_REF)
+
+for _v in (relative_distance, alibi_slope, alibi_bias):
+    _v.references.append(ALIBI_REF)
+
+for _v in (context_train_len, context_target_len, yarn_scale):
+    _v.references.append(YARN_REF)
+
 
 eq_sinusoid_inv_freq = eq(
     "arch.eq.sinusoid_inv_freq",
     sinusoid_inv_freq.symbol,
     sinusoid_base.symbol ** (-2 * head_pair_index.symbol / d_model.symbol),
     "Sinusoidal encodings use exponentially spaced inverse frequencies across coordinate pairs.",
+    check_units=True,
 )
 
 eq_sinusoid_phase = eq(
@@ -104,6 +160,7 @@ eq_sinusoid_phase = eq(
     sinusoid_phase.symbol,
     position_index.symbol * sinusoid_inv_freq.symbol,
     "The sinusoidal phase is position times inverse frequency.",
+    check_units=True,
 )
 
 eq_rope_inv_freq = eq(
@@ -111,6 +168,7 @@ eq_rope_inv_freq = eq(
     rope_inv_freq.symbol,
     rope_theta_base.symbol ** (-2 * head_pair_index.symbol / rope_rotary_dim.symbol),
     "RoPE uses exponentially spaced inverse frequencies across the rotary subspace.",
+    check_units=True,
 )
 
 eq_rope_angle = eq(
@@ -118,6 +176,7 @@ eq_rope_angle = eq(
     rope_angle.symbol,
     position_index.symbol * rope_inv_freq.symbol,
     "RoPE rotates each pair by position times inverse frequency.",
+    check_units=True,
 )
 
 eq_alibi_bias = eq(
@@ -125,6 +184,7 @@ eq_alibi_bias = eq(
     alibi_bias.symbol,
     -alibi_slope.symbol * relative_distance.symbol,
     "ALiBi adds a head-specific linear penalty with distance.",
+    check_units=True,
 )
 
 eq_yarn_scale = eq(
@@ -132,6 +192,7 @@ eq_yarn_scale = eq(
     yarn_scale.symbol,
     context_target_len.symbol / context_train_len.symbol,
     "A simple context-extension scale is target context divided by training context.",
+    check_units=True,
 )
 
 
@@ -150,6 +211,18 @@ ARCH_POSITIONS_EQUATIONS = [
     eq_alibi_bias,
     eq_yarn_scale,
 ]
+
+for _e in ARCH_POSITIONS_EQUATIONS:
+    _e.references.append(POSITION_COUNT_REF)
+
+for _e in (eq_sinusoid_inv_freq, eq_sinusoid_phase):
+    _e.references.append(SINUSOIDAL_POSITION_REF)
+
+for _e in (eq_rope_inv_freq, eq_rope_angle):
+    _e.references.append(ROPE_REF)
+
+eq_alibi_bias.references.append(ALIBI_REF)
+eq_yarn_scale.references.append(YARN_REF)
 
 
 __all__ = [

@@ -7,9 +7,33 @@ shared-expert parameters, capacity factors, auxiliary balancing losses, and
 per-step active FLOPs.
 """
 
-from ..core import eq, var
+import sympy as sp
+
+from ..core import Reference, eq, var
+from ..core.units import FLOP
 
 from .architecture_embeddings import n_tokens_step
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+MOE_ROUTING_REF = Reference(
+    "MoE routing metadata tracks total experts, active experts, routed token "
+    "capacity, router penalties, and load-balancing terms as dimensionless "
+    "routing counts or losses.",
+    kind="model",
+)
+MOE_PARAM_REF = Reference(
+    "MoE parameter accounting distinguishes instantiated expert parameters "
+    "from active per-token expert parameters and always includes shared "
+    "experts and router parameters in the layer total.",
+    kind="model",
+)
+MOE_FLOP_REF = Reference(
+    "MoE training FLOP accounting uses active parameters per token path rather "
+    "than total instantiated expert parameters.",
+    kind="model",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -123,12 +147,34 @@ flops_step_moe = var(
     scope="architecture",
 )
 
+for _v in (
+    n_moe_layers, n_experts, active_experts, sparsity_ratio,
+    params_expert_each, params_router, shared_expert_count,
+    shared_expert_params_each, params_shared_experts, params_moe_layer_total,
+    params_moe_layer_active, params_total_moe, params_active_moe,
+    moe_tokens_batch, moe_capacity_factor, expert_capacity,
+    router_fi_pi_sum, load_balance_loss, router_log_z, router_z_loss,
+):
+    _v.sp_units = DIMENSIONLESS
+    _v.references.append(MOE_ROUTING_REF)
+
+for _v in (
+    params_expert_each, params_router, shared_expert_params_each,
+    params_shared_experts, params_moe_layer_total,
+    params_moe_layer_active, params_total_moe, params_active_moe,
+):
+    _v.references.append(MOE_PARAM_REF)
+
+flops_step_moe.sp_units = FLOP
+flops_step_moe.references.append(MOE_FLOP_REF)
+
 
 eq_sparsity = eq(
     "arch.eq.sparsity",
     sparsity_ratio.symbol,
     n_experts.symbol / active_experts.symbol,
     "MoE sparsity ratio equals total experts divided by active experts.",
+    check_units=True,
 )
 
 eq_params_shared_experts = eq(
@@ -136,6 +182,7 @@ eq_params_shared_experts = eq(
     params_shared_experts.symbol,
     shared_expert_count.symbol * shared_expert_params_each.symbol,
     "Shared-expert parameters equal shared expert count times parameters per shared expert.",
+    check_units=True,
 )
 
 eq_params_moe_layer_total = eq(
@@ -143,6 +190,7 @@ eq_params_moe_layer_total = eq(
     params_moe_layer_total.symbol,
     n_experts.symbol * params_expert_each.symbol + params_shared_experts.symbol + params_router.symbol,
     "Total MoE-layer parameters include all experts, shared experts, and the router.",
+    check_units=True,
 )
 
 eq_params_moe_layer_active = eq(
@@ -150,6 +198,7 @@ eq_params_moe_layer_active = eq(
     params_moe_layer_active.symbol,
     active_experts.symbol * params_expert_each.symbol + params_shared_experts.symbol + params_router.symbol,
     "Active MoE-layer parameters include only the active experts plus shared experts and the router.",
+    check_units=True,
 )
 
 eq_params_total_moe = eq(
@@ -157,6 +206,7 @@ eq_params_total_moe = eq(
     params_total_moe.symbol,
     n_moe_layers.symbol * params_moe_layer_total.symbol,
     "Total MoE parameters equal MoE layers times parameters instantiated per MoE layer.",
+    check_units=True,
 )
 
 eq_params_active_moe = eq(
@@ -164,6 +214,7 @@ eq_params_active_moe = eq(
     params_active_moe.symbol,
     n_moe_layers.symbol * params_moe_layer_active.symbol,
     "Active MoE parameters per token path equal MoE layers times active parameters per MoE layer.",
+    check_units=True,
 )
 
 eq_expert_capacity = eq(
@@ -171,6 +222,7 @@ eq_expert_capacity = eq(
     expert_capacity.symbol,
     moe_capacity_factor.symbol * moe_tokens_batch.symbol * active_experts.symbol / n_experts.symbol,
     "Expert capacity equals mean routed tokens per expert times the capacity factor.",
+    check_units=True,
 )
 
 eq_load_balance_loss = eq(
@@ -178,6 +230,7 @@ eq_load_balance_loss = eq(
     load_balance_loss.symbol,
     n_experts.symbol * router_fi_pi_sum.symbol,
     "The common MoE auxiliary balancing loss is number_of_experts times the sum over experts of token fraction times average routing probability.",
+    check_units=True,
 )
 
 eq_router_z_loss = eq(
@@ -185,6 +238,7 @@ eq_router_z_loss = eq(
     router_z_loss.symbol,
     router_log_z.symbol ** 2,
     "Router z-loss penalizes the square of log Z.",
+    check_units=True,
 )
 
 eq_flops_step_moe = eq(
@@ -217,6 +271,19 @@ ARCH_MOE_EQUATIONS = [
     eq_router_z_loss,
     eq_flops_step_moe,
 ]
+
+for _e in (
+    eq_sparsity, eq_expert_capacity, eq_load_balance_loss, eq_router_z_loss,
+):
+    _e.references.append(MOE_ROUTING_REF)
+
+for _e in (
+    eq_params_shared_experts, eq_params_moe_layer_total,
+    eq_params_moe_layer_active, eq_params_total_moe, eq_params_active_moe,
+):
+    _e.references.append(MOE_PARAM_REF)
+
+eq_flops_step_moe.references.append(MOE_FLOP_REF)
 
 
 __all__ = [

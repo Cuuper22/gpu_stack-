@@ -216,6 +216,16 @@ PROTON_MASS = Constant(
     sp_units=kilogram if _UNITS_AVAILABLE else None,
 )
 
+NEUTRON_MASS = Constant(
+    name="physics.neutron_mass",
+    symbol="m_n",
+    units="kg",
+    description="Rest mass of the neutron.",
+    value=1.67492749804e-27,
+    source="CODATA 2018",
+    sp_units=kilogram if _UNITS_AVAILABLE else None,
+)
+
 ATOMIC_MASS_UNIT = Constant(
     name="physics.amu",
     symbol="u",
@@ -327,8 +337,9 @@ __all__ = [
     # thermodynamics
     "BOLTZMANN", "AVOGADRO", "GAS_CONSTANT", "STEFAN_BOLTZMANN",
     # quantum / atomic
-    "PLANCK", "HBAR", "ELECTRON_MASS", "PROTON_MASS", "ATOMIC_MASS_UNIT",
-    "BOHR_RADIUS", "RYDBERG_ENERGY", "CLASSICAL_ELECTRON_RADIUS",
+    "PLANCK", "HBAR", "ELECTRON_MASS", "PROTON_MASS", "NEUTRON_MASS",
+    "ATOMIC_MASS_UNIT", "BOHR_RADIUS", "RYDBERG_ENERGY",
+    "CLASSICAL_ELECTRON_RADIUS",
     # mechanical / environmental
     "STANDARD_GRAVITY", "STANDARD_ATMOSPHERE", "ICE_POINT",
     # math helpers

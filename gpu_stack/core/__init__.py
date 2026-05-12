@@ -13,6 +13,11 @@ Public surface:
   System
   var, eq  (convenience factories)
   Graph helpers: topological_sort, find_cycles, subgraph, to_dot
+  Resolver helpers: resolve, ResolverResult, TraceStep, ConstraintCheck,
+  ApproximationValidityCheck, ResolverError, Underdetermined,
+  AmbiguousVariant, InvalidVariantSelector
+  Presets: Preset, combine_presets
+  Units: UnitError, check_dimensional_consistency, infer_expr_units
 """
 
 from .registry import Registry
@@ -23,19 +28,29 @@ from .equation import (
     Equation, Inequality, Approximation, PiecewiseEquation,
     DifferentialEquation, IterativeEquation, StochasticRelation,
     EquationKind, RelationRole, ExprLike,
+    gt, ge, lt, le, ne, valid_all, domain_relations_for_variable,
 )
 from .system import System
 from .graph import topological_sort, find_cycles, subgraph, to_dot
 from .resolver import (
     AmbiguousVariant,
+    ApproximationValidityCheck,
+    ConstraintCheck,
+    InvalidVariantSelector,
     ResolverError,
     ResolverResult,
     TraceStep,
     Underdetermined,
     resolve,
 )
-from .presets import Preset, combine as combine_presets
-from .units import UnitError, check_dimensional_consistency
+from .presets import (
+    MissingFamilySummary,
+    Preset,
+    ScenarioReport,
+    ScenarioTargetReport,
+    combine as combine_presets,
+)
+from .units import UnitError, check_dimensional_consistency, infer_expr_units
 
 
 def var(name: str, symbol: str, units: str, description: str,
@@ -61,11 +76,15 @@ __all__ = [
     "Equation", "Inequality", "Approximation", "PiecewiseEquation",
     "DifferentialEquation", "IterativeEquation", "StochasticRelation",
     "EquationKind", "RelationRole", "ExprLike",
+    "gt", "ge", "lt", "le", "ne", "valid_all", "domain_relations_for_variable",
     "System",
     "var", "eq",
     "topological_sort", "find_cycles", "subgraph", "to_dot",
-    "resolve", "ResolverResult", "TraceStep",
+    "resolve", "ResolverResult", "TraceStep", "ConstraintCheck",
+    "ApproximationValidityCheck",
     "ResolverError", "Underdetermined", "AmbiguousVariant",
+    "InvalidVariantSelector",
+    "MissingFamilySummary", "ScenarioReport", "ScenarioTargetReport",
     "Preset", "combine_presets",
-    "UnitError", "check_dimensional_consistency",
+    "UnitError", "check_dimensional_consistency", "infer_expr_units",
 ]

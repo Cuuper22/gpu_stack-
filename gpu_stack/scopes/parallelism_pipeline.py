@@ -7,7 +7,19 @@ zero-bubble formulas, including pipeline bubble fractions.
 """
 
 import sympy as sp
-from ..core import Approximation, eq, var
+from ..core import Approximation, Reference, eq, var
+from ..core.units import SECOND
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+PIPELINE_SCHEDULE_REF = Reference(
+    "Pipeline schedule model: GPipe, 1F1B, interleaved, DualPipe, Chimera, "
+    "and zero-bubble terms are modeled as dimensionless bubble fractions "
+    "derived from stage counts, microbatch counts, overlap fractions, and "
+    "stage forward/backward times.",
+    kind="model",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -18,66 +30,92 @@ n_stages = var(
     "par.pp.n_stages", "S_PP", "stages",
     "Number of pipeline stages.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 n_microbatches = var(
     "par.pp.n_microbatches", "m_PP", "microbatches",
     "Microbatches per pipeline flush.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 t_forward = var(
     "par.pp.t_fwd", "t_fwd_PP", "s",
     "Forward time of one stage on one microbatch.",
     scope="parallelism",
+    sp_units=SECOND,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 t_backward = var(
     "par.pp.t_bwd", "t_bwd_PP", "s",
     "Backward time of one stage on one microbatch.",
     scope="parallelism",
+    sp_units=SECOND,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 bubble_gpipe = var(
     "par.pp.bubble_gpipe", "phi_gpipe_PP", "dimensionless",
     "Bubble fraction for flush-style GPipe.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 bubble_1f1b = var(
     "par.pp.bubble_1f1b", "phi_1f1b_PP", "dimensionless",
     "Bubble fraction under 1F1B.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 virtual_stages = var(
     "par.pp.virtual_stages", "V_PP", "stages",
     "Virtual stages per physical stage for interleaved 1F1B.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 bubble_interleaved = var(
     "par.pp.bubble_interleaved", "phi_il_PP", "dimensionless",
     "Bubble fraction under interleaved 1F1B.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 dualpipe_overlap = var(
     "par.pp.dualpipe_overlap", "rho_dual_PP", "dimensionless",
     "Fraction of the 1F1B bubble eliminated by overlapping forward and backward pipelines in DualPipe-style schedules.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 bubble_dualpipe = var(
     "par.pp.bubble_dualpipe", "phi_dual_PP", "dimensionless",
     "Bubble fraction under DualPipe-style overlap.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 chimera_overlap = var(
     "par.pp.chimera_overlap", "rho_chim_PP", "dimensionless",
     "Fraction of the 1F1B bubble eliminated by a Chimera-style schedule.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 bubble_chimera = var(
     "par.pp.bubble_chimera", "phi_chim_PP", "dimensionless",
     "Bubble fraction under Chimera-style overlap.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 bubble_zb = var(
     "par.pp.bubble_zb", "phi_zb_PP", "dimensionless",
     "Residual bubble under a zero-bubble schedule.",
     scope="parallelism",
+    sp_units=DIMENSIONLESS,
+    references=[PIPELINE_SCHEDULE_REF],
 )
 
 
@@ -86,6 +124,8 @@ eq_bubble_1f1b = eq(
     bubble_1f1b.symbol,
     (n_stages.symbol - 1) / (n_stages.symbol - 1 + n_microbatches.symbol),
     "1F1B bubble fraction is the pipeline fill-drain overhead divided by the total steady-state stage slots.",
+    references=[PIPELINE_SCHEDULE_REF],
+    check_units=True,
 )
 
 eq_bubble_gpipe = Approximation(
@@ -94,6 +134,8 @@ eq_bubble_gpipe = Approximation(
     (n_stages.symbol - 1) / n_microbatches.symbol,
     n_microbatches.symbol > n_stages.symbol,
     "For GPipe with many microbatches, bubble fraction is approximately (stages - 1) / microbatches.",
+    references=[PIPELINE_SCHEDULE_REF],
+    check_units=True,
 )
 
 eq_bubble_interleaved = eq(
@@ -101,6 +143,8 @@ eq_bubble_interleaved = eq(
     bubble_interleaved.symbol,
     (n_stages.symbol / virtual_stages.symbol - 1) / (n_stages.symbol / virtual_stages.symbol - 1 + n_microbatches.symbol),
     "Interleaving reduces the effective pipeline depth seen by the schedule.",
+    references=[PIPELINE_SCHEDULE_REF],
+    check_units=True,
 )
 
 eq_bubble_dualpipe = eq(
@@ -108,6 +152,8 @@ eq_bubble_dualpipe = eq(
     bubble_dualpipe.symbol,
     bubble_1f1b.symbol * (1 - dualpipe_overlap.symbol),
     "DualPipe-style overlap reduces the remaining 1F1B bubble by the achieved overlap fraction.",
+    references=[PIPELINE_SCHEDULE_REF],
+    check_units=True,
 )
 
 eq_bubble_chimera = eq(
@@ -115,6 +161,8 @@ eq_bubble_chimera = eq(
     bubble_chimera.symbol,
     bubble_1f1b.symbol * (1 - chimera_overlap.symbol),
     "Chimera-style schedules reduce the baseline 1F1B bubble by their achieved overlap fraction.",
+    references=[PIPELINE_SCHEDULE_REF],
+    check_units=True,
 )
 
 eq_bubble_zb = eq(
@@ -122,6 +170,8 @@ eq_bubble_zb = eq(
     bubble_zb.symbol,
     sp.Abs(t_backward.symbol - t_forward.symbol) / (t_backward.symbol + t_forward.symbol),
     "If forward and backward times match exactly the residual zero-bubble penalty is zero; any mismatch leaves only the imbalance term.",
+    references=[PIPELINE_SCHEDULE_REF],
+    check_units=True,
 )
 
 

@@ -9,7 +9,8 @@ variants, GeLU and SwiGLU activations, and LayerNorm and RMSNorm.
 
 import sympy as sp
 
-from ..core import eq, var
+from ..core import Reference, eq, var
+from ..core.units import FLOP, byte
 
 from .architecture_embeddings import (
     d_model,
@@ -19,6 +20,41 @@ from .architecture_embeddings import (
     n_layers,
     params_attn_per_layer,
     qk_scale,
+)
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+ATTENTION_REF = Reference(
+    "Scaled dot-product and multi-head attention follow the Transformer "
+    "attention form introduced by Vaswani et al.",
+    kind="model",
+)
+ATTENTION_FLOP_REF = Reference(
+    "Dense attention FLOP accounting separates learned projections from the "
+    "QK score matmul and attention-value matmul for one full sequence.",
+    kind="model",
+)
+SPARSE_ATTENTION_REF = Reference(
+    "Sparse attention FLOP accounting replaces quadratic all-pairs attention "
+    "terms with a fixed number of visited keys per query.",
+    kind="model",
+)
+KV_CACHE_REF = Reference(
+    "KV-cache accounting stores key and value states per generated token, per "
+    "layer, with grouped-query and compressed-latent variants changing the "
+    "stored KV width.",
+    kind="model",
+)
+ACTIVATION_REF = Reference(
+    "Activation definitions cover sigmoid, GeLU, SiLU, and SwiGLU pointwise "
+    "transformations used in transformer blocks.",
+    kind="model",
+)
+NORMALIZATION_REF = Reference(
+    "LayerNorm and RMSNorm are represented as dimensionless affine-free "
+    "normalization transforms over hidden activations.",
+    kind="model",
 )
 
 
@@ -112,12 +148,41 @@ k_sparse = var(
     scope="architecture",
 )
 
+for _v in (
+    q_tensor, k_tensor, v_tensor, attn_logits, attn_output,
+    d_latent_mla, kv_compression_ratio, k_sparse,
+):
+    _v.sp_units = DIMENSIONLESS
+    _v.references.append(ATTENTION_REF)
+
+for _v in (
+    attn_proj_flops_per_layer, attn_scores_flops_per_layer,
+    attn_values_flops_per_layer, attn_flops_mha_per_layer,
+    attn_flops_sparse_per_layer,
+):
+    _v.sp_units = FLOP
+    _v.references.append(ATTENTION_FLOP_REF)
+
+attn_flops_sparse_per_layer.references.append(SPARSE_ATTENTION_REF)
+k_sparse.references.append(SPARSE_ATTENTION_REF)
+
+for _v in (
+    bytes_per_param_kv, kv_bytes_per_tok_layer,
+    kv_bytes_per_tok_layer_mla, kv_total_bytes,
+):
+    _v.sp_units = byte
+    _v.references.append(KV_CACHE_REF)
+
+for _v in (d_latent_mla, kv_compression_ratio):
+    _v.references.append(KV_CACHE_REF)
+
 
 eq_attn_logits = eq(
     "arch.eq.attn_logits",
     attn_logits.symbol,
     q_tensor.symbol * k_tensor.symbol * qk_scale.symbol,
     "Scaled dot-product attention forms logits from Q K^T divided by sqrt(head_dim). The transpose is abstracted here into the symbolic tensor product.",
+    check_units=True,
 )
 
 eq_attn_output = eq(
@@ -125,6 +190,7 @@ eq_attn_output = eq(
     attn_output.symbol,
     sp.Function("softmax")(attn_logits.symbol) * v_tensor.symbol,
     "Attention output is softmax(logits) times V, represented here as an abstract tensor expression.",
+    check_units=True,
 )
 
 eq_attn_proj_flops = eq(
@@ -153,6 +219,7 @@ eq_attn_flops_mha = eq(
     attn_flops_mha_per_layer.symbol,
     attn_proj_flops_per_layer.symbol + attn_scores_flops_per_layer.symbol + attn_values_flops_per_layer.symbol,
     "Dense attention per layer equals projection FLOPs plus score matmul FLOPs plus value-aggregation FLOPs.",
+    check_units=True,
 )
 
 eq_attn_flops_sparse = eq(
@@ -167,6 +234,7 @@ eq_kv_gqa = eq(
     kv_bytes_per_tok_layer.symbol,
     2 * n_kv_heads.symbol * head_dim.symbol * bytes_per_param_kv.symbol,
     "MHA or GQA KV cache stores K and V for each KV head.",
+    check_units=True,
 )
 
 eq_kv_mla = eq(
@@ -174,6 +242,7 @@ eq_kv_mla = eq(
     kv_bytes_per_tok_layer_mla.symbol,
     2 * d_latent_mla.symbol * bytes_per_param_kv.symbol,
     "MLA stores compressed latent K and V states rather than per-head full-width KV tensors.",
+    check_units=True,
 )
 
 eq_kv_compression_ratio = eq(
@@ -181,6 +250,7 @@ eq_kv_compression_ratio = eq(
     kv_compression_ratio.symbol,
     kv_bytes_per_tok_layer.symbol / kv_bytes_per_tok_layer_mla.symbol,
     "KV compression ratio is the GQA cache footprint divided by the MLA cache footprint.",
+    check_units=True,
 )
 
 eq_kv_total = eq(
@@ -188,6 +258,7 @@ eq_kv_total = eq(
     kv_total_bytes.symbol,
     n_layers.symbol * seq_len_ctx.symbol * kv_bytes_per_tok_layer.symbol,
     "Total KV cache equals layers times sequence length times KV bytes per token per layer.",
+    check_units=True,
 )
 
 
@@ -231,12 +302,20 @@ swiglu_output = var(
     scope="architecture",
 )
 
+for _v in (
+    act_x, sigmoid_x, gelu_output, silu_output, swiglu_gate, swiglu_value,
+    swiglu_output,
+):
+    _v.sp_units = DIMENSIONLESS
+    _v.references.append(ACTIVATION_REF)
+
 
 eq_sigmoid_x = eq(
     "arch.eq.sigmoid_x",
     sigmoid_x.symbol,
     1 / (1 + sp.exp(-act_x.symbol)),
     "Sigmoid is 1 / (1 + exp(-x)).",
+    check_units=True,
 )
 
 eq_gelu_output = eq(
@@ -244,6 +323,7 @@ eq_gelu_output = eq(
     gelu_output.symbol,
     act_x.symbol * (1 + sp.erf(act_x.symbol / sp.sqrt(2))) / 2,
     "GeLU equals x times the Gaussian CDF of x.",
+    check_units=True,
 )
 
 eq_silu_output = eq(
@@ -251,6 +331,7 @@ eq_silu_output = eq(
     silu_output.symbol,
     act_x.symbol / (1 + sp.exp(-act_x.symbol)),
     "SiLU equals x times sigmoid(x).",
+    check_units=True,
 )
 
 eq_swiglu_output = eq(
@@ -258,6 +339,7 @@ eq_swiglu_output = eq(
     swiglu_output.symbol,
     swiglu_value.symbol / (1 + sp.exp(-swiglu_gate.symbol)),
     "SwiGLU multiplies the value branch by SiLU applied to the gate branch.",
+    check_units=True,
 )
 
 
@@ -299,12 +381,19 @@ rmsnorm_output = var(
     positive=False,
 )
 
+for _v in (
+    norm_x, norm_mean, norm_var, norm_eps, layernorm_output, rmsnorm_output,
+):
+    _v.sp_units = DIMENSIONLESS
+    _v.references.append(NORMALIZATION_REF)
+
 
 eq_layernorm_output = eq(
     "arch.eq.layernorm_output",
     layernorm_output.symbol,
     (norm_x.symbol - norm_mean.symbol) / sp.sqrt(norm_var.symbol + norm_eps.symbol),
     "LayerNorm subtracts the mean and divides by the standard deviation.",
+    check_units=True,
 )
 
 eq_rmsnorm_output = eq(
@@ -312,6 +401,7 @@ eq_rmsnorm_output = eq(
     rmsnorm_output.symbol,
     norm_x.symbol / sp.sqrt(norm_var.symbol + norm_eps.symbol),
     "RMSNorm skips mean subtraction and divides by the root mean square scale.",
+    check_units=True,
 )
 
 
@@ -346,6 +436,29 @@ ARCH_ATTENTION_EQUATIONS = [
     eq_layernorm_output,
     eq_rmsnorm_output,
 ]
+
+for _e in (
+    eq_attn_logits, eq_attn_output, eq_attn_proj_flops,
+    eq_attn_scores_flops, eq_attn_values_flops, eq_attn_flops_mha,
+):
+    _e.references.append(ATTENTION_REF)
+
+for _e in (
+    eq_attn_proj_flops, eq_attn_scores_flops, eq_attn_values_flops,
+    eq_attn_flops_mha, eq_attn_flops_sparse,
+):
+    _e.references.append(ATTENTION_FLOP_REF)
+
+eq_attn_flops_sparse.references.append(SPARSE_ATTENTION_REF)
+
+for _e in (eq_kv_gqa, eq_kv_mla, eq_kv_compression_ratio, eq_kv_total):
+    _e.references.append(KV_CACHE_REF)
+
+for _e in (eq_sigmoid_x, eq_gelu_output, eq_silu_output, eq_swiglu_output):
+    _e.references.append(ACTIVATION_REF)
+
+for _e in (eq_layernorm_output, eq_rmsnorm_output):
+    _e.references.append(NORMALIZATION_REF)
 
 
 __all__ = [
