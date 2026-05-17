@@ -92,6 +92,12 @@ def _verify_gates(profile: str, read_only: bool = False) -> List[VerifyGate]:
                     "tests/test_symbolic_integrity.py",
                     "tests/test_resolver.py",
                     "tests/test_cli.py",
+                    "tests/test_cli_audit.py",
+                    "tests/test_cli_inventory.py",
+                    "tests/test_cli_resolve.py",
+                    "tests/test_cli_root_debt.py",
+                    "tests/test_cli_scenarios.py",
+                    "tests/test_cli_verify.py",
                     (
                         "tests/test_process_geometry.py::"
                         "test_source_plasma_radial_expansion_uses_species_mass_chain"
