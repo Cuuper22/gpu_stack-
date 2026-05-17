@@ -1,0 +1,19 @@
+@keyframes trace-scan {
+  0% {
+    transform: translateX(-110%);
+  }
+  70%,
+  100% {
+    transform: translateX(310%);
+  }
+}
+
+@keyframes trace-pulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  45% {
+    filter: brightness(1.08);
+  }
+}
