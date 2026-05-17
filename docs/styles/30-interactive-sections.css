@@ -1,0 +1,355 @@
+/* Interactive guide */
+.primer-panel {
+  border: 2px inset var(--window-chrome);
+  background: var(--inset-dark);
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  overflow: hidden;
+}
+
+.primer-copy,
+.primer-visual {
+  background: oklch(0.98 0.002 90);
+  padding: clamp(14px, 2vw, 22px);
+  min-width: 0;
+}
+
+.primer-copy {
+  border-right: 2px solid var(--inset-dark);
+}
+
+.primer-visual {
+  display: grid;
+  gap: 10px;
+  align-content: center;
+}
+
+.primer-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.primer-controls .tree-button {
+  justify-content: center;
+  text-align: center;
+  padding-inline: 6px;
+}
+
+.primer-map {
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.91 0.006 250);
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.primer-node {
+  min-height: 108px;
+  border: 2px outset var(--button-face);
+  background: oklch(0.98 0.002 90);
+  padding: 9px;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  position: relative;
+  transition: background 160ms ease-out, filter 160ms ease-out;
+}
+
+.primer-node:not(:last-child)::after {
+  content: "";
+  display: none;
+}
+
+.primer-node.is-lit {
+  filter: brightness(1.04);
+}
+
+.primer-node.is-active {
+  border-style: inset;
+  background: oklch(0.94 0.07 88);
+  animation: trace-pulse 1800ms ease-out infinite;
+}
+
+.primer-node small {
+  color: var(--text-dark);
+  font: 700 11px/1.2 "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+}
+
+.primer-node b {
+  color: var(--title-bar);
+  font: 700 13px/1.2 "IBM Plex Mono", monospace;
+  overflow-wrap: anywhere;
+}
+
+.primer-node span,
+.primer-status span {
+  color: var(--text-soft);
+  font: 13px/1.42 "IBM Plex Sans", system-ui, sans-serif;
+}
+
+.primer-status {
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.98 0.002 90);
+  padding: 10px;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.primer-beacon {
+  width: 22px;
+  height: 22px;
+  border: 2px inset var(--button-face);
+  background: oklch(0.20 0.01 250);
+  position: relative;
+  overflow: hidden;
+}
+
+.primer-beacon::after {
+  content: "";
+  position: absolute;
+  inset: 4px auto 4px 2px;
+  width: 9px;
+  background: var(--accent-gold);
+  animation: trace-scan 2400ms ease-out infinite;
+}
+
+.primer-status b {
+  color: var(--title-bar);
+  font: 700 13px/1.25 "IBM Plex Mono", monospace;
+  overflow-wrap: anywhere;
+}
+
+.section-window {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: 0;
+  border: 2px inset var(--window-chrome);
+  background: var(--inset-dark);
+  overflow: hidden;
+}
+
+.section-copy,
+.section-visual {
+  background: oklch(0.98 0.002 90);
+  padding: clamp(14px, 2vw, 22px);
+  min-width: 0;
+}
+
+.section-copy {
+  border-right: 2px solid var(--inset-dark);
+}
+
+.eyebrow {
+  margin: 0 0 7px;
+  color: var(--accent-cyan);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+h2 {
+  margin: 0;
+  color: var(--title-bar);
+  font-size: 30px;
+  font-size: clamp(30px, 4vw, 50px);
+}
+
+h3 {
+  margin: 0 0 10px;
+  color: var(--title-bar);
+  font-size: 20px;
+}
+
+.body-copy,
+.primer-copy p,
+.section-copy p,
+.note-list li,
+.dialog-body p {
+  font: 500 15px "IBM Plex Sans", system-ui, sans-serif;
+  line-height: 1.62;
+  color: var(--text-dark);
+}
+
+.note-list {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 7px;
+}
+
+.section-visual {
+  display: grid;
+  align-content: center;
+  gap: 12px;
+}
+
+.visual-frame {
+  background: oklch(0.91 0.006 250);
+  border: 2px inset var(--window-chrome);
+  padding: 10px;
+}
+
+.visual-frame img {
+  width: 100%;
+  background: oklch(0.98 0.002 90);
+  border: 1px solid oklch(0.72 0.006 250);
+}
+
+.caption {
+  margin: 0;
+  color: var(--text-soft);
+  font: 13px "IBM Plex Sans", system-ui, sans-serif;
+  line-height: 1.45;
+}
+
+.dependency-stack {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.dependency-row {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 2px outset var(--button-face);
+  background: var(--button-face);
+  padding: 4px 8px;
+  font: 13px "IBM Plex Mono", monospace;
+}
+
+.dependency-row.active {
+  background: var(--accent-gold);
+  color: var(--text-dark);
+  border-style: inset;
+  font-weight: 700;
+}
+
+.trace-lab {
+  display: grid;
+  gap: 12px;
+}
+
+.trace-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.trace-screen {
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.91 0.006 250);
+  padding: 10px;
+  display: grid;
+  gap: 10px;
+}
+
+.trace-map {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(86px, 1fr));
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.trace-node {
+  min-height: 92px;
+  border: 2px outset var(--button-face);
+  background: oklch(0.98 0.002 90);
+  padding: 8px;
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  position: relative;
+}
+
+.trace-node.active {
+  border-style: inset;
+  background: oklch(0.94 0.07 88);
+  animation: trace-pulse 1800ms ease-out infinite;
+}
+
+.trace-node b {
+  color: var(--title-bar);
+  font: 700 13px/1.2 "IBM Plex Mono", monospace;
+  overflow-wrap: anywhere;
+}
+
+.trace-node span {
+  color: var(--text-soft);
+  font: 12px/1.35 "IBM Plex Sans", system-ui, sans-serif;
+}
+
+.trace-node small {
+  color: var(--text-dark);
+  font: 700 11px/1.2 "IBM Plex Mono", monospace;
+  text-transform: uppercase;
+}
+
+.trace-connector {
+  height: 12px;
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.20 0.01 250);
+  position: relative;
+  overflow: hidden;
+}
+
+.trace-connector::after {
+  content: "";
+  position: absolute;
+  inset: 2px auto 2px 0;
+  width: 34%;
+  background: var(--accent-gold);
+  animation: trace-scan 2400ms ease-out infinite;
+}
+
+.trace-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.trace-note,
+.trace-meter {
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.98 0.002 90);
+  padding: 10px;
+  min-width: 0;
+}
+
+.trace-note p,
+.trace-meter p,
+.glossary-term p {
+  margin: 0;
+  font: 500 14px/1.52 "IBM Plex Sans", system-ui, sans-serif;
+}
+
+.trace-meter {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  font: 13px "IBM Plex Mono", monospace;
+}
+
+.meter-bar {
+  height: 18px;
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.20 0.01 250);
+  position: relative;
+  overflow: hidden;
+}
+
+.meter-bar span {
+  position: absolute;
+  inset: 2px auto 2px 2px;
+  width: var(--meter-width, 50%);
+  background: var(--accent-gold);
+}
