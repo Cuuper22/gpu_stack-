@@ -22,6 +22,15 @@ from .architecture_attention_normalization import (
     ARCH_ATTENTION_NORMALIZATION_EQUATIONS,
     ARCH_ATTENTION_NORMALIZATION_VARIABLES,
 )
+from .architecture_attention_refs import (
+    ACTIVATION_REF,
+    ATTENTION_FLOP_REF,
+    ATTENTION_REF,
+    DIMENSIONLESS,
+    KV_CACHE_REF,
+    NORMALIZATION_REF,
+    SPARSE_ATTENTION_REF,
+)
 
 
 ARCH_ATTENTION_VARIABLES = (
