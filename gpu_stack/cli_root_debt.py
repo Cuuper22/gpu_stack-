@@ -106,39 +106,6 @@ def cmd_root_debt(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_next_work(args: argparse.Namespace) -> int:
-    from gpu_stack.next_work import build_next_work_plan
-
-    plan = build_next_work_plan()
-    if args.json:
-        print(json.dumps(plan.to_dict(), indent=2, sort_keys=True))
-        return 0
-
-    sections = (
-        ("Top 3 highest impact", plan.highest_impact),
-        ("4 best implementations", plan.best_implementations),
-        ("10 bugs/risks", plan.bug_risks),
-    )
-    print("Next work:")
-    print(
-        "  graph evidence: "
-        f"variables={plan.graph_evidence['variables']} "
-        f"equations={plan.graph_evidence['equations']} "
-        f"root_inputs={plan.graph_evidence['root_inputs']}"
-    )
-    for title, items in sections:
-        print()
-        print(f"{title}:")
-        for index, item in enumerate(items, start=1):
-            print(f"  {index}. {item.title}")
-            print(f"     evidence: {item.evidence}")
-            if item.command:
-                print(f"     command: {item.command}")
-            if item.path:
-                print(f"     path: {item.path}")
-    return 0
-
-
 def _root_debt_json(
     args: argparse.Namespace,
     total_roots: int,
