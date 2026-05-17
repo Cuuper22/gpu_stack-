@@ -14,8 +14,13 @@ from ..constants import (
     EPSILON_0,
     SPEED_OF_LIGHT,
 )
-from ..core import Approximation, Inequality, gt, valid_all, var
+from ..core import Approximation, Inequality, gt, valid_all
 from ..core.units import METER, SECOND, WATT
+from .physical_lithography_plasma_common import (
+    DIMENSIONLESS,
+    plasma_fraction,
+    plasma_var,
+)
 from .physical_lithography_plasma_drive import (
     lithography_source_plasma_column_length,
     lithography_source_plasma_drive_power,
@@ -32,159 +37,104 @@ from .physical_lithography_plasma_species import (
 from .physical_lithography_species import lithography_source_proton_count
 
 
-lithography_source_plasma_absorption_path_direction_cosine = var(
-    "physical.lithography.source_plasma_absorption_path_direction_cosine",
+lithography_source_plasma_absorption_path_direction_cosine = plasma_fraction(
+    "source_plasma_absorption_path_direction_cosine",
     "mu_abs_path_litho_src",
-    "dimensionless",
     "Direction cosine of the source-plasma absorption path relative to the plasma column axis.",
-    scope="physical",
-    positive=True,
-    value_range=(0.0, 1.0),
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_absorption_path_shape_factor = var(
-    "physical.lithography.source_plasma_absorption_path_shape_factor",
+lithography_source_plasma_absorption_path_shape_factor = plasma_var(
+    "source_plasma_absorption_path_shape_factor",
     "chi_abs_path_litho_src",
     "dimensionless",
     "Geometry factor mapping plasma column length to absorption path length.",
-    scope="physical",
-    positive=True,
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
+    sp_units=DIMENSIONLESS,
 )
-lithography_source_plasma_absorption_path_length = var(
-    "physical.lithography.source_plasma_absorption_path_length",
+lithography_source_plasma_absorption_path_length = plasma_var(
+    "source_plasma_absorption_path_length",
     "ell_abs_plasma_litho_src",
     "m",
     "Effective path length for source plasma drive absorption.",
-    scope="physical",
-    positive=True,
     sp_units=METER,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_drive_beam_angular_frequency = var(
-    "physical.lithography.source_plasma_drive_beam_angular_frequency",
+lithography_source_plasma_drive_beam_angular_frequency = plasma_var(
+    "source_plasma_drive_beam_angular_frequency",
     "omega_drive_plasma_litho_src",
     "1/s",
     "Angular frequency of the beam that drives source-plasma absorption.",
-    scope="physical",
-    positive=True,
     sp_units=sp.Integer(1) / SECOND,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_absorption_resonance_to_drive_ratio = var(
-    "physical.lithography.source_plasma_absorption_resonance_to_drive_ratio",
+lithography_source_plasma_absorption_resonance_to_drive_ratio = plasma_var(
+    "source_plasma_absorption_resonance_to_drive_ratio",
     "rho_omega_abs_drive_litho_src",
     "dimensionless",
     "Ratio of the dominant source-species absorption resonance to the drive-beam angular frequency.",
-    scope="physical",
-    positive=True,
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
+    sp_units=DIMENSIONLESS,
 )
-lithography_source_plasma_absorption_quality_factor = var(
-    "physical.lithography.source_plasma_absorption_quality_factor",
+lithography_source_plasma_absorption_quality_factor = plasma_var(
+    "source_plasma_absorption_quality_factor",
     "Q_abs_plasma_litho_src",
     "dimensionless",
     "Quality factor of the dominant source-species absorption resonance.",
-    scope="physical",
-    positive=True,
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
+    sp_units=DIMENSIONLESS,
 )
-lithography_source_plasma_absorption_collision_cross_section = var(
-    "physical.lithography.source_plasma_absorption_collision_cross_section",
+lithography_source_plasma_absorption_collision_cross_section = plasma_var(
+    "source_plasma_absorption_collision_cross_section",
     "sigma_abs_collision_litho_src",
     "m^2",
     "Effective source-species collision cross section controlling absorption-line damping.",
-    scope="physical",
-    positive=True,
     sp_units=METER**2,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_absorption_participating_electron_fraction = var(
-    "physical.lithography.source_plasma_absorption_participating_electron_fraction",
+lithography_source_plasma_absorption_participating_electron_fraction = plasma_fraction(
+    "source_plasma_absorption_participating_electron_fraction",
     "eta_e_abs_participating_litho_src",
-    "dimensionless",
     "Fraction of source nuclear charge contributing electrons to the dominant absorption oscillator.",
-    scope="physical",
-    nonnegative=True,
-    value_range=(0.0, 1.0),
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
+    positive=False,
 )
-lithography_source_plasma_absorption_sum_rule_fraction = var(
-    "physical.lithography.source_plasma_absorption_sum_rule_fraction",
+lithography_source_plasma_absorption_sum_rule_fraction = plasma_fraction(
+    "source_plasma_absorption_sum_rule_fraction",
     "eta_abs_sum_rule_litho_src",
-    "dimensionless",
     "Fraction of the available oscillator-strength sum rule carried by the dominant absorption resonance.",
-    scope="physical",
-    nonnegative=True,
-    value_range=(0.0, 1.0),
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
+    positive=False,
 )
-lithography_source_plasma_absorption_resonance_angular_frequency = var(
-    "physical.lithography.source_plasma_absorption_resonance_angular_frequency",
+lithography_source_plasma_absorption_resonance_angular_frequency = plasma_var(
+    "source_plasma_absorption_resonance_angular_frequency",
     "omega0_abs_plasma_litho_src",
     "1/s",
     "Dominant source-species resonance angular frequency for drive absorption.",
-    scope="physical",
-    positive=True,
     sp_units=sp.Integer(1) / SECOND,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_absorption_damping_rate = var(
-    "physical.lithography.source_plasma_absorption_damping_rate",
+lithography_source_plasma_absorption_damping_rate = plasma_var(
+    "source_plasma_absorption_damping_rate",
     "gamma_abs_plasma_litho_src",
     "1/s",
     "Effective damping rate of the source-species absorption resonance.",
-    scope="physical",
-    positive=True,
     sp_units=sp.Integer(1) / SECOND,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_absorption_oscillator_strength = var(
-    "physical.lithography.source_plasma_absorption_oscillator_strength",
+lithography_source_plasma_absorption_oscillator_strength = plasma_var(
+    "source_plasma_absorption_oscillator_strength",
     "f_abs_osc_plasma_litho_src",
     "dimensionless",
     "Dimensionless oscillator strength of the dominant source-plasma absorption resonance.",
-    scope="physical",
-    positive=True,
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
+    sp_units=DIMENSIONLESS,
 )
-lithography_source_plasma_absorption_cross_section = var(
-    "physical.lithography.source_plasma_absorption_cross_section",
+lithography_source_plasma_absorption_cross_section = plasma_var(
+    "source_plasma_absorption_cross_section",
     "sigma_abs_plasma_litho_src",
     "m^2",
     "Effective source-species cross section for drive-energy absorption.",
-    scope="physical",
-    positive=True,
     sp_units=METER**2,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_absorption_optical_depth = var(
-    "physical.lithography.source_plasma_absorption_optical_depth",
+lithography_source_plasma_absorption_optical_depth = plasma_var(
+    "source_plasma_absorption_optical_depth",
     "tau_abs_litho_src",
     "dimensionless",
     "Effective absorption optical depth across the source-plasma drive path.",
-    scope="physical",
-    positive=True,
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
+    sp_units=DIMENSIONLESS,
 )
-lithography_source_plasma_drive_energy_absorption_fraction = var(
-    "physical.lithography.source_plasma_drive_energy_absorption_fraction",
+lithography_source_plasma_drive_energy_absorption_fraction = plasma_fraction(
+    "source_plasma_drive_energy_absorption_fraction",
     "f_abs_drive_litho_src",
-    "dimensionless",
     "Single-pass fraction of drive energy absorbed by source species before channel factors.",
-    scope="physical",
-    positive=True,
-    value_range=(0.0, 1.0),
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
 eq_lithography_source_plasma_drive_beam_angular_frequency = Approximation(
     "physical.eq.lithography_source_plasma_drive_beam_angular_frequency",
@@ -383,37 +333,22 @@ from .physical_lithography_plasma_overlap import (  # noqa: E402
 )
 
 
-lithography_source_plasma_electron_heating_fraction = var(
-    "physical.lithography.source_plasma_electron_heating_fraction",
+lithography_source_plasma_electron_heating_fraction = plasma_fraction(
+    "source_plasma_electron_heating_fraction",
     "eta_e_heat_plasma_litho_src",
-    "dimensionless",
     "Fraction of absorbed drive energy coupled into the free-electron energy channel.",
-    scope="physical",
-    positive=True,
-    value_range=(0.0, 1.0),
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_absorption_efficiency = var(
-    "physical.lithography.source_plasma_absorption_efficiency",
+lithography_source_plasma_absorption_efficiency = plasma_fraction(
+    "source_plasma_absorption_efficiency",
     "eta_abs_litho_src",
-    "dimensionless",
     "Fraction of source drive power absorbed into the free-electron plasma energy channel.",
-    scope="physical",
-    positive=True,
-    value_range=(0.0, 1.0),
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_absorbed_power = var(
-    "physical.lithography.source_plasma_absorbed_power",
+lithography_source_plasma_absorbed_power = plasma_var(
+    "source_plasma_absorbed_power",
     "P_abs_litho_src",
     "W",
     "Drive power absorbed into the source-plasma free-electron energy channel.",
-    scope="physical",
-    positive=True,
     sp_units=WATT,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
 
 ineq_lithography_source_plasma_electron_heating_fraction_within_unit_interval = Inequality(
