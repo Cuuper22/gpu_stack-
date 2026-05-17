@@ -431,31 +431,129 @@
       line-height: 1.35;
     }
 
-    .workflow-ribbon {
+    .primer-panel {
       border: 2px inset var(--window-chrome);
       background: var(--inset-dark);
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 1px;
+      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      overflow: hidden;
     }
 
-    .workflow-step {
-      min-height: 86px;
+    .primer-copy,
+    .primer-visual {
+      background: oklch(0.98 0.002 90);
+      padding: clamp(14px, 2vw, 22px);
+      min-width: 0;
+    }
+
+    .primer-copy {
+      border-right: 2px solid var(--inset-dark);
+    }
+
+    .primer-visual {
+      display: grid;
+      gap: 10px;
+      align-content: center;
+    }
+
+    .primer-controls {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .primer-controls .tree-button {
+      justify-content: center;
+      text-align: center;
+      padding-inline: 6px;
+    }
+
+    .primer-map {
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.91 0.006 250);
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .primer-node {
+      min-height: 108px;
+      border: 2px outset var(--button-face);
+      background: oklch(0.98 0.002 90);
+      padding: 9px;
+      display: grid;
+      align-content: start;
+      gap: 6px;
+      position: relative;
+      transition: background 160ms ease-out, filter 160ms ease-out;
+    }
+
+    .primer-node:not(:last-child)::after {
+      content: "";
+      display: none;
+    }
+
+    .primer-node.is-lit {
+      filter: brightness(1.04);
+    }
+
+    .primer-node.is-active {
+      border-style: inset;
+      background: oklch(0.94 0.07 88);
+      animation: trace-pulse 1800ms ease-out infinite;
+    }
+
+    .primer-node small {
+      color: var(--text-dark);
+      font: 700 11px/1.2 "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+    }
+
+    .primer-node b {
+      color: var(--title-bar);
+      font: 700 13px/1.2 "IBM Plex Mono", monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .primer-node span,
+    .primer-status span {
+      color: var(--text-soft);
+      font: 13px/1.42 "IBM Plex Sans", system-ui, sans-serif;
+    }
+
+    .primer-status {
+      border: 2px inset var(--window-chrome);
       background: oklch(0.98 0.002 90);
       padding: 10px;
       display: grid;
-      align-content: start;
-      gap: 5px;
+      grid-template-columns: 32px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
     }
 
-    .workflow-step b {
+    .primer-beacon {
+      width: 22px;
+      height: 22px;
+      border: 2px inset var(--button-face);
+      background: oklch(0.20 0.01 250);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .primer-beacon::after {
+      content: "";
+      position: absolute;
+      inset: 4px auto 4px 2px;
+      width: 9px;
+      background: var(--accent-gold);
+      animation: trace-scan 2400ms ease-out infinite;
+    }
+
+    .primer-status b {
       color: var(--title-bar);
-      font: 700 15px "Pixelify Sans", monospace;
-    }
-
-    .workflow-step span {
-      color: var(--text-soft);
-      font: 13px/1.42 "IBM Plex Sans", system-ui, sans-serif;
+      font: 700 13px/1.25 "IBM Plex Mono", monospace;
+      overflow-wrap: anywhere;
     }
 
     .section-window {
@@ -499,6 +597,7 @@
     }
 
     .body-copy,
+    .primer-copy p,
     .section-copy p,
     .note-list li,
     .dialog-body p {
@@ -922,6 +1021,7 @@
 
       .app-shell,
       .hero-row,
+      .primer-panel,
       .section-window,
       .dialog-grid,
       .trace-details {
@@ -943,11 +1043,15 @@
         border-bottom: 2px solid var(--inset-dark);
       }
 
+      .primer-copy {
+        border-right: 0;
+        border-bottom: 2px solid var(--inset-dark);
+      }
+
       .stat-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .workflow-ribbon,
       .glossary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -1003,6 +1107,7 @@
 
       .tagline,
       .body-copy,
+      .primer-copy p,
       .section-copy p,
       .note-list li,
       .dialog-body p {
@@ -1039,10 +1144,19 @@
       }
 
       .stat-grid,
-      .workflow-ribbon,
+      .primer-controls,
+      .primer-map,
       .trace-controls,
       .glossary-grid {
         grid-template-columns: 1fr;
+      }
+
+      .primer-node {
+        min-height: 94px;
+      }
+
+      .primer-node:not(:last-child)::after {
+        display: none;
       }
 
       .app-nav {
@@ -1110,6 +1224,7 @@
           <div class="tree-label">D:\CUPEROS\GPU_STACK</div>
           <a class="tree-button" href="#what"><span class="px-icon px-doc"></span> What is it?</a>
           <a class="tree-button" href="#stats"><span class="px-icon px-graph"></span> Registry stats</a>
+          <a class="tree-button" href="#read-graph"><span class="px-icon px-graph"></span> Read graph</a>
           <a class="tree-button" href="#layers"><span class="px-icon px-atom"></span> Layer viewer</a>
           <a class="tree-button" href="#trace"><span class="px-icon px-graph"></span> Trace target</a>
           <a class="tree-button" href="#root-debt"><span class="px-icon px-folder"></span> Root debt</a>
@@ -1141,18 +1256,62 @@
             </aside>
           </section>
 
+          <section class="primer-panel" id="read-graph" aria-labelledby="primer-heading">
+            <div class="primer-copy">
+              <p class="eyebrow">read_graph.exe</p>
+              <h2 id="primer-heading">Read it like a receipt, not a magic answer.</h2>
+              <p id="primer-text">
+                Start with a human question, then follow the named dependencies upstream. Every hop should tell you whether you are looking at an equation, a scenario value, or an unresolved root input.
+              </p>
+              <ul class="note-list" id="primer-facts">
+                <li>The registry currently names 1517 variables and 959 equations.</li>
+                <li>Root debt means the 619 unresolved inputs stay visible instead of being smoothed over.</li>
+              </ul>
+            </div>
+            <div class="primer-visual">
+              <div class="primer-controls" role="tablist" aria-label="Graph reading steps">
+                <button class="tree-button" type="button" role="tab" aria-selected="true" data-primer="target">1. Target</button>
+                <button class="tree-button" type="button" role="tab" aria-selected="false" data-primer="upstream">2. Upstream</button>
+                <button class="tree-button" type="button" role="tab" aria-selected="false" data-primer="roots">3. Roots</button>
+                <button class="tree-button" type="button" role="tab" aria-selected="false" data-primer="fixture">4. Fixture</button>
+              </div>
+              <div class="primer-map" aria-label="Plain-language dependency receipt">
+                <div class="primer-node is-active is-lit" data-primer-node="target">
+                  <small>target</small>
+                  <b>cost.per_token</b>
+                  <span>The number a human asks about.</span>
+                </div>
+                <div class="primer-node" data-primer-node="upstream">
+                  <small>equations</small>
+                  <b>run cost, tokens, power</b>
+                  <span>The graph walks the ancestry.</span>
+                </div>
+                <div class="primer-node" data-primer-node="roots">
+                  <small>root debt</small>
+                  <b>619 named inputs</b>
+                  <span>Unknowns stay inspectable.</span>
+                </div>
+                <div class="primer-node" data-primer-node="fixture">
+                  <small>scenario</small>
+                  <b>explicit assignments</b>
+                  <span>Fixtures are anchors, not market claims.</span>
+                </div>
+              </div>
+              <div class="primer-status" aria-live="polite">
+                <span class="primer-beacon" aria-hidden="true"></span>
+                <div>
+                  <b id="primer-status-title">Target selected: start with the question.</b>
+                  <span id="primer-status-body">The page keeps the output attached to the labels underneath it.</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <section class="stat-grid" id="stats" aria-label="Current registry statistics">
             <div class="stat"><b>1517</b><span>registered variables</span></div>
             <div class="stat"><b>959</b><span>equations connecting them</span></div>
             <div class="stat"><b>619</b><span>root inputs, named instead of hidden</span></div>
             <div class="stat"><b>799</b><span>equations with unit checks</span></div>
-          </section>
-
-          <section class="workflow-ribbon" aria-label="How to read gpu_stack">
-            <div class="workflow-step"><b>1. Pick a target</b><span>Start with a human question like cost per token or tokens per second.</span></div>
-            <div class="workflow-step"><b>2. Walk upstream</b><span>The graph follows equations, constraints, and assumptions instead of flattening them.</span></div>
-            <div class="workflow-step"><b>3. Name the roots</b><span>Unresolved inputs stay visible so the debt can be paid down deliberately.</span></div>
-            <div class="workflow-step"><b>4. Run a fixture</b><span>Scenarios assign values explicitly. Synthetic fixtures are anchors, not vendor truth.</span></div>
           </section>
 
           <section class="section-window" aria-labelledby="model-heading">
@@ -1338,6 +1497,49 @@ python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --
   </footer>
 
   <script>
+    const primerSteps = {
+      target: {
+        text: "Start with a human question, then follow the named dependencies upstream. Every hop should tell you whether you are looking at an equation, a scenario value, or an unresolved root input.",
+        facts: [
+          "The registry currently names 1517 variables and 959 equations.",
+          "The target is easier to trust when its ancestry is still attached."
+        ],
+        statusTitle: "Target selected: start with the question.",
+        statusBody: "The page keeps the output attached to the labels underneath it.",
+        active: ["target"]
+      },
+      upstream: {
+        text: "Walking upstream means refusing to let a final number float by itself. The graph keeps run cost, token count, power, throughput, units, and constraints in the same visible chain.",
+        facts: [
+          "799 equations are currently covered by unit checks.",
+          "The gold highlight marks the part of the receipt you are inspecting."
+        ],
+        statusTitle: "Upstream selected: equations carry the number.",
+        statusBody: "This is where a plain claim becomes a dependency cone.",
+        active: ["target", "upstream"]
+      },
+      roots: {
+        text: "Root inputs are not failure badges. They are the places where the model has reached a boundary: a scenario value, a source that needs better support, or physics that has not been decomposed yet.",
+        facts: [
+          "619 root inputs are still visible in the current summary.",
+          "Root debt ranks which unknowns have the largest downstream blast radius."
+        ],
+        statusTitle: "Roots selected: unpaid assumptions stay named.",
+        statusBody: "The point is to find the debt, not hide it under a cleaner-looking answer.",
+        active: ["target", "upstream", "roots"]
+      },
+      fixture: {
+        text: "A fixture is a reproducible set of explicit assignments. It can make a target resolve for testing and explanation, but it is not a claim that the outside world has that exact value.",
+        facts: [
+          "Synthetic fixtures are anchors for the resolver, not vendor truth.",
+          "The trace panel below shows how representative fixture values are labeled."
+        ],
+        statusTitle: "Fixture selected: resolved does not mean calibrated.",
+        statusBody: "Explicit assignments make the path testable without pretending the assumptions vanished.",
+        active: ["target", "upstream", "roots", "fixture"]
+      }
+    };
+
     const layers = {
       datacenter: {
         text: "The visible machine is a building, but the model treats it as a constraint bundle: grid interconnect, substations, cooling loops, water, occupancy, capex, operations, and uptime.",
@@ -1449,6 +1651,12 @@ python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --
       }
     };
 
+    const primerTabs = document.querySelectorAll("[data-primer]");
+    const primerNodes = document.querySelectorAll("[data-primer-node]");
+    const primerText = document.getElementById("primer-text");
+    const primerFacts = document.getElementById("primer-facts");
+    const primerStatusTitle = document.getElementById("primer-status-title");
+    const primerStatusBody = document.getElementById("primer-status-body");
     const tabs = document.querySelectorAll("[data-layer]");
     const targetTabs = document.querySelectorAll("[data-target]");
     const layerText = document.getElementById("layer-text");
@@ -1462,6 +1670,26 @@ python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --
     const traceMeterFoot = document.getElementById("trace-meter-foot");
     const traceMeter = document.getElementById("trace-meter");
     const clock = document.getElementById("clock");
+
+    function renderPrimer(key) {
+      const step = primerSteps[key];
+      primerText.textContent = step.text;
+      primerFacts.replaceChildren(...step.facts.map((fact) => {
+        const item = document.createElement("li");
+        item.textContent = fact;
+        return item;
+      }));
+      primerStatusTitle.textContent = step.statusTitle;
+      primerStatusBody.textContent = step.statusBody;
+      primerNodes.forEach((node) => {
+        const active = step.active.includes(node.dataset.primerNode);
+        node.classList.toggle("is-lit", active);
+        node.classList.toggle("is-active", node.dataset.primerNode === key);
+      });
+      primerTabs.forEach((tab) => {
+        tab.setAttribute("aria-selected", String(tab.dataset.primer === key));
+      });
+    }
 
     function renderLayer(key) {
       const layer = layers[key];
@@ -1522,6 +1750,10 @@ python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --
       clock.textContent = `${h}:${m} ${now.getHours() >= 12 ? "PM" : "AM"}`;
     }
 
+    primerTabs.forEach((tab) => {
+      tab.addEventListener("click", () => renderPrimer(tab.dataset.primer));
+    });
+
     tabs.forEach((tab) => {
       tab.addEventListener("click", () => renderLayer(tab.dataset.layer));
     });
@@ -1530,6 +1762,7 @@ python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --
       tab.addEventListener("click", () => renderTrace(tab.dataset.target));
     });
 
+    renderPrimer("target");
     renderLayer("datacenter");
     renderTrace("cost");
     updateClock();
