@@ -12,37 +12,15 @@ domain-specific root assignments by hand.
 
 from __future__ import annotations
 
-from types import MappingProxyType
-from typing import Mapping
-
 from ..core.presets import Preset, combine
 from . import economics, hardware, lithography, materials, workload
-
-
-COST_PER_TOKEN_TARGET = "econ.cost.per_token"
-
-_ScenarioTargetSet = tuple[tuple[str, str], ...]
-
-DENSE_TRAINING_COST_TARGETS: Mapping[str, str] = MappingProxyType(
-    {
-        "step_time": "training.t_step",
-        "tokens_per_second": "training.tokens_per_sec",
-        "wallclock": "training.wallclock",
-        "job_dc_power": "econ.job.dc_power",
-        "run_power_cost": "econ.run.power_cost",
-        "run_cost": "econ.run.total_cost",
-        "cost_per_token": COST_PER_TOKEN_TARGET,
-    }
-)
-
-EUV_TIN120_SOURCE_TARGETS: Mapping[str, str] = MappingProxyType(
-    {
-        "source_proton_count": "physical.lithography.source_proton_count",
-        "source_neutron_count": "physical.lithography.source_neutron_count",
-        "pulse_repetition_rate": (
-            "physical.lithography.source_plasma_pulse_repetition_rate"
-        ),
-    }
+from .scenario_targets import (
+    COST_PER_TOKEN_TARGET,
+    DENSE_TRAINING_COST_TARGETS,
+    EUV_TIN120_SOURCE_TARGETS,
+    ScenarioTargetSet,
+    build_scenario_target_sets,
+    targets_for,
 )
 
 
@@ -275,41 +253,19 @@ SOURCED_SCENARIO_PACKS = (
     euv_tin120_lpp_source_context_assumption,
 )
 
-SCENARIO_TARGET_SETS: Mapping[str, _ScenarioTargetSet] = MappingProxyType(
-    {
-        dense_training_cost_fixture.name: tuple(DENSE_TRAINING_COST_TARGETS.items()),
-        pythia_70m_dgx_h100_us_2024_industrial_power.name: (
-            ("tokens_per_second", DENSE_TRAINING_COST_TARGETS["tokens_per_second"]),
-            ("job_dc_power", DENSE_TRAINING_COST_TARGETS["job_dc_power"]),
-            ("run_power_cost", DENSE_TRAINING_COST_TARGETS["run_power_cost"]),
-            ("cost_per_token", COST_PER_TOKEN_TARGET),
-        ),
-        pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost.name: (
-            ("tokens_per_second", DENSE_TRAINING_COST_TARGETS["tokens_per_second"]),
-            ("job_dc_power", DENSE_TRAINING_COST_TARGETS["job_dc_power"]),
-            ("run_power_cost", DENSE_TRAINING_COST_TARGETS["run_power_cost"]),
-            ("cost_per_token", COST_PER_TOKEN_TARGET),
-        ),
-        euv_tin120_lpp_source_context_assumption.name: tuple(
-            EUV_TIN120_SOURCE_TARGETS.items()
-        ),
-    }
+SCENARIO_TARGET_SETS = build_scenario_target_sets(
+    dense_training_cost_fixture=dense_training_cost_fixture,
+    pythia_industrial_power=pythia_70m_dgx_h100_us_2024_industrial_power,
+    pythia_energy_floor_cost=(
+        pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost
+    ),
+    euv_tin120_source_context=euv_tin120_lpp_source_context_assumption,
 )
 
 
-def scenario_targets_for(preset_or_name: Preset | str) -> _ScenarioTargetSet:
+def scenario_targets_for(preset_or_name: Preset | str) -> ScenarioTargetSet:
     """Return advertised labeled resolver targets for a scenario preset."""
-    name = (
-        preset_or_name.name
-        if isinstance(preset_or_name, Preset)
-        else preset_or_name
-    )
-    try:
-        return SCENARIO_TARGET_SETS[name]
-    except KeyError:
-        raise KeyError(
-            f"no advertised scenario targets registered for {name!r}"
-        ) from None
+    return targets_for(SCENARIO_TARGET_SETS, preset_or_name)
 
 
 __all__ = [
