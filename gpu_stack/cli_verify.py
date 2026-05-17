@@ -91,6 +91,11 @@ def _verify_gates(profile: str, read_only: bool = False) -> List[VerifyGate]:
                     "tests/test_relation_roles.py",
                     "tests/test_symbolic_integrity.py",
                     "tests/test_resolver.py",
+                    "tests/test_resolver_approximations.py",
+                    "tests/test_resolver_constraints.py",
+                    "tests/test_resolver_dependencies.py",
+                    "tests/test_resolver_iterative.py",
+                    "tests/test_resolver_relations.py",
                     "tests/test_cli.py",
                     (
                         "tests/test_process_geometry.py::"
