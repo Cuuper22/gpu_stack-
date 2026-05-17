@@ -28,7 +28,15 @@ def test_verify_fast_prints_compact_gate_summary(monkeypatch):
     core_command = calls[1][2]
     assert "tests/test_relation_roles.py" in core_command
     assert "tests/test_symbolic_integrity.py" in core_command
-    assert "tests/test_resolver.py" in core_command
+    for resolver_test_file in (
+        "tests/test_resolver.py",
+        "tests/test_resolver_approximations.py",
+        "tests/test_resolver_constraints.py",
+        "tests/test_resolver_dependencies.py",
+        "tests/test_resolver_iterative.py",
+        "tests/test_resolver_relations.py",
+    ):
+        assert resolver_test_file in core_command
     for cli_test_file in (
         "tests/test_cli.py",
         "tests/test_cli_audit.py",
