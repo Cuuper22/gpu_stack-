@@ -60,6 +60,9 @@ def _purge_scope_submodules() -> None:
     prefix = f"{__name__}.scopes."
     for module_name in list(sys.modules):
         if module_name.startswith(prefix):
+            attr_name = module_name[len(prefix):].split(".", 1)[0]
+            if hasattr(scopes, attr_name):
+                delattr(scopes, attr_name)
             del sys.modules[module_name]
 
 

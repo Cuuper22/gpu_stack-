@@ -1,0 +1,515 @@
+"""Physical scope export propagation import tests."""
+
+
+def test_absorption_edge_exports_propagate_through_physical_surface():
+    from gpu_stack.scopes import physical as physical_scope
+    from gpu_stack.scopes import physical_lithography as lithography
+    from gpu_stack.scopes import physical_lithography_absorption_edge as edge
+    from gpu_stack.scopes import physical_lithography_electronic_structure as es
+    from gpu_stack.scopes import physical_lithography_source as source
+
+    export_name = "LITHOGRAPHY_SOURCE_ABSORPTION_EDGE_REF"
+    expected_ref = edge.LITHOGRAPHY_SOURCE_ABSORPTION_EDGE_REF
+
+    for module in (edge, es, source, lithography, physical_scope):
+        assert export_name in module.__all__
+        assert getattr(module, export_name) is expected_ref
+
+
+def test_medium_response_exports_propagate_through_physical_surface():
+    from gpu_stack.scopes import physical as physical_scope
+    from gpu_stack.scopes import physical_lithography as lithography
+    from gpu_stack.scopes import physical_lithography_medium_response as response
+
+    for name in response.__all__:
+        assert name in lithography.__all__
+        assert getattr(lithography, name) is getattr(response, name)
+        assert name in physical_scope.__all__
+        assert getattr(physical_scope, name) is getattr(response, name)
+
+    assert set(response.LITHOGRAPHY_MEDIUM_RESPONSE_VARIABLES) <= set(
+        lithography.LITHOGRAPHY_VARIABLES
+    )
+    assert set(response.LITHOGRAPHY_MEDIUM_RESPONSE_EQUATIONS) <= set(
+        lithography.LITHOGRAPHY_EQUATIONS
+    )
+
+
+def test_medium_density_exports_and_composition_compat_surface():
+    from gpu_stack.scopes import physical as physical_scope
+    from gpu_stack.scopes import physical_lithography as lithography
+    from gpu_stack.scopes import physical_lithography_medium_composition as composition
+    from gpu_stack.scopes import physical_lithography_medium_density as density
+
+    for name in density.__all__:
+        assert name in lithography.__all__
+        assert getattr(lithography, name) is getattr(density, name)
+        assert name in physical_scope.__all__
+        assert getattr(physical_scope, name) is getattr(density, name)
+
+    for name in density.__all__:
+        assert name in composition.__all__
+        assert getattr(composition, name) is getattr(density, name)
+
+    assert set(density.LITHOGRAPHY_MEDIUM_DENSITY_VARIABLES) <= set(
+        lithography.LITHOGRAPHY_VARIABLES
+    )
+    assert set(density.LITHOGRAPHY_MEDIUM_DENSITY_EQUATIONS) <= set(
+        lithography.LITHOGRAPHY_EQUATIONS
+    )
+
+
+def test_lithography_k1_exports_propagate_through_physical_surface():
+    from gpu_stack.scopes import physical as physical_scope
+    from gpu_stack.scopes import physical_lithography as lithography
+    from gpu_stack.scopes import physical_lithography_k1 as k1
+
+    for name in k1.__all__:
+        assert name in lithography.__all__
+        assert getattr(lithography, name) is getattr(k1, name)
+        assert name in physical_scope.__all__
+        assert getattr(physical_scope, name) is getattr(k1, name)
+
+    assert set(k1.LITHOGRAPHY_K1_VARIABLES) <= set(lithography.LITHOGRAPHY_VARIABLES)
+    assert set(k1.LITHOGRAPHY_K1_EQUATIONS) <= set(lithography.LITHOGRAPHY_EQUATIONS)
+
+
+def test_plasma_state_shim_preserves_public_surface():
+    from gpu_stack.scopes import physical_lithography_electronic_structure as es
+    from gpu_stack.scopes import physical_lithography_plasma_species as species
+    from gpu_stack.scopes import physical_lithography_plasma_state as ps
+
+    expected_var_attrs = [
+        "lithography_source_plasma_pulse_period",
+        "lithography_source_plasma_pulse_repetition_rate",
+        "lithography_source_plasma_drive_pulse_duty_factor",
+        "lithography_source_plasma_drive_pulse_fluence",
+        "lithography_source_plasma_drive_peak_intensity",
+        "lithography_source_plasma_drive_pulse_duration",
+        "lithography_source_plasma_drive_pulse_rise_fraction",
+        "lithography_source_plasma_drive_pulse_fall_fraction",
+        "lithography_source_plasma_drive_pulse_flat_fraction",
+        "lithography_source_plasma_drive_pulse_temporal_shape_factor",
+        "lithography_source_plasma_drive_beam_wavelength",
+        "lithography_source_plasma_drive_edge_detuning_ratio",
+        "lithography_source_plasma_drive_objective_pupil_radius",
+        "lithography_source_plasma_drive_objective_focal_length",
+        "lithography_source_plasma_drive_pupil_beam_fill_factor",
+        "lithography_source_plasma_drive_acceptance_half_angle",
+        "lithography_source_plasma_drive_numerical_aperture",
+        "lithography_source_plasma_drive_focus_f_number",
+        "lithography_source_plasma_drive_beam_parameter_waist_radius",
+        "lithography_source_plasma_drive_far_field_divergence_half_angle",
+        "lithography_source_plasma_drive_beam_parameter_product",
+        "lithography_source_plasma_drive_beam_quality_factor",
+        "lithography_source_plasma_drive_focus_waist_coefficient",
+        "lithography_source_plasma_drive_spot_radius",
+        "lithography_source_plasma_drive_rayleigh_range",
+        "lithography_source_plasma_drive_confocal_length",
+        "lithography_source_plasma_drive_spot_axis_ratio",
+        "lithography_source_plasma_drive_spot_area_fill_factor",
+        "lithography_source_plasma_drive_spot_shape_factor",
+        "lithography_source_plasma_drive_spot_area",
+        "lithography_source_plasma_pulse_energy",
+        "lithography_source_plasma_drive_power",
+        "lithography_source_plasma_species_partial_pressure",
+        "lithography_source_plasma_species_gas_temperature",
+        "lithography_source_plasma_species_number_density",
+        "lithography_source_plasma_column_expansion_speed_factor",
+        "lithography_source_plasma_column_radial_expansion_speed",
+        "lithography_source_plasma_column_radius_expansion_factor",
+        "lithography_source_plasma_column_radius",
+        "lithography_source_plasma_column_aspect_ratio",
+        "lithography_source_plasma_column_length",
+        "lithography_source_plasma_active_fill_factor",
+        "lithography_source_plasma_active_volume",
+        "lithography_source_plasma_absorption_path_direction_cosine",
+        "lithography_source_plasma_absorption_path_shape_factor",
+        "lithography_source_plasma_absorption_path_length",
+        "lithography_source_plasma_drive_beam_angular_frequency",
+        "lithography_source_plasma_absorption_resonance_to_drive_ratio",
+        "lithography_source_plasma_absorption_quality_factor",
+        "lithography_source_plasma_absorption_collision_cross_section",
+        "lithography_source_plasma_absorption_participating_electron_fraction",
+        "lithography_source_plasma_absorption_sum_rule_fraction",
+        "lithography_source_plasma_absorption_resonance_angular_frequency",
+        "lithography_source_plasma_absorption_damping_rate",
+        "lithography_source_plasma_absorption_oscillator_strength",
+        "lithography_source_plasma_absorption_cross_section",
+        "lithography_source_plasma_absorption_optical_depth",
+        "lithography_source_plasma_drive_energy_absorption_fraction",
+        "lithography_source_plasma_drive_centroid_offset_to_column_radius_ratio",
+        "lithography_source_plasma_drive_pointing_overlap_factor",
+        "lithography_source_plasma_drive_transverse_overlap_factor",
+        "lithography_source_plasma_drive_spatial_overlap_factor",
+        "lithography_source_plasma_active_lifetime_to_drive_pulse_ratio",
+        "lithography_source_plasma_active_response_duration",
+        "lithography_source_plasma_drive_timing_offset_fraction",
+        "lithography_source_plasma_drive_timing_offset_duration",
+        "lithography_source_plasma_drive_temporal_duration_match_factor",
+        "lithography_source_plasma_drive_temporal_alignment_factor",
+        "lithography_source_plasma_drive_temporal_overlap_factor",
+        "lithography_source_plasma_drive_overlap_factor",
+        "lithography_source_plasma_electron_heating_fraction",
+        "lithography_source_plasma_absorption_efficiency",
+        "lithography_source_plasma_absorbed_power",
+        "lithography_source_plasma_energy_loss_path_direction_cosine",
+        "lithography_source_plasma_energy_loss_path_factor",
+        "lithography_source_plasma_energy_loss_path_length",
+        "lithography_source_plasma_species_particle_mass",
+        "lithography_source_plasma_energy_loss_transport_speed_factor",
+        "lithography_source_plasma_species_thermal_speed",
+        "lithography_source_plasma_energy_loss_speed",
+        "lithography_source_plasma_energy_confinement_time",
+        "lithography_source_plasma_free_electron_inventory_charge_fraction",
+        "lithography_source_plasma_free_electron_yield_per_source_particle",
+        "lithography_source_plasma_free_electron_count",
+        "lithography_source_plasma_electron_internal_energy",
+        "lithography_source_plasma_electron_mean_kinetic_energy",
+        "lithography_source_plasma_debye_length",
+        "lithography_source_plasma_electron_temperature",
+        "lithography_source_plasma_electron_number_density",
+    ]
+    expected_eq_attrs = [
+        "eq_lithography_source_plasma_pulse_repetition_rate_from_period",
+        "eq_lithography_source_plasma_drive_pulse_duration_from_duty_cycle",
+        "ineq_lithography_source_plasma_drive_pulse_duty_factor_within_unit_interval",
+        "eq_lithography_source_plasma_drive_pulse_fall_fraction_from_symmetric_ramp",
+        "eq_lithography_source_plasma_drive_pulse_flat_fraction_from_ramps",
+        "eq_lithography_source_plasma_drive_pulse_temporal_shape_factor_from_trapezoid",
+        "ineq_lithography_source_plasma_drive_pulse_ramp_fractions_within_pulse",
+        "ineq_lithography_source_plasma_drive_pulse_duration_fractions_within_pulse",
+        "ineq_lithography_source_plasma_drive_pulse_temporal_shape_factor_within_unit_interval",
+        "eq_lithography_source_plasma_drive_peak_intensity_from_fluence",
+        "ineq_lithography_source_plasma_drive_peak_intensity_at_least_pulse_average_intensity",
+        "eq_lithography_source_plasma_drive_focus_waist_coefficient_from_gaussian_f_number",
+        "eq_lithography_source_plasma_drive_acceptance_half_angle_from_pupil_geometry",
+        "eq_lithography_source_plasma_drive_numerical_aperture_from_acceptance_angle",
+        "eq_lithography_source_plasma_drive_focus_f_number_from_acceptance_angle",
+        "ineq_lithography_source_plasma_drive_acceptance_half_angle_within_forward_half_space",
+        "ineq_lithography_source_plasma_drive_edge_detuning_ratio_below_ionization_edge",
+        "ineq_lithography_source_plasma_drive_far_field_divergence_half_angle_within_forward_half_space",
+        "ineq_lithography_source_plasma_drive_far_field_divergence_within_acceptance",
+        "ineq_lithography_source_plasma_drive_pupil_beam_fill_factor_within_unit_interval",
+        "eq_lithography_source_plasma_drive_beam_parameter_waist_radius_from_pupil_fill",
+        "eq_lithography_source_plasma_drive_beam_parameter_product_from_waist_divergence",
+        "ineq_lithography_source_plasma_drive_beam_parameter_product_diffraction_floor",
+        "eq_lithography_source_plasma_drive_beam_quality_factor_from_beam_parameter_product",
+        "ineq_lithography_source_plasma_drive_beam_quality_factor_diffraction_limit",
+        "eq_lithography_source_plasma_drive_spot_radius_from_focus",
+        "eq_lithography_source_plasma_drive_rayleigh_range_from_spot_geometry",
+        "eq_lithography_source_plasma_drive_confocal_length_from_rayleigh_range",
+        "eq_lithography_source_plasma_drive_spot_axis_ratio_from_circular_convention",
+        "eq_lithography_source_plasma_drive_spot_area_fill_factor_from_full_area_convention",
+        "eq_lithography_source_plasma_drive_spot_shape_factor_from_ellipse",
+        "eq_lithography_source_plasma_drive_spot_area_from_radius",
+        "eq_lithography_source_plasma_pulse_energy_from_intensity_area_duration",
+        "ineq_lithography_source_plasma_pulse_duration_within_period",
+        "eq_lithography_source_plasma_drive_power_from_pulses",
+        "ineq_lithography_source_plasma_species_partial_pressure_positive",
+        "ineq_lithography_source_plasma_species_gas_temperature_positive",
+        "eq_lithography_source_plasma_species_number_density_from_ideal_gas",
+        "ineq_lithography_source_plasma_species_number_density_positive",
+        "eq_lithography_source_plasma_column_expansion_speed_factor_from_monatomic_sound_speed",
+        "eq_lithography_source_plasma_column_radial_expansion_speed_from_species_thermal_speed",
+        "eq_lithography_source_plasma_column_radius_expansion_factor_from_radial_speed",
+        "eq_lithography_source_plasma_column_radius_from_drive_spot",
+        "eq_lithography_source_plasma_column_aspect_ratio_from_confocal_length",
+        "eq_lithography_source_plasma_column_length_from_aspect_ratio",
+        "eq_lithography_source_plasma_active_fill_factor_from_ideal_column_convention",
+        "eq_lithography_source_plasma_active_volume_from_column_geometry",
+        "eq_lithography_source_plasma_drive_beam_angular_frequency",
+        "eq_lithography_source_plasma_absorption_path_direction_cosine_from_acceptance_angle",
+        "eq_lithography_source_plasma_absorption_path_shape_factor_from_direction_cosine",
+        "eq_lithography_source_plasma_absorption_path_length_from_column",
+        "eq_lithography_source_plasma_absorption_resonance_from_drive_ratio",
+        "eq_lithography_source_plasma_absorption_damping_rate_from_species_collision",
+        "eq_lithography_source_plasma_absorption_quality_factor_from_collision_damping",
+        "eq_lithography_source_plasma_absorption_oscillator_strength_from_source_charge",
+        "eq_lithography_source_plasma_absorption_cross_section_from_lorentz_oscillator",
+        "eq_lithography_source_plasma_absorption_optical_depth",
+        "eq_lithography_source_plasma_drive_energy_absorption_fraction_from_optical_depth",
+        "eq_lithography_source_plasma_drive_centroid_offset_to_column_radius_ratio_from_coaxial_convention",
+        "eq_lithography_source_plasma_drive_pointing_overlap_factor_from_offset",
+        "eq_lithography_source_plasma_drive_transverse_overlap_factor_from_area_ratio",
+        "ineq_lithography_source_plasma_drive_spot_area_within_column_cross_section",
+        "eq_lithography_source_plasma_drive_spatial_overlap_factor_from_geometry",
+        "eq_lithography_source_plasma_active_response_duration_from_drive_ratio",
+        "eq_lithography_source_plasma_drive_timing_offset_fraction_from_synchronized_convention",
+        "eq_lithography_source_plasma_drive_timing_offset_duration_from_fraction",
+        "eq_lithography_source_plasma_drive_temporal_duration_match_factor",
+        "eq_lithography_source_plasma_drive_temporal_alignment_factor_from_timing_offset",
+        "eq_lithography_source_plasma_drive_temporal_overlap_factor_from_duration_and_alignment",
+        "eq_lithography_source_plasma_drive_overlap_factor_from_spatial_temporal",
+        "ineq_lithography_source_plasma_electron_heating_fraction_within_unit_interval",
+        "eq_lithography_source_plasma_absorption_efficiency_from_overlap_optical_depth_heating",
+        "eq_lithography_source_plasma_energy_loss_path_direction_cosine_from_acceptance_angle",
+        "eq_lithography_source_plasma_energy_loss_path_factor_from_direction_cosine",
+        "eq_lithography_source_plasma_energy_loss_path_length_from_radius",
+        "eq_lithography_source_plasma_species_particle_mass_from_nuclear_counts",
+        "eq_lithography_source_plasma_species_thermal_speed_from_gas_temperature",
+        "ineq_lithography_source_plasma_species_thermal_speed_positive",
+        "ineq_lithography_source_plasma_species_thermal_speed_subluminal",
+        "eq_lithography_source_plasma_energy_loss_transport_speed_factor_from_mass_ratio",
+        "eq_lithography_source_plasma_energy_loss_speed_from_species_thermal_speed",
+        "eq_lithography_source_plasma_energy_confinement_time_from_loss_path",
+        "eq_lithography_source_plasma_active_lifetime_to_drive_pulse_ratio_from_energy_confinement_time",
+        "ineq_lithography_source_plasma_free_electron_inventory_charge_fraction_within_unit_interval",
+        "eq_lithography_source_plasma_free_electron_yield_per_source_particle_from_inventory_charge_fraction",
+        "eq_lithography_source_plasma_free_electron_count_from_species_inventory",
+        "eq_lithography_source_plasma_absorbed_power_from_drive",
+        "eq_lithography_source_plasma_electron_internal_energy_from_confinement",
+        "eq_lithography_source_plasma_electron_temperature_from_internal_energy",
+        "eq_lithography_source_plasma_electron_number_density_from_count_volume",
+        "eq_lithography_source_plasma_electron_mean_kinetic_energy_from_temperature",
+        "eq_lithography_source_plasma_debye_length_from_temperature_density",
+    ]
+    expected_var_names = [
+        "physical.lithography.source_plasma_pulse_period",
+        "physical.lithography.source_plasma_pulse_repetition_rate",
+        "physical.lithography.source_plasma_drive_pulse_duty_factor",
+        "physical.lithography.source_plasma_drive_pulse_fluence",
+        "physical.lithography.source_plasma_drive_peak_intensity",
+        "physical.lithography.source_plasma_drive_pulse_duration",
+        "physical.lithography.source_plasma_drive_pulse_rise_fraction",
+        "physical.lithography.source_plasma_drive_pulse_fall_fraction",
+        "physical.lithography.source_plasma_drive_pulse_flat_fraction",
+        "physical.lithography.source_plasma_drive_pulse_temporal_shape_factor",
+        "physical.lithography.source_plasma_drive_beam_wavelength",
+        "physical.lithography.source_plasma_drive_edge_detuning_ratio",
+        "physical.lithography.source_plasma_drive_objective_pupil_radius",
+        "physical.lithography.source_plasma_drive_objective_focal_length",
+        "physical.lithography.source_plasma_drive_pupil_beam_fill_factor",
+        "physical.lithography.source_plasma_drive_acceptance_half_angle",
+        "physical.lithography.source_plasma_drive_numerical_aperture",
+        "physical.lithography.source_plasma_drive_focus_f_number",
+        "physical.lithography.source_plasma_drive_beam_parameter_waist_radius",
+        "physical.lithography.source_plasma_drive_far_field_divergence_half_angle",
+        "physical.lithography.source_plasma_drive_beam_parameter_product",
+        "physical.lithography.source_plasma_drive_beam_quality_factor",
+        "physical.lithography.source_plasma_drive_focus_waist_coefficient",
+        "physical.lithography.source_plasma_drive_spot_radius",
+        "physical.lithography.source_plasma_drive_rayleigh_range",
+        "physical.lithography.source_plasma_drive_confocal_length",
+        "physical.lithography.source_plasma_drive_spot_axis_ratio",
+        "physical.lithography.source_plasma_drive_spot_area_fill_factor",
+        "physical.lithography.source_plasma_drive_spot_shape_factor",
+        "physical.lithography.source_plasma_drive_spot_area",
+        "physical.lithography.source_plasma_pulse_energy",
+        "physical.lithography.source_plasma_drive_power",
+        "physical.lithography.source_plasma_species_partial_pressure",
+        "physical.lithography.source_plasma_species_gas_temperature",
+        "physical.lithography.source_plasma_species_number_density",
+        "physical.lithography.source_plasma_column_expansion_speed_factor",
+        "physical.lithography.source_plasma_column_radial_expansion_speed",
+        "physical.lithography.source_plasma_column_radius_expansion_factor",
+        "physical.lithography.source_plasma_column_radius",
+        "physical.lithography.source_plasma_column_aspect_ratio",
+        "physical.lithography.source_plasma_column_length",
+        "physical.lithography.source_plasma_active_fill_factor",
+        "physical.lithography.source_plasma_active_volume",
+        "physical.lithography.source_plasma_absorption_path_direction_cosine",
+        "physical.lithography.source_plasma_absorption_path_shape_factor",
+        "physical.lithography.source_plasma_absorption_path_length",
+        "physical.lithography.source_plasma_drive_beam_angular_frequency",
+        "physical.lithography.source_plasma_absorption_resonance_to_drive_ratio",
+        "physical.lithography.source_plasma_absorption_quality_factor",
+        "physical.lithography.source_plasma_absorption_collision_cross_section",
+        "physical.lithography.source_plasma_absorption_participating_electron_fraction",
+        "physical.lithography.source_plasma_absorption_sum_rule_fraction",
+        "physical.lithography.source_plasma_absorption_resonance_angular_frequency",
+        "physical.lithography.source_plasma_absorption_damping_rate",
+        "physical.lithography.source_plasma_absorption_oscillator_strength",
+        "physical.lithography.source_plasma_absorption_cross_section",
+        "physical.lithography.source_plasma_absorption_optical_depth",
+        "physical.lithography.source_plasma_drive_energy_absorption_fraction",
+        "physical.lithography.source_plasma_drive_centroid_offset_to_column_radius_ratio",
+        "physical.lithography.source_plasma_drive_pointing_overlap_factor",
+        "physical.lithography.source_plasma_drive_transverse_overlap_factor",
+        "physical.lithography.source_plasma_drive_spatial_overlap_factor",
+        "physical.lithography.source_plasma_active_lifetime_to_drive_pulse_ratio",
+        "physical.lithography.source_plasma_active_response_duration",
+        "physical.lithography.source_plasma_drive_timing_offset_fraction",
+        "physical.lithography.source_plasma_drive_timing_offset_duration",
+        "physical.lithography.source_plasma_drive_temporal_duration_match_factor",
+        "physical.lithography.source_plasma_drive_temporal_alignment_factor",
+        "physical.lithography.source_plasma_drive_temporal_overlap_factor",
+        "physical.lithography.source_plasma_drive_overlap_factor",
+        "physical.lithography.source_plasma_electron_heating_fraction",
+        "physical.lithography.source_plasma_absorption_efficiency",
+        "physical.lithography.source_plasma_absorbed_power",
+        "physical.lithography.source_plasma_energy_loss_path_direction_cosine",
+        "physical.lithography.source_plasma_energy_loss_path_factor",
+        "physical.lithography.source_plasma_energy_loss_path_length",
+        "physical.lithography.source_plasma_species_particle_mass",
+        "physical.lithography.source_plasma_energy_loss_transport_speed_factor",
+        "physical.lithography.source_plasma_species_thermal_speed",
+        "physical.lithography.source_plasma_energy_loss_speed",
+        "physical.lithography.source_plasma_energy_confinement_time",
+        "physical.lithography.source_plasma_free_electron_inventory_charge_fraction",
+        "physical.lithography.source_plasma_free_electron_yield_per_source_particle",
+        "physical.lithography.source_plasma_free_electron_count",
+        "physical.lithography.source_plasma_electron_internal_energy",
+        "physical.lithography.source_plasma_electron_mean_kinetic_energy",
+        "physical.lithography.source_plasma_debye_length",
+        "physical.lithography.source_plasma_electron_temperature",
+        "physical.lithography.source_plasma_electron_number_density",
+    ]
+    expected_eq_names = [
+        "physical.eq.lithography_source_plasma_pulse_repetition_rate_from_period",
+        "physical.eq.lithography_source_plasma_drive_pulse_duration_from_duty_cycle",
+        "physical.ineq.lithography_source_plasma_drive_pulse_duty_factor_within_unit_interval",
+        "physical.eq.lithography_source_plasma_drive_pulse_fall_fraction_from_symmetric_ramp",
+        "physical.eq.lithography_source_plasma_drive_pulse_flat_fraction_from_ramps",
+        "physical.eq.lithography_source_plasma_drive_pulse_temporal_shape_factor_from_trapezoid",
+        "physical.ineq.lithography_source_plasma_drive_pulse_ramp_fractions_within_pulse",
+        "physical.ineq.lithography_source_plasma_drive_pulse_duration_fractions_within_pulse",
+        "physical.ineq.lithography_source_plasma_drive_pulse_temporal_shape_factor_within_unit_interval",
+        "physical.eq.lithography_source_plasma_drive_peak_intensity_from_fluence",
+        "physical.ineq.lithography_source_plasma_drive_peak_intensity_at_least_pulse_average_intensity",
+        "physical.eq.lithography_source_plasma_drive_focus_waist_coefficient_from_gaussian_f_number",
+        "physical.eq.lithography_source_plasma_drive_acceptance_half_angle_from_pupil_geometry",
+        "physical.eq.lithography_source_plasma_drive_numerical_aperture_from_acceptance_angle",
+        "physical.eq.lithography_source_plasma_drive_focus_f_number_from_acceptance_angle",
+        "physical.ineq.lithography_source_plasma_drive_acceptance_half_angle_within_forward_half_space",
+        "physical.ineq.lithography_source_plasma_drive_edge_detuning_ratio_below_ionization_edge",
+        "physical.ineq.lithography_source_plasma_drive_far_field_divergence_half_angle_within_forward_half_space",
+        "physical.ineq.lithography_source_plasma_drive_far_field_divergence_within_acceptance",
+        "physical.ineq.lithography_source_plasma_drive_pupil_beam_fill_factor_within_unit_interval",
+        "physical.eq.lithography_source_plasma_drive_beam_parameter_waist_radius_from_pupil_fill",
+        "physical.eq.lithography_source_plasma_drive_beam_parameter_product_from_waist_divergence",
+        "physical.ineq.lithography_source_plasma_drive_beam_parameter_product_diffraction_floor",
+        "physical.eq.lithography_source_plasma_drive_beam_quality_factor_from_beam_parameter_product",
+        "physical.ineq.lithography_source_plasma_drive_beam_quality_factor_diffraction_limit",
+        "physical.eq.lithography_source_plasma_drive_spot_radius_from_focus",
+        "physical.eq.lithography_source_plasma_drive_rayleigh_range_from_spot_geometry",
+        "physical.eq.lithography_source_plasma_drive_confocal_length_from_rayleigh_range",
+        "physical.eq.lithography_source_plasma_drive_spot_axis_ratio_from_circular_convention",
+        "physical.eq.lithography_source_plasma_drive_spot_area_fill_factor_from_full_area_convention",
+        "physical.eq.lithography_source_plasma_drive_spot_shape_factor_from_ellipse",
+        "physical.eq.lithography_source_plasma_drive_spot_area_from_radius",
+        "physical.eq.lithography_source_plasma_pulse_energy_from_intensity_area_duration",
+        "physical.ineq.lithography_source_plasma_pulse_duration_within_period",
+        "physical.eq.lithography_source_plasma_drive_power_from_pulses",
+        "physical.ineq.lithography_source_plasma_species_partial_pressure_positive",
+        "physical.ineq.lithography_source_plasma_species_gas_temperature_positive",
+        "physical.eq.lithography_source_plasma_species_number_density_from_ideal_gas",
+        "physical.ineq.lithography_source_plasma_species_number_density_positive",
+        "physical.eq.lithography_source_plasma_species_particle_mass_from_nuclear_counts",
+        "physical.eq.lithography_source_plasma_species_thermal_speed_from_gas_temperature",
+        "physical.ineq.lithography_source_plasma_species_thermal_speed_positive",
+        "physical.ineq.lithography_source_plasma_species_thermal_speed_subluminal",
+        "physical.eq.lithography_source_plasma_column_expansion_speed_factor_from_monatomic_sound_speed",
+        "physical.eq.lithography_source_plasma_column_radial_expansion_speed_from_species_thermal_speed",
+        "physical.eq.lithography_source_plasma_column_radius_expansion_factor_from_radial_speed",
+        "physical.eq.lithography_source_plasma_column_radius_from_drive_spot",
+        "physical.eq.lithography_source_plasma_column_aspect_ratio_from_confocal_length",
+        "physical.eq.lithography_source_plasma_column_length_from_aspect_ratio",
+        "physical.eq.lithography_source_plasma_active_fill_factor_from_ideal_column_convention",
+        "physical.eq.lithography_source_plasma_active_volume_from_column_geometry",
+        "physical.eq.lithography_source_plasma_drive_beam_angular_frequency",
+        "physical.eq.lithography_source_plasma_absorption_path_direction_cosine_from_acceptance_angle",
+        "physical.eq.lithography_source_plasma_absorption_path_shape_factor_from_direction_cosine",
+        "physical.eq.lithography_source_plasma_absorption_path_length_from_column",
+        "physical.eq.lithography_source_plasma_absorption_resonance_from_drive_ratio",
+        "physical.eq.lithography_source_plasma_absorption_damping_rate_from_species_collision",
+        "physical.eq.lithography_source_plasma_absorption_quality_factor_from_collision_damping",
+        "physical.eq.lithography_source_plasma_absorption_oscillator_strength_from_source_charge",
+        "physical.eq.lithography_source_plasma_absorption_cross_section_from_lorentz_oscillator",
+        "physical.eq.lithography_source_plasma_absorption_optical_depth",
+        "physical.eq.lithography_source_plasma_drive_energy_absorption_fraction_from_optical_depth",
+        "physical.eq.lithography_source_plasma_drive_centroid_offset_to_column_radius_ratio_from_coaxial_convention",
+        "physical.eq.lithography_source_plasma_drive_pointing_overlap_factor_from_offset",
+        "physical.eq.lithography_source_plasma_drive_transverse_overlap_factor_from_area_ratio",
+        "physical.ineq.lithography_source_plasma_drive_spot_area_within_column_cross_section",
+        "physical.eq.lithography_source_plasma_drive_spatial_overlap_factor_from_geometry",
+        "physical.eq.lithography_source_plasma_energy_loss_path_direction_cosine_from_acceptance_angle",
+        "physical.eq.lithography_source_plasma_energy_loss_path_factor_from_direction_cosine",
+        "physical.eq.lithography_source_plasma_energy_loss_path_length_from_radius",
+        "physical.eq.lithography_source_plasma_energy_loss_transport_speed_factor_from_mass_ratio",
+        "physical.eq.lithography_source_plasma_energy_loss_speed_from_species_thermal_speed",
+        "physical.eq.lithography_source_plasma_energy_confinement_time_from_loss_path",
+        "physical.eq.lithography_source_plasma_active_lifetime_to_drive_pulse_ratio_from_energy_confinement_time",
+        "physical.eq.lithography_source_plasma_active_response_duration_from_drive_ratio",
+        "physical.eq.lithography_source_plasma_drive_timing_offset_fraction_from_synchronized_convention",
+        "physical.eq.lithography_source_plasma_drive_timing_offset_duration_from_fraction",
+        "physical.eq.lithography_source_plasma_drive_temporal_duration_match_factor",
+        "physical.eq.lithography_source_plasma_drive_temporal_alignment_factor_from_timing_offset",
+        "physical.eq.lithography_source_plasma_drive_temporal_overlap_factor_from_duration_and_alignment",
+        "physical.eq.lithography_source_plasma_drive_overlap_factor_from_spatial_temporal",
+        "physical.ineq.lithography_source_plasma_electron_heating_fraction_within_unit_interval",
+        "physical.eq.lithography_source_plasma_absorption_efficiency_from_overlap_optical_depth_heating",
+        "physical.ineq.lithography_source_plasma_free_electron_inventory_charge_fraction_within_unit_interval",
+        "physical.eq.lithography_source_plasma_free_electron_yield_per_source_particle_from_inventory_charge_fraction",
+        "physical.eq.lithography_source_plasma_free_electron_count_from_species_inventory",
+        "physical.eq.lithography_source_plasma_absorbed_power_from_drive",
+        "physical.eq.lithography_source_plasma_electron_internal_energy_from_confinement",
+        "physical.eq.lithography_source_plasma_electron_temperature_from_internal_energy",
+        "physical.eq.lithography_source_plasma_electron_number_density_from_count_volume",
+        "physical.eq.lithography_source_plasma_electron_mean_kinetic_energy_from_temperature",
+        "physical.eq.lithography_source_plasma_debye_length_from_temperature_density",
+    ]
+
+    expected_all = [
+        "LITHOGRAPHY_SOURCE_PLASMA_STATE_REF",
+        *expected_var_attrs,
+        *expected_eq_attrs,
+        "LITHOGRAPHY_SOURCE_PLASMA_STATE_VARIABLES",
+        "LITHOGRAPHY_SOURCE_PLASMA_STATE_EQUATIONS",
+    ]
+    assert ps.__all__ == expected_all
+    assert all(hasattr(ps, name) for name in expected_all)
+    assert [v.name for v in ps.LITHOGRAPHY_SOURCE_PLASMA_STATE_VARIABLES] == expected_var_names
+    assert [e.name for e in ps.LITHOGRAPHY_SOURCE_PLASMA_STATE_EQUATIONS] == expected_eq_names
+    assert (
+        es.LITHOGRAPHY_SOURCE_ELECTRONIC_STRUCTURE_VARIABLES[
+            1:1 + len(ps.LITHOGRAPHY_SOURCE_PLASMA_STATE_VARIABLES)
+        ]
+        == ps.LITHOGRAPHY_SOURCE_PLASMA_STATE_VARIABLES
+    )
+    assert (
+        es.LITHOGRAPHY_SOURCE_ELECTRONIC_STRUCTURE_EQUATIONS[
+            :len(ps.LITHOGRAPHY_SOURCE_PLASMA_STATE_EQUATIONS)
+        ]
+        == ps.LITHOGRAPHY_SOURCE_PLASMA_STATE_EQUATIONS
+    )
+    assert es.__all__[2:2 + len(ps.__all__)] == ps.__all__
+    assert species.__all__ == [
+        "LITHOGRAPHY_SOURCE_PLASMA_STATE_REF",
+        "lithography_source_plasma_species_partial_pressure",
+        "lithography_source_plasma_species_gas_temperature",
+        "lithography_source_plasma_species_number_density",
+        "lithography_source_plasma_species_particle_mass",
+        "lithography_source_plasma_species_thermal_speed",
+        "ineq_lithography_source_plasma_species_partial_pressure_positive",
+        "ineq_lithography_source_plasma_species_gas_temperature_positive",
+        "ineq_lithography_source_plasma_species_number_density_positive",
+        "ineq_lithography_source_plasma_species_thermal_speed_positive",
+        "ineq_lithography_source_plasma_species_thermal_speed_subluminal",
+        "eq_lithography_source_plasma_species_number_density_from_ideal_gas",
+        "eq_lithography_source_plasma_species_particle_mass_from_nuclear_counts",
+        "eq_lithography_source_plasma_species_thermal_speed_from_gas_temperature",
+        "LITHOGRAPHY_SOURCE_PLASMA_SPECIES_INVENTORY_VARIABLES",
+        "LITHOGRAPHY_SOURCE_PLASMA_SPECIES_TRANSPORT_VARIABLES",
+        "LITHOGRAPHY_SOURCE_PLASMA_SPECIES_VARIABLES",
+        "LITHOGRAPHY_SOURCE_PLASMA_SPECIES_INVENTORY_EQUATIONS",
+        "LITHOGRAPHY_SOURCE_PLASMA_SPECIES_TRANSPORT_EQUATIONS",
+        "LITHOGRAPHY_SOURCE_PLASMA_SPECIES_EQUATIONS",
+    ]
+    assert [v.name for v in species.LITHOGRAPHY_SOURCE_PLASMA_SPECIES_VARIABLES] == [
+        "physical.lithography.source_plasma_species_partial_pressure",
+        "physical.lithography.source_plasma_species_gas_temperature",
+        "physical.lithography.source_plasma_species_number_density",
+        "physical.lithography.source_plasma_species_particle_mass",
+        "physical.lithography.source_plasma_species_thermal_speed",
+    ]
+    assert [e.name for e in species.LITHOGRAPHY_SOURCE_PLASMA_SPECIES_EQUATIONS] == [
+        "physical.ineq.lithography_source_plasma_species_partial_pressure_positive",
+        "physical.ineq.lithography_source_plasma_species_gas_temperature_positive",
+        "physical.eq.lithography_source_plasma_species_number_density_from_ideal_gas",
+        "physical.ineq.lithography_source_plasma_species_number_density_positive",
+        "physical.eq.lithography_source_plasma_species_particle_mass_from_nuclear_counts",
+        "physical.eq.lithography_source_plasma_species_thermal_speed_from_gas_temperature",
+        "physical.ineq.lithography_source_plasma_species_thermal_speed_positive",
+        "physical.ineq.lithography_source_plasma_species_thermal_speed_subluminal",
+    ]
