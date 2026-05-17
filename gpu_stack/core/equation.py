@@ -27,6 +27,23 @@ import sympy as sp
 
 from .registry import Registry
 from .variable import Variable, Reference
+from .equation_metadata import normalize_references
+from .equation_roles import (
+    resolve_relation_role,
+    validate_inequality_role,
+    validate_relation_variant,
+    validate_value_lhs,
+)
+from .equation_relations import (
+    domain_relations_for_variable as _domain_relations_for_variable,
+    domain_validity_for_exprs as _domain_validity_for_exprs,
+    ge as _ge,
+    gt as _gt,
+    le as _le,
+    lt as _lt,
+    ne as _ne,
+    valid_all as _valid_all,
+)
 from .symbolic import (
     ExprLike,
     raw_dependency_symbols_for_exprs,
@@ -104,20 +121,21 @@ class Equation:
         self.rhs: sp.Expr = to_expr(rhs)
         self.description = description
         self.references: List[Reference] = self._normalize_refs(references)
-        self.role: RelationRole = role if role is not None else self.default_role
-        if self.role is RelationRole.VARIANT and variant is None:
-            raise ValueError(f"{name}: VARIANT relations require a variant key.")
-        if self.role is not RelationRole.VARIANT and variant is not None:
-            raise ValueError(
-                f"{name}: variant keys are only allowed on VARIANT relations."
-            )
+        self.role: RelationRole = resolve_relation_role(role, self.default_role)
+        validate_relation_variant(
+            name,
+            self.role,
+            variant,
+            RelationRole.VARIANT,
+        )
         self.variant: Optional[str] = variant
         self._check_units_flag = bool(check_units)
-        if self.role is not RelationRole.CONSTRAINT and self.lhs_variable() is None:
-            raise ValueError(
-                f"{name}: value-defining relations require a registered "
-                "bare-variable LHS."
-            )
+        validate_value_lhs(
+            name,
+            self.role,
+            self.lhs_variable(),
+            RelationRole.CONSTRAINT,
+        )
         if check_units:
             self._check_units()
         Registry.register_equation(self)
@@ -132,15 +150,7 @@ class Equation:
     def _normalize_refs(
         refs: Optional[List[Union[str, Reference]]]
     ) -> List[Reference]:
-        if not refs:
-            return []
-        out = []
-        for r in refs:
-            if isinstance(r, Reference):
-                out.append(r)
-            else:
-                out.append(Reference(citation=str(r)))
-        return out
+        return normalize_references(refs)
 
     def _wire(self) -> None:
         lhs_var = self.lhs_variable()
@@ -283,95 +293,37 @@ class Equation:
 
 def gt(lhs: ExprLike, rhs: ExprLike) -> sp.Expr:
     """Strict greater-than relation that does not simplify under assumptions."""
-    return sp.StrictGreaterThan(to_expr(lhs), to_expr(rhs), evaluate=False)
+    return _gt(lhs, rhs)
 
 
 def ge(lhs: ExprLike, rhs: ExprLike) -> sp.Expr:
     """Greater-than-or-equal relation that does not simplify under assumptions."""
-    return sp.GreaterThan(to_expr(lhs), to_expr(rhs), evaluate=False)
+    return _ge(lhs, rhs)
 
 
 def lt(lhs: ExprLike, rhs: ExprLike) -> sp.Expr:
     """Strict less-than relation that does not simplify under assumptions."""
-    return sp.StrictLessThan(to_expr(lhs), to_expr(rhs), evaluate=False)
+    return _lt(lhs, rhs)
 
 
 def le(lhs: ExprLike, rhs: ExprLike) -> sp.Expr:
     """Less-than-or-equal relation that does not simplify under assumptions."""
-    return sp.LessThan(to_expr(lhs), to_expr(rhs), evaluate=False)
+    return _le(lhs, rhs)
 
 
 def ne(lhs: ExprLike, rhs: ExprLike) -> sp.Expr:
     """Not-equal relation that does not simplify under assumptions."""
-    return sp.Ne(to_expr(lhs), to_expr(rhs), evaluate=False)
+    return _ne(lhs, rhs)
 
 
 def valid_all(*conditions: object) -> sp.Expr:
     """Conjunction that keeps approximation-validity predicates structural."""
-    if not conditions:
-        return sp.Eq(sp.Integer(0), sp.Integer(0), evaluate=False)
-    return sp.And(*(sp.sympify(condition) for condition in conditions), evaluate=False)
+    return _valid_all(*conditions)
 
 
 def domain_relations_for_variable(var: Variable) -> List[Tuple[str, sp.Expr]]:
     """Structural relations implied by a variable's declared domain metadata."""
-    relations: List[Tuple[str, sp.Expr]] = []
-    sym = var.symbol
-    assumptions = getattr(var, "assumptions", {})
-    if assumptions.get("positive") is True:
-        relations.append(("positive", gt(sym, 0)))
-    elif assumptions.get("negative") is True:
-        relations.append(("negative", lt(sym, 0)))
-    elif assumptions.get("nonnegative") is True:
-        relations.append(("nonnegative", ge(sym, 0)))
-    elif assumptions.get("nonpositive") is True:
-        relations.append(("nonpositive", le(sym, 0)))
-
-    if var.value_range is not None:
-        lo, hi = var.value_range
-        relations.append(("min", ge(sym, sp.sympify(lo))))
-        relations.append(("max", le(sym, sp.sympify(hi))))
-
-    if assumptions.get("integer") is True:
-        relations.append(
-            (
-                "integer",
-                sp.Eq(
-                    sp.Mod(sym, sp.Integer(1), evaluate=False),
-                    sp.Integer(0),
-                    evaluate=False,
-                ),
-            )
-        )
-    elif assumptions.get("integer") is False:
-        relations.append(
-            (
-                "noninteger",
-                sp.Ne(
-                    sp.Mod(sym, sp.Integer(1), evaluate=False),
-                    sp.Integer(0),
-                    evaluate=False,
-                ),
-            )
-        )
-    return relations
-
-
-def _domain_validity_for_exprs(exprs: List[object]) -> List[sp.Expr]:
-    relations: List[sp.Expr] = []
-    seen: Set[Tuple[str, str]] = set()
-    for expr in exprs:
-        for sym in getattr(sp.sympify(expr), "free_symbols", set()):
-            var = Registry.lookup_by_symbol(sym)
-            if var is None:
-                continue
-            for suffix, relation in domain_relations_for_variable(var):
-                key = (var.name, suffix)
-                if key in seen:
-                    continue
-                seen.add(key)
-                relations.append(relation)
-    return relations
+    return _domain_relations_for_variable(var)
 
 
 # ---------------------------------------------------------------------------
@@ -407,9 +359,8 @@ class Inequality(Equation):
                  variant: Optional[str] = None):
         if op not in self._OPS:
             raise ValueError(f"op must be one of {self._OPS}; got {op!r}")
-        requested_role = role if role is not None else self.default_role
-        if requested_role is not RelationRole.CONSTRAINT:
-            raise ValueError(f"{name}: Inequality relations must use CONSTRAINT role.")
+        requested_role = resolve_relation_role(role, self.default_role)
+        validate_inequality_role(name, requested_role, RelationRole.CONSTRAINT)
         self.op = op
         super().__init__(name, lhs, rhs, description, references, check_units,
                          role=role, variant=variant)
@@ -616,11 +567,18 @@ class IterativeEquation(Equation):
         return sp.Eq(self.lhs, self.value_expr({}), evaluate=False)
 
     def _dependency_exprs(self) -> List[object]:
-        exprs: List[object] = [self.map_expr, self.initial, self.n_iter, self.convergence]
-        return [expr for expr in exprs if expr is not None]
+        return self._iteration_exprs()
 
     def _value_dependency_exprs(self) -> List[object]:
-        exprs: List[object] = [self.map_expr, self.initial, self.n_iter, self.convergence]
+        return self._iteration_exprs()
+
+    def _iteration_exprs(self) -> List[object]:
+        exprs: List[object] = [
+            self.map_expr,
+            self.initial,
+            self.n_iter,
+            self.convergence,
+        ]
         return [expr for expr in exprs if expr is not None]
 
     def _bound_symbols(self) -> Set[sp.Symbol]:

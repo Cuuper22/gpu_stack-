@@ -71,7 +71,7 @@ def test_audit_large_project_files_scan_core_and_tests_after_cli_split():
     }
 
     assert not any(name.startswith("gpu_stack/cli") for name in large_files)
-    assert "gpu_stack/core/equation.py" in large_files
+    assert "gpu_stack/core/equation.py" not in large_files
     assert "tests/test_cli.py" in large_files
     assert not any(
         name.startswith("tests/test_process_geometry") for name in large_files
