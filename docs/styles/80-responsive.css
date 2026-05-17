@@ -93,8 +93,22 @@
   .app-window,
   .window,
   .app-shell,
-  .headline {
+  .hero-row,
+  .headline,
+  .status-panel,
+  .section-window,
+  .primer-panel,
+  .dialog-grid,
+  .trace-details {
     max-width: 100%;
+    min-width: 0;
+  }
+
+  .hero-row > *,
+  .section-window > *,
+  .primer-panel > *,
+  .dialog-grid > *,
+  .trace-details > * {
     min-width: 0;
   }
 
@@ -111,9 +125,12 @@
   .primer-copy p,
   .section-copy p,
   .note-list li,
-  .dialog-body p {
+  .dialog-body p,
+  .status-light span,
+  .file-path {
     font-size: 14px;
     line-height: 1.55;
+    overflow-wrap: anywhere;
   }
 
   .action-row {

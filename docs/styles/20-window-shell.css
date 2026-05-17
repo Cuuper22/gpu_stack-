@@ -152,6 +152,7 @@
   grid-template-columns: minmax(0, 1fr) 230px;
   gap: 16px;
   align-items: stretch;
+  min-width: 0;
 }
 
 .headline {
@@ -210,6 +211,7 @@ h1 {
   display: grid;
   align-content: start;
   gap: 8px;
+  min-width: 0;
 }
 
 .status-light {
@@ -218,6 +220,12 @@ h1 {
   gap: 8px;
   align-items: start;
   font: 13px "IBM Plex Mono", monospace;
+  min-width: 0;
+}
+
+.status-light span:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .led {
