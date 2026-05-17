@@ -8,8 +8,13 @@ source plasma.
 
 import sympy as sp
 
-from ..core import Approximation, Inequality, var
+from ..core import Approximation, Inequality
 from ..core.units import JOULE, METER, SECOND, WATT
+from .physical_lithography_plasma_common import (
+    DIMENSIONLESS,
+    plasma_fraction,
+    plasma_var,
+)
 from .physical_lithography_plasma_focus import *
 from .physical_lithography_plasma_focus import (
     LITHOGRAPHY_SOURCE_PLASMA_FOCUS_EQUATIONS,
@@ -29,81 +34,56 @@ from .physical_lithography_plasma_species import (
 )
 
 
-lithography_source_plasma_pulse_period = var(
-    "physical.lithography.source_plasma_pulse_period",
+lithography_source_plasma_pulse_period = plasma_var(
+    "source_plasma_pulse_period",
     "T_pulse_period_litho_src",
     "s",
     "Time between source-plasma drive pulses.",
-    scope="physical",
-    positive=True,
     sp_units=SECOND,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_pulse_repetition_rate = var(
-    "physical.lithography.source_plasma_pulse_repetition_rate",
+lithography_source_plasma_pulse_repetition_rate = plasma_var(
+    "source_plasma_pulse_repetition_rate",
     "f_pulse_litho_src",
     "1/s",
     "Pulse repetition rate of the lithography source plasma drive.",
-    scope="physical",
-    positive=True,
     sp_units=sp.Integer(1) / SECOND,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_drive_pulse_duty_factor = var(
-    "physical.lithography.source_plasma_drive_pulse_duty_factor",
+lithography_source_plasma_drive_pulse_duty_factor = plasma_fraction(
+    "source_plasma_drive_pulse_duty_factor",
     "D_pulse_drive_litho_src",
-    "dimensionless",
     "Fraction of each pulse period occupied by the effective source-plasma drive pulse.",
-    scope="physical",
-    positive=True,
-    value_range=(0.0, 1.0),
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_drive_pulse_fluence = var(
-    "physical.lithography.source_plasma_drive_pulse_fluence",
+lithography_source_plasma_drive_pulse_fluence = plasma_var(
+    "source_plasma_drive_pulse_fluence",
     "Phi_pulse_drive_plasma_litho_src",
     "J/m^2",
     "Drive-pulse energy per illuminated area delivered to the source-plasma spot.",
-    scope="physical",
-    positive=True,
     sp_units=JOULE / METER**2,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
 
 
 def _pulse_fraction(kind, symbol, description, value_range=(0.0, 1.0)):
-    return var(
-        f"physical.lithography.source_plasma_drive_pulse_{kind}_fraction",
+    return plasma_fraction(
+        f"source_plasma_drive_pulse_{kind}_fraction",
         symbol,
-        "dimensionless",
         description,
-        scope="physical",
-        nonnegative=True,
+        positive=False,
         value_range=value_range,
-        sp_units=sp.Integer(1),
-        references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
     )
 
-lithography_source_plasma_drive_peak_intensity = var(
-    "physical.lithography.source_plasma_drive_peak_intensity",
+lithography_source_plasma_drive_peak_intensity = plasma_var(
+    "source_plasma_drive_peak_intensity",
     "I_peak_drive_plasma_litho_src",
     "W/m^2",
     "Peak drive intensity incident on the source-plasma spot during a pulse.",
-    scope="physical",
-    positive=True,
     sp_units=WATT / METER**2,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_drive_pulse_duration = var(
-    "physical.lithography.source_plasma_drive_pulse_duration",
+lithography_source_plasma_drive_pulse_duration = plasma_var(
+    "source_plasma_drive_pulse_duration",
     "tau_pulse_drive_litho_src",
     "s",
     "Effective source-plasma drive pulse duration.",
-    scope="physical",
-    positive=True,
     sp_units=SECOND,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
 lithography_source_plasma_drive_pulse_rise_fraction = _pulse_fraction(
     "rise",
@@ -113,116 +93,80 @@ lithography_source_plasma_drive_pulse_rise_fraction = _pulse_fraction(
 )
 lithography_source_plasma_drive_pulse_fall_fraction = _pulse_fraction("fall", "phi_fall_pulse_drive_litho_src", "Fraction of the effective drive pulse duration spent ramping down from peak intensity to zero.")
 lithography_source_plasma_drive_pulse_flat_fraction = _pulse_fraction("flat", "phi_flat_pulse_drive_litho_src", "Fraction of the effective drive pulse duration spent near peak intensity between ramp segments.")
-lithography_source_plasma_drive_pulse_temporal_shape_factor = var(
-    "physical.lithography.source_plasma_drive_pulse_temporal_shape_factor",
+lithography_source_plasma_drive_pulse_temporal_shape_factor = plasma_var(
+    "source_plasma_drive_pulse_temporal_shape_factor",
     "chi_time_drive_litho_src",
     "dimensionless",
     "Temporal shape factor mapping peak intensity and pulse duration to effective pulse energy.",
-    scope="physical",
-    positive=True,
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
+    sp_units=DIMENSIONLESS,
 )
-lithography_source_plasma_pulse_energy = var(
-    "physical.lithography.source_plasma_pulse_energy",
+lithography_source_plasma_pulse_energy = plasma_var(
+    "source_plasma_pulse_energy",
     "E_pulse_plasma_litho_src",
     "J",
     "Energy delivered per source-plasma drive pulse.",
-    scope="physical",
-    positive=True,
     sp_units=JOULE,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_drive_power = var(
-    "physical.lithography.source_plasma_drive_power",
+lithography_source_plasma_drive_power = plasma_var(
+    "source_plasma_drive_power",
     "P_drive_litho_src",
     "W",
     "Input drive power delivered to the lithography source plasma system.",
-    scope="physical",
-    positive=True,
     sp_units=WATT,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_column_expansion_speed_factor = var(
-    "physical.lithography.source_plasma_column_expansion_speed_factor",
+lithography_source_plasma_column_expansion_speed_factor = plasma_var(
+    "source_plasma_column_expansion_speed_factor",
     "chi_v_col_expansion_litho_src",
     "dimensionless",
     "Multiplier mapping source-species thermal speed to plasma-column radial expansion speed.",
-    scope="physical",
-    positive=True,
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
+    sp_units=DIMENSIONLESS,
 )
-lithography_source_plasma_column_radial_expansion_speed = var(
-    "physical.lithography.source_plasma_column_radial_expansion_speed",
+lithography_source_plasma_column_radial_expansion_speed = plasma_var(
+    "source_plasma_column_radial_expansion_speed",
     "v_col_radial_expansion_litho_src",
     "m/s",
     "Effective radial expansion speed of the source plasma column during the drive pulse.",
-    scope="physical",
-    positive=True,
     sp_units=METER / SECOND,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_column_radius_expansion_factor = var(
-    "physical.lithography.source_plasma_column_radius_expansion_factor",
+lithography_source_plasma_column_radius_expansion_factor = plasma_var(
+    "source_plasma_column_radius_expansion_factor",
     "g_col_radius_litho_src",
     "dimensionless",
     "Expansion factor mapping drive spot radius to effective source plasma column radius.",
-    scope="physical",
-    positive=True,
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
+    sp_units=DIMENSIONLESS,
 )
-lithography_source_plasma_column_radius = var(
-    "physical.lithography.source_plasma_column_radius",
+lithography_source_plasma_column_radius = plasma_var(
+    "source_plasma_column_radius",
     "r_col_plasma_litho_src",
     "m",
     "Effective radius of the source plasma column.",
-    scope="physical",
-    positive=True,
     sp_units=METER,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_column_aspect_ratio = var(
-    "physical.lithography.source_plasma_column_aspect_ratio",
+lithography_source_plasma_column_aspect_ratio = plasma_var(
+    "source_plasma_column_aspect_ratio",
     "AR_col_plasma_litho_src",
     "dimensionless",
     "Effective source plasma column length divided by column radius.",
-    scope="physical",
-    positive=True,
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
+    sp_units=DIMENSIONLESS,
 )
-lithography_source_plasma_column_length = var(
-    "physical.lithography.source_plasma_column_length",
+lithography_source_plasma_column_length = plasma_var(
+    "source_plasma_column_length",
     "L_col_plasma_litho_src",
     "m",
     "Effective length of the source plasma column.",
-    scope="physical",
-    positive=True,
     sp_units=METER,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_active_fill_factor = var(
-    "physical.lithography.source_plasma_active_fill_factor",
+lithography_source_plasma_active_fill_factor = plasma_fraction(
+    "source_plasma_active_fill_factor",
     "phi_active_plasma_litho_src",
-    "dimensionless",
     "Fraction of the source plasma column volume occupied by the active emitting plasma.",
-    scope="physical",
-    positive=True,
-    value_range=(0.0, 1.0),
-    sp_units=sp.Integer(1),
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
-lithography_source_plasma_active_volume = var(
-    "physical.lithography.source_plasma_active_volume",
+lithography_source_plasma_active_volume = plasma_var(
+    "source_plasma_active_volume",
     "V_plasma_litho_src",
     "m^3",
     "Active plasma volume containing the free-electron inventory.",
-    scope="physical",
-    positive=True,
     sp_units=METER**3,
-    references=[LITHOGRAPHY_SOURCE_PLASMA_STATE_REF],
 )
 
 
