@@ -13,9 +13,7 @@ capacity and latency. The detailed facility cooling and power model lives in
 overhead so `thermal.py` has something to attach to.
 """
 
-import sympy as sp
-
-from ..core import Reference, eq, var
+from ..core import Reference
 from ..core.units import BPS, FLOPS, SECOND, WATT, byte
 
 from .interconnect import n_gpus_per_rack
@@ -30,9 +28,11 @@ from .cluster_rack import (
     rack_peak_flops_power_limited,
     rack_power,
 )
-
-
-DIMENSIONLESS = sp.Integer(1)
+from .cluster_ops_declarations import (
+    DIMENSIONLESS,
+    referenced_eq,
+    scoped_var,
+)
 
 SITE_AGGREGATION_REF = Reference(
     "Site aggregate compute, memory, local-storage, bandwidth, and IT-power "
@@ -60,218 +60,189 @@ SCALE_ACROSS_REF = Reference(
 )
 
 
+site_aggregation_var = scoped_var("cluster", SITE_AGGREGATION_REF)
+site_power_planning_var = scoped_var("cluster", SITE_POWER_PLANNING_REF)
+scheduler_overhead_var = scoped_var("cluster", SCHEDULER_OVERHEAD_REF)
+scale_across_var = scoped_var("cluster", SCALE_ACROSS_REF)
+
+site_aggregation_eq = referenced_eq(SITE_AGGREGATION_REF)
+site_power_planning_eq = referenced_eq(SITE_POWER_PLANNING_REF)
+scheduler_overhead_eq = referenced_eq(SCHEDULER_OVERHEAD_REF)
+scale_across_eq = referenced_eq(SCALE_ACROSS_REF)
+
+
 # ---------------------------------------------------------------------------
 # Site aggregation
 # ---------------------------------------------------------------------------
 
-n_racks_cluster = var(
+n_racks_cluster = site_aggregation_var(
     "cluster.site.n_racks", "N_rack", "racks",
     "Number of racks in one site.",
-    scope="cluster",
     integer=True,
     sp_units=DIMENSIONLESS,
-    references=[SITE_AGGREGATION_REF],
 )
-cluster_n_nodes = var(
+cluster_n_nodes = site_aggregation_var(
     "cluster.site.n_nodes", "N_node_site", "nodes",
     "Total nodes in one site.",
-    scope="cluster",
     integer=True,
     sp_units=DIMENSIONLESS,
-    references=[SITE_AGGREGATION_REF],
 )
-cluster_n_gpus = var(
+cluster_n_gpus = site_aggregation_var(
     "cluster.site.n_gpus", "N_GPU_clust", "GPUs",
     "Total GPUs in one site.",
-    scope="cluster",
     integer=True,
     sp_units=DIMENSIONLESS,
-    references=[SITE_AGGREGATION_REF],
 )
-cluster_peak_flops = var(
+cluster_peak_flops = site_aggregation_var(
     "cluster.site.peak_flops", "F_clust", "FLOP/s",
     "Aggregate peak FLOPs of one site.",
-    scope="cluster",
     sp_units=FLOPS,
-    references=[SITE_AGGREGATION_REF],
 )
-cluster_peak_flops_power_limited = var(
+cluster_peak_flops_power_limited = site_aggregation_var(
     "cluster.site.peak_flops_power_limited", "F_clust_pl", "FLOP/s",
     "Aggregate power-limited peak FLOPs of one site.",
-    scope="cluster",
     sp_units=FLOPS,
-    references=[SITE_AGGREGATION_REF],
 )
-cluster_power_it = var(
+cluster_power_it = site_aggregation_var(
     "cluster.site.power_it", "P_IT", "W",
     "Total IT power of one site, before facility overhead.",
-    scope="cluster",
     sp_units=WATT,
-    references=[SITE_AGGREGATION_REF],
 )
-cluster_hbm_capacity = var(
+cluster_hbm_capacity = site_aggregation_var(
     "cluster.site.hbm_capacity", "B_HBM_site", "byte",
     "Aggregate usable HBM capacity of one site.",
-    scope="cluster",
     sp_units=byte,
-    references=[SITE_AGGREGATION_REF],
 )
-cluster_hbm_bw = var(
+cluster_hbm_bw = site_aggregation_var(
     "cluster.site.hbm_bw", "BW_HBM_site", "byte/s",
     "Aggregate effective HBM bandwidth of one site.",
-    scope="cluster",
     sp_units=BPS,
-    references=[SITE_AGGREGATION_REF],
 )
-cluster_local_ssd_capacity = var(
+cluster_local_ssd_capacity = site_aggregation_var(
     "cluster.site.local_ssd.capacity", "B_SSD_site", "byte",
     "Aggregate local SSD capacity of one site.",
-    scope="cluster",
     sp_units=byte,
-    references=[SITE_AGGREGATION_REF],
 )
-cluster_local_ssd_bw = var(
+cluster_local_ssd_bw = site_aggregation_var(
     "cluster.site.local_ssd.bw", "BW_SSD_site", "byte/s",
     "Aggregate local SSD bandwidth of one site.",
-    scope="cluster",
     sp_units=BPS,
-    references=[SITE_AGGREGATION_REF],
 )
-cluster_nic_bw = var(
+cluster_nic_bw = site_aggregation_var(
     "cluster.site.nic_bw", "BW_NIC_site", "byte/s",
     "Aggregate scale-out NIC bandwidth of one site.",
-    scope="cluster",
     sp_units=BPS,
-    references=[SITE_AGGREGATION_REF],
 )
-site_power_overhead_factor_est = var(
+site_power_overhead_factor_est = site_power_planning_var(
     "cluster.site.power_overhead_factor_est", "k_site_pow", "dimensionless",
     "Planning-stage multiplier from IT power to total site power before the detailed facility model is attached.",
-    scope="cluster",
     sp_units=DIMENSIONLESS,
-    references=[SITE_POWER_PLANNING_REF],
 )
-cluster_total_power_est = var(
+cluster_total_power_est = site_power_planning_var(
     "cluster.site.power_total_est", "P_site_est", "W",
     "Estimated total site electrical power from a simple planning multiplier.",
-    scope="cluster",
     sp_units=WATT,
-    references=[SITE_POWER_PLANNING_REF],
 )
-site_flops_per_scaleout_byte = var(
+site_flops_per_scaleout_byte = site_aggregation_var(
     "cluster.site.flops_per_scaleout_byte", "AI_site_fabric", "FLOP/byte",
     "Site-level compute to scale-out fabric balance.",
-    scope="cluster",
     sp_units=FLOPS / BPS,
-    references=[SITE_AGGREGATION_REF],
 )
 
 
-eq_cluster_n_nodes = eq(
+eq_cluster_n_nodes = site_aggregation_eq(
     "cluster.eq.site_n_nodes",
     cluster_n_nodes.symbol,
     n_racks_cluster.symbol * n_nodes_per_rack.symbol,
     "Site nodes equal racks times nodes per rack.",
-    references=[SITE_AGGREGATION_REF],
     check_units=True,
 )
 
-eq_cluster_n_gpus = eq(
+eq_cluster_n_gpus = site_aggregation_eq(
     "cluster.eq.site_n_gpus",
     cluster_n_gpus.symbol,
     n_racks_cluster.symbol * n_gpus_per_rack.symbol,
     "Site GPUs equal racks times GPUs per rack.",
-    references=[SITE_AGGREGATION_REF],
     check_units=True,
 )
 
-eq_cluster_peak = eq(
+eq_cluster_peak = site_aggregation_eq(
     "cluster.eq.site_peak_flops",
     cluster_peak_flops.symbol,
     n_racks_cluster.symbol * rack_peak_flops.symbol,
     "Site peak FLOPs equal racks times rack peak FLOPs.",
-    references=[SITE_AGGREGATION_REF],
     check_units=True,
 )
 
-eq_cluster_peak_power_limited = eq(
+eq_cluster_peak_power_limited = site_aggregation_eq(
     "cluster.eq.site_peak_flops_power_limited",
     cluster_peak_flops_power_limited.symbol,
     n_racks_cluster.symbol * rack_peak_flops_power_limited.symbol,
     "Site power-limited peak FLOPs equal racks times rack power-limited peak FLOPs.",
-    references=[SITE_AGGREGATION_REF],
     check_units=True,
 )
 
-eq_cluster_power_it = eq(
+eq_cluster_power_it = site_aggregation_eq(
     "cluster.eq.site_power_it",
     cluster_power_it.symbol,
     n_racks_cluster.symbol * rack_power.symbol,
     "Site IT power equals racks times rack IT power.",
-    references=[SITE_AGGREGATION_REF],
     check_units=True,
 )
 
-eq_cluster_hbm_capacity = eq(
+eq_cluster_hbm_capacity = site_aggregation_eq(
     "cluster.eq.site_hbm_capacity",
     cluster_hbm_capacity.symbol,
     n_racks_cluster.symbol * rack_hbm_capacity.symbol,
     "Site HBM capacity equals racks times rack HBM capacity.",
-    references=[SITE_AGGREGATION_REF],
     check_units=True,
 )
 
-eq_cluster_hbm_bw = eq(
+eq_cluster_hbm_bw = site_aggregation_eq(
     "cluster.eq.site_hbm_bw",
     cluster_hbm_bw.symbol,
     n_racks_cluster.symbol * rack_hbm_bw.symbol,
     "Site HBM bandwidth equals racks times rack HBM bandwidth.",
-    references=[SITE_AGGREGATION_REF],
     check_units=True,
 )
 
-eq_cluster_local_ssd_capacity = eq(
+eq_cluster_local_ssd_capacity = site_aggregation_eq(
     "cluster.eq.site_local_ssd_capacity",
     cluster_local_ssd_capacity.symbol,
     n_racks_cluster.symbol * rack_local_ssd_capacity.symbol,
     "Site local SSD capacity equals racks times rack local SSD capacity.",
-    references=[SITE_AGGREGATION_REF],
     check_units=True,
 )
 
-eq_cluster_local_ssd_bw = eq(
+eq_cluster_local_ssd_bw = site_aggregation_eq(
     "cluster.eq.site_local_ssd_bw",
     cluster_local_ssd_bw.symbol,
     n_racks_cluster.symbol * rack_local_ssd_bw.symbol,
     "Site local SSD bandwidth equals racks times rack local SSD bandwidth.",
-    references=[SITE_AGGREGATION_REF],
     check_units=True,
 )
 
-eq_cluster_nic_bw = eq(
+eq_cluster_nic_bw = site_aggregation_eq(
     "cluster.eq.site_nic_bw",
     cluster_nic_bw.symbol,
     n_racks_cluster.symbol * rack_scaleout_bisection_bw.symbol,
     "Site scale-out bandwidth equals racks times rack off-rack bisection bandwidth.",
-    references=[SITE_AGGREGATION_REF],
     check_units=True,
 )
 
-eq_cluster_total_power_est = eq(
+eq_cluster_total_power_est = site_power_planning_eq(
     "cluster.eq.site_total_power_est",
     cluster_total_power_est.symbol,
     site_power_overhead_factor_est.symbol * cluster_power_it.symbol,
     "Planning-stage total site power equals IT power times a coarse overhead multiplier.",
-    references=[SITE_POWER_PLANNING_REF],
     check_units=True,
 )
 
-eq_site_flops_per_scaleout_byte = eq(
+eq_site_flops_per_scaleout_byte = site_aggregation_eq(
     "cluster.eq.site_flops_per_scaleout_byte",
     site_flops_per_scaleout_byte.symbol,
     cluster_peak_flops_power_limited.symbol / cluster_nic_bw.symbol,
     "Site compute to scale-out balance equals site power-limited FLOPs divided by aggregate bisection-aware scale-out bandwidth.",
-    references=[SITE_AGGREGATION_REF],
     check_units=True,
 )
 
@@ -280,42 +251,33 @@ eq_site_flops_per_scaleout_byte = eq(
 # Scheduler and provisioning overhead
 # ---------------------------------------------------------------------------
 
-scheduler_queue_wait = var(
+scheduler_queue_wait = scheduler_overhead_var(
     "cluster.sched.queue_wait", "T_queue", "s",
     "Time a job spends waiting in the scheduler queue.",
-    scope="cluster",
     sp_units=SECOND,
-    references=[SCHEDULER_OVERHEAD_REF],
 )
-scheduler_allocation_time = var(
+scheduler_allocation_time = scheduler_overhead_var(
     "cluster.sched.allocation_time", "T_alloc", "s",
     "Control-plane time to allocate nodes, wire up containers, and stage the job.",
-    scope="cluster",
     sp_units=SECOND,
-    references=[SCHEDULER_OVERHEAD_REF],
 )
-provisioning_time = var(
+provisioning_time = scheduler_overhead_var(
     "cluster.sched.provisioning_time", "T_prov", "s",
     "Time spent on image pull, filesystem mounts, and runtime startup.",
-    scope="cluster",
     sp_units=SECOND,
-    references=[SCHEDULER_OVERHEAD_REF],
 )
-job_start_delay = var(
+job_start_delay = scheduler_overhead_var(
     "cluster.sched.job_start_delay", "T_start_delay", "s",
     "End-to-end delay between job submission and first training step.",
-    scope="cluster",
     sp_units=SECOND,
-    references=[SCHEDULER_OVERHEAD_REF],
 )
 
 
-eq_job_start_delay = eq(
+eq_job_start_delay = scheduler_overhead_eq(
     "cluster.eq.job_start_delay",
     job_start_delay.symbol,
     scheduler_queue_wait.symbol + scheduler_allocation_time.symbol + provisioning_time.symbol,
     "Job start delay equals queue wait plus scheduler allocation plus provisioning time.",
-    references=[SCHEDULER_OVERHEAD_REF],
     check_units=True,
 )
 
@@ -324,178 +286,142 @@ eq_job_start_delay = eq(
 # Hyperscaler and scale-across WAN links
 # ---------------------------------------------------------------------------
 
-n_sites_hs = var(
+n_sites_hs = scale_across_var(
     "cluster.hs.n_sites", "N_DC", "sites",
     "Number of sites operated by the hyperscaler.",
-    scope="cluster",
     integer=True,
     sp_units=DIMENSIONLESS,
-    references=[SCALE_ACROSS_REF],
 )
-hs_n_gpus = var(
+hs_n_gpus = scale_across_var(
     "cluster.hs.n_gpus", "N_GPU_hs", "GPUs",
     "Total GPUs across all sites.",
-    scope="cluster",
     integer=True,
     sp_units=DIMENSIONLESS,
-    references=[SCALE_ACROSS_REF],
 )
-hs_peak_flops = var(
+hs_peak_flops = scale_across_var(
     "cluster.hs.peak_flops", "F_hs", "FLOP/s",
     "Aggregate peak FLOPs across all sites.",
-    scope="cluster",
     sp_units=FLOPS,
-    references=[SCALE_ACROSS_REF],
 )
-hs_total_power = var(
+hs_total_power = scale_across_var(
     "cluster.hs.power_total", "P_hs_tot", "W",
     "Estimated total electrical load across all sites.",
-    scope="cluster",
     sp_units=WATT,
-    references=[SCALE_ACROSS_REF],
 )
-hs_hbm_capacity = var(
+hs_hbm_capacity = scale_across_var(
     "cluster.hs.hbm_capacity", "B_HBM_hs", "byte",
     "Aggregate usable HBM capacity across all sites.",
-    scope="cluster",
     sp_units=byte,
-    references=[SCALE_ACROSS_REF],
 )
-hs_local_ssd_capacity = var(
+hs_local_ssd_capacity = scale_across_var(
     "cluster.hs.local_ssd.capacity", "B_SSD_hs", "byte",
     "Aggregate local SSD capacity across all sites.",
-    scope="cluster",
     sp_units=byte,
-    references=[SCALE_ACROSS_REF],
 )
-wan_links_per_site = var(
+wan_links_per_site = scale_across_var(
     "cluster.hs.scale_across.links_per_site", "N_WAN_site", "links/site",
     "Number of long-haul or inter-DC links attached to one site for scale-across training or checkpoint replication.",
-    scope="cluster",
     integer=True,
     sp_units=DIMENSIONLESS,
-    references=[SCALE_ACROSS_REF],
 )
-bw_wan_link = var(
+bw_wan_link = scale_across_var(
     "cluster.hs.scale_across.bw_per_link", "BW_WAN_link", "byte/s",
     "Payload bandwidth of one inter-site link.",
-    scope="cluster",
     sp_units=BPS,
-    references=[SCALE_ACROSS_REF],
 )
-eta_scale_across = var(
+eta_scale_across = scale_across_var(
     "cluster.hs.scale_across.efficiency", "eta_SA", "dimensionless",
     "Protocol and utilization efficiency of the inter-site transport path.",
-    scope="cluster",
     sp_units=DIMENSIONLESS,
-    references=[SCALE_ACROSS_REF],
 )
-bw_scale_across_site = var(
+bw_scale_across_site = scale_across_var(
     "cluster.hs.scale_across.bw_per_site", "BW_SA_site", "byte/s",
     "Aggregate effective inter-site bandwidth available to one site.",
-    scope="cluster",
     sp_units=BPS,
-    references=[SCALE_ACROSS_REF],
 )
-bw_scale_across = var(
+bw_scale_across = scale_across_var(
     "cluster.hs.scale_across_bw", "BW_SA", "byte/s",
     "Effective inter-site bandwidth per GPU when a whole site participates in scale-across training.",
-    scope="cluster",
     sp_units=BPS,
-    references=[SCALE_ACROSS_REF],
 )
-lat_scale_across = var(
+lat_scale_across = scale_across_var(
     "cluster.hs.scale_across_latency", "L_SA", "s",
     "One-way inter-site latency for scale-across communication.",
-    scope="cluster",
     sp_units=SECOND,
-    references=[SCALE_ACROSS_REF],
 )
-scale_across_msg_size = var(
+scale_across_msg_size = scale_across_var(
     "cluster.hs.scale_across_msg_size", "B_SA_msg", "byte",
     "Representative message size moved across sites.",
-    scope="cluster",
     sp_units=byte,
-    references=[SCALE_ACROSS_REF],
 )
-scale_across_transfer_time = var(
+scale_across_transfer_time = scale_across_var(
     "cluster.hs.scale_across_transfer_time", "T_SA_msg", "s",
     "Transfer time for one representative inter-site message.",
-    scope="cluster",
     sp_units=SECOND,
-    references=[SCALE_ACROSS_REF],
 )
 
 
-eq_hs_n_gpus = eq(
+eq_hs_n_gpus = scale_across_eq(
     "cluster.eq.hs_n_gpus",
     hs_n_gpus.symbol,
     n_sites_hs.symbol * cluster_n_gpus.symbol,
     "Hyperscaler GPUs equal sites times GPUs per site under a uniform-site planning assumption.",
-    references=[SCALE_ACROSS_REF],
     check_units=True,
 )
 
-eq_hs_peak = eq(
+eq_hs_peak = scale_across_eq(
     "cluster.eq.hs_peak_flops",
     hs_peak_flops.symbol,
     n_sites_hs.symbol * cluster_peak_flops.symbol,
     "Hyperscaler peak FLOPs equal sites times site peak FLOPs under a uniform-site planning assumption.",
-    references=[SCALE_ACROSS_REF],
     check_units=True,
 )
 
-eq_hs_total_power = eq(
+eq_hs_total_power = scale_across_eq(
     "cluster.eq.hs_total_power",
     hs_total_power.symbol,
     n_sites_hs.symbol * cluster_total_power_est.symbol,
     "Hyperscaler total electrical load is estimated as sites times estimated site power.",
-    references=[SCALE_ACROSS_REF],
     check_units=True,
 )
 
-eq_hs_hbm_capacity = eq(
+eq_hs_hbm_capacity = scale_across_eq(
     "cluster.eq.hs_hbm_capacity",
     hs_hbm_capacity.symbol,
     n_sites_hs.symbol * cluster_hbm_capacity.symbol,
     "Hyperscaler HBM capacity equals sites times site HBM capacity.",
-    references=[SCALE_ACROSS_REF],
     check_units=True,
 )
 
-eq_hs_local_ssd_capacity = eq(
+eq_hs_local_ssd_capacity = scale_across_eq(
     "cluster.eq.hs_local_ssd_capacity",
     hs_local_ssd_capacity.symbol,
     n_sites_hs.symbol * cluster_local_ssd_capacity.symbol,
     "Hyperscaler local SSD capacity equals sites times site local SSD capacity.",
-    references=[SCALE_ACROSS_REF],
     check_units=True,
 )
 
-eq_bw_scale_across_site = eq(
+eq_bw_scale_across_site = scale_across_eq(
     "cluster.eq.scale_across_bw_per_site",
     bw_scale_across_site.symbol,
     wan_links_per_site.symbol * bw_wan_link.symbol * eta_scale_across.symbol,
     "Per-site scale-across bandwidth equals link count times per-link bandwidth times transport efficiency.",
-    references=[SCALE_ACROSS_REF],
     check_units=True,
 )
 
-eq_bw_scale_across = eq(
+eq_bw_scale_across = scale_across_eq(
     "cluster.eq.scale_across_bw_per_gpu",
     bw_scale_across.symbol,
     bw_scale_across_site.symbol / cluster_n_gpus.symbol,
     "Per-GPU inter-site bandwidth equals per-site WAN bandwidth divided by GPUs sharing it.",
-    references=[SCALE_ACROSS_REF],
     check_units=True,
 )
 
-eq_scale_across_transfer_time = eq(
+eq_scale_across_transfer_time = scale_across_eq(
     "cluster.eq.scale_across_transfer_time",
     scale_across_transfer_time.symbol,
     lat_scale_across.symbol + scale_across_msg_size.symbol / bw_scale_across_site.symbol,
     "A first-order inter-site transfer time equals path latency plus bytes divided by sustained per-site WAN bandwidth.",
-    references=[SCALE_ACROSS_REF],
     check_units=True,
 )
 
