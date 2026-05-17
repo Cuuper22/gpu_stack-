@@ -21,60 +21,20 @@ All subclasses still register with the Registry via Equation.__init__.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Dict, List, Mapping, Optional, Set, Tuple, Union, Callable
+from typing import Dict, List, Mapping, Optional, Set, Tuple, Union
 import sympy as sp
 
 from .registry import Registry
 from .variable import Variable, Reference
-
-
-ExprLike = Union[sp.Expr, int, float, str, Variable]
-
-
-def _to_expr(x: ExprLike) -> sp.Expr:
-    if isinstance(x, sp.Expr):
-        return x
-    if isinstance(x, Variable):
-        return x.symbol
-    return sp.sympify(x)
-
-
-def _small_nonnegative_int(expr: sp.Expr, max_value: int = 32) -> Optional[int]:
-    """Return a bounded nonnegative int for concrete integer expressions."""
-    expr = sp.sympify(expr)
-    if getattr(expr, "free_symbols", set()):
-        return None
-    if expr.is_integer is False:
-        return None
-    try:
-        value = int(expr)
-    except (TypeError, ValueError):
-        return None
-    if value < 0 or value > max_value:
-        return None
-    delta = sp.simplify(expr - sp.Integer(value))
-    if delta != 0:
-        try:
-            if float(delta) != 0.0:
-                return None
-        except (TypeError, ValueError):
-            return None
-    return value
-
-
-def _registered_free_variable_names(
-    expr: sp.Expr,
-    bound_symbols: Optional[Set[sp.Symbol]] = None,
-) -> Set[str]:
-    """Registered model variables still present in an expression."""
-    bound_symbols = set(bound_symbols or set())
-    return {
-        v.name
-        for sym in getattr(expr, "free_symbols", set()) - bound_symbols
-        if (v := Registry.lookup_by_symbol(sym)) is not None
-    }
+from .symbolic import (
+    ExprLike,
+    raw_dependency_symbols_for_exprs,
+    registered_free_variable_names,
+    registered_variables_in_exprs,
+    small_nonnegative_int,
+    to_expr,
+)
 
 
 class EquationKind(Enum):
@@ -140,8 +100,8 @@ class Equation:
         variant: Optional[str] = None,
     ):
         self.name = name
-        self.lhs: sp.Expr = _to_expr(lhs)
-        self.rhs: sp.Expr = _to_expr(rhs)
+        self.lhs: sp.Expr = to_expr(lhs)
+        self.rhs: sp.Expr = to_expr(rhs)
         self.description = description
         self.references: List[Reference] = self._normalize_refs(references)
         self.role: RelationRole = role if role is not None else self.default_role
@@ -234,16 +194,7 @@ class Equation:
         return self._registered_variables_in_exprs([self.lhs, *self._dependency_exprs()])
 
     def _registered_variables_in_exprs(self, exprs: List[object]) -> List[Variable]:
-        out: List[Variable] = []
-        seen: Set[str] = set()
-        bound_symbols = self._bound_symbols()
-        for expr in exprs:
-            for sym in getattr(sp.sympify(expr), "free_symbols", set()) - bound_symbols:
-                v = Registry.lookup_by_symbol(sym)
-                if v is not None and v.name not in seen:
-                    out.append(v)
-                    seen.add(v.name)
-        return out
+        return registered_variables_in_exprs(exprs, self._bound_symbols())
 
     def _dependency_exprs(self) -> List[object]:
         """Expressions that semantically contribute RHS dependencies."""
@@ -270,15 +221,10 @@ class Equation:
         registered Variable. Dummy symbols are intentionally ignored because
         they are local binders, not model inputs.
         """
-        raw: Set[sp.Symbol] = set()
-        bound_symbols = self._bound_symbols()
-        for expr in self._raw_symbol_exprs():
-            for sym in getattr(sp.sympify(expr), "free_symbols", set()) - bound_symbols:
-                if isinstance(sym, sp.Dummy):
-                    continue
-                if Registry.lookup_by_symbol(sym) is None:
-                    raw.add(sym)
-        return raw
+        return raw_dependency_symbols_for_exprs(
+            self._raw_symbol_exprs(),
+            self._bound_symbols(),
+        )
 
     def free_symbols(self) -> Set[sp.Symbol]:
         symbols = set(self.lhs.free_symbols)
@@ -337,27 +283,27 @@ class Equation:
 
 def gt(lhs: ExprLike, rhs: ExprLike) -> sp.Expr:
     """Strict greater-than relation that does not simplify under assumptions."""
-    return sp.StrictGreaterThan(_to_expr(lhs), _to_expr(rhs), evaluate=False)
+    return sp.StrictGreaterThan(to_expr(lhs), to_expr(rhs), evaluate=False)
 
 
 def ge(lhs: ExprLike, rhs: ExprLike) -> sp.Expr:
     """Greater-than-or-equal relation that does not simplify under assumptions."""
-    return sp.GreaterThan(_to_expr(lhs), _to_expr(rhs), evaluate=False)
+    return sp.GreaterThan(to_expr(lhs), to_expr(rhs), evaluate=False)
 
 
 def lt(lhs: ExprLike, rhs: ExprLike) -> sp.Expr:
     """Strict less-than relation that does not simplify under assumptions."""
-    return sp.StrictLessThan(_to_expr(lhs), _to_expr(rhs), evaluate=False)
+    return sp.StrictLessThan(to_expr(lhs), to_expr(rhs), evaluate=False)
 
 
 def le(lhs: ExprLike, rhs: ExprLike) -> sp.Expr:
     """Less-than-or-equal relation that does not simplify under assumptions."""
-    return sp.LessThan(_to_expr(lhs), _to_expr(rhs), evaluate=False)
+    return sp.LessThan(to_expr(lhs), to_expr(rhs), evaluate=False)
 
 
 def ne(lhs: ExprLike, rhs: ExprLike) -> sp.Expr:
     """Not-equal relation that does not simplify under assumptions."""
-    return sp.Ne(_to_expr(lhs), _to_expr(rhs), evaluate=False)
+    return sp.Ne(to_expr(lhs), to_expr(rhs), evaluate=False)
 
 
 def valid_all(*conditions: object) -> sp.Expr:
@@ -518,7 +464,7 @@ class Approximation(Equation):
         if validity is sp.S.false:
             raise ValueError(f"{name}: Approximation validity collapsed to False.")
         if validity is sp.S.true:
-            recovered = _domain_validity_for_exprs([_to_expr(rhs)])
+            recovered = _domain_validity_for_exprs([to_expr(rhs)])
             return valid_all(*recovered)
         return validity
 
@@ -548,7 +494,7 @@ class PiecewiseEquation(Equation):
                  role: Optional[RelationRole] = None,
                  variant: Optional[str] = None):
         # Build the RHS as a sp.Piecewise
-        self.pieces = [(_to_expr(e), c) for e, c in pieces]
+        self.pieces = [(to_expr(e), c) for e, c in pieces]
         rhs = sp.Piecewise(*self.pieces, evaluate=False)
         super().__init__(
             name, lhs, rhs, description, references, check_units,
@@ -642,15 +588,15 @@ class IterativeEquation(Equation):
         role: Optional[RelationRole] = None,
         variant: Optional[str] = None,
     ):
-        self.map_expr = _to_expr(map_expr)
+        self.map_expr = to_expr(map_expr)
         if isinstance(iteration_variable, Variable):
             self.iter_sym = iteration_variable.symbol
         elif isinstance(iteration_variable, sp.Symbol):
             self.iter_sym = iteration_variable
         else:
             self.iter_sym = sp.Symbol(str(iteration_variable))
-        self.initial = _to_expr(initial) if initial is not None else None
-        self.n_iter = _to_expr(n_iter) if n_iter is not None else None
+        self.initial = to_expr(initial) if initial is not None else None
+        self.n_iter = to_expr(n_iter) if n_iter is not None else None
         self.convergence = convergence
         super().__init__(
             name, lhs, self.map_expr, description, references, check_units,
@@ -703,11 +649,11 @@ class IterativeEquation(Equation):
             else sp.oo
         )
 
-        k = _small_nonnegative_int(n_iter)
+        k = small_nonnegative_int(n_iter)
         if initial is not None and k is not None:
             unresolved = (
-                _registered_free_variable_names(map_expr, bound_symbols)
-                | _registered_free_variable_names(initial, bound_symbols)
+                registered_free_variable_names(map_expr, bound_symbols)
+                | registered_free_variable_names(initial, bound_symbols)
             )
             if not unresolved:
                 x = initial
@@ -750,9 +696,9 @@ class StochasticRelation(Equation):
         variant: Optional[str] = None,
     ):
         self.distribution = distribution
-        self.parameters = {k: _to_expr(v) for k, v in parameters.items()}
-        self.mean_expr = _to_expr(mean) if mean is not None else None
-        self.variance_expr = _to_expr(variance) if variance is not None else None
+        self.parameters = {k: to_expr(v) for k, v in parameters.items()}
+        self.mean_expr = to_expr(mean) if mean is not None else None
+        self.variance_expr = to_expr(variance) if variance is not None else None
         # Store a symbolic RHS that records the distribution
         rhs = sp.Function(distribution)(*self.parameters.values())
         super().__init__(
