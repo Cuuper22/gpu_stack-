@@ -998,7 +998,7 @@
       .section-visual,
       .dialog-body,
       .glossary-term {
-        padding: 12px;
+        padding: 10px;
       }
 
       .tagline,
@@ -1012,7 +1012,11 @@
 
       .action-row {
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .action-row .retro-btn:last-child {
+        grid-column: 1 / -1;
       }
 
       .retro-btn {
@@ -1035,11 +1039,14 @@
       }
 
       .stat-grid,
-      .app-nav,
       .workflow-ribbon,
       .trace-controls,
       .glossary-grid {
         grid-template-columns: 1fr;
+      }
+
+      .app-nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .timeline-row {
