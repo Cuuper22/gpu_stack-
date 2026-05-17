@@ -156,7 +156,7 @@ def test_audit_large_project_files_scan_core_cli_and_tests():
 
     assert "gpu_stack/cli.py" in large_files
     assert "gpu_stack/core/equation.py" in large_files
-    assert "gpu_stack/core/resolver.py" in large_files
+    assert "tests/test_cli.py" in large_files
     assert "tests/test_process_geometry.py" in large_files
 
 
