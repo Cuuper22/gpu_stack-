@@ -34,29 +34,7 @@ from gpu_stack.core import (
 )
 from gpu_stack.core.resolver import _value_dependencies
 from gpu_stack.core.variable import Variable
-
-
-@pytest.fixture
-def registry_snapshot():
-    variables = dict(Registry.variables)
-    equations = dict(Registry.equations)
-    systems = dict(Registry.systems)
-    symbol_cache = dict(Registry._symbol_cache)
-    backrefs = {
-        name: (list(v._defined_by), list(v._used_in))
-        for name, v in variables.items()
-    }
-
-    yield
-
-    for name, (defined_by, used_in) in backrefs.items():
-        v = variables[name]
-        v._defined_by[:] = defined_by
-        v._used_in[:] = used_in
-    Registry.variables = variables
-    Registry.equations = equations
-    Registry.systems = systems
-    Registry._symbol_cache = symbol_cache
+from tests.helpers.registry import registry_snapshot
 
 
 def _resolver_dep_names(equation_name):
