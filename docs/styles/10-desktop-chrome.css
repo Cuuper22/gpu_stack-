@@ -1,0 +1,74 @@
+/* Desktop chrome */
+.desktop {
+  width: min(100% - 20px, var(--max));
+  margin: 0 auto;
+  padding: 18px 0 26px;
+  min-height: calc(100vh - 54px);
+  position: relative;
+}
+
+.desktop-icons {
+  position: absolute;
+  top: 22px;
+  left: 0;
+  display: grid;
+  gap: 14px;
+  z-index: 1;
+}
+
+.desktop-icon {
+  width: 86px;
+  min-height: 78px;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+  color: var(--text-light);
+  text-decoration: none;
+  text-align: center;
+  text-shadow: 1px 1px 0 oklch(0.08 0.004 250);
+  font-size: 13px;
+}
+
+.desktop-icon:hover .icon-image,
+.desktop-icon:focus-visible .icon-image {
+  transform: translate(-1px, -1px);
+}
+
+.icon-image {
+  width: 36px;
+  height: 36px;
+  image-rendering: pixelated;
+  transition: transform 120ms ease-out;
+}
+
+.icon-label {
+  padding: 1px 4px;
+  background: oklch(0.28 0.08 195 / 0.62);
+}
+
+.desktop-logo {
+  position: absolute;
+  top: 18px;
+  right: 0;
+  display: grid;
+  justify-items: end;
+  gap: 0;
+  color: var(--text-light);
+  text-shadow: 2px 2px 0 oklch(0.08 0.004 250);
+  user-select: none;
+  z-index: 1;
+}
+
+.logo-text {
+  font-size: 30px;
+  font-size: clamp(30px, 4vw, 58px);
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.logo-version {
+  font-size: 14px;
+  letter-spacing: 0;
+  color: oklch(0.90 0.06 88);
+}

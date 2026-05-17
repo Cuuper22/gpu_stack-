@@ -1,0 +1,177 @@
+@media (max-width: 980px) {
+  .desktop-icons {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: 160px;
+    margin-bottom: 10px;
+  }
+
+  .desktop-icon {
+    width: 74px;
+  }
+
+  .app-window {
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  .app-shell,
+  .hero-row,
+  .primer-panel,
+  .section-window,
+  .dialog-grid,
+  .trace-details {
+    grid-template-columns: 1fr;
+  }
+
+  .app-nav {
+    border-right: 0;
+    border-bottom: 2px solid var(--inset-dark);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tree-label {
+    grid-column: 1 / -1;
+  }
+
+  .section-copy {
+    border-right: 0;
+    border-bottom: 2px solid var(--inset-dark);
+  }
+
+  .primer-copy {
+    border-right: 0;
+    border-bottom: 2px solid var(--inset-dark);
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .glossary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  body {
+    padding-bottom: 58px;
+  }
+
+  .desktop {
+    width: min(100% - 12px, var(--max));
+    padding-top: 8px;
+  }
+
+  .desktop-logo {
+    position: static;
+    align-items: start;
+    justify-items: start;
+    margin-bottom: 8px;
+  }
+
+  .desktop-icons {
+    margin-right: 0;
+  }
+
+  .app-main {
+    padding: 10px;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .window-content {
+    margin: 3px;
+    max-width: calc(100% - 6px);
+  }
+
+  .app-window,
+  .window,
+  .app-shell,
+  .headline {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .headline,
+  .section-copy,
+  .section-visual,
+  .dialog-body,
+  .glossary-term {
+    padding: 10px;
+  }
+
+  .tagline,
+  .body-copy,
+  .primer-copy p,
+  .section-copy p,
+  .note-list li,
+  .dialog-body p {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .action-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .retro-btn {
+    width: 100%;
+  }
+
+  .title-text,
+  .tree-button,
+  .retro-btn,
+  .start-button,
+  .taskbar-clock {
+    font-size: 13px;
+  }
+
+  h1 {
+    font-size: clamp(36px, 12vw, 48px);
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .stat-grid,
+  .primer-controls,
+  .primer-map,
+  .trace-controls,
+  .glossary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .primer-node {
+    min-height: 94px;
+  }
+
+  .primer-node:not(:last-child)::after {
+    display: none;
+  }
+
+  .app-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .timeline-row {
+    grid-template-columns: 1fr;
+  }
+
+  .task-button {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
