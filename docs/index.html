@@ -8,6 +8,7 @@
   <meta property="og:description" content="A symbolic dependency graph from cost per token down toward the physical assumptions underneath it.">
   <meta property="og:image" content="assets/readme-hero.png">
   <title>gpu_stack - CuperOS</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23008080'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%23808080' stroke='%231A1A1A'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23C0C0C0'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
@@ -169,6 +170,8 @@
       background: var(--window-chrome);
       border: 2px outset var(--button-face);
       box-shadow: var(--shadow);
+      max-width: 100%;
+      min-width: 0;
     }
 
     .title-bar {
@@ -181,6 +184,7 @@
       gap: 12px;
       user-select: none;
       border-bottom: 2px solid var(--inset-dark);
+      min-width: 0;
     }
 
     .title-text {
@@ -222,6 +226,8 @@
       background: var(--window-body);
       border: 2px inset var(--window-chrome);
       margin: 4px;
+      max-width: calc(100% - 8px);
+      min-width: 0;
     }
 
     .app-window {
@@ -229,12 +235,16 @@
       margin: 74px auto 28px;
       position: relative;
       z-index: 2;
+      max-width: 100%;
+      min-width: 0;
     }
 
     .app-shell {
       display: grid;
       grid-template-columns: 214px minmax(0, 1fr);
       min-height: 620px;
+      max-width: 100%;
+      min-width: 0;
     }
 
     .app-nav {
@@ -250,6 +260,7 @@
       color: var(--text-soft);
       font-size: 12px;
       margin: 2px 0 4px;
+      overflow-wrap: anywhere;
     }
 
     .tree-button,
@@ -267,6 +278,7 @@
       text-decoration: none;
       cursor: pointer;
       text-align: left;
+      min-width: 0;
     }
 
     .tree-button {
@@ -285,6 +297,11 @@
       border-style: inset;
       background: var(--title-bar);
       color: var(--text-light);
+    }
+
+    .retro-btn {
+      justify-content: center;
+      max-width: 100%;
     }
 
     .app-main {
@@ -307,6 +324,7 @@
       background: oklch(0.98 0.002 90);
       padding: clamp(16px, 3vw, 28px);
       min-width: 0;
+      max-width: 100%;
     }
 
     .file-path {
@@ -328,8 +346,8 @@
       margin: 0;
       color: var(--title-bar);
       font-size: 48px;
-      font-size: clamp(48px, 8vw, 98px);
-      overflow-wrap: anywhere;
+      font-size: clamp(48px, 7vw, 82px);
+      white-space: nowrap;
     }
 
     .tagline {
@@ -339,6 +357,7 @@
       font: 500 16px "IBM Plex Sans", system-ui, sans-serif;
       font: 500 clamp(16px, 1.8vw, 19px) "IBM Plex Sans", system-ui, sans-serif;
       line-height: 1.55;
+      overflow-wrap: anywhere;
     }
 
     .action-row {
@@ -346,6 +365,7 @@
       flex-wrap: wrap;
       gap: 8px;
       margin-top: 18px;
+      min-width: 0;
     }
 
     .status-panel {
@@ -409,6 +429,33 @@
       color: var(--text-soft);
       font: 13px "IBM Plex Sans", system-ui, sans-serif;
       line-height: 1.35;
+    }
+
+    .workflow-ribbon {
+      border: 2px inset var(--window-chrome);
+      background: var(--inset-dark);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1px;
+    }
+
+    .workflow-step {
+      min-height: 86px;
+      background: oklch(0.98 0.002 90);
+      padding: 10px;
+      display: grid;
+      align-content: start;
+      gap: 5px;
+    }
+
+    .workflow-step b {
+      color: var(--title-bar);
+      font: 700 15px "Pixelify Sans", monospace;
+    }
+
+    .workflow-step span {
+      color: var(--text-soft);
+      font: 13px/1.42 "IBM Plex Sans", system-ui, sans-serif;
     }
 
     .section-window {
@@ -517,6 +564,185 @@
       font-weight: 700;
     }
 
+    .trace-lab {
+      display: grid;
+      gap: 12px;
+    }
+
+    .trace-controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .trace-screen {
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.91 0.006 250);
+      padding: 10px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .trace-map {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(86px, 1fr));
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .trace-node {
+      min-height: 92px;
+      border: 2px outset var(--button-face);
+      background: oklch(0.98 0.002 90);
+      padding: 8px;
+      display: grid;
+      align-content: start;
+      gap: 5px;
+      position: relative;
+    }
+
+    .trace-node.active {
+      border-style: inset;
+      background: oklch(0.94 0.07 88);
+      animation: trace-pulse 1800ms ease-out infinite;
+    }
+
+    .trace-node b {
+      color: var(--title-bar);
+      font: 700 13px/1.2 "IBM Plex Mono", monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .trace-node span {
+      color: var(--text-soft);
+      font: 12px/1.35 "IBM Plex Sans", system-ui, sans-serif;
+    }
+
+    .trace-node small {
+      color: var(--text-dark);
+      font: 700 11px/1.2 "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+    }
+
+    .trace-connector {
+      height: 12px;
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.20 0.01 250);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .trace-connector::after {
+      content: "";
+      position: absolute;
+      inset: 2px auto 2px 0;
+      width: 34%;
+      background: var(--accent-gold);
+      animation: trace-scan 2400ms ease-out infinite;
+    }
+
+    .trace-details {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 190px;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .trace-note,
+    .trace-meter {
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.98 0.002 90);
+      padding: 10px;
+      min-width: 0;
+    }
+
+    .trace-note p,
+    .trace-meter p,
+    .glossary-term p {
+      margin: 0;
+      font: 500 14px/1.52 "IBM Plex Sans", system-ui, sans-serif;
+    }
+
+    .trace-meter {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+      font: 13px "IBM Plex Mono", monospace;
+    }
+
+    .meter-bar {
+      height: 18px;
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.20 0.01 250);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .meter-bar span {
+      position: absolute;
+      inset: 2px auto 2px 2px;
+      width: var(--meter-width, 50%);
+      background: var(--accent-gold);
+    }
+
+    .root-family-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .family-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 94px;
+      gap: 10px;
+      align-items: center;
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.98 0.002 90);
+      padding: 10px;
+      font: 13px/1.35 "IBM Plex Mono", monospace;
+    }
+
+    .family-row b {
+      color: var(--title-bar);
+      overflow-wrap: anywhere;
+    }
+
+    .family-row span {
+      color: var(--text-soft);
+    }
+
+    .impact-bar {
+      height: 16px;
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.20 0.01 250);
+      position: relative;
+    }
+
+    .impact-bar::after {
+      content: "";
+      position: absolute;
+      inset: 2px auto 2px 2px;
+      width: var(--impact, 50%);
+      background: var(--accent-gold);
+    }
+
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .glossary-term {
+      border: 2px inset var(--window-chrome);
+      background: oklch(0.98 0.002 90);
+      padding: 12px;
+    }
+
+    .glossary-term h3 {
+      font-size: 18px;
+    }
+
     .console-window {
       background: oklch(0.09 0.008 250);
       color: oklch(0.78 0.18 132);
@@ -563,6 +789,26 @@
     .timeline-row b {
       color: var(--title-bar);
       font-family: "Pixelify Sans", monospace;
+    }
+
+    @keyframes trace-scan {
+      0% {
+        transform: translateX(-110%);
+      }
+      70%,
+      100% {
+        transform: translateX(310%);
+      }
+    }
+
+    @keyframes trace-pulse {
+      0%,
+      100% {
+        filter: brightness(1);
+      }
+      45% {
+        filter: brightness(1.08);
+      }
     }
 
     .taskbar {
@@ -677,7 +923,8 @@
       .app-shell,
       .hero-row,
       .section-window,
-      .dialog-grid {
+      .dialog-grid,
+      .trace-details {
         grid-template-columns: 1fr;
       }
 
@@ -697,6 +944,11 @@
       }
 
       .stat-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .workflow-ribbon,
+      .glossary-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
@@ -724,10 +976,69 @@
 
       .app-main {
         padding: 10px;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .window-content {
+        margin: 3px;
+        max-width: calc(100% - 6px);
+      }
+
+      .app-window,
+      .window,
+      .app-shell,
+      .headline {
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .headline,
+      .section-copy,
+      .section-visual,
+      .dialog-body,
+      .glossary-term {
+        padding: 12px;
+      }
+
+      .tagline,
+      .body-copy,
+      .section-copy p,
+      .note-list li,
+      .dialog-body p {
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .action-row {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .retro-btn {
+        width: 100%;
+      }
+
+      .title-text,
+      .tree-button,
+      .retro-btn,
+      .start-button,
+      .taskbar-clock {
+        font-size: 13px;
+      }
+
+      h1 {
+        font-size: clamp(36px, 12vw, 48px);
+        white-space: normal;
+        word-break: break-word;
+        overflow-wrap: anywhere;
       }
 
       .stat-grid,
-      .app-nav {
+      .app-nav,
+      .workflow-ribbon,
+      .trace-controls,
+      .glossary-grid {
         grid-template-columns: 1fr;
       }
 
@@ -789,11 +1100,14 @@
       </div>
       <div class="window-content app-shell">
         <nav class="app-nav" aria-label="Page sections">
-          <div class="tree-label">D:\CUPEROS\PROJECTS\GPU_STACK</div>
+          <div class="tree-label">D:\CUPEROS\GPU_STACK</div>
           <a class="tree-button" href="#what"><span class="px-icon px-doc"></span> What is it?</a>
           <a class="tree-button" href="#stats"><span class="px-icon px-graph"></span> Registry stats</a>
           <a class="tree-button" href="#layers"><span class="px-icon px-atom"></span> Layer viewer</a>
+          <a class="tree-button" href="#trace"><span class="px-icon px-graph"></span> Trace target</a>
+          <a class="tree-button" href="#root-debt"><span class="px-icon px-folder"></span> Root debt</a>
           <a class="tree-button" href="#run"><span class="px-icon px-term"></span> Run commands</a>
+          <a class="tree-button" href="#glossary"><span class="px-icon px-doc"></span> Glossary</a>
           <a class="tree-button" href="#next"><span class="px-icon px-folder"></span> Next work</a>
           <a class="tree-button" href="https://github.com/Cuuper22/gpu_stack-"><span class="px-icon px-folder"></span> GitHub repo</a>
         </nav>
@@ -825,6 +1139,13 @@
             <div class="stat"><b>959</b><span>equations connecting them</span></div>
             <div class="stat"><b>619</b><span>root inputs, named instead of hidden</span></div>
             <div class="stat"><b>799</b><span>equations with unit checks</span></div>
+          </section>
+
+          <section class="workflow-ribbon" aria-label="How to read gpu_stack">
+            <div class="workflow-step"><b>1. Pick a target</b><span>Start with a human question like cost per token or tokens per second.</span></div>
+            <div class="workflow-step"><b>2. Walk upstream</b><span>The graph follows equations, constraints, and assumptions instead of flattening them.</span></div>
+            <div class="workflow-step"><b>3. Name the roots</b><span>Unresolved inputs stay visible so the debt can be paid down deliberately.</span></div>
+            <div class="workflow-step"><b>4. Run a fixture</b><span>Scenarios assign values explicitly. Synthetic fixtures are anchors, not vendor truth.</span></div>
           </section>
 
           <section class="section-window" aria-labelledby="model-heading">
@@ -873,6 +1194,66 @@
             </div>
           </section>
 
+          <section class="section-window" id="trace" aria-labelledby="trace-heading">
+            <div class="section-copy">
+              <p class="eyebrow">trace_target.exe</p>
+              <h2 id="trace-heading">Choose a question and follow what it depends on.</h2>
+              <p id="trace-summary">
+                Cost per token is not a lone price. It depends on run cost, token count, facility power, throughput, utilization, hardware choices, and root assumptions that still need better evidence.
+              </p>
+              <ul class="note-list" id="trace-facts">
+                <li>Use this as a mental model for the resolver, not as a live numerical solver.</li>
+                <li>The moving gold segment marks the direction of dependency pressure.</li>
+              </ul>
+            </div>
+            <div class="section-visual trace-lab">
+              <div class="trace-controls" role="tablist" aria-label="Trace targets">
+                <button class="tree-button" type="button" role="tab" aria-selected="true" data-target="cost">cost.per_token</button>
+                <button class="tree-button" type="button" role="tab" aria-selected="false" data-target="throughput">tokens_per_second</button>
+                <button class="tree-button" type="button" role="tab" aria-selected="false" data-target="power">dc_power</button>
+              </div>
+              <div class="trace-screen" aria-live="polite">
+                <div class="trace-map" id="trace-path" aria-label="Selected target dependency path"></div>
+                <div class="trace-connector" aria-hidden="true"></div>
+                <div class="trace-details">
+                  <div class="trace-note">
+                    <p id="trace-note">The graph is useful because each hop keeps its label. If a hop cannot be resolved from equations or scenario assignments, it comes back as a named missing boundary.</p>
+                  </div>
+                  <div class="trace-meter" aria-label="Trace status">
+                    <strong id="trace-meter-label">synthetic fixture resolves 4 of 4 targets</strong>
+                    <div class="meter-bar" id="trace-meter"><span></span></div>
+                    <span id="trace-meter-foot">scenario-report status: ok</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section-window" id="root-debt" aria-labelledby="root-debt-heading">
+            <div class="section-copy">
+              <p class="eyebrow">root_debt.dat</p>
+              <h2 id="root-debt-heading">Root inputs are the visible unpaid invoices.</h2>
+              <p>
+                `root-debt` ranks unresolved root inputs by downstream blast radius. The point is not to pretend the largest family is bad. The point is to know which unknowns are currently expensive.
+              </p>
+              <ul class="note-list">
+                <li>Total roots in the observed summary: 619.</li>
+                <li>Grouped root families in the observed summary: 151.</li>
+                <li>The heaviest shown family is `physical.lithography.medium` with total weight 3014.</li>
+              </ul>
+            </div>
+            <div class="section-visual">
+              <div class="root-family-list" aria-label="Top root-debt families from the README observed summary">
+                <div class="family-row" style="--impact: 100%;"><div><b>physical.lithography.medium</b><br><span>weight 3014, roots 15</span></div><div class="impact-bar"></div></div>
+                <div class="family-row" style="--impact: 73%;"><div><b>physical.lithography</b><br><span>weight 2185, roots 11</span></div><div class="impact-bar"></div></div>
+                <div class="family-row" style="--impact: 64%;"><div><b>physical.lithography.source_plasma_drive</b><br><span>weight 1943, roots 8</span></div><div class="impact-bar"></div></div>
+                <div class="family-row" style="--impact: 62%;"><div><b>physical.mosfet</b><br><span>weight 1866, roots 18</span></div><div class="impact-bar"></div></div>
+                <div class="family-row" style="--impact: 43%;"><div><b>physical.process</b><br><span>weight 1293, roots 8</span></div><div class="impact-bar"></div></div>
+              </div>
+              <p class="caption">These bars normalize the five README weights against the top family. No new metric is being invented here.</p>
+            </div>
+          </section>
+
           <section class="section-window" id="run" aria-labelledby="run-heading">
             <div class="section-copy">
               <p class="eyebrow">CLI.exe</p>
@@ -883,9 +1264,36 @@
             </div>
             <pre class="console-window" aria-label="Example gpu_stack commands"><code>python -m gpu_stack.cli stats
 python -m gpu_stack.cli verify --profile fast
-python -m gpu_stack.cli inspect econ.cost.per_token --cone
+python -m gpu_stack.cli resolve econ.cost.per_token --preset scenarios.dense_training_cost_fixture --trace --missing
 python -m gpu_stack.cli root-debt --families --limit 5
 python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --json</code></pre>
+          </section>
+
+          <section class="glossary-grid" id="glossary" aria-label="Plain-language glossary">
+            <article class="glossary-term">
+              <h3>Root input</h3>
+              <p>A variable with no defining value relation yet. It might be a real scenario boundary, or it might be physics that still needs decomposition.</p>
+            </article>
+            <article class="glossary-term">
+              <h3>Dependency cone</h3>
+              <p>The upstream set of variables, equations, assumptions, and constants needed to explain one target.</p>
+            </article>
+            <article class="glossary-term">
+              <h3>Scenario fixture</h3>
+              <p>A named set of explicit assignments used to resolve targets reproducibly. Synthetic fixtures are test anchors, not market claims.</p>
+            </article>
+            <article class="glossary-term">
+              <h3>MFU</h3>
+              <p>Model FLOPs Utilization: how much of the theoretical model compute is actually useful during training.</p>
+            </article>
+            <article class="glossary-term">
+              <h3>HBM</h3>
+              <p>High Bandwidth Memory: the fast memory sitting close to the accelerator package, often a ceiling for throughput.</p>
+            </article>
+            <article class="glossary-term">
+              <h3>PUE</h3>
+              <p>Power Usage Effectiveness: total facility power divided by IT equipment power. Cooling and overhead show up here.</p>
+            </article>
           </section>
 
           <section class="dialog-grid" aria-label="Current usefulness and limitations">
@@ -974,10 +1382,78 @@ python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --
       }
     };
 
+    const traces = {
+      cost: {
+        summary: "Cost per token is not a lone price. It depends on run cost, token count, facility power, throughput, utilization, hardware choices, and root assumptions that still need better evidence.",
+        facts: [
+          "The dense cost fixture resolves 4 of 4 advertised targets.",
+          "The representative fixture value is 3.000078e-06, and the README marks it synthetic."
+        ],
+        note: "This path is why the project keeps economics attached to physics. A price can inherit assumptions from power, cooling, utilization, kernels, and lower physical boundaries.",
+        meterLabel: "scenario-report resolves 4 of 4 targets",
+        meterFoot: "status: ok, issue_count: 0",
+        meterWidth: "100%",
+        path: [
+          ["econ.cost.per_token", "target", "What does one token cost?"],
+          ["econ.run.power_cost", "equation", "Power has to be paid for."],
+          ["econ.job.dc_power", "scenario", "Fixture value: 5200.0."],
+          ["training.tokens_per_sec", "scenario", "Fixture value: 6666666.66666667."],
+          ["cluster and cooling", "constraint", "PUE and facility overhead enter here."],
+          ["physical roots", "root", "Unresolved assumptions stay named."]
+        ]
+      },
+      throughput: {
+        summary: "Tokens per second is the visible training speed, but the graph treats it as the result of model math, kernels, communication, bubbles, memory traffic, and available hardware.",
+        facts: [
+          "MFU means Model FLOPs Utilization.",
+          "HBM bandwidth and communication can matter as much as raw peak FLOP/s."
+        ],
+        note: "The trace view keeps the easy phrase, faster training, connected to the things that actually move it: tensors, kernels, collectives, memory, topology, and utilization.",
+        meterLabel: "representative fixture: 6666666.66666667 tokens/s",
+        meterFoot: "synthetic anchor, not vendor truth",
+        meterWidth: "82%",
+        path: [
+          ["training.tokens_per_sec", "target", "How fast do tokens move?"],
+          ["training.step_time", "equation", "Compute plus comms plus bubbles."],
+          ["kernel throughput", "equation", "Tiling, fusion, occupancy."],
+          ["gpu.peak_flops", "variable", "Ceiling, not guarantee."],
+          ["memory and HBM", "constraint", "Traffic can become the bottleneck."],
+          ["process roots", "root", "Device limits need physical support."]
+        ]
+      },
+      power: {
+        summary: "Datacenter power is a rollup, not a wall-plug vibe. IT load, cooling, racks, auxiliary systems, PUE, utilization, and scenario boundaries all feed the number.",
+        facts: [
+          "PUE means Power Usage Effectiveness.",
+          "The representative dense fixture reports econ.job.dc_power = 5200.0."
+        ],
+        note: "This is the layer where non-experts can see why cooling and facility assumptions are part of model training, not an external footnote.",
+        meterLabel: "representative fixture: econ.job.dc_power = 5200.0",
+        meterFoot: "explicit fixture assignment path",
+        meterWidth: "68%",
+        path: [
+          ["econ.job.dc_power", "target", "What power does the job imply?"],
+          ["cluster.site.power_it", "equation", "GPU and infrastructure load."],
+          ["thermal.dc.pue", "scenario", "Facility overhead multiplier."],
+          ["cooling plant", "constraint", "Heat has to leave the building."],
+          ["racks and nodes", "variable", "Topology sets the rollup."],
+          ["thermal roots", "root", "Local behavior stays inspectable."]
+        ]
+      }
+    };
+
     const tabs = document.querySelectorAll("[data-layer]");
+    const targetTabs = document.querySelectorAll("[data-target]");
     const layerText = document.getElementById("layer-text");
     const layerFacts = document.getElementById("layer-facts");
     const stack = document.getElementById("dependency-stack");
+    const traceSummary = document.getElementById("trace-summary");
+    const traceFacts = document.getElementById("trace-facts");
+    const tracePath = document.getElementById("trace-path");
+    const traceNote = document.getElementById("trace-note");
+    const traceMeterLabel = document.getElementById("trace-meter-label");
+    const traceMeterFoot = document.getElementById("trace-meter-foot");
+    const traceMeter = document.getElementById("trace-meter");
     const clock = document.getElementById("clock");
 
     function renderLayer(key) {
@@ -1003,6 +1479,35 @@ python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --
       });
     }
 
+    function renderTrace(key) {
+      const trace = traces[key];
+      traceSummary.textContent = trace.summary;
+      traceFacts.replaceChildren(...trace.facts.map((fact) => {
+        const item = document.createElement("li");
+        item.textContent = fact;
+        return item;
+      }));
+      tracePath.replaceChildren(...trace.path.map(([labelText, role, detail], index) => {
+        const node = document.createElement("div");
+        node.className = `trace-node${index === trace.path.length - 1 ? " active" : ""}`;
+        const roleLabel = document.createElement("small");
+        roleLabel.textContent = role;
+        const label = document.createElement("b");
+        label.textContent = labelText;
+        const text = document.createElement("span");
+        text.textContent = detail;
+        node.append(roleLabel, label, text);
+        return node;
+      }));
+      traceNote.textContent = trace.note;
+      traceMeterLabel.textContent = trace.meterLabel;
+      traceMeterFoot.textContent = trace.meterFoot;
+      traceMeter.style.setProperty("--meter-width", trace.meterWidth);
+      targetTabs.forEach((tab) => {
+        tab.setAttribute("aria-selected", String(tab.dataset.target === key));
+      });
+    }
+
     function updateClock() {
       const now = new Date();
       const h = now.getHours() % 12 || 12;
@@ -1014,7 +1519,12 @@ python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --
       tab.addEventListener("click", () => renderLayer(tab.dataset.layer));
     });
 
+    targetTabs.forEach((tab) => {
+      tab.addEventListener("click", () => renderTrace(tab.dataset.target));
+    });
+
     renderLayer("datacenter");
+    renderTrace("cost");
     updateClock();
     setInterval(updateClock, 1000);
   </script>
