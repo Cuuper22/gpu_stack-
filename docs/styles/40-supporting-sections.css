@@ -1,0 +1,104 @@
+/* Supporting sections */
+.root-family-list {
+  display: grid;
+  gap: 8px;
+}
+
+.family-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 94px;
+  gap: 10px;
+  align-items: center;
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.98 0.002 90);
+  padding: 10px;
+  font: 13px/1.35 "IBM Plex Mono", monospace;
+}
+
+.family-row b {
+  color: var(--title-bar);
+  overflow-wrap: anywhere;
+}
+
+.family-row span {
+  color: var(--text-soft);
+}
+
+.impact-bar {
+  height: 16px;
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.20 0.01 250);
+  position: relative;
+}
+
+.impact-bar::after {
+  content: "";
+  position: absolute;
+  inset: 2px auto 2px 2px;
+  width: var(--impact, 50%);
+  background: var(--accent-gold);
+}
+
+.glossary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.glossary-term {
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.98 0.002 90);
+  padding: 12px;
+}
+
+.glossary-term h3 {
+  font-size: 18px;
+}
+
+.console-window {
+  background: oklch(0.09 0.008 250);
+  color: oklch(0.78 0.18 132);
+  border: 2px inset var(--window-chrome);
+  padding: 14px;
+  overflow: auto;
+  min-height: 194px;
+  font: 13px/1.55 "IBM Plex Mono", "Courier New", monospace;
+  white-space: pre;
+}
+
+.dialog-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dialog-body {
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.98 0.002 90);
+  padding: 14px;
+  min-width: 0;
+}
+
+.dialog-body p:last-child {
+  margin-bottom: 0;
+}
+
+.timeline {
+  display: grid;
+  gap: 8px;
+}
+
+.timeline-row {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 10px;
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.98 0.002 90);
+  padding: 10px;
+  font: 14px "IBM Plex Sans", system-ui, sans-serif;
+}
+
+.timeline-row b {
+  color: var(--title-bar);
+  font-family: "Pixelify Sans", monospace;
+}
