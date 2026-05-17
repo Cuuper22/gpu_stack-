@@ -86,6 +86,8 @@ def _verify_gates(profile: str, read_only: bool = False) -> List[VerifyGate]:
                 "core-tests",
                 _pytest_command(
                     "tests/test_import.py",
+                    "tests/test_import_physical_exports.py",
+                    "tests/test_import_registry.py",
                     "tests/test_graph_health.py",
                     "tests/test_units.py",
                     "tests/test_relation_roles.py",
