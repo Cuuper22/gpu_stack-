@@ -79,8 +79,11 @@ def test_registry_stats_match_snapshot():
 
 def test_registry_reset_can_bootstrap_back_to_full_graph():
     before = Registry.stats()
-    Registry.reset()
-    assert Registry.stats()["variables"] == 0
-    after = gpu_stack.bootstrap()
-    assert after == before
-    assert len(gpu_stack.topological_sort()) == before["variables"]
+    try:
+        Registry.reset()
+        assert Registry.stats()["variables"] == 0
+        after = gpu_stack.bootstrap()
+        assert after == before
+        assert len(gpu_stack.topological_sort()) == before["variables"]
+    finally:
+        gpu_stack.bootstrap()
