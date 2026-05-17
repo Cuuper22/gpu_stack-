@@ -1110,11 +1110,7 @@ h3 {
 
   .action-row {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .action-row .retro-btn:last-child {
-    grid-column: 1 / -1;
+    grid-template-columns: 1fr;
   }
 
   .retro-btn {
