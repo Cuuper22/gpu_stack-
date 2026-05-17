@@ -29,6 +29,16 @@ def test_verify_fast_prints_compact_gate_summary(monkeypatch):
     assert "tests/test_relation_roles.py" in core_command
     assert "tests/test_symbolic_integrity.py" in core_command
     assert "tests/test_resolver.py" in core_command
+    for cli_test_file in (
+        "tests/test_cli.py",
+        "tests/test_cli_audit.py",
+        "tests/test_cli_inventory.py",
+        "tests/test_cli_resolve.py",
+        "tests/test_cli_root_debt.py",
+        "tests/test_cli_scenarios.py",
+        "tests/test_cli_verify.py",
+    ):
+        assert cli_test_file in core_command
     assert (
         "tests/test_process_geometry.py::"
         "test_source_plasma_radial_expansion_uses_species_mass_chain"
