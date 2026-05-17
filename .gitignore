@@ -26,6 +26,9 @@ htmlcov/
 *.swp
 .DS_Store
 
+# Local agent worktrees
+.worktrees/
+
 # Virtualenvs
 .venv/
 venv/
