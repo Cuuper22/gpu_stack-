@@ -2,7 +2,7 @@
 
 from gpu_stack.cli import build_parser, main
 from tests.helpers.cli import captured_stdout
-from tests.test_import import PUBLISHED_SNAPSHOT
+from tests.test_import_registry import PUBLISHED_SNAPSHOT
 
 
 def test_parser_builds_without_args():
