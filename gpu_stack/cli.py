@@ -13,6 +13,7 @@ Subcommands:
   next-work          Print a live continuation compass from graph evidence.
   verify             Run a compact local verification profile.
   list-presets       List the named presets under gpu_stack.presets.*.
+  export-graph-json  Export dependency-cone JSON for portfolio page viewer.
   resolve TARGET     Resolve a target variable. Supply `--assign k=v` to
                      pin inputs, `--variant k=v` to select variant keys,
                      and `--preset name` to layer in a named preset.
@@ -75,6 +76,7 @@ from gpu_stack.cli_scenario import (
     cmd_scenario_audit,
     cmd_scenario_report,
 )
+from gpu_stack.cli_export_graph import cmd_export_graph
 from gpu_stack.cli_verify import (
     DEFAULT_GATE_TIMEOUT_SECONDS,
     VERIFY_TIMEOUT_RETURN_CODE,
@@ -231,6 +233,29 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     p_verify.set_defaults(func=cmd_verify)
+
+    p_export = subparsers.add_parser(
+        "export-graph-json",
+        help="export dependency-cone JSON for the portfolio page viewer",
+    )
+    p_export.add_argument(
+        "--target",
+        dest="targets",
+        action="append",
+        metavar="VARIABLE",
+        help=(
+            "target variable to include; repeat for multiple. Defaults to "
+            "econ.cost.per_token, training.tokens_per_sec, thermal.dc.pue"
+        ),
+    )
+    p_export.add_argument(
+        "--output",
+        "-o",
+        default="-",
+        metavar="PATH",
+        help="output file path; defaults to stdout (use - for stdout)",
+    )
+    p_export.set_defaults(func=cmd_export_graph)
 
     p_list = subparsers.add_parser("list-presets", help="list named presets")
     p_list.set_defaults(func=cmd_list_presets)
