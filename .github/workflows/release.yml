@@ -1,0 +1,83 @@
+name: Release
+
+# Triggered only on version tags (e.g. v0.24.0).
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install build tools
+        run: python -m pip install build twine
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Check distribution metadata
+        run: python -m twine check dist/*
+
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  # IMPORTANT: Before this job can succeed you must complete the one-time
+  # PyPI setup described in RELEASING.md:
+  #   1. Create the project on PyPI (https://pypi.org/manage/projects/).
+  #   2. Add a Trusted Publisher on PyPI:
+  #      repository owner = <your-github-org-or-user>
+  #      repository name  = gpu_stack-
+  #      workflow name    = release.yml
+  #      environment name = pypi
+  #   3. Create a GitHub environment named "pypi" in the repository settings
+  #      (Settings > Environments) and, if desired, restrict deployments to
+  #      version tags or require a manual approval gate.
+  #
+  # Until those steps are completed, this job will fail at the OIDC token
+  # exchange step, which is safe -- nothing will be published accidentally.
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+
+    # Only publish on actual version tags, never on branch pushes.
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    # The "pypi" environment must exist in GitHub repository settings.
+    # Configure it to require manual approval or restrict to tag patterns
+    # to prevent accidental publishes.
+    environment: pypi
+
+    permissions:
+      id-token: write  # required for OIDC trusted publishing
+
+    steps:
+      - name: Download distribution artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI via trusted publishing
+        # Pinned to an immutable commit SHA because this job holds id-token
+        # permissions; bump deliberately when upgrading.
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
+        # No API token needed -- authentication is via OIDC trusted publishing.
+        # The PyPI project and trusted publisher must be configured first
+        # (see the comment block above this job).
