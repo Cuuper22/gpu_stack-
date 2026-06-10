@@ -267,8 +267,17 @@ targetTabs.forEach((tab) => {
   tab.addEventListener("click", () => renderTrace(tab.dataset.target));
 });
 
-renderPrimer("target");
-renderLayer("datacenter");
-renderTrace("cost");
-updateClock();
-setInterval(updateClock, 1000);
+// Guard each panel so one missing hook cannot take down the others.
+if (primerText && primerFacts && primerStatusTitle && primerStatusBody) {
+  renderPrimer("target");
+}
+if (layerText && layerFacts && stack) {
+  renderLayer("datacenter");
+}
+if (traceSummary && traceFacts && tracePath && traceNote && traceMeter) {
+  renderTrace("cost");
+}
+if (clock) {
+  updateClock();
+  setInterval(updateClock, 1000);
+}

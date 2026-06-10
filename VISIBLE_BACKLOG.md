@@ -1,21 +1,31 @@
 # Visible Backlog
 
-Updated: 2026-05-06 23:04 PDT.
+Updated: 2026-06-10 PDT.
 
 Purpose: compact recovery surface for the visible backlog.
 
-## In-Progress Wave: Pythia Energy-Floor Cost Closure Plus Aggregate Missing-Family Dedup
+## Latest Verified Wave: Portfolio Form And Deliverable Polish
 
-Status: in progress; no final verification claimed.
+Status: implemented and verified.
 
-- Runtime cap is six live workers.
-- Lanes CP-CU are active/pending.
-- Active slice: close Pythia energy-floor cost and deduplicate aggregate
-  missing-family reporting.
-- Pending: parent integration, focused verification, full verifier,
-  read-only verifier, and source-clean confirmation.
+- Docs site three-font typography, Open Graph metadata, backtick-to-`code`
+  copy fixes, `app.js` null guards, and eyebrow contrast landed in `docs/`.
+- README dependency-cone and `evaluate_targets` examples were fixed and
+  re-run successfully.
+- Observed gates: full pytest `670 passed in 133.89s`; full verifier
+  `4/4 gates passed in 141.07s`; audit PASS with large project files 0.
 
-## Latest Verified Wave: Live Next-Work Compass And Scenario-Audit Missing-Family Ergonomics
+## Reconciled Wave: Pythia Energy-Floor Cost Closure Plus Aggregate Missing-Family Dedup
+
+Status: partially landed; cost closure remains open.
+
+- The wave's scope-split merges are on main and the suite grew from 639 to
+  670 green tests; the audit large-project-file count moved from 7 to 0.
+- Live `scenario-audit --json` still reports the Pythia `cost_per_token`
+  target with 33 missing inputs, so the energy-floor cost closure stays on
+  this backlog instead of being claimed as done.
+
+## Previous Verified Wave: Live Next-Work Compass And Scenario-Audit Missing-Family Ergonomics
 
 Status: implemented, verified, read-only verified, and source-clean.
 

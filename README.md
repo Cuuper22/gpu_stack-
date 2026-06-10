@@ -136,7 +136,8 @@ print(target.name)
 print(f"{len(cone)} variables upstream")
 print("first few roots:")
 
-for var in sorted(v for v in cone if v.is_root_input)[:12]:
+roots = sorted((v for v in cone if v.is_root_input), key=lambda v: v.name)
+for var in roots[:12]:
     print("  ", var.name, f"[{var.units}]")
 ```
 
@@ -168,6 +169,9 @@ total_weight  root_count  family                                      boundary_c
         1293           8  physical.process                            primitive-root     True
 ```
 
+The live table also appends a `top_roots` column naming the heaviest
+individual roots per family, truncated here for line width.
+
 This is one of the more useful commands because it prevents the project from drifting into "add equations wherever it feels cool." The graph can tell which unknowns are currently expensive.
 
 ## Scenario Reports
@@ -178,7 +182,7 @@ Presets can evaluate named targets and return structured artifacts.
 from gpu_stack.presets import scenarios
 
 report = scenarios.dense_training_cost_fixture.evaluate_targets([
-    ("tokens_per_second", "training.tokens_per_second"),
+    ("tokens_per_second", "training.tokens_per_sec"),
     ("job_dc_power", "econ.job.dc_power"),
     ("run_power_cost", "econ.run.power_cost"),
     ("cost_per_token", "econ.cost.per_token"),

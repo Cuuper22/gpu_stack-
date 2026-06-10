@@ -1,21 +1,50 @@
 # Session State
 
-Updated: 2026-05-06 23:04 PDT.
+Updated: 2026-06-10 PDT.
 
 Read this first after compaction or restart. It is intentionally shorter than
 `HANDOFF.md` and `CODEX 5-5 START HERE.md`.
 
-## In-Progress Wave: Pythia Energy-Floor Cost Closure Plus Aggregate Missing-Family Dedup
+## Latest Verified Wave: Portfolio Form And Deliverable Polish
 
-Status: in progress; do not claim final verification.
+Status: implemented and verified on the current base.
 
-- Runtime cap is six live workers.
-- Lanes CP-CU are active/pending.
-- Active slice: close the Pythia energy-floor cost path and deduplicate
-  aggregate missing-family reporting.
-- Parent integration and verification are pending.
+- Scope: docs site typography and metadata, README example accuracy, and
+  ledger reconciliation. No registry, scope, preset, or test source changes.
+- Docs site: body copy now renders in IBM Plex Sans while Pixelify Sans
+  stays on OS chrome and headings; leaked markdown backticks became real
+  `code` elements; Open Graph image URL is absolute and `og:url`, `og:type`,
+  and `twitter:card` exist; the empty `docs/styles.css` link was removed;
+  `app.js` panel renders are null-guarded; eyebrow labels were darkened to
+  clear 4.5:1 contrast.
+- Design verification: the impeccable static detector reports only one
+  finding on `docs/`, a known false positive counting the seven CLI
+  `--flag` tokens inside the console code sample as em-dashes. There are
+  zero prose em-dashes in `docs/index.html`.
+- README: the dependency-cone example no longer sorts `Variable` objects
+  directly (it sorts by name), the `evaluate_targets` example uses the real
+  variable name `training.tokens_per_sec`, and the root-debt block notes the
+  live `top_roots` column. Both fixed snippets were re-run and pass.
+- Observed function gates on this base: full pytest `670 passed in 133.89s`;
+  full verifier `4/4 gates passed in 141.07s`; audit gate PASS with systems
+  16, variables 1517, constants 24, equations 959, root inputs 619,
+  leaves 253, cycles 0, hard failures 0, large scope files 0, large project
+  files 0; demo OK.
 
-## Latest Verified Wave: Live Next-Work Compass And Scenario-Audit Missing-Family Ergonomics
+## Reconciliation: Pythia Energy-Floor Wave End State
+
+The previously in-progress wave is reconciled against observed evidence:
+
+- The scope-split merges landed on main (attention, plasma electron state,
+  medium components, cluster node, semiconductor, lithography source).
+- The suite grew from 639 to 670 collected tests and is green.
+- The audit large-project-file count moved from 7 to 0 at the 700-line
+  threshold.
+- The Pythia cost path is still open: live `scenario-audit --json` reports
+  `cost_per_token` with 33 missing inputs, unchanged from the documented
+  count. Cost closure remains visible backlog, not a claimed result.
+
+## Previous Verified Wave: Live Next-Work Compass And Scenario-Audit Missing-Family Ergonomics
 
 Status: implemented, verified, read-only verified, and source-clean.
 
@@ -144,17 +173,18 @@ New surfaces:
 - Cycles: 0
 - Hard failures: 0
 - Large scope files: 0
-- Large project files: 7
+- Large project files: 0
 
 ## Verification
 
-- Focused physical boundary pack: 125 passed in 33.75s.
-- Full pytest: 639 passed in 102.03s.
+- Full pytest: 670 passed in 157.12s.
 - Audit gate: PASS; systems 16, variables 1517, constants 24, equations 959,
   root inputs 619, leaves 253, cycles 0, hard failures 0, large scope files 0,
-  large project files 7.
-- Full verifier: 4/4 gates passed in 107.69s.
-- Read-only full verifier: 4/4 gates passed in 95.58s.
+  large project files 0.
+- Full verifier: 4/4 gates passed in 157.32s.
+- Read-only full verifier: 4/4 gates passed in 157.18s.
+- Impeccable static detector on `docs/`: one known false positive only
+  (CLI `--flag` tokens counted as em-dashes); `single-font` resolved.
 - Final source-clean check:
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0 ruff_cache_dirs=0`.
 

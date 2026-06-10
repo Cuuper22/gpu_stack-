@@ -146,7 +146,8 @@
 
 .eyebrow {
   margin: 0 0 7px;
-  color: var(--accent-cyan);
+  /* Darker than --accent-cyan so 13px labels clear 4.5:1 on the pane. */
+  color: oklch(0.42 0.10 195);
   font-size: 13px;
   font-weight: 700;
 }
