@@ -70,6 +70,7 @@
           <a class="tree-button" href="#read-graph"><span class="px-icon px-graph"></span> Read graph</a>
           <a class="tree-button" href="#layers"><span class="px-icon px-atom"></span> Layer viewer</a>
           <a class="tree-button" href="#trace"><span class="px-icon px-graph"></span> Trace target</a>
+          <a class="tree-button" href="#cone-browser"><span class="px-icon px-graph"></span> Cone browser</a>
           <a class="tree-button" href="#root-debt"><span class="px-icon px-folder"></span> Root debt</a>
           <a class="tree-button" href="#run"><span class="px-icon px-term"></span> Run commands</a>
           <a class="tree-button" href="#glossary"><span class="px-icon px-doc"></span> Glossary</a>
@@ -238,6 +239,38 @@
             </div>
           </section>
 
+          <section class="section-window" id="cone-browser" aria-labelledby="cone-heading">
+            <div class="section-copy">
+              <p class="eyebrow">cone_browser.exe</p>
+              <h2 id="cone-heading">Inspect any variable's upstream cone.</h2>
+              <p>
+                Choose a target and click any node to expand its direct dependencies.
+                Each hop shows the unit, scope, and whether it is an equation, a root
+                input, or a physics constant. Root inputs carry a gold badge because
+                they are the visible modeling debt.
+              </p>
+              <ul class="note-list">
+                <li>The tree loads from a pre-generated JSON snapshot of the registry.</li>
+                <li>Click a node button to toggle its direct dependencies open or closed.</li>
+                <li>Constants are marked to distinguish universal physics values.</li>
+              </ul>
+            </div>
+            <div class="section-visual">
+              <div class="cone-browser" id="cone-browser-panel" aria-label="Dependency cone browser">
+                <div class="cone-target-controls" role="tablist" aria-label="Cone browser targets">
+                  <button class="tree-button" type="button" role="tab" aria-selected="true"
+                    data-cone-target="econ.cost.per_token">cost.per_token</button>
+                  <button class="tree-button" type="button" role="tab" aria-selected="false"
+                    data-cone-target="training.tokens_per_sec">tokens_per_sec</button>
+                  <button class="tree-button" type="button" role="tab" aria-selected="false"
+                    data-cone-target="thermal.dc.pue">thermal.dc.pue</button>
+                </div>
+                <div class="cone-status-bar" id="cone-status" aria-live="polite">Loading dependency data...</div>
+                <div class="cone-tree-pane" id="cone-tree" aria-label="Dependency tree for selected target"></div>
+              </div>
+            </div>
+          </section>
+
           <section class="section-window" id="root-debt" aria-labelledby="root-debt-heading">
             <div class="section-copy">
               <p class="eyebrow">root_debt.dat</p>
@@ -340,5 +373,6 @@ python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --
   </footer>
 
   <script src="app.js"></script>
+  <script src="cone-browser.js"></script>
 </body>
 </html>
