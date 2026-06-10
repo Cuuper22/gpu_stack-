@@ -6,13 +6,17 @@
   <meta name="description" content="gpu_stack is a visual-first symbolic model of AI training infrastructure, styled as a CuperOS project window.">
   <meta property="og:title" content="gpu_stack">
   <meta property="og:description" content="A symbolic dependency graph from cost per token down toward the physical assumptions underneath it.">
-  <meta property="og:image" content="assets/readme-hero.png">
+  <meta property="og:image" content="https://cuuper22.github.io/gpu_stack-/assets/readme-hero.png">
+  <meta property="og:url" content="https://cuuper22.github.io/gpu_stack-/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
   <title>gpu_stack - CuperOS</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23008080'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%23808080' stroke='%231A1A1A'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23C0C0C0'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/00-foundation.css">
   <link rel="stylesheet" href="styles/10-desktop-chrome.css">
   <link rel="stylesheet" href="styles/20-window-shell.css">
@@ -158,11 +162,11 @@
               <p class="eyebrow">Not a bounded simulator</p>
               <h2 id="model-heading">The point is to expose what each number is standing on.</h2>
               <p>
-                Most training-cost talk jumps straight to a satisfying number. `gpu_stack` keeps the ancestry attached: equations, units, references, constraints, scenario assumptions, and the exact places where the graph has not decomposed reality yet.
+                Most training-cost talk jumps straight to a satisfying number. <code>gpu_stack</code> keeps the ancestry attached: equations, units, references, constraints, scenario assumptions, and the exact places where the graph has not decomposed reality yet.
               </p>
               <ul class="note-list">
-                <li>Only universal physics constants belong in `Constant`.</li>
-                <li>Everything else stays a `Variable`: clocks, voltages, tariffs, GPU counts, batch sizes, and facility assumptions.</li>
+                <li>Only universal physics constants belong in <code>Constant</code>.</li>
+                <li>Everything else stays a <code>Variable</code>: clocks, voltages, tariffs, GPU counts, batch sizes, and facility assumptions.</li>
                 <li>A root input is visible modeling debt. That is much better than hidden modeling debt with a haircut.</li>
               </ul>
             </div>
@@ -239,12 +243,12 @@
               <p class="eyebrow">root_debt.dat</p>
               <h2 id="root-debt-heading">Root inputs are the visible unpaid invoices.</h2>
               <p>
-                `root-debt` ranks unresolved root inputs by downstream blast radius. The point is not to pretend the largest family is bad. The point is to know which unknowns are currently expensive.
+                <code>root-debt</code> ranks unresolved root inputs by downstream blast radius. The point is not to pretend the largest family is bad. The point is to know which unknowns are currently expensive.
               </p>
               <ul class="note-list">
                 <li>Total roots in the observed summary: 619.</li>
                 <li>Grouped root families in the observed summary: 151.</li>
-                <li>The heaviest shown family is `physical.lithography.medium` with total weight 3014.</li>
+                <li>The heaviest shown family is <code>physical.lithography.medium</code> with total weight 3014.</li>
               </ul>
             </div>
             <div class="section-visual">

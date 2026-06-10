@@ -1,4 +1,7 @@
-/* CuperOS docs shell */
+/* CuperOS docs shell.
+   Three-font system per DESIGN.md: Pixelify Sans carries OS chrome and
+   headings, IBM Plex Sans carries reading copy, IBM Plex Mono carries
+   commands and registry output. */
 :root {
   color-scheme: light;
   --desktop-bg: oklch(0.45 0.10 195);
@@ -22,7 +25,9 @@
   --danger-red: oklch(0.58 0.19 28);
   --shadow: 2px 2px 0 oklch(0.08 0.004 250);
   --max: 1180px;
-  font-family: "Pixelify Sans", monospace;
+  --font-display: "Pixelify Sans", monospace;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "Courier New", monospace;
 }
 
 * {
@@ -41,10 +46,24 @@ body {
   background-image: radial-gradient(circle, var(--desktop-dot) 1px, transparent 1px);
   background-size: 4px 4px;
   color: var(--text-dark);
-  font-family: "Pixelify Sans", monospace;
+  font-family: var(--font-body);
   line-height: 1.6;
   overflow-x: hidden;
   padding-bottom: 54px;
+}
+
+/* OS chrome keeps the pixel display face even where later files only set
+   size or weight. Reading copy stays on the body default above. */
+.title-text,
+.icon-label,
+.desktop-icon,
+.logo-text,
+.logo-version,
+.tree-label,
+.file-path,
+.eyebrow,
+.stat b {
+  font-family: var(--font-display);
 }
 
 a {
@@ -65,7 +84,7 @@ img {
 code,
 pre,
 .mono {
-  font-family: "IBM Plex Mono", "Courier New", monospace;
+  font-family: var(--font-mono);
 }
 
 button,
