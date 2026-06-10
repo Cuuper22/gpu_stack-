@@ -1,8 +1,35 @@
 # HANDOFF: gpu_stack active wave
 
-Status timestamp: May 6, 2026, 23:00 America/Los_Angeles.
+Status timestamp: June 10, 2026, America/Los_Angeles.
 
 ## Latest Verified Wave
+
+`portfolio form and deliverable polish` is implemented and verified.
+
+Implemented facts:
+
+- Docs site typography now follows the three-font system from `DESIGN.md`:
+  IBM Plex Sans for reading copy, Pixelify Sans for OS chrome and headings,
+  IBM Plex Mono for commands. The impeccable static detector's `single-font`
+  finding on `docs/` is resolved.
+- `docs/index.html` gained absolute `og:image`, `og:url`, `og:type`, and
+  `twitter:card` metadata; leaked markdown backticks became `code` elements;
+  the dead `docs/styles.css` link and file were removed.
+- `docs/app.js` panel renders are null-guarded so one missing hook cannot
+  take down the other panels or the clock.
+- README example fixes: the dependency-cone snippet sorts roots by name
+  instead of comparing `Variable` objects, and the `evaluate_targets`
+  example targets `training.tokens_per_sec`. Both were re-run and pass.
+- Ledger reconciliation: the Pythia energy-floor wave's scope splits are
+  merged (suite grew 639 to 670, large project files 7 to 0), while the
+  Pythia `cost_per_token` path still reports 33 missing inputs and stays on
+  the visible backlog.
+- Observed gates on this base: full pytest `670 passed in 133.89s`; full
+  verifier `4/4 gates passed in 141.07s`; audit PASS with systems 16,
+  variables 1517, constants 24, equations 959, root inputs 619, leaves 253,
+  cycles 0, hard failures 0, large scope files 0, large project files 0.
+
+## Previous Verified Wave
 
 `live next-work compass and scenario-audit missing-family ergonomics` is
 implemented, verified, read-only verified, and source-clean. Runtime remained
@@ -31,10 +58,9 @@ Implemented facts:
 
 ## Resume Instructions
 
-You are resuming after the live next-work compass and scenario-audit
-missing-family ergonomics wave was integrated, verified, read-only verified,
-and cleaned. Do not revert anyone else's work. For fast resume, read
-`SESSION_STATE.md` and `VISIBLE_BACKLOG.md` first.
+You are resuming after the portfolio form-and-deliverable polish wave was
+integrated and verified. Do not revert anyone else's work. For fast resume,
+read `SESSION_STATE.md` and `VISIBLE_BACKLOG.md` first.
 
 ## Current State
 

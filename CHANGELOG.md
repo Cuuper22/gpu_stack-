@@ -8,6 +8,23 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
 
 ## Current physical deepening notes
 
+* Finalized the portfolio form-and-deliverable polish wave. The docs site
+  moved to the three-font system from `DESIGN.md` (IBM Plex Sans reading
+  copy, Pixelify Sans chrome and headings, IBM Plex Mono commands), gained
+  absolute Open Graph metadata plus `og:url`, `og:type`, and `twitter:card`,
+  converted leaked markdown backticks into real `code` elements, removed the
+  dead empty `docs/styles.css`, null-guarded `docs/app.js` panel renders,
+  and darkened eyebrow labels to clear 4.5:1 contrast. The impeccable static
+  detector now reports only a known false positive on `docs/` (it counts the
+  seven CLI `--flag` tokens in the console sample as em-dashes; prose has
+  none). README example fixes: the dependency-cone snippet sorts roots by
+  name instead of comparing `Variable` objects, and `evaluate_targets`
+  targets `training.tokens_per_sec`; both re-ran successfully. Ledger
+  reconciliation recorded the Pythia energy-floor wave end state: scope
+  splits merged, full pytest grew to `670 passed in 133.89s`, audit large
+  project files moved 7 to 0, and Pythia `cost_per_token` still reports 33
+  missing inputs, so cost closure stays on the visible backlog. Full
+  verifier passed `4/4 gates passed in 141.07s` on this base.
 * Finalized the live next-work compass and scenario-audit missing-family
   ergonomics wave. Added `gpu_stack.next_work` with `NextWorkPlan`,
   `NextWorkItem`, and `build_next_work_plan(...)`; added `next-work` and
