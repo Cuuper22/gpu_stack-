@@ -466,7 +466,7 @@ The README is the front door. The moving project ledger lives here:
 - [`./CHANGELOG.md`](./CHANGELOG.md)
 - [`./SESSION_STATE.md`](./SESSION_STATE.md)
 - [`./VISIBLE_BACKLOG.md`](./VISIBLE_BACKLOG.md)
-- [`./AGENT_DIARY.md`](./AGENT_DIARY.md)
-- [`./rest_breaks/README.md`](./rest_breaks/README.md)
+- [`./archive/AGENT_DIARY.md`](./archive/AGENT_DIARY.md)
+- [`./archive/rest_breaks/README.md`](./archive/rest_breaks/README.md)
 
-The diary and break-room files are not part of the package API. They are there because long-running work needs memory, and apparently so do the agents doing it.
+The diary and break-room files are not part of the package API. They are archived under `archive/` for provenance; long-running work needs memory, and apparently so do the agents doing it.
