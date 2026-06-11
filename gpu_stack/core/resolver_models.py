@@ -49,6 +49,15 @@ class TraceStep:
     role: RelationRole
     variant: Optional[str]
     value: sp.Expr
+    # Selection explanation fields (optional; populated when explanation is enabled
+    # or when fallback/system-solve paths are taken).
+    selection_reason: Optional[str] = None
+    # Populated when fallback-on-violated-validity triggered: the equation
+    # that was originally selected but whose validity check was violated.
+    fallback_from: Optional[str] = None
+    # Populated by system-solve steps: the other variable names resolved
+    # simultaneously with this one.
+    system_peers: Optional[Tuple[str, ...]] = None
 
 
 @dataclass
@@ -91,6 +100,10 @@ class UnresolvedInput:
     family: str = ""
     boundary_category: str = ""
     primitive_boundary: bool = False
+    # Alternative equations that existed but were not selectable (e.g. missing
+    # inputs, wrong role, validity not checkable). Populated by the resolver
+    # when selection explanation is requested.
+    not_selectable_alternatives: Tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)

@@ -57,6 +57,7 @@ wire_pitch = var(
     scope="physical",
     positive=True,
     sp_units=METER,
+    references=[_INTERCONNECT_GEOMETRY_REF],
 )
 wire_fill_factor = var(
     "physical.interconnect.fill_factor", "phi_fill", "dimensionless",
@@ -65,24 +66,28 @@ wire_fill_factor = var(
     positive=True,
     value_range=(0.0, 1.0),
     sp_units=1,
+    references=[_INTERCONNECT_GEOMETRY_REF],
 )
 wire_aspect_ratio = var(
     "physical.interconnect.aspect_ratio", "AR_wire", "dimensionless",
     "Metal thickness divided by metal width.",
     scope="physical",
     sp_units=1,
+    references=[_INTERCONNECT_GEOMETRY_REF],
 )
 wire_width = var(
     "physical.interconnect.width", "w_wire", "m",
     "Physical wire width.",
     scope="physical",
     sp_units=METER,
+    references=[_INTERCONNECT_GEOMETRY_REF],
 )
 wire_thickness = var(
     "physical.interconnect.thickness", "t_wire", "m",
     "Physical wire thickness.",
     scope="physical",
     sp_units=METER,
+    references=[_INTERCONNECT_GEOMETRY_REF],
 )
 wire_spacing = var(
     "physical.interconnect.spacing", "s_wire", "m",
@@ -131,12 +136,14 @@ C_wire_total = var(
     "Total interconnect capacitance of a line segment.",
     scope="physical",
     sp_units=FARAD,
+    references=[_INTERCONNECT_TEXT],
 )
 tau_wire_rc = var(
     "physical.interconnect.rc_delay", "tau_wire", "s",
     "Distributed RC delay of a uniform line segment.",
     scope="physical",
     sp_units=SECOND,
+    references=[_INTERCONNECT_TEXT],
 )
 
 n_vias = var(
@@ -144,24 +151,28 @@ n_vias = var(
     "Number of vias in the vertical path.",
     scope="physical",
     sp_units=1,
+    references=[_INTERCONNECT_GEOMETRY_REF],
 )
 R_via_single = var(
     "physical.interconnect.via_resistance", "R_via", "ohm",
     "Resistance of one via.",
     scope="physical",
     sp_units=OHM,
+    references=[_INTERCONNECT_TEXT],
 )
 R_via_total = var(
     "physical.interconnect.via_resistance_total", "R_via_tot", "ohm",
     "Aggregate via resistance along the path.",
     scope="physical",
     sp_units=OHM,
+    references=[_INTERCONNECT_TEXT],
 )
 R_path_total = var(
     "physical.interconnect.path_resistance", "R_path", "ohm",
     "End-to-end path resistance including wire and vias.",
     scope="physical",
     sp_units=OHM,
+    references=[_INTERCONNECT_TEXT],
 )
 
 f_signal = var(
@@ -169,30 +180,35 @@ f_signal = var(
     "Signal spectral content or representative switching frequency.",
     scope="physical",
     sp_units=HZ,
+    references=[_INTERCONNECT_TEXT],
 )
 omega_signal = var(
     "physical.interconnect.angular_frequency", "omega_sig", "rad/s",
     "Angular frequency corresponding to the signal content.",
     scope="physical",
     sp_units=1 / SECOND,
+    references=[_INTERCONNECT_TEXT],
 )
 mu_wire = var(
     "physical.interconnect.permeability", "mu_wire", "H/m",
     "Magnetic permeability of the conductor environment.",
     scope="physical",
     sp_units=HENRY / METER,
+    references=[_INTERCONNECT_TEXT],
 )
 skin_depth = var(
     "physical.interconnect.skin_depth", "delta_skin", "m",
     "Skin depth for current crowding at high frequency.",
     scope="physical",
     sp_units=METER,
+    references=[_INTERCONNECT_TEXT],
 )
 R_wire_ac = var(
     "physical.interconnect.ac_resistance", "R_wire_ac", "ohm",
     "Approximate AC wire resistance including skin-effect inflation.",
     scope="physical",
     sp_units=OHM,
+    references=[_INTERCONNECT_TEXT],
 )
 
 C_couple = var(
@@ -200,24 +216,28 @@ C_couple = var(
     "Mutual coupling capacitance from an aggressor line.",
     scope="physical",
     sp_units=FARAD,
+    references=[_INTERCONNECT_TEXT],
 )
 C_victim_load = var(
     "physical.interconnect.c_victim_load", "C_victim", "F",
     "Victim-line capacitance excluding the explicit coupling term.",
     scope="physical",
     sp_units=FARAD,
+    references=[_INTERCONNECT_TEXT],
 )
 V_aggressor = var(
     "physical.interconnect.v_aggressor", "V_agg", "V",
     "Aggressor transition amplitude driving a coupled neighbor.",
     scope="physical",
     sp_units=VOLT,
+    references=[_INTERCONNECT_TEXT],
 )
 V_xtalk = var(
     "physical.interconnect.v_crosstalk", "V_xtalk", "V",
     "Approximate crosstalk-induced victim voltage excursion.",
     scope="physical",
     sp_units=VOLT,
+    references=[_INTERCONNECT_TEXT],
 )
 
 

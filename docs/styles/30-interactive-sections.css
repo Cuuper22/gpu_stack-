@@ -354,3 +354,128 @@ h3 {
   width: var(--meter-width, 50%);
   background: var(--accent-gold);
 }
+
+/* ------------------------------------------------------------------ */
+/* Cone browser                                                         */
+/* ------------------------------------------------------------------ */
+
+.cone-browser {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+
+.cone-target-controls {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cone-status-bar {
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.98 0.002 90);
+  padding: 8px 10px;
+  font: 13px "IBM Plex Mono", monospace;
+  color: var(--text-soft);
+  min-height: 30px;
+}
+
+.cone-tree-pane {
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.91 0.006 250);
+  padding: 6px;
+  min-height: 240px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+/* Each tree row is a full-width button so keyboard works natively. */
+.cone-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+  background: oklch(0.98 0.002 90);
+  border: 2px outset var(--button-face);
+  border-radius: 0;
+  padding: 5px 7px;
+  margin-bottom: 4px;
+  font: 13px "IBM Plex Mono", monospace;
+  color: var(--text-dark);
+  cursor: pointer;
+  min-height: 34px;
+}
+
+.cone-row:hover {
+  background: var(--button-hover);
+}
+
+.cone-row:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
+.cone-row:active {
+  border-style: inset;
+}
+
+.cone-row[aria-expanded="true"] {
+  border-style: inset;
+  background: oklch(0.94 0.004 250);
+}
+
+/* Depth indentation: each level adds 18px via inline style --depth. */
+.cone-row-indent {
+  display: inline-block;
+  width: calc(var(--depth, 0) * 18px);
+  flex-shrink: 0;
+}
+
+.cone-row-name {
+  overflow-wrap: anywhere;
+  color: var(--title-bar);
+  font-weight: 700;
+}
+
+.cone-row-meta {
+  color: var(--text-soft);
+  font-size: 12px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Gold badge for root inputs */
+.cone-badge {
+  display: inline-block;
+  background: var(--accent-gold);
+  color: var(--text-dark);
+  font: 700 10px/1 "IBM Plex Mono", monospace;
+  padding: 2px 5px;
+  border: 1px solid oklch(0.65 0.12 88);
+  text-transform: uppercase;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.cone-badge.is-const {
+  background: oklch(0.85 0.005 250);
+  color: var(--text-soft);
+  border-color: oklch(0.65 0.005 250);
+}
+
+/* Children container injected below a row */
+.cone-children {
+  display: grid;
+  gap: 0;
+}
+
+/* Error/loading state */
+.cone-notice {
+  padding: 14px;
+  font: 500 14px/1.55 "IBM Plex Sans", system-ui, sans-serif;
+  color: var(--text-soft);
+  border: 2px inset var(--window-chrome);
+  background: oklch(0.98 0.002 90);
+}

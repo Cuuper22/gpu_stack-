@@ -241,6 +241,7 @@ eq_cluster_heat_load = facility_thermal_eq(
     cluster_heat_load.symbol,
     cluster_power_it.symbol,
     "In steady state, essentially all IT electrical power appears as heat that must be managed by the facility.",
+    check_units=True,
 )
 
 eq_recovered_heat_power = facility_thermal_eq(
@@ -306,6 +307,7 @@ eq_ups_loss = facility_thermal_eq(
     p_ups_loss.symbol,
     ups_loss_fraction.symbol * cluster_power_it.symbol,
     "UPS losses are modeled as a fraction of site IT power.",
+    check_units=True,
 )
 
 eq_transformer_loss = facility_thermal_eq(
@@ -313,6 +315,7 @@ eq_transformer_loss = facility_thermal_eq(
     p_transformer_loss.symbol,
     transformer_loss_fraction.symbol * cluster_power_it.symbol,
     "Transformer and power-distribution losses are modeled as a fraction of site IT power.",
+    check_units=True,
 )
 
 eq_lighting = facility_thermal_eq(
@@ -328,6 +331,7 @@ eq_facility_misc = facility_thermal_eq(
     p_facility_misc.symbol,
     facility_misc_fraction.symbol * cluster_power_it.symbol,
     "Miscellaneous facility electrical load is modeled as a fraction of site IT power.",
+    check_units=True,
 )
 
 eq_dc_total_power = facility_thermal_eq(
@@ -335,6 +339,7 @@ eq_dc_total_power = facility_thermal_eq(
     dc_total_power.symbol,
     cluster_power_it.symbol + p_cooling_total.symbol + p_ups_loss.symbol + p_transformer_loss.symbol + p_lighting.symbol + p_facility_misc.symbol,
     "Total site power equals IT load plus cooling and other facility overheads.",
+    check_units=True,
 )
 
 eq_pue_definition = facility_thermal_eq(
@@ -342,6 +347,7 @@ eq_pue_definition = facility_thermal_eq(
     pue.symbol,
     dc_total_power.symbol / cluster_power_it.symbol,
     "PUE is defined as total site power divided by IT load.",
+    check_units=True,
 )
 
 

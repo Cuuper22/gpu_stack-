@@ -3,9 +3,32 @@
 Updated: 2026-06-10 PDT.
 
 Read this first after compaction or restart. It is intentionally shorter than
-`HANDOFF.md` and `CODEX 5-5 START HERE.md`.
+`HANDOFF.md`.
 
-## Latest Verified Wave: Portfolio Form And Deliverable Polish
+## Latest Verified Wave: Ten-Step Expansion Integration
+
+Status: implemented and verified on the integrated tree.
+
+- Nine of ten parallel branches merged (N1 cost closure, N3 resolver
+  flags, N4 cited packs, N5 metadata tail, N6 uncertainty, N7 cone
+  browser, N8 docs-stats gate, N9 CI/packaging, N10 ledger archive);
+  the SEMF plus quark-decomposition branch stays a draft PR pending
+  test reconciliation.
+- First end-to-end real-scenario cost: the assumption-labeled full-TCO
+  pack resolves econ.cost.per_token = 3.738e-9 with missing=0 over
+  75 trace steps at the EIA 2024 industrial tariff.
+- Metadata tail closed: with_sp_units 1493 of 1493, with_references
+  1493 of 1493, equations_with_references 959 of 959,
+  equations_with_unit_check 893 of 959.
+- Scenario-audit reports 99 issues across 8 packs by design: three
+  open sourced cost frontiers keep their missing economics roots
+  visible while the closure pack resolves 4 of 4.
+- Observed gates: full pytest `841 passed in 256.30s`; full verifier
+  `5/5 gates passed in 260.02s` (docs-stats is the fifth gate);
+  read-only full verifier `5/5 gates passed in 262.07s`; audit PASS;
+  docs-stats OK; impeccable detect shows only the known false positive.
+
+## Previous Verified Wave: Portfolio Form And Deliverable Polish
 
 Status: implemented and verified on the current base.
 
@@ -69,9 +92,9 @@ Status: implemented, verified, read-only verified, and source-clean.
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0 ruff_cache_dirs=0`.
 - Current `next-work` evidence: Pythia `cost_per_token` has 33 missing inputs;
   the top root-debt family is `physical.lithography.medium` with weight 3014
-  across 15 roots; metadata gaps are 65 variables without `sp_units`,
-  169 variables without references, 81 equations without references, and
-  160 equations without unit checks.
+  across 15 roots; the metadata tail was closed by the ten-step
+  integration wave (100 percent variable units and references, 100 percent
+  equation references, 893 of 959 equations unit-checked).
 
 ## Current Aim
 
@@ -97,7 +120,7 @@ Status: implemented, verified, read-only verified, and source-clean.
   medium-intercomponent, root-debt, import, CLI, and index/smoke coverage were
   added around already-existing symbolic constraints.
 - Runtime capped live workers at six, so the wave used bounded write lanes and
-  `AGENT_GITLOG.md` as a pseudo-git coordination ledger.
+  a pseudo-git coordination ledger (now archived at `archive/AGENT_GITLOG.md`).
 - Focused parent pack: `125 passed in 33.75s`.
 - Full pytest: `628 passed in 71.99s`.
 - Audit gate: PASS; systems 16, variables 1517, constants 24, equations 959,

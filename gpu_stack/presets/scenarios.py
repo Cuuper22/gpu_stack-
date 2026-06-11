@@ -12,8 +12,10 @@ domain-specific root assignments by hand.
 
 from __future__ import annotations
 
+from types import MappingProxyType
+
 from ..core.presets import Preset, combine
-from . import economics, hardware, lithography, materials, workload
+from . import dgx_h100_tco, economics, hardware, lithography, materials, workload
 from .scenario_targets import (
     COST_PER_TOKEN_TARGET,
     DENSE_TRAINING_COST_TARGETS,
@@ -21,6 +23,19 @@ from .scenario_targets import (
     ScenarioTargetSet,
     build_scenario_target_sets,
     targets_for,
+)
+from .scenarios_cited_2026 import (
+    SCENARIO_TARGET_SETS_2026,
+    SOURCED_SCENARIO_PACKS_2026,
+    pythia_160m_dgx_h100_energy_floor_cost_closure,
+    pythia_160m_dgx_h100_single_node_run_closure,
+    pythia_160m_dgx_h100_us_2024_industrial_energy_floor_cost,
+    pythia_160m_dgx_h100_us_2024_industrial_power,
+    pythia_160m_dense_training,
+    pythia_70m_dgx_h100_us_2024_commercial_energy_floor_cost,
+    pythia_70m_dgx_h100_us_2024_commercial_energy_floor_cost_closure,
+    pythia_70m_dgx_h100_us_2024_commercial_power,
+    pythia_70m_dgx_h100_us_2024_commercial_run_closure,
 )
 
 
@@ -210,6 +225,56 @@ pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost = combine(
 )
 
 
+_PYTHIA_TCO_ASSUMPTION_NOTE = (
+    "Scenario-layer assumption closure: all non-sourced root inputs in this "
+    "pack are explicitly labeled assumptions, not measured procurement or "
+    "site-specific data. See pythia_70m_dgx_h100_run_closure_assumption "
+    "notes for per-field rationale and sensitivity ranges."
+)
+
+
+def _pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption() -> Preset:
+    combined = combine(
+        hardware.dgx_h100_8gpu_node,
+        workload.pythia_70m_dense_training,
+        economics.us_2024_industrial_flat_power_tariff,
+        pythia_70m_dgx_h100_single_node_run_closure,
+        dgx_h100_tco.dgx_h100_node_power_bom,
+        dgx_h100_tco.pythia_70m_dgx_h100_run_closure_assumption,
+        name="pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption",
+        description=(
+            "Fully-closed scenario pack for Pythia-70M on a single DGX H100 "
+            "node using the EIA 2024 U.S. industrial electricity price. "
+            "Combines sourced hardware, workload, electricity-price, and DGX "
+            "H100 power-BOM presets with an explicit assumption-labeled TCO "
+            "closure so econ.cost.per_token resolves as a fully allocated "
+            "per-token datacenter cost estimate."
+        ),
+    )
+    return combined.with_overrides(
+        name=combined.name,
+        source=f"{combined.source} | {_PYTHIA_TCO_ASSUMPTION_NOTE}",
+        notes=(
+            *combined.notes,
+            "This scenario pack resolves econ.cost.per_token as a full TCO "
+            "estimate covering electricity, capex depreciation, maintenance, "
+            "staff, network transit, demand charges, water, and carbon cost.",
+            "All non-sourced roots are scenario-layer assumptions. The result "
+            "is sensitive to GPU capex, asset lifecycle, utilization, and "
+            "facility capex assumptions. See notes in "
+            "pythia_70m_dgx_h100_run_closure_assumption for per-assumption "
+            "rationale, bound, and override guidance.",
+            "Compare to pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost "
+            "for the electricity-only cost floor.",
+        ),
+    )
+
+
+pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption = (
+    _pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption()
+)
+
+
 _TIN120_SOURCE_CONTEXT_ASSUMPTION = (
     "Scenario-layer tin-120 assumption: this pack models the EUV tin source "
     "species as 120Sn for isotope-level closure only. ASML public material "
@@ -250,16 +315,26 @@ euv_tin120_lpp_source_context_assumption = (
 SOURCED_SCENARIO_PACKS = (
     pythia_70m_dgx_h100_us_2024_industrial_power,
     pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost,
+    pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption,
     euv_tin120_lpp_source_context_assumption,
+    *SOURCED_SCENARIO_PACKS_2026,
 )
 
-SCENARIO_TARGET_SETS = build_scenario_target_sets(
-    dense_training_cost_fixture=dense_training_cost_fixture,
-    pythia_industrial_power=pythia_70m_dgx_h100_us_2024_industrial_power,
-    pythia_energy_floor_cost=(
-        pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost
-    ),
-    euv_tin120_source_context=euv_tin120_lpp_source_context_assumption,
+SCENARIO_TARGET_SETS = MappingProxyType(
+    {
+        **build_scenario_target_sets(
+            dense_training_cost_fixture=dense_training_cost_fixture,
+            pythia_industrial_power=pythia_70m_dgx_h100_us_2024_industrial_power,
+            pythia_energy_floor_cost=(
+                pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost
+            ),
+            pythia_full_tco=(
+                pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption
+            ),
+            euv_tin120_source_context=euv_tin120_lpp_source_context_assumption,
+        ),
+        **SCENARIO_TARGET_SETS_2026,
+    }
 )
 
 
@@ -280,6 +355,16 @@ __all__ = [
     "pythia_70m_dgx_h100_energy_floor_cost_closure",
     "pythia_70m_dgx_h100_single_node_run_closure",
     "pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost",
+    "pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption",
     "pythia_70m_dgx_h100_us_2024_industrial_power",
+    "pythia_160m_dense_training",
+    "pythia_160m_dgx_h100_energy_floor_cost_closure",
+    "pythia_160m_dgx_h100_single_node_run_closure",
+    "pythia_160m_dgx_h100_us_2024_industrial_energy_floor_cost",
+    "pythia_160m_dgx_h100_us_2024_industrial_power",
+    "pythia_70m_dgx_h100_us_2024_commercial_energy_floor_cost",
+    "pythia_70m_dgx_h100_us_2024_commercial_energy_floor_cost_closure",
+    "pythia_70m_dgx_h100_us_2024_commercial_power",
+    "pythia_70m_dgx_h100_us_2024_commercial_run_closure",
     "scenario_targets_for",
 ]

@@ -67,7 +67,7 @@ read `SESSION_STATE.md` and `VISIBLE_BACKLOG.md` first.
 Physical root-debt boundary hardening is now the previous verified handoff.
 
 - Runtime capped live workers at six, so the wave used bounded write lanes and
-  `AGENT_GITLOG.md` as a pseudo-git coordination ledger.
+  a pseudo-git coordination ledger (now archived in `archive/AGENT_GITLOG.md`).
 - Source changes landed in MOSFET, interconnect, lithography source/species,
   and medium-response surfaces.
 - Coverage expanded around process geometry, SEMF/nuclear coefficients,

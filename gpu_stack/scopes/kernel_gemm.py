@@ -125,6 +125,7 @@ eq_matmul_flops = eq(
     2 * M_mm.symbol * N_mm.symbol * K_mm.symbol,
     "Matmul FLOPs equal 2 times M times N times K.",
     references=[KERNEL_GEMM_REF],
+    check_units=True,
 )
 eq_matmul_bytes = eq(
     "kernel.eq.matmul_bytes",

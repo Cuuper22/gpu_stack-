@@ -161,6 +161,8 @@ eq_attn_proj_flops = eq(
     attn_proj_flops_per_layer.symbol,
     2 * seq_len_ctx.symbol * params_attn_per_layer.symbol,
     "For one full sequence, each learned projection contributes two FLOPs per parameter application.",
+    references=[ATTENTION_FLOP_REF],
+    check_units=True,
 )
 
 eq_attn_scores_flops = eq(
@@ -168,6 +170,8 @@ eq_attn_scores_flops = eq(
     attn_scores_flops_per_layer.symbol,
     2 * seq_len_ctx.symbol ** 2 * d_model.symbol,
     "QK score matmuls cost 2 * sequence^2 * model_width FLOPs per layer.",
+    references=[ATTENTION_FLOP_REF],
+    check_units=True,
 )
 
 eq_attn_values_flops = eq(
@@ -175,6 +179,8 @@ eq_attn_values_flops = eq(
     attn_values_flops_per_layer.symbol,
     2 * seq_len_ctx.symbol ** 2 * d_model.symbol,
     "Applying attention weights to V costs the same order as the score matmul.",
+    references=[ATTENTION_FLOP_REF],
+    check_units=True,
 )
 
 eq_attn_flops_mha = eq(
@@ -190,6 +196,8 @@ eq_attn_flops_sparse = eq(
     attn_flops_sparse_per_layer.symbol,
     attn_proj_flops_per_layer.symbol + 4 * seq_len_ctx.symbol * k_sparse.symbol * d_model.symbol,
     "Sparse attention replaces the quadratic score and value terms with sequence times sparse_k times model_width.",
+    references=[SPARSE_ATTENTION_REF],
+    check_units=True,
 )
 
 eq_kv_gqa = eq(

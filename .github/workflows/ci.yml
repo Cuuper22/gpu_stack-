@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
       - name: Check out repository
@@ -21,6 +21,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
 
       - name: Install package
         run: python -m pip install -e ".[dev]"
@@ -36,3 +37,60 @@ jobs:
 
       - name: Compile source
         run: python -m compileall -q gpu_stack tests
+
+  verify:
+    name: Verify profile (full)
+    # Gate on the matrix so red commits do not consume verify/build runners.
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+
+      # --gate-timeout 0 disables per-gate timeouts (0 is treated as "no limit"
+      # by _gate_timeout in cli_verify.py). The full profile re-runs pytest by
+      # design; the read-only variant stays a local/release-time check (see
+      # RELEASING.md) so CI does not run the suite a sixth time.
+      - name: Run verify --profile full
+        run: python -m gpu_stack.cli verify --profile full --gate-timeout 0
+
+  build:
+    name: Build distribution
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install build tools
+        run: python -m pip install build twine
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Check distribution metadata
+        run: python -m twine check dist/*
+
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error

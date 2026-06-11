@@ -13,6 +13,7 @@ Subcommands:
   next-work          Print a live continuation compass from graph evidence.
   verify             Run a compact local verification profile.
   list-presets       List the named presets under gpu_stack.presets.*.
+  export-graph-json  Export dependency-cone JSON for portfolio page viewer.
   resolve TARGET     Resolve a target variable. Supply `--assign k=v` to
                      pin inputs, `--variant k=v` to select variant keys,
                      and `--preset name` to layer in a named preset.
@@ -75,6 +76,7 @@ from gpu_stack.cli_scenario import (
     cmd_scenario_audit,
     cmd_scenario_report,
 )
+from gpu_stack.cli_export_graph import cmd_export_graph
 from gpu_stack.cli_verify import (
     DEFAULT_GATE_TIMEOUT_SECONDS,
     VERIFY_TIMEOUT_RETURN_CODE,
@@ -232,6 +234,29 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_verify.set_defaults(func=cmd_verify)
 
+    p_export = subparsers.add_parser(
+        "export-graph-json",
+        help="export dependency-cone JSON for the portfolio page viewer",
+    )
+    p_export.add_argument(
+        "--target",
+        dest="targets",
+        action="append",
+        metavar="VARIABLE",
+        help=(
+            "target variable to include; repeat for multiple. Defaults to "
+            "econ.cost.per_token, training.tokens_per_sec, thermal.dc.pue"
+        ),
+    )
+    p_export.add_argument(
+        "--output",
+        "-o",
+        default="-",
+        metavar="PATH",
+        help="output file path; defaults to stdout (use - for stdout)",
+    )
+    p_export.set_defaults(func=cmd_export_graph)
+
     p_list = subparsers.add_parser("list-presets", help="list named presets")
     p_list.set_defaults(func=cmd_list_presets)
 
@@ -374,6 +399,37 @@ def build_parser() -> argparse.ArgumentParser:
         "--fail-on-violated-approximation-validity",
         action="store_true",
         help="return nonzero when any selected approximation validity check is violated",
+    )
+    p_resolve.add_argument(
+        "--fallback-on-violated-validity",
+        dest="fallback_on_violated_validity",
+        action="store_true",
+        help=(
+            "when a selected Approximation has a violated validity predicate "
+            "and an alternative defining relation exists, retry with the "
+            "alternative instead of keeping the violating approximation"
+        ),
+    )
+    p_resolve.add_argument(
+        "--solve-systems",
+        dest="solve_systems",
+        action="store_true",
+        help=(
+            "when resolution stalls on 2-3 variables that define each other "
+            "(a small cycle), solve the subsystem simultaneously with "
+            "sympy.solve/linsolve; accepts only unique real solutions "
+            "consistent with variable symbol assumptions"
+        ),
+    )
+    p_resolve.add_argument(
+        "--explain-selection",
+        dest="explain_selection",
+        action="store_true",
+        help=(
+            "enrich trace steps with a selection_reason explaining why each "
+            "relation was chosen, and unresolved inputs with a list of "
+            "alternative equations that were not selectable"
+        ),
     )
     p_resolve.set_defaults(func=cmd_resolve)
     return parser

@@ -1,8 +1,32 @@
 # gpu_stack improvement map
 
-Audit date: 2026-04-18 (original), live snapshot refreshed 2026-05-06.
+Audit date: 2026-04-18 (original), live snapshot refreshed 2026-06-10.
 
 ## Latest Verified Wave
+
+Portfolio form-and-deliverable polish is implemented, verified, and
+source-clean. Session memory files moved to `archive/`.
+
+- Scope: docs site typography and metadata, README example accuracy, ledger
+  reconciliation, and historical session-memory consolidation under `archive/`.
+- Docs site: three-font system (IBM Plex Sans / Pixelify Sans / IBM Plex Mono),
+  absolute Open Graph metadata, null-guarded panel renders, darkened eyebrow
+  labels.
+- README example fixes: dependency-cone sort by name; `evaluate_targets` uses
+  real variable name `training.tokens_per_sec`.
+- Moved `AGENT_DIARY.md`, `AGENT_WORKLOG.md`, `AGENT_GITLOG.md`,
+  `CODEX 5-5 START HERE.md`, `AGENT_REST_BREAKS/`, and `rest_breaks/` to
+  `archive/` to reduce root inventory noise.
+- Full pytest: `670 passed in 157.12s`.
+- Audit gate: PASS; systems 16, variables 1517, constants 24, equations 959,
+  root inputs 619, leaves 253, cycles 0, hard failures 0, large scope files 0,
+  large project files 0.
+- Full verifier: `4/4 gates passed in 157.32s`.
+- Read-only full verifier: `4/4 gates passed in 157.18s`.
+- Final source-clean check:
+  `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0 ruff_cache_dirs=0`.
+
+## Previous Verified Wave
 
 Live next-work compass and scenario-audit missing-family ergonomics are
 implemented, verified, read-only verified, and source-clean.
@@ -29,7 +53,7 @@ Physical root-debt boundary hardening is implemented, verified, read-only
 verified, and source-clean.
 
 - Runtime capped live workers at six; bounded write lanes were tracked through
-  `AGENT_GITLOG.md`.
+  a pseudo-git coordination ledger (now archived at `archive/AGENT_GITLOG.md`).
 - MOSFET, interconnect, lithography source/species, and medium-response source
   surfaces gained boundary hardening.
 - Process geometry, SEMF/nuclear coefficients, source-plasma drive, medium
@@ -46,6 +70,8 @@ verified, and source-clean.
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0 ruff_cache_dirs=0`.
 
 ## Current snapshot
+
+Snapshot date: 2026-06-10.
 
 | Metric | Value |
 |---|---:|
@@ -70,9 +96,9 @@ verified, and source-clean.
 | Variables with multiple defining relations, role-tagged | 53 |
 | Inequalities that simplify to `True` in `as_sympy()` | 0 |
 | Scope files at or above 700 lines | 0 |
-| Project Python files at or above 700 lines | 7 |
+| Project Python files at or above 700 lines | 0 |
 | Hard audit failures | 0 |
-| Collected pytest tests | 639 |
+| Collected pytest tests | 670 |
 
 ## Previous Verified Wave
 
@@ -182,7 +208,7 @@ Phase 3 modularization finished in pass 39. Every file in the original split map
 | `memory_cell.py` | 700 | DONE (pass 31) | `memory_sram.py`, `memory_dram.py`, `memory_flipflop.py` |
 | `parallelism.py` | 703 | DONE (pass 39) | `parallelism_batching.py`, `parallelism_zero_fsdp.py`, `parallelism_pipeline.py`, `parallelism_moe.py` |
 
-Phase 4 scenario resolver landed in pass 26 (`gpu_stack.core.resolver` plus `gpu_stack.resolve`). Phase 5 preset framework landed in pass 27 (`gpu_stack.core.presets` plus `gpu_stack.presets.*`). Phase 2 metadata helpers landed in pass 30 (`Registry.by_kind`, `Registry.by_extensivity`, `Registry.coverage`, and post-load `auto_classify_kinds`). Current compact metrics: 1517 variables, 959 equations, 619 roots, 639 collected tests. A CLI entry point landed in pass 32 (`gpu-stack stats`, `list-presets`, `resolve`). Scenario presets now include `dense_training_cost_fixture`, the first sourced/calibrated scenario pack, tin/EUV source scaffolding, SEMF calibration scaffolding, `scenarios.euv_tin120_lpp_source_context_assumption`, `scenario-report --missing-families`, `resolve --missing-families`, `Preset.evaluate_targets(...)`, `ScenarioReport`, `ScenarioTargetReport`, `MissingFamilySummary`, `scenario-report --json`, `scenario-audit`, `scenario-audit --missing-families`, `SCENARIO_TARGET_SETS`, `scenario_targets_for(...)`, and the `next-work` continuation compass.
+Phase 4 scenario resolver landed in pass 26 (`gpu_stack.core.resolver` plus `gpu_stack.resolve`). Phase 5 preset framework landed in pass 27 (`gpu_stack.core.presets` plus `gpu_stack.presets.*`). Phase 2 metadata helpers landed in pass 30 (`Registry.by_kind`, `Registry.by_extensivity`, `Registry.coverage`, and post-load `auto_classify_kinds`). Current compact metrics: 1517 variables, 959 equations, 619 roots, 670 collected tests. A CLI entry point landed in pass 32 (`gpu-stack stats`, `list-presets`, `resolve`). Scenario presets now include `dense_training_cost_fixture`, the first sourced/calibrated scenario pack, tin/EUV source scaffolding, SEMF calibration scaffolding, `scenarios.euv_tin120_lpp_source_context_assumption`, `scenario-report --missing-families`, `resolve --missing-families`, `Preset.evaluate_targets(...)`, `ScenarioReport`, `ScenarioTargetReport`, `MissingFamilySummary`, `scenario-report --json`, `scenario-audit`, `scenario-audit --missing-families`, `SCENARIO_TARGET_SETS`, `scenario_targets_for(...)`, and the `next-work` continuation compass.
 
 The remaining work from the original plan is:
 
@@ -206,8 +232,8 @@ Next highest-impact frontier: keep the scenario-artifact surface stable while ex
 | Constraint preservation | Current audit reports 0 inequalities that simplify to `True` in `as_sympy()`. The old SRAM margin collapses are now regression targets instead of live failures. | Constraints must stay inspectable as the graph grows, especially around branch conditions, approximation validity, and feasibility checks. | P1 |
 | Metadata coverage | The core supports references, unit checking, variable kinds, extensivity, shape, and dimensional expressions. The loaded model now uses most of it: 1324 non-constant variables have references, 1428 have `sp_units`, and 799 equations opt into dimensional checks. | Coverage is now broad across the model layer; the remaining gaps are visible and can be closed as focused slices. | P0 |
 | Calibration depth | There are still 619 root inputs across the graph, meaning variables with no value-defining identity, approximation, or selected variant. The first sourced/calibrated scenario pack is landed, full-verified, and source-clean. | The next frontier is reducing manual scenario assignments and making pack provenance/evaluation behavior reproducible. | P0 |
-| File cohesion | Current audit reports 0 scope files and 7 project Python files at or above 700 lines after lithography source-plasma, focused-beam, medium-response, and medium-density helper splits. | Reviewability, onboarding, and targeted regression testing stay tractable as scopes accumulate more subdomains. | Watch |
-| Verification surface | The bundle has timeout-protected smoke validation (`import`, `demo`, `compileall` or read-only syntax checking, graph health), package metadata, and 639 collected pytest tests behind the `verify` profiles; the fast profile now includes resolver tests plus the neutron-sensitive source-plasma trace test directly, and `--read-only` suppresses bytecode/pytest-cache artifacts where practical. | The project can keep growing symbolically, but regression risk will grow faster than coverage. | P0 |
+| File cohesion | Current audit reports 0 scope files and 0 project Python files at or above 700 lines after all helper splits including the portfolio-polish wave. | Reviewability, onboarding, and targeted regression testing stay tractable as scopes accumulate more subdomains. | Watch |
+| Verification surface | The bundle has timeout-protected smoke validation (`import`, `demo`, `compileall` or read-only syntax checking, graph health), package metadata, and 670 collected pytest tests behind the `verify` profiles; the fast profile now includes resolver tests plus the neutron-sensitive source-plasma trace test directly, and `--read-only` suppresses bytecode/pytest-cache artifacts where practical. | The project can keep growing symbolically, but regression risk will grow faster than coverage. | P0 |
 | User-facing evaluation | A conservative global resolver exists and computes targets from assignments through selected value relations, with symbolic-boundary missing reporting, constraint checks, approximation-validity checks, and optional strict CLI exits for violated feasibility. Scenario-report, root-debt, and `resolve --missing-families` diagnostics now share family/category grouping. The verified artifact surface includes `Preset.evaluate_targets(...)`, `ScenarioReport`, `ScenarioTargetReport`, `MissingFamilySummary`, `scenario-report --json`, and `scenario-audit` over sourced scenario packs with text/JSON output plus `--fail-on-issues`. It does not yet solve simultaneous systems or optimize over scenario choices. | The current API can run scenarios and emit structured artifacts; the highest-impact next step is selector control, broader pack reproducibility, and concise diagnostics. | P0 |
 | Packaging hygiene | Earlier artifacts included `__pycache__` output. A reproducible source-only build path still needs to be formalized. | Clean packaging matters once the repo starts moving between machines, agents, and CI. | P2 |
 

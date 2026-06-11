@@ -64,6 +64,7 @@ hbm_spare_die_fraction = var(
     nonnegative=True,
     value_range=(0.0, 1.0),
     sp_units=DIMENSIONLESS,
+    references=[HBM_ORGANIZATION_REF],
 )
 hbm_stack_capacity = var(
     "mem.hbm.stack_capacity", "B_HBM_stack", "byte",
@@ -123,6 +124,7 @@ hbm_protocol_efficiency = var(
     nonnegative=True,
     value_range=(0.0, 1.0),
     sp_units=DIMENSIONLESS,
+    references=[HBM_ORGANIZATION_REF],
 )
 hbm_bw_per_channel = var(
     "mem.hbm.bw_per_channel", "BW_HBM_chan", "byte/s",
@@ -223,6 +225,7 @@ mem_compression_ratio = var(
     scope="memory_subsystem",
     positive=True,
     sp_units=DIMENSIONLESS,
+    references=[HBM_SERVICE_REF],
 )
 hbm_effective_capacity = var(
     "mem.hbm.capacity_effective", "B_HBM_eff_cap", "byte",

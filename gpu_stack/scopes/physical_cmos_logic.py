@@ -40,48 +40,56 @@ fanout = var(
     "Electrical fanout, number of similar gate inputs driven by this node.",
     scope="physical",
     sp_units=1,
+    references=[_CMOS_POWER_TEXT],
 )
 C_wire_load = var(
     "physical.gate.c_wire_load", "C_wire_load", "F",
     "Interconnect capacitance presented to the gate output node.",
     scope="physical",
     sp_units=FARAD,
+    references=[_CMOS_POWER_TEXT],
 )
 C_load = var(
     "physical.gate.c_load", "C_L", "F",
     "Total switched load capacitance at the gate output.",
     scope="physical",
     sp_units=FARAD,
+    references=[_CMOS_POWER_TEXT],
 )
 R_on = var(
     "physical.gate.r_on", "R_on", "ohm",
     "Effective on-resistance of the switching network.",
     scope="physical",
     sp_units=OHM,
+    references=[_CMOS_POWER_TEXT],
 )
 tau_rc = var(
     "physical.gate.rc_delay", "tau_RC", "s",
     "First-order RC time constant for the gate output node.",
     scope="physical",
     sp_units=SECOND,
+    references=[_CMOS_POWER_TEXT],
 )
 t_prop = var(
     "physical.gate.prop_delay", "t_p", "s",
     "Propagation delay to the 50 percent level.",
     scope="physical",
     sp_units=SECOND,
+    references=[_CMOS_POWER_TEXT],
 )
 t_elmore = var(
     "physical.gate.elmore_delay", "t_elmore", "s",
     "Elmore-delay estimate including distributed interconnect.",
     scope="physical",
     sp_units=SECOND,
+    references=[_CMOS_POWER_TEXT],
 )
 V_dd = var(
     "physical.supply_voltage", "V_DD", "V",
     "Supply voltage for the logic domain.",
     scope="physical",
     sp_units=VOLT,
+    references=[_CMOS_POWER_TEXT],
 )
 
 P_dyn = var(
@@ -89,42 +97,49 @@ P_dyn = var(
     "Dynamic switching power of a gate output.",
     scope="physical",
     sp_units=WATT,
+    references=[_CMOS_POWER_TEXT],
 )
 P_stat = var(
     "physical.power.static", "P_stat", "W",
     "Static leakage power of a gate.",
     scope="physical",
     sp_units=WATT,
+    references=[_CMOS_POWER_TEXT],
 )
 P_sc = var(
     "physical.power.short_circuit", "P_sc", "W",
     "Short-circuit power while pull-up and pull-down briefly conduct together.",
     scope="physical",
     sp_units=WATT,
+    references=[_CMOS_POWER_TEXT],
 )
 P_total_gate = var(
     "physical.power.total_gate", "P_gate", "W",
     "Total per-gate power: dynamic plus leakage plus short-circuit.",
     scope="physical",
     sp_units=WATT,
+    references=[_CMOS_POWER_TEXT],
 )
 P_landauer_min = var(
     "physical.power.landauer_min", "P_landauer", "W",
     "Thermodynamic lower bound on dissipated power for irreversible bit erasure.",
     scope="physical",
     sp_units=WATT,
+    references=[_CMOS_POWER_TEXT],
 )
 alpha_act = var(
     "physical.gate.activity", "alpha_sw", "dimensionless",
     "Average fraction of cycles in which the node switches.",
     scope="physical",
     sp_units=1,
+    references=[_CMOS_POWER_TEXT],
 )
 f_clock = var(
     "physical.clock_frequency", "f_clk", "Hz",
     "Clock frequency.",
     scope="physical",
     sp_units=HZ,
+    references=[_CLOCK_TIMING_REF],
 )
 f_max_timing = var(
     "physical.clock.max_timing_frequency", "f_clk_timing_max", "Hz",
@@ -146,30 +161,35 @@ T_clk = var(
     "Clock period.",
     scope="physical",
     sp_units=SECOND,
+    references=[_CLOCK_TIMING_REF],
 )
 I_sc_peak = var(
     "physical.gate.i_short_circuit_peak", "I_sc_pk", "A",
     "Peak short-circuit current during an input transition.",
     scope="physical",
     sp_units=AMPERE,
+    references=[_CMOS_POWER_TEXT],
 )
 t_sc = var(
     "physical.gate.short_circuit_window", "t_sc", "s",
     "Time window during which both transistor networks conduct simultaneously.",
     scope="physical",
     sp_units=SECOND,
+    references=[_CMOS_POWER_TEXT],
 )
 E_landauer = var(
     "physical.gate.landauer_energy", "E_landauer", "J",
     "Landauer minimum energy k_B T ln 2 per erased bit.",
     scope="physical",
     sp_units=JOULE,
+    references=[_CMOS_POWER_TEXT],
 )
 bits_erased_per_cycle = var(
     "physical.gate.bits_erased_per_cycle", "N_erase", "dimensionless",
     "Logical bit erasures attributed to the gate per cycle in the abstraction.",
     scope="physical",
     sp_units=1,
+    references=[_CMOS_POWER_TEXT],
 )
 
 
@@ -178,6 +198,7 @@ eq_gate_input_cap = eq(
     C_gate_input.symbol,
     C_ox.symbol * W_channel.symbol * L_channel.symbol,
     "Input capacitance from oxide capacitance density times gate area.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 
@@ -186,6 +207,7 @@ eq_wire_load_cap = eq(
     C_wire_load.symbol,
     C_wire_total.symbol,
     "Output wire load is the line capacitance seen by the gate.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 
@@ -194,6 +216,7 @@ eq_total_load_cap = eq(
     C_load.symbol,
     fanout.symbol * C_gate_input.symbol + C_wire_load.symbol,
     "Total load capacitance is fanout input capacitance plus wire capacitance.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 
@@ -202,6 +225,7 @@ eq_rc_constant = eq(
     tau_rc.symbol,
     R_on.symbol * C_load.symbol,
     "First-order RC time constant of the gate output node.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 
@@ -210,6 +234,7 @@ eq_prop_delay = eq(
     t_prop.symbol,
     LN_2 * tau_rc.symbol,
     "Propagation delay to the 50 percent point for a first-order RC response.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 
@@ -219,6 +244,7 @@ eq_elmore_delay = eq(
     R_on.symbol * (fanout.symbol * C_gate_input.symbol + C_wire_total.symbol)
     + R_per_length.symbol * C_per_length.symbol * L_wire.symbol**2 / 2,
     "Elmore delay including the distributed interconnect term.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 
@@ -227,6 +253,7 @@ eq_dynamic_power = eq(
     P_dyn.symbol,
     alpha_act.symbol * C_load.symbol * V_dd.symbol**2 * f_clock.symbol,
     "CMOS dynamic power P = alpha C V^2 f.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 
@@ -235,6 +262,7 @@ eq_static_power = eq(
     P_stat.symbol,
     I_leak_total.symbol * V_dd.symbol,
     "Static power from total leakage current at the supply voltage.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 
@@ -243,6 +271,7 @@ eq_short_circuit_power = eq(
     P_sc.symbol,
     alpha_act.symbol * I_sc_peak.symbol * V_dd.symbol * t_sc.symbol * f_clock.symbol,
     "Short-circuit power from overlap current during switching.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 
@@ -251,6 +280,7 @@ eq_gate_total_power = eq(
     P_total_gate.symbol,
     P_dyn.symbol + P_stat.symbol + P_sc.symbol,
     "Total gate power adds dynamic, leakage, and short-circuit components.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 
@@ -259,6 +289,7 @@ eq_clock_period = eq(
     T_clk.symbol,
     1 / f_clock.symbol,
     "Clock period is the reciprocal of clock frequency.",
+    references=[_CLOCK_TIMING_REF],
     check_units=True,
 )
 eq_f_max_timing = eq(
@@ -288,6 +319,8 @@ ineq_clock_timing = Inequality(
     T_clk.symbol,
     "<=",
     "A single-stage Elmore delay must fit inside one clock period if you want synchronous timing closure.",
+    references=[_CLOCK_TIMING_REF],
+    check_units=True,
 )
 
 eq_landauer_energy = eq(
@@ -295,6 +328,7 @@ eq_landauer_energy = eq(
     E_landauer.symbol,
     BOLTZMANN.symbol * T_temp.symbol * LN_2,
     "Landauer minimum energy for one irreversible bit erasure.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 
@@ -303,6 +337,7 @@ eq_landauer_power = eq(
     P_landauer_min.symbol,
     alpha_act.symbol * bits_erased_per_cycle.symbol * E_landauer.symbol * f_clock.symbol,
     "Thermodynamic lower bound on dissipated power for the modeled logical erasures.",
+    references=[_CMOS_POWER_TEXT],
     check_units=True,
 )
 ineq_landauer_floor = Inequality(
@@ -311,6 +346,8 @@ ineq_landauer_floor = Inequality(
     P_landauer_min.symbol,
     ">=",
     "Real logic must dissipate at least the Landauer floor for its irreversible erasures.",
+    references=[_CMOS_POWER_TEXT],
+    check_units=True,
 )
 
 

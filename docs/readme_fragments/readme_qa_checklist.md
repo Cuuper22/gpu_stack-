@@ -53,7 +53,7 @@ Prepared 2026-05-11 18:11 America/Los_Angeles for a README rewrite into a Medium
 - Keep tables narrow enough for GitHub mobile rendering. The full scope inventory table is wide and may need splitting, collapsing into bullets, or moving to a fragment.
 - Escape or fence symbols that Markdown can mangle: `*`, `_`, `<`, `>`, `|`, `<=`, `>=`, `D <= 2U`, `(U + D) mod 3 = 0`, `x_LL > -1/2`, `gpu-stack root-debt --families`.
 - Use inline code for variable names, equation names, CLI flags, package names, and file paths.
-- Keep relative links stable from the repository root: `./IMPROVEMENT_MAP.md`, `./ROADMAP.md`, `./HANDOFF.md`, `./CHANGELOG.md`, `./AGENT_DIARY.md`, `./rest_breaks/README.md`.
+- Keep relative links stable from the repository root: `./IMPROVEMENT_MAP.md`, `./ROADMAP.md`, `./HANDOFF.md`, `./CHANGELOG.md`, `./archive/AGENT_DIARY.md`, `./archive/rest_breaks/README.md`.
 - If badges or images are added later, verify they do not depend on private state or dead external URLs.
 - Avoid raw Unicode math if the repo stays ASCII. Prefer fenced or inline code for equations unless the README already accepts richer typography.
 - Ensure headings descend cleanly. Do not jump from `##` to `####` for visual styling.

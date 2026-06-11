@@ -54,6 +54,7 @@ eq_oxide_permittivity = eq(
     epsilon_ox.symbol,
     epsilon_ox_rel.symbol * EPSILON_0.symbol,
     "Absolute oxide permittivity equals relative permittivity times vacuum permittivity.",
+    references=[_MOS_TEXT],
     check_units=True,
 )
 
@@ -100,6 +101,7 @@ eq_gate_capacitance_density = eq(
     C_ox.symbol,
     epsilon_ox.symbol / t_ox.symbol,
     "Gate-oxide capacitance density C_ox = epsilon_ox / t_ox.",
+    references=[_MOS_TEXT],
     check_units=True,
 )
 
@@ -108,6 +110,7 @@ eq_oxide_field = eq(
     E_ox.symbol,
     V_gs.symbol / t_ox.symbol,
     "Uniform-field estimate through the gate dielectric.",
+    references=[_MOS_TEXT],
     check_units=True,
 )
 
@@ -116,6 +119,7 @@ eq_thermal_voltage = eq(
     V_thermal.symbol,
     BOLTZMANN.symbol * T_temp.symbol / ELEMENTARY_CHARGE.symbol,
     "Thermal voltage V_T = k_B T / q.",
+    references=[_MOS_TEXT],
     check_units=True,
 )
 
@@ -124,6 +128,7 @@ eq_subthreshold_swing_floor = eq(
     subthreshold_swing_floor.symbol,
     LN_10 * V_thermal.symbol,
     "Thermodynamic lower bound on subthreshold swing, reported per decade.",
+    references=[_MOS_TEXT],
     check_units=True,
 )
 
@@ -132,6 +137,7 @@ eq_subthreshold_swing = eq(
     subthreshold_swing.symbol,
     n_ideality.symbol * subthreshold_swing_floor.symbol,
     "Actual subthreshold swing scales above the thermal floor by the ideality factor.",
+    references=[_MOS_TEXT],
     check_units=True,
 )
 ineq_subthreshold_swing_floor = Inequality(
@@ -140,6 +146,8 @@ ineq_subthreshold_swing_floor = Inequality(
     subthreshold_swing_floor.symbol,
     ">=",
     "No MOSFET beats the Boltzmann subthreshold-swing floor at a given temperature.",
+    references=[_MOS_TEXT],
+    check_units=True,
 )
 ineq_ideality_at_least_one = Inequality(
     "physical.ineq.mosfet_ideality_at_least_one",
@@ -160,6 +168,7 @@ eq_effective_threshold = eq(
     )
     - eta_dibl.symbol * V_ds.symbol,
     "Effective threshold including body effect and DIBL.",
+    references=[_MOS_TEXT],
     check_units=True,
 )
 
@@ -191,6 +200,7 @@ eq_mosfet_subthreshold = eq(
     * sp.exp((V_gs.symbol - V_th_eff.symbol) / (n_ideality.symbol * V_thermal.symbol))
     * (1 - sp.exp(-V_ds.symbol / V_thermal.symbol)),
     "Subthreshold current with the usual thermal-voltage scaling and finite V_DS correction.",
+    references=[_MOS_TEXT],
     check_units=True,
 )
 
@@ -209,6 +219,8 @@ eq_mosfet_piecewise = PiecewiseEquation(
         (I_ds_sat.symbol, True),
     ],
     "Piecewise drain current across subthreshold, triode, and saturation regimes.",
+    references=[_MOS_TEXT],
+    check_units=True,
 )
 
 eq_gate_tunnel_density = eq(
@@ -225,6 +237,7 @@ eq_gate_tunnel_current = eq(
     I_gate_leak.symbol,
     J_gate.symbol * W_channel.symbol * L_channel.symbol,
     "Gate-leakage current density integrated over gate area.",
+    references=[_MOS_TEXT],
     check_units=True,
 )
 
@@ -233,6 +246,7 @@ eq_total_leakage = eq(
     I_leak_total.symbol,
     I_ds_sub.symbol + I_gate_leak.symbol,
     "Total static leakage current combines subthreshold and gate tunneling.",
+    references=[_MOS_TEXT],
     check_units=True,
 )
 

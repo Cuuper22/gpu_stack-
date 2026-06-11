@@ -57,9 +57,10 @@ the numbers came from. Presets without a cited source are marked as
 assumptions and should not be treated as authoritative.
 """
 
-from . import economics, hardware, lithography, materials, nuclear, scenarios, workload
+from . import dgx_h100_tco, economics, hardware, lithography, materials, nuclear, scenarios, workload
 
 __all__ = [
+    "dgx_h100_tco",
     "economics",
     "hardware",
     "lithography",

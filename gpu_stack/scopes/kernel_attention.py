@@ -106,6 +106,7 @@ eq_attn_flops = eq(
     4 * batch_heads.symbol * causal_factor.symbol * L_seq.symbol**2 * d_head.symbol,
     "Attention FLOPs scale with batch-head count, a causal-structure factor, sequence length squared, and head dimension.",
     references=[KERNEL_ATTENTION_REF],
+    check_units=True,
 )
 eq_attn_bytes_naive = eq(
     "kernel.eq.attn_bytes_naive",
