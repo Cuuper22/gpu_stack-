@@ -13,6 +13,7 @@ from typing import Dict, List, Sequence, Tuple
 
 from gpu_stack.cli_common import _repo_root
 
+
 @dataclass(frozen=True)
 class VerifyGate:
     name: str
@@ -145,6 +146,15 @@ def _verify_gates(profile: str, read_only: bool = False) -> List[VerifyGate]:
             VerifyGate(
                 "demo",
                 _python_command("-m", "gpu_stack.demo", read_only=read_only),
+                env=env,
+            ),
+            VerifyGate(
+                "docs-stats",
+                _python_command(
+                    "-m",
+                    "gpu_stack.docs_stats_check",
+                    read_only=read_only,
+                ),
                 env=env,
             ),
         ]
