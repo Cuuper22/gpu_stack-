@@ -74,7 +74,9 @@ def test_verify_read_only_uses_no_bytecode_and_no_pytest_cache(monkeypatch):
 
     assert rc == 0
     assert "Read-only mode: on" in out
-    assert [name for name, _, _ in calls] == ["pytest", "syntax", "audit", "demo"]
+    assert [name for name, _, _ in calls] == [
+        "pytest", "syntax", "audit", "demo", "docs-stats"
+    ]
     for _, command, env in calls:
         assert command[1] == "-B"
         assert env == {"PYTHONDONTWRITEBYTECODE": "1"}
