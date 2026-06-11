@@ -375,6 +375,37 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="return nonzero when any selected approximation validity check is violated",
     )
+    p_resolve.add_argument(
+        "--fallback-on-violated-validity",
+        dest="fallback_on_violated_validity",
+        action="store_true",
+        help=(
+            "when a selected Approximation has a violated validity predicate "
+            "and an alternative defining relation exists, retry with the "
+            "alternative instead of keeping the violating approximation"
+        ),
+    )
+    p_resolve.add_argument(
+        "--solve-systems",
+        dest="solve_systems",
+        action="store_true",
+        help=(
+            "when resolution stalls on 2-3 variables that define each other "
+            "(a small cycle), solve the subsystem simultaneously with "
+            "sympy.solve/linsolve; accepts only unique real solutions "
+            "consistent with variable symbol assumptions"
+        ),
+    )
+    p_resolve.add_argument(
+        "--explain-selection",
+        dest="explain_selection",
+        action="store_true",
+        help=(
+            "enrich trace steps with a selection_reason explaining why each "
+            "relation was chosen, and unresolved inputs with a list of "
+            "alternative equations that were not selectable"
+        ),
+    )
     p_resolve.set_defaults(func=cmd_resolve)
     return parser
 

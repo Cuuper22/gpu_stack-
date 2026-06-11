@@ -82,7 +82,11 @@ def _format_inputs(inputs: Dict[str, sp.Expr]) -> str:
     return ", ".join(f"{name}={value}" for name, value in sorted(inputs.items()))
 
 
-def _print_unresolved_inputs(items, file: TextIO | None = None) -> None:
+def _print_unresolved_inputs(
+    items,
+    file: TextIO | None = None,
+    explain_alternatives: bool = False,
+) -> None:
     if file is None:
         file = sys.stdout
     print("unresolved inputs:", file=file)
@@ -113,6 +117,12 @@ def _print_unresolved_inputs(items, file: TextIO | None = None) -> None:
             f"direct {_short_list(item.direct_dependents)}",
             file=file,
         )
+        if explain_alternatives and getattr(item, "not_selectable_alternatives", ()):
+            print(
+                f"    alternatives (not selectable): "
+                f"{_short_list(item.not_selectable_alternatives)}",
+                file=file,
+            )
 
 
 def _missing_family_groups(items, missing: Iterable[str]):
