@@ -63,11 +63,11 @@ Registry stats:
 
 Coverage:
   non_constant_variables         1493
-  with_sp_units                  1428
-  with_references                1324
+  with_sp_units                  1493
+  with_references                1493
   equations                      959
-  equations_with_references      878
-  equations_with_unit_check      799
+  equations_with_references      959
+  equations_with_unit_check      893
 ```
 
 The model spans:
@@ -309,7 +309,7 @@ These rules keep the package honest:
 
 This is the part where the README earns the numbers above.
 
-`gpu_stack` is not yet a calibrated training-cost oracle. It does not solve simultaneous systems. It does not optimize over scenario choices. It does not automatically switch relations when an approximation validity check is symbolic or violated. It does not fill missing physical or economic quantities with convenient defaults and call that wisdom.
+`gpu_stack` is not yet a calibrated training-cost oracle. It does not optimize over scenario choices. By default it does not solve simultaneous systems or switch relations when an approximation validity check is violated; both now exist as opt-in resolver flags (`--solve-systems` for 2 or 3 variable cycles, `--fallback-on-violated-validity`) that record exactly what they did in the trace. It does not fill missing physical or economic quantities with convenient defaults and call that wisdom.
 
 The resolver is intentionally conservative. It propagates one selected defining relation per variable. Unassigned symbolic boundaries are reported as `missing`. Constraints and approximation-validity checks are surfaced instead of treated as decorative comments.
 
@@ -328,10 +328,10 @@ Calibration presets are still skeletal. Some presets are exact composition fixtu
 | Cycles | 0 |
 | Topological order length | 1517 |
 | Hard audit failures | 0 |
-| Non-constant variables with `sp_units` | 1428 |
-| Non-constant variables with references | 1324 |
-| Equations with references | 878 |
-| Equations with unit checks | 799 |
+| Non-constant variables with `sp_units` | 1493 |
+| Non-constant variables with references | 1493 |
+| Equations with references | 959 |
+| Equations with unit checks | 893 |
 | Root-debt families | 151 |
 | Package version | 0.23.0 |
 

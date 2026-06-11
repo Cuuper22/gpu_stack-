@@ -13,7 +13,7 @@ const primerSteps = {
   upstream: {
     text: "Walking upstream means refusing to let a final number float by itself. The graph keeps run cost, token count, power, throughput, units, and constraints in the same visible chain.",
     facts: [
-      "799 equations are currently covered by unit checks.",
+      "893 equations are currently covered by unit checks.",
       "The gold highlight marks the part of the receipt you are inspecting."
     ],
     statusTitle: "Upstream selected: equations carry the number.",
