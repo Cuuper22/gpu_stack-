@@ -40,8 +40,9 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   `4/4 gates passed in 95.58s`; final source-clean check reported
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0 ruff_cache_dirs=0`.
 * Finalized the physical root-debt boundary hardening wave. Runtime capped
-  live workers at six, so bounded write lanes were tracked through
-  `AGENT_GITLOG.md`. MOSFET, interconnect, lithography source/species, and
+  live workers at six, so bounded write lanes were tracked through a
+  pseudo-git coordination ledger (now archived at `archive/AGENT_GITLOG.md`).
+  MOSFET, interconnect, lithography source/species, and
   medium-response source surfaces gained boundary hardening; process geometry,
   SEMF/nuclear coefficients, source-plasma drive, medium intercomponent,
   root-debt, import, CLI, and boundary index/smoke-pack coverage were added or

@@ -274,7 +274,7 @@ if (primerText && primerFacts && primerStatusTitle && primerStatusBody) {
 if (layerText && layerFacts && stack) {
   renderLayer("datacenter");
 }
-if (traceSummary && traceFacts && tracePath && traceNote && traceMeter) {
+if (traceSummary && traceFacts && tracePath && traceNote && traceMeter && traceMeterLabel && traceMeterFoot) {
   renderTrace("cost");
 }
 if (clock) {

@@ -3,7 +3,7 @@
 Updated: 2026-06-10 PDT.
 
 Read this first after compaction or restart. It is intentionally shorter than
-`HANDOFF.md` and `CODEX 5-5 START HERE.md`.
+`HANDOFF.md`.
 
 ## Latest Verified Wave: Portfolio Form And Deliverable Polish
 
@@ -97,7 +97,7 @@ Status: implemented, verified, read-only verified, and source-clean.
   medium-intercomponent, root-debt, import, CLI, and index/smoke coverage were
   added around already-existing symbolic constraints.
 - Runtime capped live workers at six, so the wave used bounded write lanes and
-  `AGENT_GITLOG.md` as a pseudo-git coordination ledger.
+  a pseudo-git coordination ledger (now archived at `archive/AGENT_GITLOG.md`).
 - Focused parent pack: `125 passed in 33.75s`.
 - Full pytest: `628 passed in 71.99s`.
 - Audit gate: PASS; systems 16, variables 1517, constants 24, equations 959,
