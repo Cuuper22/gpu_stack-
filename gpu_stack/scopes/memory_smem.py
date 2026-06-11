@@ -95,12 +95,14 @@ smem_conflict_factor = var(
     "Bandwidth loss factor from shared-memory bank conflicts.",
     scope="memory_subsystem",
     sp_units=DIMENSIONLESS,
+    references=[ON_SM_SRAM_REF],
 )
 e_per_byte_smem = var(
     "mem.energy.per_byte_smem", "E_B_smem", "J/byte",
     "Energy per byte read from SMEM.",
     scope="memory_subsystem",
     sp_units=JOULE / BYTE,
+    references=[ON_SM_SRAM_REF],
 )
 
 

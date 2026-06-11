@@ -56,6 +56,7 @@ l1_hit_rate = var(
     "L1 hit probability for the workload of interest.",
     scope="memory_subsystem",
     sp_units=DIMENSIONLESS,
+    references=[CACHE_ORGANIZATION_REF],
 )
 l1_latency = var(
     "mem.l1.latency", "t_L1", "s",
@@ -117,6 +118,7 @@ l2_hit_rate = var(
     "Conditional L2 hit probability given an L1 miss.",
     scope="memory_subsystem",
     sp_units=DIMENSIONLESS,
+    references=[CACHE_ORGANIZATION_REF],
 )
 l2_latency = var(
     "mem.l2.latency", "t_L2", "s",
@@ -130,18 +132,21 @@ l2_miss_penalty = var(
     "Additional latency of an L2 miss that falls through to HBM.",
     scope="memory_subsystem",
     sp_units=SECOND,
+    references=[CACHE_ORGANIZATION_REF],
 )
 avg_global_load_latency = var(
     "mem.global_load.latency_avg", "t_glob_avg", "s",
     "Average latency of a global-memory access after cache and translation effects.",
     scope="memory_subsystem",
     sp_units=SECOND,
+    references=[CACHE_ORGANIZATION_REF],
 )
 e_per_byte_l2 = var(
     "mem.energy.per_byte_l2", "E_B_l2", "J/byte",
     "Energy per byte read from L2.",
     scope="memory_subsystem",
     sp_units=JOULE / BYTE,
+    references=[CACHE_ORGANIZATION_REF],
 )
 
 
@@ -181,6 +186,7 @@ eq_avg_global_load_latency = eq(
     + avg_translation_latency.symbol,
     "Average global-memory latency from cache hit rates plus translation overhead.",
     references=[CACHE_ORGANIZATION_REF],
+    check_units=True,
 )
 
 

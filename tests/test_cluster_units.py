@@ -13,12 +13,8 @@ from gpu_stack.scopes import cluster
 
 DIMENSIONLESS = sp.Integer(1)
 
-UNCHECKED_CLUSTER_EQUATIONS = {
-    "cluster.eq.node_peak_flops",
-    "cluster.eq.node_peak_flops_power_limited",
-    "cluster.eq.rack_gpu_count",
-    "cluster.eq.rack_flops_per_intra_byte",
-}
+# Every cluster equation now opts into dimensional checking.
+UNCHECKED_CLUSTER_EQUATIONS = set()
 
 
 def test_cluster_variables_have_units_and_references():
