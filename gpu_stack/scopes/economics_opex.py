@@ -254,6 +254,7 @@ eq_water_cost_rate = eq(
     water_price_per_liter.symbol * water_usage_rate.symbol * job_share_of_cluster.symbol,
     "Job water cost rate equals liters per second times price per liter, scaled by job share of site activity.",
     references=[WATER_OPEX_REF],
+    check_units=True,
 )
 
 eq_maintenance_cost_rate = eq(
@@ -298,6 +299,7 @@ eq_run_power_cost = eq(
     cost_per_watt_sec.symbol * job_dc_power.symbol * T_wallclock.symbol,
     "Run electricity cost equals $ per watt-second times allocated job power times wall-clock duration.",
     references=[POWER_TARIFF_REF],
+    check_units=True,
 )
 
 

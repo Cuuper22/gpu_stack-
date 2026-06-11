@@ -33,6 +33,7 @@ L_channel = var(
     "Physical channel or conduction-path length.",
     scope="physical",
     sp_units=METER,
+    references=[_PROCESS_GEOMETRY_REF],
 )
 gate_length_lithography_bias = var(
     "physical.process.gate_length_lithography_bias", "Delta_L_gate_litho", "m",

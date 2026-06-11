@@ -118,6 +118,7 @@ eq_wire_width = eq(
     wire_width.symbol,
     wire_pitch.symbol * wire_fill_factor.symbol,
     "Wire width from pitch and routing fill factor.",
+    references=[_INTERCONNECT_GEOMETRY_REF],
     check_units=True,
 )
 
@@ -126,6 +127,7 @@ eq_wire_thickness = eq(
     wire_thickness.symbol,
     wire_aspect_ratio.symbol * wire_width.symbol,
     "Wire thickness from aspect ratio and wire width.",
+    references=[_INTERCONNECT_GEOMETRY_REF],
     check_units=True,
 )
 
@@ -143,6 +145,7 @@ eq_wire_area = eq(
     A_wire.symbol,
     wire_width.symbol * wire_thickness.symbol,
     "Wire cross-section from width and thickness.",
+    references=[_INTERCONNECT_GEOMETRY_REF],
     check_units=True,
 )
 
@@ -151,6 +154,7 @@ eq_r_per_length = eq(
     R_per_length.symbol,
     rho_res.symbol / A_wire.symbol,
     "Resistance per unit length increases as the cross-section shrinks.",
+    references=[_INTERCONNECT_TEXT],
     check_units=True,
 )
 
@@ -181,6 +185,7 @@ eq_wire_cap_total = eq(
     C_wire_total.symbol,
     C_per_length.symbol * L_wire.symbol,
     "Line capacitance from capacitance density times length.",
+    references=[_INTERCONNECT_TEXT],
     check_units=True,
 )
 
@@ -189,6 +194,7 @@ eq_via_resistance_total = eq(
     R_via_total.symbol,
     n_vias.symbol * R_via_single.symbol,
     "Total via resistance is the count times single-via resistance.",
+    references=[_INTERCONNECT_TEXT],
     check_units=True,
 )
 
@@ -197,6 +203,7 @@ eq_path_resistance = eq(
     R_path_total.symbol,
     R_res.symbol + R_via_total.symbol,
     "End-to-end path resistance combines wire and via resistance.",
+    references=[_INTERCONNECT_TEXT],
     check_units=True,
 )
 
@@ -205,6 +212,7 @@ eq_distributed_rc_delay = eq(
     tau_wire_rc.symbol,
     R_per_length.symbol * C_per_length.symbol * L_wire.symbol**2 / 2,
     "Distributed RC delay of a uniform wire from first-moment Elmore reasoning.",
+    references=[_INTERCONNECT_TEXT],
     check_units=True,
 )
 
@@ -213,6 +221,7 @@ eq_omega_signal = eq(
     omega_signal.symbol,
     TWO_PI * f_signal.symbol,
     "Angular frequency omega = 2 pi f.",
+    references=[_INTERCONNECT_TEXT],
     check_units=True,
 )
 
@@ -221,6 +230,7 @@ eq_skin_depth = eq(
     skin_depth.symbol,
     sp.sqrt(2 * rho_res.symbol / (omega_signal.symbol * mu_wire.symbol)),
     "Classical skin-depth model delta = sqrt(2 rho / (omega mu)).",
+    references=[_INTERCONNECT_TEXT],
     check_units=True,
 )
 
@@ -232,6 +242,8 @@ eq_ac_resistance = PiecewiseEquation(
         (R_res.symbol * wire_thickness.symbol / (2 * skin_depth.symbol), True),
     ],
     "Approximate AC resistance inflation from skin effect.",
+    references=[_INTERCONNECT_TEXT],
+    check_units=True,
 )
 
 eq_crosstalk = eq(
@@ -240,6 +252,7 @@ eq_crosstalk = eq(
     V_aggressor.symbol * C_couple.symbol /
     (C_couple.symbol + C_victim_load.symbol + C_wire_total.symbol),
     "Capacitive-divider estimate of crosstalk voltage on the victim line.",
+    references=[_INTERCONNECT_TEXT],
     check_units=True,
 )
 

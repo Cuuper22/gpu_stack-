@@ -123,6 +123,7 @@ eq_bytes_param_io_step = eq(
     param_io_multiplier.symbol * mem_params.symbol,
     "Parameter-related HBM bytes equal total parameter bytes times the parameter-traffic multiplier.",
     references=[TRAINING_MEMORY_REF],
+    check_units=True,
 )
 eq_bytes_grad_io_step = eq(
     "training.eq.grad_bytes_step",
@@ -130,6 +131,7 @@ eq_bytes_grad_io_step = eq(
     grad_io_multiplier.symbol * mem_grads.symbol,
     "Gradient-related HBM bytes equal total gradient bytes times the gradient-traffic multiplier.",
     references=[TRAINING_MEMORY_REF],
+    check_units=True,
 )
 eq_bytes_opt_io_step = eq(
     "training.eq.opt_bytes_step",
@@ -137,6 +139,7 @@ eq_bytes_opt_io_step = eq(
     opt_io_multiplier.symbol * mem_opt.symbol,
     "Optimizer-state HBM bytes equal total optimizer-state bytes times the optimizer-state traffic multiplier.",
     references=[TRAINING_MEMORY_REF],
+    check_units=True,
 )
 eq_bytes_act_io_step = eq(
     "training.eq.act_bytes_step",
@@ -144,6 +147,7 @@ eq_bytes_act_io_step = eq(
     act_io_multiplier.symbol * mem_act.symbol,
     "Activation HBM bytes equal total activation bytes times the activation-traffic multiplier.",
     references=[TRAINING_MEMORY_REF],
+    check_units=True,
 )
 eq_bytes_hbm_step = eq(
     "training.eq.hbm_bytes_step",
@@ -159,6 +163,7 @@ eq_hbm_bw_run_effective = eq(
     n_gpus_total.symbol * hbm_bw_gpu_effective.symbol * memory_bw_efficiency.symbol,
     "Aggregate usable HBM bandwidth equals GPU count times per-GPU effective HBM bandwidth times the realized efficiency of the memory-bound auxiliary work.",
     references=[TRAINING_MEMORY_REF],
+    check_units=True,
 )
 eq_t_mem_bound = eq(
     "training.eq.t_mem_bound",

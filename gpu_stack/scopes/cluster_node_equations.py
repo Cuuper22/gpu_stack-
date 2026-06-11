@@ -58,6 +58,7 @@ eq_node_peak_flops = node_aggregation_eq(
     node_peak_flops.symbol,
     n_gpus_per_node.symbol * peak_flops_gpu.symbol,
     "Node peak FLOPs equal GPUs per node times per-GPU peak FLOPs.",
+    check_units=True,
 )
 
 eq_node_peak_flops_power_limited = node_aggregation_eq(
@@ -65,6 +66,7 @@ eq_node_peak_flops_power_limited = node_aggregation_eq(
     node_peak_flops_power_limited.symbol,
     n_gpus_per_node.symbol * peak_flops_gpu_power_limited.symbol,
     "Node power-limited peak FLOPs equal GPUs per node times per-GPU power-limited peak FLOPs.",
+    check_units=True,
 )
 
 eq_node_hbm_capacity = node_aggregation_eq(

@@ -117,6 +117,7 @@ eq_reg_bytes_gpu = eq(
     n_sms.symbol * reg_file_bytes_per_sm.symbol,
     "Total register-file capacity equals per-SM register bytes times SM count.",
     references=[GPU_ONCHIP_MEMORY_REF],
+    check_units=True,
 )
 eq_smem_bytes_gpu = eq(
     "gpu.eq.smem_bytes",
@@ -124,6 +125,7 @@ eq_smem_bytes_gpu = eq(
     n_sms.symbol * smem_bytes_per_sm.symbol,
     "Total SMEM capacity equals per-SM SMEM bytes times SM count.",
     references=[GPU_ONCHIP_MEMORY_REF],
+    check_units=True,
 )
 eq_tmem_bytes_gpu = eq(
     "gpu.eq.tmem_bytes",
@@ -131,6 +133,7 @@ eq_tmem_bytes_gpu = eq(
     n_sms.symbol * tmem_bytes_per_sm.symbol,
     "Total TMEM capacity equals per-SM TMEM bytes times SM count.",
     references=[GPU_ONCHIP_MEMORY_REF],
+    check_units=True,
 )
 eq_l2_bytes_gpu = eq(
     "gpu.eq.l2_bytes",
@@ -138,6 +141,7 @@ eq_l2_bytes_gpu = eq(
     l2_bytes.symbol,
     "GPU-level L2 capacity is the underlying package L2 capacity.",
     references=[GPU_ONCHIP_MEMORY_REF],
+    check_units=True,
 )
 eq_onchip_sram_bytes_gpu = eq(
     "gpu.eq.onchip_sram_bytes",
@@ -153,6 +157,7 @@ eq_reg_bw_gpu = eq(
     n_sms.symbol * reg_bw_effective.symbol,
     "Aggregate register bandwidth equals effective per-SM register bandwidth times SM count.",
     references=[GPU_ONCHIP_MEMORY_REF],
+    check_units=True,
 )
 eq_smem_bw_gpu = eq(
     "gpu.eq.smem_bw",
@@ -160,6 +165,7 @@ eq_smem_bw_gpu = eq(
     n_sms.symbol * smem_bw_per_sm.symbol,
     "Aggregate SMEM bandwidth equals per-SM SMEM bandwidth times SM count.",
     references=[GPU_ONCHIP_MEMORY_REF],
+    check_units=True,
 )
 eq_tmem_bw_gpu = eq(
     "gpu.eq.tmem_bw",
@@ -167,6 +173,7 @@ eq_tmem_bw_gpu = eq(
     n_sms.symbol * tmem_bw_per_sm.symbol,
     "Aggregate TMEM bandwidth equals per-SM TMEM bandwidth times SM count.",
     references=[GPU_ONCHIP_MEMORY_REF],
+    check_units=True,
 )
 eq_l2_bw_gpu = eq(
     "gpu.eq.l2_bw",
@@ -174,6 +181,7 @@ eq_l2_bw_gpu = eq(
     l2_bw.symbol,
     "GPU-level L2 bandwidth is the underlying package L2 bandwidth.",
     references=[GPU_ONCHIP_MEMORY_REF],
+    check_units=True,
 )
 
 

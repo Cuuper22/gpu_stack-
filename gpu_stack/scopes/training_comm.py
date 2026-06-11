@@ -134,6 +134,7 @@ eq_dp_alpha = eq(
     alpha_scale_out.symbol,
     "By default the DP synchronization path uses the scale-out startup latency.",
     references=[TRAINING_COMM_REF],
+    check_units=True,
 )
 eq_dp_beta = eq(
     "training.eq.dp_beta",
@@ -141,6 +142,7 @@ eq_dp_beta = eq(
     beta_scale_out.symbol,
     "By default the DP synchronization path uses the scale-out per-byte transfer time.",
     references=[TRAINING_COMM_REF],
+    check_units=True,
 )
 eq_dp_grad_bytes = eq(
     "training.eq.dp_grad_bytes",
@@ -148,6 +150,7 @@ eq_dp_grad_bytes = eq(
     mem_grads.symbol * dp_grad_sync_fraction.symbol,
     "DP gradient payload equals total gradient bytes times the synchronized fraction.",
     references=[TRAINING_COMM_REF],
+    check_units=True,
 )
 eq_t_comm_dp = eq(
     "training.eq.t_comm_dp",
@@ -164,6 +167,7 @@ eq_t_comm_tp_total = eq(
     n_layers.symbol * tp_exposed_time.symbol,
     "Total TP communication time equals per-layer TP exposed time times layer count.",
     references=[TRAINING_COMM_REF],
+    check_units=True,
 )
 eq_t_comm_ep_total = eq(
     "training.eq.t_comm_ep_total",
@@ -171,6 +175,7 @@ eq_t_comm_ep_total = eq(
     n_moe_layers.symbol * ep_exposed_time.symbol,
     "Total EP communication time equals per-MoE-layer exposed time times the number of MoE layers.",
     references=[TRAINING_COMM_REF],
+    check_units=True,
 )
 eq_cp_group_bw = eq(
     "training.eq.cp_group_bw",
@@ -178,6 +183,7 @@ eq_cp_group_bw = eq(
     bw_nvlink_effective.symbol,
     "By default context-parallel exchanges use the fast intra-node NVLink bandwidth.",
     references=[TRAINING_COMM_REF],
+    check_units=True,
 )
 eq_t_comm_cp = eq(
     "training.eq.t_comm_cp",
@@ -185,6 +191,7 @@ eq_t_comm_cp = eq(
     n_layers.symbol * cp_comm_per_layer.symbol * (1 - cp_overlap_fraction.symbol) / cp_group_bw.symbol,
     "Context-parallel time equals per-layer traffic times unoverlapped fraction divided by CP bandwidth, aggregated across layers.",
     references=[TRAINING_COMM_REF],
+    check_units=True,
 )
 eq_t_offload = eq(
     "training.eq.t_offload",
@@ -192,6 +199,7 @@ eq_t_offload = eq(
     cpu_offload_time.symbol + nvme_offload_time.symbol,
     "Offload time adds CPU and NVMe offload critical-path time contributions.",
     references=[TRAINING_COMM_REF],
+    check_units=True,
 )
 eq_t_exposed_comm = eq(
     "training.eq.t_exposed_comm",

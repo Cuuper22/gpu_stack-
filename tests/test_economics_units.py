@@ -21,6 +21,8 @@ OPEX_CHECKED_EQUATIONS = {
     "econ.eq.network_transit_cost_rate",
     "econ.eq.carbon_emission_rate",
     "econ.eq.carbon_cost_rate",
+    "econ.eq.run_power_cost",
+    "econ.eq.water_cost_rate",
 }
 
 FINANCE_CHECKED_EQUATIONS = {

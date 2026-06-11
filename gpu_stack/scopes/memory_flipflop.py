@@ -10,7 +10,23 @@ metastability failure-rate and MTBF equations.
 
 import sympy as sp
 
-from ..core import eq, var
+from ..core import Reference, eq, var
+from ..core.units import HZ, SECOND
+
+
+DIMENSIONLESS = sp.Integer(1)
+
+FF_TIMING_REF = Reference(
+    "Rabaey, Chandrakasan, and Nikolic, Digital Integrated Circuits: "
+    "A Design Perspective, flip-flop timing characterization and setup/hold/clock-to-Q.",
+    kind="textbook",
+)
+FF_META_REF = Reference(
+    "Chaney and Molnar, Anomalous Behavior of Synchronizer and Arbiter Circuits, "
+    "IEEE Transactions on Computers, 1973; standard MTBF model for metastability.",
+    kind="paper",
+    year=1973,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -21,81 +37,113 @@ n_tx_per_ff = var(
     "memcell.ff.transistors", "N_Tx_FF", "dimensionless",
     "Transistors per flip-flop implementation.",
     scope="memory_cell",
+    sp_units=DIMENSIONLESS,
+    references=[FF_TIMING_REF],
 )
 t_setup = var(
     "memcell.ff.t_setup", "t_setup", "s",
     "Setup time.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_TIMING_REF],
 )
 t_hold = var(
     "memcell.ff.t_hold", "t_hold", "s",
     "Hold time.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_TIMING_REF],
 )
 t_clk_to_q = var(
     "memcell.ff.t_clk_to_q", "t_cq", "s",
     "Clock-to-Q propagation delay.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_TIMING_REF],
 )
 t_setup_intrinsic = var(
     "memcell.ff.t_setup_intrinsic", "t_setup_int", "s",
     "Intrinsic setup requirement of the input latch path.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_TIMING_REF],
 )
 t_hold_intrinsic = var(
     "memcell.ff.t_hold_intrinsic", "t_hold_int", "s",
     "Intrinsic hold requirement of the feedback path.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_TIMING_REF],
 )
 t_aperture = var(
     "memcell.ff.t_aperture", "t_ap", "s",
     "Sampling aperture contribution around the active clock edge.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_TIMING_REF],
 )
 t_latch_regen = var(
     "memcell.ff.t_latch_regen", "t_regen_FF", "s",
     "Regeneration delay of the latch pair.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_TIMING_REF],
 )
 t_output_buffer = var(
     "memcell.ff.t_output_buffer", "t_buf_FF", "s",
     "Output buffer delay after the internal latch resolves.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_TIMING_REF],
 )
 f_clk_ff = var(
     "memcell.ff.f_clk", "f_clk_FF", "Hz",
     "Clock frequency applied to the flip-flop.",
     scope="memory_cell",
+    sp_units=HZ,
+    references=[FF_META_REF],
 )
 f_data_ff = var(
     "memcell.ff.f_data", "f_data_FF", "Hz",
     "Relevant asynchronous or data-toggle event rate.",
     scope="memory_cell",
+    sp_units=HZ,
+    references=[FF_META_REF],
 )
 T0_meta = var(
     "memcell.ff.t0_meta", "T0_meta", "s",
     "Metastability fitting constant in the standard MTBF model.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_META_REF],
 )
 tau_meta = var(
     "memcell.ff.tau_meta", "tau_meta", "s",
     "Metastability resolution time constant.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_META_REF],
 )
 t_resolve_meta = var(
     "memcell.ff.t_resolve_meta", "t_res_meta", "s",
     "Time available for metastability to resolve before the next observer samples the node.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_META_REF],
 )
 r_meta_fail = var(
     "memcell.ff.meta_fail_rate", "r_meta", "1/s",
     "Metastability failure rate.",
     scope="memory_cell",
+    sp_units=1 / SECOND,
+    references=[FF_META_REF],
 )
 mtbf_meta = var(
     "memcell.ff.mtbf_meta", "MTBF_meta", "s",
     "Mean time between metastability failures.",
     scope="memory_cell",
+    sp_units=SECOND,
+    references=[FF_META_REF],
 )
 
 
@@ -104,6 +152,8 @@ eq_ff_setup = eq(
     t_setup.symbol,
     t_setup_intrinsic.symbol + t_aperture.symbol,
     "Setup time from intrinsic input path plus aperture requirement.",
+    references=[FF_TIMING_REF],
+    check_units=True,
 )
 
 eq_ff_hold = eq(
@@ -111,6 +161,8 @@ eq_ff_hold = eq(
     t_hold.symbol,
     t_hold_intrinsic.symbol + t_aperture.symbol,
     "Hold time from intrinsic feedback settling plus aperture requirement.",
+    references=[FF_TIMING_REF],
+    check_units=True,
 )
 
 eq_ff_clk_to_q = eq(
@@ -118,6 +170,8 @@ eq_ff_clk_to_q = eq(
     t_clk_to_q.symbol,
     t_latch_regen.symbol + t_output_buffer.symbol,
     "Clock-to-Q delay from latch regeneration plus output buffering.",
+    references=[FF_TIMING_REF],
+    check_units=True,
 )
 
 eq_ff_meta_fail_rate = eq(
@@ -125,6 +179,8 @@ eq_ff_meta_fail_rate = eq(
     r_meta_fail.symbol,
     f_clk_ff.symbol * f_data_ff.symbol * T0_meta.symbol * sp.exp(-t_resolve_meta.symbol / tau_meta.symbol),
     "Standard metastability failure-rate model.",
+    references=[FF_META_REF],
+    check_units=True,
 )
 
 eq_ff_mtbf = eq(
@@ -132,6 +188,8 @@ eq_ff_mtbf = eq(
     mtbf_meta.symbol,
     1 / r_meta_fail.symbol,
     "MTBF is the reciprocal of the metastability failure rate.",
+    references=[FF_META_REF],
+    check_units=True,
 )
 
 

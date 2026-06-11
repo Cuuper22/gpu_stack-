@@ -34,6 +34,7 @@ A_cross = var(
     "Cross-sectional area supporting current flow.",
     scope="physical",
     sp_units=METER**2,
+    references=[_SZE_TRANSPORT],
 )
 mu_mob = var(
     "physical.carrier_mobility", "mu_n", "m^2/(V*s)",
@@ -47,18 +48,21 @@ E_field = var(
     "Electric field strength across the active region.",
     scope="physical",
     sp_units=VOLT / METER,
+    references=[_SZE_TRANSPORT],
 )
 V_applied = var(
     "physical.voltage", "V", "V",
     "Applied voltage across a device or conductor segment.",
     scope="physical",
     sp_units=VOLT,
+    references=[_SI_BASE_UNITS],
 )
 V_ohmic_drop = var(
     "physical.voltage_ohmic_drop", "V_ohm", "V",
     "Voltage drop implied by Ohm's law for a resistive segment.",
     scope="physical",
     sp_units=VOLT,
+    references=[_SI_BASE_UNITS],
 )
 I_current = var(
     "physical.current", "I", "A",
@@ -72,12 +76,14 @@ R_res = var(
     "Electrical resistance of a path segment.",
     scope="physical",
     sp_units=OHM,
+    references=[_SI_BASE_UNITS],
 )
 rho_res = var(
     "physical.resistivity", "rho_res", "ohm*m",
     "Material resistivity.",
     scope="physical",
     sp_units=OHM * METER,
+    references=[_SZE_TRANSPORT],
 )
 rho_ref = var(
     "physical.resistivity.reference", "rho_ref", "ohm*m",
@@ -98,6 +104,7 @@ rho_ref_temperature = var(
     "Reference temperature for the tabulated conductor resistivity.",
     scope="physical",
     sp_units=KELVIN,
+    references=[_SZE_TRANSPORT],
 )
 rho_size_factor = var(
     "physical.resistivity.size_factor", "chi_rho_size", "dimensionless",
@@ -111,18 +118,21 @@ L_wire = var(
     "Length of a conductor or interconnect segment.",
     scope="physical",
     sp_units=METER,
+    references=[_SI_BASE_UNITS],
 )
 A_wire = var(
     "physical.wire_cross_section", "A_w", "m^2",
     "Effective cross-sectional area of a wire.",
     scope="physical",
     sp_units=METER**2,
+    references=[_SI_BASE_UNITS],
 )
 time = var(
     "physical.time", "t", "s",
     "Independent time coordinate for lumped differential transport equations.",
     scope="physical",
     sp_units=SECOND,
+    references=[_SI_BASE_UNITS],
 )
 
 D_diff = var(
@@ -137,48 +147,56 @@ v_sat = var(
     "Velocity-saturation limit reached at high electric field.",
     scope="physical",
     sp_units=METER / SECOND,
+    references=[_SZE_TRANSPORT],
 )
 E_crit = var(
     "physical.critical_field", "E_crit", "V/m",
     "Field scale where low-field mobility starts to break down.",
     scope="physical",
     sp_units=VOLT / METER,
+    references=[_SZE_TRANSPORT],
 )
 m_eff_ratio = var(
     "physical.effective_mass_ratio", "m_eff_rel", "dimensionless",
     "Carrier effective mass as a multiple of the free-electron mass.",
     scope="physical",
     sp_units=sp.Integer(1),
+    references=[_SZE_TRANSPORT],
 )
 m_eff = var(
     "physical.effective_mass", "m_eff", "kg",
     "Carrier effective mass used in transport approximations.",
     scope="physical",
     sp_units=KILOGRAM,
+    references=[_SZE_TRANSPORT],
 )
 v_thermal_carrier = var(
     "physical.thermal_velocity", "v_th_car", "m/s",
     "Thermal carrier velocity from equipartition-scale reasoning.",
     scope="physical",
     sp_units=METER / SECOND,
+    references=[_SZE_TRANSPORT],
 )
 G_gen = var(
     "physical.generation_rate", "G_gen", "1/(m^3*s)",
     "Carrier generation rate density.",
     scope="physical",
     sp_units=1 / (METER**3 * SECOND),
+    references=[_SZE_TRANSPORT],
 )
 R_rec = var(
     "physical.recombination_rate", "R_rec", "1/(m^3*s)",
     "Carrier recombination rate density.",
     scope="physical",
     sp_units=1 / (METER**3 * SECOND),
+    references=[_SZE_TRANSPORT],
 )
 dn_dt = var(
     "physical.net_carrier_rate", "dn_dt", "1/(m^3*s)",
     "Net carrier-density rate of change from generation minus recombination.",
     scope="physical",
     sp_units=1 / (METER**3 * SECOND),
+    references=[_SZE_TRANSPORT],
 )
 
 
@@ -216,6 +234,7 @@ eq_field_from_voltage = eq(
     E_field.symbol,
     V_applied.symbol / L_channel.symbol,
     "Uniform-field approximation across a conduction path of length L.",
+    references=[_SZE_TRANSPORT],
     check_units=True,
 )
 
@@ -224,6 +243,7 @@ eq_ohms_law = eq(
     V_ohmic_drop.symbol,
     I_current.symbol * R_res.symbol,
     "Ohm's law defines the resistive voltage drop V_ohm = I R. The externally applied voltage can differ when the segment sits inside a larger network.",
+    references=[_SI_BASE_UNITS],
     check_units=True,
 )
 
@@ -232,6 +252,7 @@ eq_resistance_geom = eq(
     R_res.symbol,
     rho_res.symbol * L_wire.symbol / A_wire.symbol,
     "Resistance from resistivity and geometry.",
+    references=[_SZE_TRANSPORT],
     check_units=True,
 )
 
@@ -261,6 +282,7 @@ eq_critical_field = eq(
     E_crit.symbol,
     v_sat.symbol / mu_mob.symbol,
     "Critical field where low-field transport crosses into velocity saturation.",
+    references=[_SZE_TRANSPORT],
     check_units=True,
 )
 
@@ -269,6 +291,7 @@ eq_effective_mass = eq(
     m_eff.symbol,
     m_eff_ratio.symbol * ELECTRON_MASS.symbol,
     "Effective carrier mass as a material-specific multiple of the free-electron mass.",
+    references=[_SZE_TRANSPORT],
     check_units=True,
 )
 
@@ -277,6 +300,8 @@ eq_thermal_velocity = eq(
     v_thermal_carrier.symbol,
     sp.sqrt(3 * BOLTZMANN.symbol * T_temp.symbol / m_eff.symbol),
     "Thermal velocity from equipartition-scale reasoning.",
+    references=[_SZE_TRANSPORT],
+    check_units=True,
 )
 
 eq_net_carrier_rate = eq(
@@ -284,6 +309,7 @@ eq_net_carrier_rate = eq(
     dn_dt.symbol,
     G_gen.symbol - R_rec.symbol,
     "Net carrier-density rate is generation minus recombination.",
+    references=[_SZE_TRANSPORT],
     check_units=True,
 )
 
@@ -294,6 +320,7 @@ eq_carrier_continuity = DifferentialEquation(
     indep_var=time.symbol,
     order=1,
     description="Lumped continuity equation dn/dt = G - R.",
+    references=[_SZE_TRANSPORT],
 )
 
 
