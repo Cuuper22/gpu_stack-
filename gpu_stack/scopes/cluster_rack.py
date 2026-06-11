@@ -227,6 +227,7 @@ eq_rack_gpu_count = rack_aggregation_eq(
     n_gpus_per_rack.symbol,
     n_nodes_per_rack.symbol * n_gpus_per_node.symbol,
     "GPUs per rack equal nodes per rack times GPUs per node.",
+    check_units=True,
 )
 
 eq_rack_peak_flops = rack_aggregation_eq(
@@ -362,6 +363,7 @@ eq_rack_flops_per_intra_byte = rack_fabric_balance_eq(
     rack_flops_per_intra_byte.symbol,
     rack_peak_flops_power_limited.symbol / bw_nvlink_rack.symbol,
     "Rack compute to NVLink-rack balance equals rack power-limited FLOPs divided by aggregate intra-rack fabric bandwidth.",
+    check_units=True,
 )
 
 

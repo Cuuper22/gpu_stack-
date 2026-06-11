@@ -52,6 +52,7 @@ eq_pcie_bw_gpu = eq(
     pcie_bw.symbol,
     "GPU-level PCIe bandwidth aliases the lower-scope PCIe bandwidth variable.",
     references=[GPU_HOST_IO_REF],
+    check_units=True,
 )
 eq_cxl_bw_gpu = eq(
     "gpu.eq.cxl_bw",
@@ -59,6 +60,7 @@ eq_cxl_bw_gpu = eq(
     cxl_bw.symbol,
     "GPU-level CXL bandwidth aliases the lower-scope CXL bandwidth variable.",
     references=[GPU_HOST_IO_REF],
+    check_units=True,
 )
 
 

@@ -8,8 +8,14 @@ Speed-of-signal floor declarations for physical paths.
 import sympy as sp
 
 from ..constants import SPEED_OF_LIGHT
-from ..core import eq, var
+from ..core import Reference, eq, var
 from ..core.units import METER, SECOND
+
+
+_SIGNAL_PROP_REF = Reference(
+    citation="Griffiths, Introduction to Electrodynamics, wave propagation in linear media and signal speed v = c/n.",
+    kind="textbook",
+)
 
 
 d_link = var(
@@ -17,24 +23,28 @@ d_link = var(
     "Physical length of a signal path.",
     scope="physical",
     sp_units=METER,
+    references=[_SIGNAL_PROP_REF],
 )
 n_medium = var(
     "physical.link.effective_refractive_index", "n_eff_link", "dimensionless",
     "Effective refractive index of the propagation medium.",
     scope="physical",
     sp_units=sp.Integer(1),
+    references=[_SIGNAL_PROP_REF],
 )
 v_signal = var(
     "physical.link.signal_speed", "v_sig", "m/s",
     "Propagation speed of a signal in its medium.",
     scope="physical",
     sp_units=METER / SECOND,
+    references=[_SIGNAL_PROP_REF],
 )
 t_flight = var(
     "physical.link.time_of_flight", "t_tof", "s",
     "Minimum time of flight for a signal over a physical path.",
     scope="physical",
     sp_units=SECOND,
+    references=[_SIGNAL_PROP_REF],
 )
 
 
@@ -43,6 +53,7 @@ eq_signal_speed = eq(
     v_signal.symbol,
     SPEED_OF_LIGHT.symbol / n_medium.symbol,
     "Signal speed is c divided by the medium's effective refractive index.",
+    references=[_SIGNAL_PROP_REF],
     check_units=True,
 )
 
@@ -51,6 +62,7 @@ eq_time_of_flight = eq(
     t_flight.symbol,
     d_link.symbol / v_signal.symbol,
     "Time of flight from path length and propagation speed.",
+    references=[_SIGNAL_PROP_REF],
     check_units=True,
 )
 
