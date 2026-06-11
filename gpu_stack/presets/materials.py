@@ -118,29 +118,21 @@ def _root_assignments(assignments: dict[str, int]) -> dict[str, int]:
     return assignments
 
 
-def _source_quark_assignments(protons: int, neutrons: int) -> dict[str, int]:
+def _source_nucleon_assignments(protons: int, neutrons: int) -> dict[str, int]:
     return {
-        "physical.lithography.source_valence_up_quark_count": (
-            2 * protons + neutrons
-        ),
-        "physical.lithography.source_valence_down_quark_count": (
-            protons + 2 * neutrons
-        ),
+        "physical.lithography.source_proton_count": protons,
+        "physical.lithography.source_neutron_count": neutrons,
     }
 
 
-def _medium_component_quark_assignments(
+def _medium_component_nucleon_assignments(
     component: str,
     protons: int,
     neutrons: int,
 ) -> dict[str, int]:
     return {
-        f"physical.lithography.medium_component_{component}_valence_up_quark_count": (
-            2 * protons + neutrons
-        ),
-        f"physical.lithography.medium_component_{component}_valence_down_quark_count": (
-            protons + 2 * neutrons
-        ),
+        f"physical.lithography.medium_component_{component}_proton_count": protons,
+        f"physical.lithography.medium_component_{component}_neutron_count": neutrons,
     }
 
 
@@ -148,22 +140,21 @@ source_hydrogen_1 = Preset(
     name="source_hydrogen_1",
     description=(
         "Composition-only lithography source isotope preset for hydrogen-1 "
-        "(protium): one proton and zero neutrons, encoded at the valence "
-        "up/down quark root layer."
+        "(protium): one proton and zero neutrons, encoded at the proton-count "
+        "and neutron-count root layer."
     ),
     assignments=_root_assignments(
-        _source_quark_assignments(protons=1, neutrons=0)
+        _source_nucleon_assignments(protons=1, neutrons=0)
     ),
     source=_provenance(
-        (
-            f"{_NUCLIDE_PROVENANCE} For hydrogen-1: Z=1, A=1, N=0. "
-            f"{_VALENCE_QUARK_PROVENANCE}"
-        ),
-        references=(_IUPAC_NUCLIDE, _PARTICLE_DATA_GROUP_QUARK_MODEL),
+        f"{_NUCLIDE_PROVENANCE} For hydrogen-1: Z=1, A=1, N=0.",
+        references=(_IUPAC_NUCLIDE,),
     ),
     notes=(
         "Composition only; does not assign source binding calibration, "
         "screening, plasma, or optical drive roots.",
+        "Valence quark counts U=2 and D=1 are derived from Z=1, N=0 by "
+        "the scope equations.",
     ),
 )
 
@@ -172,22 +163,21 @@ source_oxygen_16 = Preset(
     name="source_oxygen_16",
     description=(
         "Composition-only lithography source isotope preset for oxygen-16: "
-        "eight protons and eight neutrons, encoded at the valence up/down "
-        "quark root layer."
+        "eight protons and eight neutrons, encoded at the proton-count and "
+        "neutron-count root layer."
     ),
     assignments=_root_assignments(
-        _source_quark_assignments(protons=8, neutrons=8)
+        _source_nucleon_assignments(protons=8, neutrons=8)
     ),
     source=_provenance(
-        (
-            f"{_NUCLIDE_PROVENANCE} For oxygen-16: Z=8, A=16, N=8. "
-            f"{_VALENCE_QUARK_PROVENANCE}"
-        ),
-        references=(_IUPAC_NUCLIDE, _PARTICLE_DATA_GROUP_QUARK_MODEL),
+        f"{_NUCLIDE_PROVENANCE} For oxygen-16: Z=8, A=16, N=8.",
+        references=(_IUPAC_NUCLIDE,),
     ),
     notes=(
         "Composition only; does not assign source binding calibration, "
         "screening, plasma, or optical drive roots.",
+        "Valence quark counts U=24 and D=24 are derived from Z=8, N=8 by "
+        "the scope equations.",
     ),
 )
 
@@ -196,24 +186,22 @@ source_tin_120 = Preset(
     name="source_tin_120",
     description=(
         "Composition-only EUV lithography source isotope preset for "
-        "tin-120: fifty protons and seventy neutrons, encoded only at the "
-        "source valence up/down quark root layer."
+        "tin-120: fifty protons and seventy neutrons, encoded at the "
+        "proton-count and neutron-count root layer."
     ),
     assignments=_root_assignments(
-        _source_quark_assignments(protons=50, neutrons=70)
+        _source_nucleon_assignments(protons=50, neutrons=70)
     ),
     source=_provenance(
         (
             "ASML establishes molten tin droplets as the laser-produced "
             "plasma source material for EUV lithography. CIAAW identifies "
             "tin as Z=50 and lists tin-120 as a standard isotope with "
-            "abundance 0.3258(9), so for tin-120 A=120 and N=70. "
-            f"{_VALENCE_QUARK_PROVENANCE}"
+            "abundance 0.3258(9), so for tin-120 A=120 and N=70."
         ),
         references=(
             _ASML_EUV_TIN_LPP,
             _CIAAW_TIN_ISOTOPIC_COMPOSITION,
-            _PARTICLE_DATA_GROUP_QUARK_MODEL,
         ),
     ),
     notes=(
@@ -221,6 +209,8 @@ source_tin_120 = Preset(
         "density, screening, plasma, drive, or optical-response roots.",
         "Tin-120 is used as a sourced isotope-level stand-in for the EUV "
         "tin source context, not as a natural-abundance mixture preset.",
+        "Valence quark counts U=170 and D=190 are derived from Z=50, N=70 "
+        "by the scope equations.",
     ),
 )
 
@@ -234,22 +224,20 @@ medium_h2o_h1_o16_composition = Preset(
     assignments=_root_assignments(
         {
             "physical.lithography.medium_component_a_stoichiometric_count": 2,
-            **_medium_component_quark_assignments("a", protons=1, neutrons=0),
+            **_medium_component_nucleon_assignments("a", protons=1, neutrons=0),
             "physical.lithography.medium_component_b_stoichiometric_count": 1,
-            **_medium_component_quark_assignments("b", protons=8, neutrons=8),
+            **_medium_component_nucleon_assignments("b", protons=8, neutrons=8),
         }
     ),
     source=_provenance(
         (
             f"{_WATER_FORMULA_PROVENANCE} {_NUCLIDE_PROVENANCE} "
-            "Preset maps H2O to component A=hydrogen-1 and component "
-            "B=oxygen-16 with stoichiometric counts 2:1; "
-            f"{_VALENCE_QUARK_PROVENANCE}"
+            "Preset maps H2O to component A=hydrogen-1 (Z=1, N=0) and "
+            "component B=oxygen-16 (Z=8, N=8) with stoichiometric counts 2:1."
         ),
         references=(
             _NIST_WEBBOOK_WATER,
             _IUPAC_NUCLIDE,
-            _PARTICLE_DATA_GROUP_QUARK_MODEL,
         ),
     ),
     notes=(
@@ -259,6 +247,8 @@ medium_h2o_h1_o16_composition = Preset(
         "Formula-unit proton, neutron, electron, mass, density, and optical "
         "response values remain derived resolver outputs or explicit "
         "scenario roots outside this composition preset.",
+        "Valence quark counts for each component are derived from Z and N "
+        "by the scope equations.",
     ),
 )
 

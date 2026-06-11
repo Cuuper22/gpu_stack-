@@ -15,7 +15,7 @@ from collections.abc import Mapping, Sequence
 
 EXPECTED_GRAPH_EVIDENCE = {
     "variables": 1517,
-    "equations": 959,
+    "equations": 950,
     "root_inputs": 619,
 }
 
