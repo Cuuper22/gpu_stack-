@@ -10,10 +10,10 @@ from tests.helpers.registry import snapshot_registry_state as registry_snapshot
 
 
 ORIGINAL_PYTHIA_SCENARIO = "pythia_70m_dgx_h100_us_2024_industrial_power"
-PYTHIA_ENERGY_FLOOR_SCENARIO_MARKERS = (
-    "pythia_70m",
-    "dgx_h100",
-    "energy_floor",
+# The canonical energy-floor pack name. Use an exact-name match to stay
+# stable when more energy-floor variants are added.
+PYTHIA_ENERGY_FLOOR_SCENARIO_NAME = (
+    "pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost"
 )
 
 
@@ -69,13 +69,10 @@ def pythia_energy_floor_report(reports):
     candidates = [
         report
         for report in reports
-        if all(
-            marker in report["preset"].replace("-", "_").lower()
-            for marker in PYTHIA_ENERGY_FLOOR_SCENARIO_MARKERS
-        )
+        if report["preset"] == PYTHIA_ENERGY_FLOOR_SCENARIO_NAME
     ]
     assert len(candidates) == 1, (
-        "expected one sourced Pythia/DGX H100 energy-floor scenario; got "
+        f"expected exactly one report for {PYTHIA_ENERGY_FLOOR_SCENARIO_NAME!r}; got "
         f"{sorted(report['preset'] for report in reports)}"
     )
     return candidates[0]

@@ -12,6 +12,8 @@ domain-specific root assignments by hand.
 
 from __future__ import annotations
 
+from types import MappingProxyType
+
 from ..core.presets import Preset, combine
 from . import economics, hardware, lithography, materials, workload
 from .scenario_targets import (
@@ -21,6 +23,19 @@ from .scenario_targets import (
     ScenarioTargetSet,
     build_scenario_target_sets,
     targets_for,
+)
+from .scenarios_cited_2026 import (
+    SCENARIO_TARGET_SETS_2026,
+    SOURCED_SCENARIO_PACKS_2026,
+    pythia_160m_dgx_h100_energy_floor_cost_closure,
+    pythia_160m_dgx_h100_single_node_run_closure,
+    pythia_160m_dgx_h100_us_2024_industrial_energy_floor_cost,
+    pythia_160m_dgx_h100_us_2024_industrial_power,
+    pythia_160m_dense_training,
+    pythia_70m_dgx_h100_us_2024_commercial_energy_floor_cost,
+    pythia_70m_dgx_h100_us_2024_commercial_energy_floor_cost_closure,
+    pythia_70m_dgx_h100_us_2024_commercial_power,
+    pythia_70m_dgx_h100_us_2024_commercial_run_closure,
 )
 
 
@@ -251,15 +266,21 @@ SOURCED_SCENARIO_PACKS = (
     pythia_70m_dgx_h100_us_2024_industrial_power,
     pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost,
     euv_tin120_lpp_source_context_assumption,
+    *SOURCED_SCENARIO_PACKS_2026,
 )
 
-SCENARIO_TARGET_SETS = build_scenario_target_sets(
-    dense_training_cost_fixture=dense_training_cost_fixture,
-    pythia_industrial_power=pythia_70m_dgx_h100_us_2024_industrial_power,
-    pythia_energy_floor_cost=(
-        pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost
-    ),
-    euv_tin120_source_context=euv_tin120_lpp_source_context_assumption,
+SCENARIO_TARGET_SETS = MappingProxyType(
+    {
+        **build_scenario_target_sets(
+            dense_training_cost_fixture=dense_training_cost_fixture,
+            pythia_industrial_power=pythia_70m_dgx_h100_us_2024_industrial_power,
+            pythia_energy_floor_cost=(
+                pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost
+            ),
+            euv_tin120_source_context=euv_tin120_lpp_source_context_assumption,
+        ),
+        **SCENARIO_TARGET_SETS_2026,
+    }
 )
 
 
@@ -281,5 +302,14 @@ __all__ = [
     "pythia_70m_dgx_h100_single_node_run_closure",
     "pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost",
     "pythia_70m_dgx_h100_us_2024_industrial_power",
+    "pythia_160m_dense_training",
+    "pythia_160m_dgx_h100_energy_floor_cost_closure",
+    "pythia_160m_dgx_h100_single_node_run_closure",
+    "pythia_160m_dgx_h100_us_2024_industrial_energy_floor_cost",
+    "pythia_160m_dgx_h100_us_2024_industrial_power",
+    "pythia_70m_dgx_h100_us_2024_commercial_energy_floor_cost",
+    "pythia_70m_dgx_h100_us_2024_commercial_energy_floor_cost_closure",
+    "pythia_70m_dgx_h100_us_2024_commercial_power",
+    "pythia_70m_dgx_h100_us_2024_commercial_run_closure",
     "scenario_targets_for",
 ]
