@@ -8,6 +8,33 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
 
 ## Current physical deepening notes
 
+* Integrated the ten-step expansion wave (nine of ten branches; the SEMF
+  plus quark-decomposition branch remains a draft pending test
+  reconciliation). New surfaces: a sourced DGX H100 power BOM with an
+  assumption-labeled full-TCO pack that resolves econ.cost.per_token end
+  to end (3.738e-9 at the EIA 2024 industrial tariff, missing=0,
+  75 trace steps); sourced Pythia-160M and commercial-tariff packs
+  (8 sourced packs total); opt-in resolver fallback and 2-3 variable
+  simultaneous-system solving with trace explanations; Monte Carlo
+  uncertainty propagation in gpu_stack.uncertainty; a registry-backed
+  dependency-cone browser on the docs site with an export-graph-json
+  CLI (706 nodes, 1011 edges); a docs-stats verify gate (the full
+  profile is now five gates); CI verify parity, Python 3.13, and a
+  tag-gated release path; archived agent-memory ledgers under archive/;
+  and a closed metadata tail (with_sp_units 1428 to 1493,
+  with_references 1324 to 1493, equations_with_references 878 to 959,
+  equations_with_unit_check 799 to 893). The docs-stats gate caught all
+  ten stale README/site coverage numbers at integration and they were
+  refreshed from live output. Scenario-audit now reports 99 issues
+  across 8 packs by design: three open sourced cost frontiers each keep
+  their ~33 missing economics roots visible while the closure pack
+  resolves 4 of 4 targets. Full pytest passed `841 passed in 256.30s`
+  (one expected RuntimeWarning from the uncertainty failure-count
+  test); full verifier passed `5/5 gates passed in 260.02s`; read-only
+  full verifier passed `5/5 gates passed in 262.07s`; audit gate PASS;
+  impeccable detect on docs/ reports only the known CLI-flag em-dash
+  false positive.
+
 * Finalized the portfolio form-and-deliverable polish wave. The docs site
   moved to the three-font system from `DESIGN.md` (IBM Plex Sans reading
   copy, Pixelify Sans chrome and headings, IBM Plex Mono commands), gained

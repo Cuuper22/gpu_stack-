@@ -31,8 +31,9 @@ source-clean. The wave was landed as PR #5 and merged to main.
 - Current `next-work` evidence (live 2026-06-10):
   Pythia `cost_per_token` has 33 missing inputs; top root-debt family is
   `physical.lithography.medium` with weight 3014 across 15 roots; metadata
-  gaps are 65 variables without `sp_units`, 169 variables without references,
-  81 equations without references, 160 equations without unit checks.
+  gaps were closed by the ten-step integration wave: every non-constant
+  variable now has `sp_units` and references, every equation has references,
+  and 893 of 959 equations carry unit checks.
 
 ## Previous Verified Wave
 
