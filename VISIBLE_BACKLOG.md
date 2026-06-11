@@ -62,7 +62,7 @@ Status: implemented, verified, read-only verified, and source-clean.
 Facts to keep visible:
 
 - Runtime capped live workers at six, so the wave used bounded write lanes and
-  `AGENT_GITLOG.md` as a pseudo-git coordination ledger.
+  a pseudo-git coordination ledger (now archived at `archive/AGENT_GITLOG.md`).
 - The wave hardened physical roots where honest lower-level relations or
   obvious boundary semantics existed, without adding arbitrary calibration
   values.

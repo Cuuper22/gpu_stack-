@@ -1,8 +1,40 @@
 # gpu_stack roadmap
 
-Status timestamp: May 6, 2026, 23:00 America/Los_Angeles.
+Status timestamp: June 10, 2026, America/Los_Angeles.
 
 ## Latest Verified Wave
+
+Portfolio form-and-deliverable polish is implemented, verified, and
+source-clean. The wave was landed as PR #5 and merged to main.
+
+- Scope: docs site typography and metadata, README example accuracy, and
+  historical agent-session memory consolidation under `archive/`.
+- Docs site: three-font system (IBM Plex Sans for body copy, Pixelify Sans for
+  OS chrome and headings, IBM Plex Mono for commands); absolute Open Graph
+  metadata (`og:image`, `og:url`, `og:type`, `twitter:card`); leaked markdown
+  backticks became real `code` elements; dead `docs/styles.css` link and file
+  removed; `app.js` panel renders null-guarded; eyebrow labels darkened to
+  clear 4.5:1 contrast.
+- README example fixes: dependency-cone snippet sorts by name instead of
+  comparing `Variable` objects directly; `evaluate_targets` example uses real
+  variable name `training.tokens_per_sec`; root-debt block notes live
+  `top_roots` column.
+- Session memory files moved to `archive/` for provenance without root clutter.
+- Full pytest: `670 passed in 157.12s`.
+- Audit gate: PASS; systems 16, variables 1517, constants 24, equations 959,
+  root inputs 619, leaves 253, cycles 0, hard failures 0, large scope files 0,
+  large project files 0.
+- Full verifier: `4/4 gates passed in 157.32s`.
+- Read-only full verifier: `4/4 gates passed in 157.18s`.
+- Final source-clean check:
+  `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0 ruff_cache_dirs=0`.
+- Current `next-work` evidence (live 2026-06-10):
+  Pythia `cost_per_token` has 33 missing inputs; top root-debt family is
+  `physical.lithography.medium` with weight 3014 across 15 roots; metadata
+  gaps are 65 variables without `sp_units`, 169 variables without references,
+  81 equations without references, 160 equations without unit checks.
+
+## Previous Verified Wave
 
 Live next-work compass and scenario-audit missing-family ergonomics are
 implemented, verified, read-only verified, and source-clean.
@@ -22,17 +54,14 @@ implemented, verified, read-only verified, and source-clean.
 - Read-only full verifier: `4/4 gates passed in 95.58s`.
 - Final source-clean check:
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0 ruff_cache_dirs=0`.
-- Current `next-work` evidence keeps three live priorities visible:
-  close the Pythia cost-per-token missing frontier, pay down the
-  `physical.lithography.medium` root-debt family, and close the metadata tail.
 
-## Previous Verified Wave
+## Previously Verified Wave
 
 Physical root-debt boundary hardening is implemented, verified, read-only
 verified, and source-clean.
 
 - Runtime capped live workers at six; bounded write lanes were tracked through
-  `AGENT_GITLOG.md`.
+  a pseudo-git coordination ledger (now archived at `archive/AGENT_GITLOG.md`).
 - MOSFET, interconnect, lithography source/species, and medium-response source
   surfaces gained boundary hardening.
 - Process geometry, SEMF/nuclear coefficients, source-plasma drive, medium
@@ -48,7 +77,7 @@ verified, and source-clean.
 - Final source-clean check:
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0 ruff_cache_dirs=0`.
 
-## Previous Verified Wave
+## Previously Verified Wave
 
 Scenario-audit selector/report ergonomics are implemented and verified.
 
