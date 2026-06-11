@@ -32,8 +32,19 @@ def cmd_resolve(args: argparse.Namespace) -> int:
         assignments = merged_assignments
         variants = merged_variants
 
+    fallback = getattr(args, "fallback_on_violated_validity", False)
+    solve_sys = getattr(args, "solve_systems", False)
+    explain = getattr(args, "explain_selection", False)
+
     try:
-        result = resolve(args.target, assignments=assignments, variants=variants)
+        result = resolve(
+            args.target,
+            assignments=assignments,
+            variants=variants,
+            fallback_on_violated_validity=fallback,
+            solve_systems=solve_sys,
+            explain_selection=explain,
+        )
     except ResolverError as exc:
         print(f"resolve error: {exc}", file=sys.stderr)
         unresolved_inputs = getattr(exc, "unresolved_inputs", [])
@@ -46,16 +57,33 @@ def cmd_resolve(args: argparse.Namespace) -> int:
         print()
         print("trace:")
         for step in result.trace:
+            variant_part = "/" + step.variant if step.variant else ""
+            fallback_part = (
+                f" [fallback from {step.fallback_from}]"
+                if step.fallback_from else ""
+            )
+            system_part = (
+                f" [system: {', '.join(step.system_peers)}]"
+                if step.system_peers else ""
+            )
+            reason_part = (
+                f" [why: {step.selection_reason}]"
+                if step.selection_reason else ""
+            )
             print(
                 f"  {step.variable} <- {step.equation} "
-                f"({step.role.name}{'/' + step.variant if step.variant else ''}) "
-                f"= {step.value}"
+                f"({step.role.name}{variant_part})"
+                f"{fallback_part}{system_part}{reason_part}"
+                f" = {step.value}"
             )
     if args.missing and result.missing:
         print()
         print(f"missing: {sorted(result.missing)}")
         if result.unresolved_inputs:
-            _print_unresolved_inputs(result.unresolved_inputs)
+            _print_unresolved_inputs(
+                result.unresolved_inputs,
+                explain_alternatives=explain,
+            )
     if args.missing_families and result.missing:
         print()
         _print_missing_family_groups(result.unresolved_inputs, result.missing)
@@ -76,7 +104,10 @@ def cmd_resolve(args: argparse.Namespace) -> int:
         diagnostics_printed = False
         if result.unresolved_inputs and not args.missing:
             print()
-            _print_unresolved_inputs(result.unresolved_inputs)
+            _print_unresolved_inputs(
+                result.unresolved_inputs,
+                explain_alternatives=explain,
+            )
             diagnostics_printed = True
         if result.violated_constraints:
             print()
