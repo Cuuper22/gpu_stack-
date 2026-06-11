@@ -33,7 +33,7 @@ def test_next_work_text_prints_live_compass_sections():
     out = buf.getvalue()
     assert rc == 0
     assert "Next work:" in out
-    assert "graph evidence: variables=1517 equations=959 root_inputs=619" in out
+    assert "graph evidence: variables=1517 equations=950 root_inputs=619" in out
     assert "Top 3 highest impact:" in out
     assert "4 best implementations:" in out
     assert "10 bugs/risks:" in out

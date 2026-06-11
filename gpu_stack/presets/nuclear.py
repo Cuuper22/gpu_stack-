@@ -217,11 +217,103 @@ def semf_calibration_preset(
     ).require_source()
 
 
+_KRANE_SOURCE = (
+    "K. S. Krane, Introductory Nuclear Physics, John Wiley & Sons, 1988, "
+    "Table 3.2: semi-empirical mass formula coefficients. "
+    "aV = 15.5 MeV, aS = 16.8 MeV, aC = 0.72 MeV, aA = 23 MeV, "
+    "aP = 34 MeV (pairing coefficient, A^(-1/2) convention)."
+)
+
+_KRANE_PAIRING_SEMANTICS = (
+    "Krane's pairing term is delta = +/-aP/sqrt(A) for even-even/odd-odd "
+    "nuclei; the graph root nuclear_pairing_gap_reference_energy is "
+    "Delta_pair_ref = aP / sqrt(A_ref) where A_ref is the specific isotope "
+    "mass number. The caller must supply A_ref to convert aP."
+)
+
+KRANE_SEMF_COEFFICIENTS_MEV = {
+    "a_vol_mev": 15.5,
+    "a_surf_mev": 16.8,
+    "a_coul_mev": 0.72,
+    "a_asym_mev": 23.0,
+    "a_pairing_mev": 34.0,
+}
+
+_KRANE_PAIRING_EXPONENT_NOTE = (
+    "Krane uses the A^(-1/2) pairing exponent convention. "
+    "The graph root nuclear_pairing_gap_reference_energy is not directly "
+    "equal to Krane's aP; it equals aP / sqrt(A_ref) for the reference "
+    "mass number A_ref of the specific isotope being calibrated."
+)
+
+
+def krane_semf_calibration_preset(*, reference_mass_number: float) -> Preset:
+    """
+    Build a sourced SEMF calibration Preset from Krane's Table 3.2 coefficients.
+
+    The four universal coefficients (volume, surface, Coulomb, asymmetry) are
+    taken directly from Krane (1988). The pairing gap reference energy is
+    derived as Delta_pair_ref = aP / sqrt(A_ref) where aP = 34 MeV (Krane) and
+    A_ref is the caller-supplied reference mass number for the specific isotope
+    being calibrated.
+
+    Parameters
+    ----------
+    reference_mass_number : float
+        The mass number A of the reference isotope. The pairing gap root will
+        be set to aP / sqrt(A_ref) in SI joules.
+
+    Returns
+    -------
+    Preset
+        A Preset with full source provenance, ready for use with the resolver.
+    """
+    if not isinstance(reference_mass_number, (int, float)) or isinstance(reference_mass_number, bool):
+        raise ValueError("reference_mass_number must be a positive number")
+    a_ref = float(reference_mass_number)
+    if not math.isfinite(a_ref) or a_ref <= 0:
+        raise ValueError("reference_mass_number must be a finite positive number")
+
+    a_vol_j = KRANE_SEMF_COEFFICIENTS_MEV["a_vol_mev"] * MEV_TO_JOULE
+    a_surf_j = KRANE_SEMF_COEFFICIENTS_MEV["a_surf_mev"] * MEV_TO_JOULE
+    a_coul_j = KRANE_SEMF_COEFFICIENTS_MEV["a_coul_mev"] * MEV_TO_JOULE
+    a_asym_j = KRANE_SEMF_COEFFICIENTS_MEV["a_asym_mev"] * MEV_TO_JOULE
+    a_pair_mev = KRANE_SEMF_COEFFICIENTS_MEV["a_pairing_mev"]
+    delta_pair_ref_j = (a_pair_mev / math.sqrt(a_ref)) * MEV_TO_JOULE
+
+    return semf_calibration_preset(
+        name=f"krane_semf_a_ref_{int(a_ref):d}",
+        description=(
+            f"SEMF calibration from Krane (1988) Table 3.2, calibrated for "
+            f"reference mass number A = {int(a_ref)}. Four universal "
+            "coefficients (aV, aS, aC, aA) plus pairing gap reference energy "
+            "Delta_pair_ref = aP / sqrt(A_ref)."
+        ),
+        assignments={
+            "physical.lithography.nuclear_binding_volume_coefficient": a_vol_j,
+            "physical.lithography.nuclear_binding_surface_coefficient": a_surf_j,
+            "physical.lithography.nuclear_binding_coulomb_coefficient": a_coul_j,
+            "physical.lithography.nuclear_binding_asymmetry_coefficient": a_asym_j,
+            "physical.lithography.nuclear_pairing_gap_reference_energy": delta_pair_ref_j,
+        },
+        source_text=_KRANE_SOURCE,
+        notes=(
+            _KRANE_PAIRING_EXPONENT_NOTE,
+            f"Reference mass number A_ref = {int(a_ref)} was supplied by the caller.",
+            f"Delta_pair_ref = {a_pair_mev:.1f} / sqrt({int(a_ref)}) "
+            f"= {a_pair_mev / math.sqrt(a_ref):.6f} MeV "
+            f"= {delta_pair_ref_j:.6e} J.",
+        ),
+    )
+
+
 __all__ = [
+    "KRANE_SEMF_COEFFICIENTS_MEV",
     "MEV_TO_JOULE",
     "MEV_TO_JOULE_SOURCE",
     "NUCLEAR_PAIRING_GAP_REFERENCE_ENERGY_ROOT",
     "SEMF_CALIBRATION_ROOTS",
+    "krane_semf_calibration_preset",
     "mev_to_joule",
     "semf_calibration_root_inventory",
     "semf_calibration_preset",

@@ -3,11 +3,23 @@ scopes/physical_lithography_medium_components_isotope_relations.py
 ==================================================================
 
 Relations that derive lithography imaging-medium component isotope descriptors.
+
+The calibration boundary is the proton count Z and neutron count N for each
+component. Valence quark counts follow from the proton uud and neutron udd
+quark model identities:
+
+  U = 2*Z + N   (each proton contributes 2 up quarks, each neutron 1)
+  D = Z + 2*N   (each proton contributes 1 down quark, each neutron 2)
+
+This decomposition is a real physics identity, not an approximation. It holds
+for any nucleus regardless of binding energy or nuclear model. The total quark
+count U + D = 3*(Z + N) = 3*A is always divisible by 3 (baryon number
+conservation).
 """
 
 import sympy as sp
 
-from ..core import Approximation, Inequality, RelationRole, eq
+from ..core import Approximation, Inequality, Reference, eq
 from .physical_lithography_medium_components_reference import (
     LITHOGRAPHY_MEDIUM_COMPOSITION_REF,
 )
@@ -27,143 +39,74 @@ from .physical_lithography_medium_components_isotope_state import (
 )
 
 
-eq_lithography_medium_component_a_proton_count_from_valence_quarks = eq(
-    "physical.eq.lithography_medium_component_a_proton_count_from_valence_quarks",
-    lithography_medium_component_a_proton_count.symbol,
-    sp.Rational(1, 3)
-    * (
-        2 * lithography_medium_component_a_valence_up_quark_count.symbol
-        - lithography_medium_component_a_valence_down_quark_count.symbol
+_QUARK_MODEL_REF = Reference(
+    citation=(
+        "Particle Data Group Review of Particle Physics, quark model: "
+        "proton = uud (2 up, 1 down), neutron = udd (1 up, 2 down). "
+        "For a nucleus with Z protons and N neutrons: "
+        "U = 2*Z + N, D = Z + 2*N. "
+        "PDG, https://pdg.lbl.gov/"
     ),
-    "Component A proton count from total valence up/down quark content.",
-    references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
-    check_units=True,
-)
-eq_lithography_medium_component_a_neutron_count_from_valence_quarks = eq(
-    "physical.eq.lithography_medium_component_a_neutron_count_from_valence_quarks",
-    lithography_medium_component_a_neutron_count.symbol,
-    sp.Rational(1, 3)
-    * (
-        2 * lithography_medium_component_a_valence_down_quark_count.symbol
-        - lithography_medium_component_a_valence_up_quark_count.symbol
-    ),
-    "Component A neutron count from total valence up/down quark content.",
-    references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
-    check_units=True,
-)
-eq_lithography_medium_component_b_proton_count_from_valence_quarks = eq(
-    "physical.eq.lithography_medium_component_b_proton_count_from_valence_quarks",
-    lithography_medium_component_b_proton_count.symbol,
-    sp.Rational(1, 3)
-    * (
-        2 * lithography_medium_component_b_valence_up_quark_count.symbol
-        - lithography_medium_component_b_valence_down_quark_count.symbol
-    ),
-    "Component B proton count from total valence up/down quark content.",
-    references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
-    check_units=True,
-)
-eq_lithography_medium_component_b_neutron_count_from_valence_quarks = eq(
-    "physical.eq.lithography_medium_component_b_neutron_count_from_valence_quarks",
-    lithography_medium_component_b_neutron_count.symbol,
-    sp.Rational(1, 3)
-    * (
-        2 * lithography_medium_component_b_valence_down_quark_count.symbol
-        - lithography_medium_component_b_valence_up_quark_count.symbol
-    ),
-    "Component B neutron count from total valence up/down quark content.",
-    references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
-    check_units=True,
+    kind="database",
+    url="https://pdg.lbl.gov/",
 )
 
 
-ineq_lithography_medium_component_a_valence_quarks_imply_nonnegative_protons = Inequality(
-    "physical.ineq.lithography_medium_component_a_valence_quarks_imply_nonnegative_protons",
+eq_lithography_medium_component_a_valence_up_quark_count_from_zn = eq(
+    "physical.eq.lithography_medium_component_a_valence_up_quark_count_from_zn",
+    lithography_medium_component_a_valence_up_quark_count.symbol,
+    2 * lithography_medium_component_a_proton_count.symbol
+    + lithography_medium_component_a_neutron_count.symbol,
+    "Component A up-quark count from proton and neutron counts: U = 2Z + N.",
+    references=[_QUARK_MODEL_REF],
+    check_units=True,
+)
+eq_lithography_medium_component_a_valence_down_quark_count_from_zn = eq(
+    "physical.eq.lithography_medium_component_a_valence_down_quark_count_from_zn",
     lithography_medium_component_a_valence_down_quark_count.symbol,
-    2 * lithography_medium_component_a_valence_up_quark_count.symbol,
-    "<=",
-    "Component A valence quark counts must satisfy D <= 2U so the derived proton count is non-negative.",
-    references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
+    lithography_medium_component_a_proton_count.symbol
+    + 2 * lithography_medium_component_a_neutron_count.symbol,
+    "Component A down-quark count from proton and neutron counts: D = Z + 2N.",
+    references=[_QUARK_MODEL_REF],
     check_units=True,
 )
-ineq_lithography_medium_component_a_valence_quarks_imply_positive_protons = Inequality(
-    "physical.ineq.lithography_medium_component_a_valence_quarks_imply_positive_protons",
-    lithography_medium_component_a_valence_up_quark_count.symbol,
-    sp.Rational(1, 2)
-    * (lithography_medium_component_a_valence_down_quark_count.symbol + sp.Integer(3)),
-    ">=",
-    "Component A valence quark counts must satisfy U >= (D + 3)/2 so the derived proton count is at least one.",
-    references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
+eq_lithography_medium_component_b_valence_up_quark_count_from_zn = eq(
+    "physical.eq.lithography_medium_component_b_valence_up_quark_count_from_zn",
+    lithography_medium_component_b_valence_up_quark_count.symbol,
+    2 * lithography_medium_component_b_proton_count.symbol
+    + lithography_medium_component_b_neutron_count.symbol,
+    "Component B up-quark count from proton and neutron counts: U = 2Z + N.",
+    references=[_QUARK_MODEL_REF],
     check_units=True,
 )
-ineq_lithography_medium_component_a_valence_quarks_imply_nonnegative_neutrons = Inequality(
-    "physical.ineq.lithography_medium_component_a_valence_quarks_imply_nonnegative_neutrons",
-    lithography_medium_component_a_valence_up_quark_count.symbol,
-    2 * lithography_medium_component_a_valence_down_quark_count.symbol,
-    "<=",
-    "Component A valence quark counts must satisfy U <= 2D so the derived neutron count is non-negative.",
-    references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
-    check_units=True,
-)
-eq_lithography_medium_component_a_valence_quark_triplet_integrality = eq(
-    "physical.eq.lithography_medium_component_a_valence_quark_triplet_integrality",
-    lithography_medium_component_a_valence_up_quark_count.symbol,
-    (
-        lithography_medium_component_a_valence_up_quark_count.symbol
-        - sp.Mod(
-            lithography_medium_component_a_valence_up_quark_count.symbol
-            + lithography_medium_component_a_valence_down_quark_count.symbol,
-            3,
-        )
-    ),
-    "Total component A valence quark count must be divisible into three-quark baryon triplets.",
-    references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
-    check_units=True,
-    role=RelationRole.CONSTRAINT,
-)
-ineq_lithography_medium_component_b_valence_quarks_imply_nonnegative_protons = Inequality(
-    "physical.ineq.lithography_medium_component_b_valence_quarks_imply_nonnegative_protons",
+eq_lithography_medium_component_b_valence_down_quark_count_from_zn = eq(
+    "physical.eq.lithography_medium_component_b_valence_down_quark_count_from_zn",
     lithography_medium_component_b_valence_down_quark_count.symbol,
-    2 * lithography_medium_component_b_valence_up_quark_count.symbol,
-    "<=",
-    "Component B valence quark counts must satisfy D <= 2U so the derived proton count is non-negative.",
-    references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
+    lithography_medium_component_b_proton_count.symbol
+    + 2 * lithography_medium_component_b_neutron_count.symbol,
+    "Component B down-quark count from proton and neutron counts: D = Z + 2N.",
+    references=[_QUARK_MODEL_REF],
     check_units=True,
 )
-ineq_lithography_medium_component_b_valence_quarks_imply_positive_protons = Inequality(
-    "physical.ineq.lithography_medium_component_b_valence_quarks_imply_positive_protons",
-    lithography_medium_component_b_valence_up_quark_count.symbol,
-    sp.Rational(1, 2)
-    * (lithography_medium_component_b_valence_down_quark_count.symbol + sp.Integer(3)),
+
+
+ineq_lithography_medium_component_a_proton_count_positive = Inequality(
+    "physical.ineq.lithography_medium_component_a_proton_count_positive",
+    lithography_medium_component_a_proton_count.symbol,
+    sp.Integer(1),
     ">=",
-    "Component B valence quark counts must satisfy U >= (D + 3)/2 so the derived proton count is at least one.",
+    "Component A must have at least one proton (Z >= 1) to be a nucleus.",
     references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
     check_units=True,
 )
-ineq_lithography_medium_component_b_valence_quarks_imply_nonnegative_neutrons = Inequality(
-    "physical.ineq.lithography_medium_component_b_valence_quarks_imply_nonnegative_neutrons",
-    lithography_medium_component_b_valence_up_quark_count.symbol,
-    2 * lithography_medium_component_b_valence_down_quark_count.symbol,
-    "<=",
-    "Component B valence quark counts must satisfy U <= 2D so the derived neutron count is non-negative.",
+ineq_lithography_medium_component_b_proton_count_positive = Inequality(
+    "physical.ineq.lithography_medium_component_b_proton_count_positive",
+    lithography_medium_component_b_proton_count.symbol,
+    sp.Integer(1),
+    ">=",
+    "Component B must have at least one proton (Z >= 1) to be a nucleus.",
     references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
     check_units=True,
-)
-eq_lithography_medium_component_b_valence_quark_triplet_integrality = eq(
-    "physical.eq.lithography_medium_component_b_valence_quark_triplet_integrality",
-    lithography_medium_component_b_valence_up_quark_count.symbol,
-    (
-        lithography_medium_component_b_valence_up_quark_count.symbol
-        - sp.Mod(
-            lithography_medium_component_b_valence_up_quark_count.symbol
-            + lithography_medium_component_b_valence_down_quark_count.symbol,
-            3,
-        )
-    ),
-    "Total component B valence quark count must be divisible into three-quark baryon triplets.",
-    references=[LITHOGRAPHY_MEDIUM_COMPOSITION_REF],
-    check_units=True,
-    role=RelationRole.CONSTRAINT,
 )
 
 
@@ -206,18 +149,12 @@ eq_lithography_medium_component_b_isotope_mass_number = Approximation(
 
 
 LITHOGRAPHY_MEDIUM_COMPONENT_ISOTOPE_RELATION_EQUATIONS = [
-    eq_lithography_medium_component_a_proton_count_from_valence_quarks,
-    eq_lithography_medium_component_a_neutron_count_from_valence_quarks,
-    eq_lithography_medium_component_b_proton_count_from_valence_quarks,
-    eq_lithography_medium_component_b_neutron_count_from_valence_quarks,
-    ineq_lithography_medium_component_a_valence_quarks_imply_nonnegative_protons,
-    ineq_lithography_medium_component_a_valence_quarks_imply_positive_protons,
-    ineq_lithography_medium_component_a_valence_quarks_imply_nonnegative_neutrons,
-    eq_lithography_medium_component_a_valence_quark_triplet_integrality,
-    ineq_lithography_medium_component_b_valence_quarks_imply_nonnegative_protons,
-    ineq_lithography_medium_component_b_valence_quarks_imply_positive_protons,
-    ineq_lithography_medium_component_b_valence_quarks_imply_nonnegative_neutrons,
-    eq_lithography_medium_component_b_valence_quark_triplet_integrality,
+    eq_lithography_medium_component_a_valence_up_quark_count_from_zn,
+    eq_lithography_medium_component_a_valence_down_quark_count_from_zn,
+    eq_lithography_medium_component_b_valence_up_quark_count_from_zn,
+    eq_lithography_medium_component_b_valence_down_quark_count_from_zn,
+    ineq_lithography_medium_component_a_proton_count_positive,
+    ineq_lithography_medium_component_b_proton_count_positive,
     eq_lithography_medium_component_a_atomic_number,
     eq_lithography_medium_component_b_atomic_number,
     eq_lithography_medium_component_a_isotope_mass_number,
@@ -226,18 +163,12 @@ LITHOGRAPHY_MEDIUM_COMPONENT_ISOTOPE_RELATION_EQUATIONS = [
 
 
 LITHOGRAPHY_MEDIUM_COMPONENT_ISOTOPE_RELATION_EXPORTS = [
-    "eq_lithography_medium_component_a_proton_count_from_valence_quarks",
-    "eq_lithography_medium_component_a_neutron_count_from_valence_quarks",
-    "eq_lithography_medium_component_b_proton_count_from_valence_quarks",
-    "eq_lithography_medium_component_b_neutron_count_from_valence_quarks",
-    "ineq_lithography_medium_component_a_valence_quarks_imply_nonnegative_protons",
-    "ineq_lithography_medium_component_a_valence_quarks_imply_positive_protons",
-    "ineq_lithography_medium_component_a_valence_quarks_imply_nonnegative_neutrons",
-    "eq_lithography_medium_component_a_valence_quark_triplet_integrality",
-    "ineq_lithography_medium_component_b_valence_quarks_imply_nonnegative_protons",
-    "ineq_lithography_medium_component_b_valence_quarks_imply_positive_protons",
-    "ineq_lithography_medium_component_b_valence_quarks_imply_nonnegative_neutrons",
-    "eq_lithography_medium_component_b_valence_quark_triplet_integrality",
+    "eq_lithography_medium_component_a_valence_up_quark_count_from_zn",
+    "eq_lithography_medium_component_a_valence_down_quark_count_from_zn",
+    "eq_lithography_medium_component_b_valence_up_quark_count_from_zn",
+    "eq_lithography_medium_component_b_valence_down_quark_count_from_zn",
+    "ineq_lithography_medium_component_a_proton_count_positive",
+    "ineq_lithography_medium_component_b_proton_count_positive",
     "eq_lithography_medium_component_a_atomic_number",
     "eq_lithography_medium_component_b_atomic_number",
     "eq_lithography_medium_component_a_isotope_mass_number",

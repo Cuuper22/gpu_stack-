@@ -175,14 +175,10 @@ def _root_assignments(assignments: dict[str, float]) -> dict[str, float]:
     return assignments
 
 
-def _source_quark_assignments(protons: int, neutrons: int) -> dict[str, int]:
+def _source_nucleon_assignments(protons: int, neutrons: int) -> dict[str, int]:
     return {
-        "physical.lithography.source_valence_up_quark_count": (
-            2 * protons + neutrons
-        ),
-        "physical.lithography.source_valence_down_quark_count": (
-            protons + 2 * neutrons
-        ),
+        "physical.lithography.source_proton_count": protons,
+        "physical.lithography.source_neutron_count": neutrons,
     }
 
 
@@ -242,18 +238,20 @@ source_tin_120_composition_assumption = Preset(
     name="source_tin_120_composition_assumption",
     description=(
         "Assumption-labeled source-species composition closure for a 120Sn "
-        "tin plasma source, encoded through exact valence-quark root counts."
+        "tin plasma source, encoded at the proton-count and neutron-count "
+        "root layer."
     ),
     assignments=_root_assignments(
-        _source_quark_assignments(protons=50, neutrons=70)
+        _source_nucleon_assignments(protons=50, neutrons=70)
     ),
     source=_NIST_TIN_ATOMIC_DATA_SOURCE,
     notes=(
         "This preset says: model the source species as 120Sn for closure. It "
         "does not say ASML uses isotopically selected 120Sn.",
-        "The root assignments are exact quark-count bookkeeping from Z=50 "
-        "and A=120: U=2Z+N and D=Z+2N. Binding, charge state, screening, "
-        "ionization, plasma temperature, and laser-drive roots remain open.",
+        "The root assignments are Z=50 and N=70 for tin-120. Valence quark "
+        "counts U=2Z+N=170 and D=Z+2N=190 are derived by the scope equations "
+        "from these root values. Binding, charge state, screening, ionization, "
+        "plasma temperature, and laser-drive roots remain open.",
     ),
 )
 
