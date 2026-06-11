@@ -37,18 +37,19 @@ def _training_economics_pack_names() -> set[str]:
 
 
 def _pythia_dgx_h100_energy_floor_cost_pack():
+    # Return the canonical Pythia-70M industrial-tariff energy-floor pack by name.
+    # Multiple energy-floor packs exist (different model sizes and tariffs);
+    # this helper returns the specific original pack to keep tests stable.
+    name = scenarios.pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost.name
     matches = [
         pack
         for pack in scenarios.SOURCED_SCENARIO_PACKS
-        if all(
-            marker in pack.name.lower().replace("-", "_")
-            for marker in ("pythia", "dgx_h100", "energy_floor")
-        )
+        if pack.name == name
     ]
 
     assert len(matches) == 1, (
-        "expected exactly one sourced Pythia/DGX H100 energy-floor cost "
-        f"scenario pack, found {[pack.name for pack in matches]}"
+        "expected exactly one pack named "
+        f"{name!r}, found {[pack.name for pack in matches]}"
     )
     return matches[0]
 
