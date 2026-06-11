@@ -1,4 +1,8 @@
 @media (max-width: 980px) {
+  .cone-target-controls {
+    grid-template-columns: 1fr;
+  }
+
   .desktop-icons {
     position: static;
     display: flex;
