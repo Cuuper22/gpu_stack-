@@ -79,6 +79,8 @@ eq_flops_ffn_per_layer = eq(
     flops_ffn_per_layer.symbol,
     2 * seq_len_ctx.symbol * params_ffn_per_layer.symbol,
     "FFN FLOPs per layer for one sequence equal two FLOPs per parameter application times sequence length.",
+    references=[FFN_FLOP_REF],
+    check_units=True,
 )
 
 eq_flops_per_token_dense = eq(
@@ -95,6 +97,7 @@ eq_flops_step_dense = eq(
     6 * params_dense_total.symbol * n_tokens_step.symbol,
     "The standard dense-training estimate is 6 times parameter count times tokens per step.",
     references=["Kaplan et al., Scaling Laws for Neural Language Models, 2020."],
+    check_units=True,
 )
 
 

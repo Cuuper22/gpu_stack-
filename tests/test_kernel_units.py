@@ -17,11 +17,9 @@ UNCHECKED_KERNEL_EQUATIONS = {
     "kernel.eq.blocks_limit_threads",
     "kernel.eq.blocks_limit_regs",
     "kernel.eq.blocks_limit_smem",
-    "kernel.eq.matmul_flops",
     "kernel.eq.matmul_n_tiles_m",
     "kernel.eq.matmul_n_tiles_n",
     "kernel.eq.matmul_n_tiles_k",
-    "kernel.eq.attn_flops",
 }
 
 

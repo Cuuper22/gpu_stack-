@@ -178,6 +178,7 @@ eq_flops_step_dense = eq(
     references=[TRAINING_COMPUTE_REF],
     role=RelationRole.VARIANT,
     variant="dense",
+    check_units=True,
 )
 eq_flops_step_moe = eq(
     "training.eq.flops_step_moe",
@@ -187,6 +188,7 @@ eq_flops_step_moe = eq(
     references=[TRAINING_COMPUTE_REF],
     role=RelationRole.VARIANT,
     variant="moe",
+    check_units=True,
 )
 eq_recompute_overhead = eq(
     "training.eq.recompute_overhead",
@@ -210,6 +212,7 @@ eq_peak_flops_run = eq(
     n_gpus_total.symbol * peak_flops_gpu.symbol,
     "Aggregate raw peak FLOPs equal GPU count times raw per-GPU peak.",
     references=[TRAINING_COMPUTE_REF],
+    check_units=True,
 )
 eq_peak_flops_run_effective = eq(
     "training.eq.peak_flops_effective",
@@ -217,6 +220,7 @@ eq_peak_flops_run_effective = eq(
     n_gpus_total.symbol * peak_flops_gpu_effective.symbol,
     "Aggregate effective peak equals GPU count times issue-efficiency-limited per-GPU peak.",
     references=[TRAINING_COMPUTE_REF],
+    check_units=True,
 )
 eq_peak_flops_run_power_limited = eq(
     "training.eq.peak_flops_power_limited",
@@ -224,6 +228,7 @@ eq_peak_flops_run_power_limited = eq(
     n_gpus_total.symbol * peak_flops_gpu_power_limited.symbol,
     "Aggregate power-limited peak equals GPU count times power-limited effective per-GPU peak.",
     references=[TRAINING_COMPUTE_REF],
+    check_units=True,
 )
 eq_t_compute_ideal = eq(
     "training.eq.t_compute_ideal",

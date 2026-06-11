@@ -246,6 +246,7 @@ eq_flops_step_moe = eq(
     flops_step_moe.symbol,
     6 * params_active_moe.symbol * n_tokens_step.symbol,
     "MoE training FLOPs depend on active parameters, not total instantiated parameters.",
+    check_units=True,
 )
 
 

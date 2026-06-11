@@ -122,18 +122,21 @@ reg_bank_conflict_factor = var(
     "Bandwidth loss factor from register-bank conflicts.",
     scope="memory_subsystem",
     sp_units=DIMENSIONLESS,
+    references=[REGISTER_FILE_REF],
 )
 reg_bw_effective = var(
     "mem.reg.bw_effective", "BW_reg_eff", "byte/s",
     "Effective register-file bandwidth after bank conflicts.",
     scope="memory_subsystem",
     sp_units=BPS,
+    references=[REGISTER_FILE_REF],
 )
 e_per_byte_reg = var(
     "mem.energy.per_byte_reg", "E_B_reg", "J/byte",
     "Energy per byte read from the register file.",
     scope="memory_subsystem",
     sp_units=JOULE / BYTE,
+    references=[REGISTER_FILE_REF],
 )
 
 eq_reg_file_regs = eq(

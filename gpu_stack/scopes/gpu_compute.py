@@ -279,6 +279,7 @@ eq_peak_flops_gpu = eq(
     n_sms.symbol * peak_flops_sm.symbol,
     "Raw peak GPU FLOPs aggregate the raw per-SM peak across all SMs.",
     references=[_GPU_COMPUTE_AGGREGATION_REF],
+    check_units=True,
 )
 eq_peak_flops_gpu_effective = eq(
     "gpu.eq.peak_flops_effective",
@@ -286,6 +287,7 @@ eq_peak_flops_gpu_effective = eq(
     n_sms.symbol * peak_flops_sm_effective.symbol,
     "Effective GPU peak aggregates the issue-efficiency-limited per-SM peak across all SMs.",
     references=[_GPU_COMPUTE_AGGREGATION_REF],
+    check_units=True,
 )
 eq_peak_flops_gpu_sparse = eq(
     "gpu.eq.peak_flops_sparse",
@@ -293,6 +295,7 @@ eq_peak_flops_gpu_sparse = eq(
     n_sms.symbol * peak_flops_sm_sparse.symbol,
     "Sparse dense-equivalent peak aggregates sparse per-SM throughput across the die.",
     references=[_GPU_COMPUTE_AGGREGATION_REF],
+    check_units=True,
 )
 eq_peak_dp4a_gpu = eq(
     "gpu.eq.peak_dp4a",
@@ -300,6 +303,7 @@ eq_peak_dp4a_gpu = eq(
     n_sms.symbol * peak_dp4a_sm.symbol,
     "Peak DP4A throughput is the per-SM DP4A peak times SM count.",
     references=[_GPU_COMPUTE_AGGREGATION_REF],
+    check_units=True,
 )
 eq_peak_dp2a_gpu = eq(
     "gpu.eq.peak_dp2a",
@@ -307,6 +311,7 @@ eq_peak_dp2a_gpu = eq(
     n_sms.symbol * peak_dp2a_sm.symbol,
     "Peak DP2A throughput is the per-SM DP2A peak times SM count.",
     references=[_GPU_COMPUTE_AGGREGATION_REF],
+    check_units=True,
 )
 eq_peak_sfu_gpu = eq(
     "gpu.eq.peak_sfu",
@@ -314,6 +319,7 @@ eq_peak_sfu_gpu = eq(
     n_sms.symbol * peak_sfu_ops_sm.symbol,
     "Peak SFU throughput is the per-SM SFU peak times SM count.",
     references=[_GPU_COMPUTE_AGGREGATION_REF],
+    check_units=True,
 )
 
 

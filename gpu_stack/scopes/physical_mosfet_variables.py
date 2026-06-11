@@ -21,48 +21,56 @@ V_gs = var(
     "Gate-to-source voltage.",
     scope="physical",
     sp_units=VOLT,
+    references=[_MOS_TEXT],
 )
 V_ds = var(
     "physical.mosfet.v_ds", "V_DS", "V",
     "Drain-to-source voltage.",
     scope="physical",
     sp_units=VOLT,
+    references=[_MOS_TEXT],
 )
 V_th = var(
     "physical.mosfet.v_th", "V_T0", "V",
     "Long-channel, zero-body-bias threshold voltage baseline.",
     scope="physical",
     sp_units=VOLT,
+    references=[_MOS_TEXT],
 )
 V_sb = var(
     "physical.mosfet.v_sb", "V_SB", "V",
     "Source-to-body bias. Drives body effect.",
     scope="physical",
     sp_units=VOLT,
+    references=[_MOS_TEXT],
 )
 phi_f = var(
     "physical.mosfet.phi_f", "phi_F", "V",
     "Fermi potential magnitude used in body-effect threshold shifts.",
     scope="physical",
     sp_units=VOLT,
+    references=[_MOS_TEXT],
 )
 gamma_body = var(
     "physical.mosfet.body_effect_coeff", "gamma_body", "V^(1/2)",
     "Body-effect coefficient for threshold modulation.",
     scope="physical",
     sp_units=VOLT**sp.Rational(1, 2),
+    references=[_MOS_TEXT],
 )
 eta_dibl = var(
     "physical.mosfet.dibl_coeff", "eta_DIBL", "dimensionless",
     "Drain-induced barrier-lowering coefficient.",
     scope="physical",
     sp_units=sp.Integer(1),
+    references=[_MOS_TEXT],
 )
 V_th_eff = var(
     "physical.mosfet.v_th_eff", "V_T_eff", "V",
     "Effective threshold including body effect and DIBL.",
     scope="physical",
     sp_units=VOLT,
+    references=[_MOS_TEXT],
 )
 
 W_channel = var(
@@ -71,6 +79,7 @@ W_channel = var(
     scope="physical",
     positive=True,
     sp_units=METER,
+    references=[_MOS_TEXT],
 )
 channel_parallel_count = var(
     "physical.mosfet.channel_parallel_count", "N_chan_parallel", "channels",
@@ -103,6 +112,7 @@ t_ox = var(
     scope="physical",
     positive=True,
     sp_units=METER,
+    references=[_MOS_TEXT],
 )
 equivalent_oxide_thickness = var(
     "physical.mosfet.eot", "t_EOT", "m",
@@ -126,6 +136,7 @@ epsilon_ox_rel = var(
     scope="physical",
     positive=True,
     sp_units=sp.Integer(1),
+    references=[_MOS_TEXT],
 )
 epsilon_ox = var(
     "physical.mosfet.oxide_permittivity", "epsilon_ox", "F/m",
@@ -133,6 +144,7 @@ epsilon_ox = var(
     scope="physical",
     positive=True,
     sp_units=FARAD / METER,
+    references=[_MOS_TEXT],
 )
 C_ox = var(
     "physical.mosfet.c_ox", "C_ox", "F/m^2",
@@ -147,6 +159,7 @@ E_ox = var(
     "Approximate oxide electric field.",
     scope="physical",
     sp_units=VOLT / METER,
+    references=[_MOS_TEXT],
 )
 
 V_thermal = var(
@@ -154,6 +167,7 @@ V_thermal = var(
     "Thermal voltage k_B T / q.",
     scope="physical",
     sp_units=VOLT,
+    references=[_MOS_TEXT],
 )
 subthreshold_swing_floor = var(
     "physical.mosfet.subthreshold_swing_floor", "S_min", "V",
@@ -161,6 +175,7 @@ subthreshold_swing_floor = var(
     scope="physical",
     positive=True,
     sp_units=VOLT,
+    references=[_MOS_TEXT],
 )
 subthreshold_swing = var(
     "physical.mosfet.subthreshold_swing", "S_sub", "V",
@@ -168,6 +183,7 @@ subthreshold_swing = var(
     scope="physical",
     positive=True,
     sp_units=VOLT,
+    references=[_MOS_TEXT],
 )
 
 
@@ -181,36 +197,42 @@ lambda_clm = var(
     scope="physical",
     nonnegative=True,
     sp_units=1 / VOLT,
+    references=[_MOS_TEXT],
 )
 I_ds_triode = var(
     "physical.mosfet.i_ds_triode", "I_DS_tri", "A",
     "Drain current in the triode or linear region.",
     scope="physical",
     sp_units=AMPERE,
+    references=[_MOS_TEXT],
 )
 I_ds_sat = var(
     "physical.mosfet.i_ds_sat", "I_DS_sat", "A",
     "Drain current in strong inversion and saturation.",
     scope="physical",
     sp_units=AMPERE,
+    references=[_MOS_TEXT],
 )
 I_ds_sub = var(
     "physical.mosfet.i_ds_sub", "I_DS_sub", "A",
     "Drain current in the subthreshold regime.",
     scope="physical",
     sp_units=AMPERE,
+    references=[_MOS_TEXT],
 )
 I_ds = var(
     "physical.mosfet.i_ds", "I_DS", "A",
     "Piecewise drain current across subthreshold, triode, and saturation regimes.",
     scope="physical",
     sp_units=AMPERE,
+    references=[_MOS_TEXT],
 )
 I_0 = var(
     "physical.mosfet.i0", "I0", "A",
     "Subthreshold pre-exponential current scale.",
     scope="physical",
     sp_units=AMPERE,
+    references=[_MOS_TEXT],
 )
 n_ideality = var(
     "physical.mosfet.ideality", "n_id", "dimensionless",
@@ -218,6 +240,7 @@ n_ideality = var(
     scope="physical",
     positive=True,
     sp_units=sp.Integer(1),
+    references=[_MOS_TEXT],
 )
 
 J_gate_0 = var(
@@ -226,6 +249,7 @@ J_gate_0 = var(
     scope="physical",
     nonnegative=True,
     sp_units=AMPERE / METER**2,
+    references=[_MOS_TEXT],
 )
 beta_gate_tunnel = var(
     "physical.mosfet.gate_tunnel_decay", "beta_g", "1/m",
@@ -233,6 +257,7 @@ beta_gate_tunnel = var(
     scope="physical",
     nonnegative=True,
     sp_units=1 / METER,
+    references=[_MOS_TEXT],
 )
 J_gate = var(
     "physical.mosfet.gate_tunnel_current_density", "J_gate", "A/m^2",
@@ -240,18 +265,21 @@ J_gate = var(
     scope="physical",
     nonnegative=True,
     sp_units=AMPERE / METER**2,
+    references=[_MOS_TEXT],
 )
 I_gate_leak = var(
     "physical.mosfet.i_gate_leak", "I_gate", "A",
     "Total gate-leakage current.",
     scope="physical",
     sp_units=AMPERE,
+    references=[_MOS_TEXT],
 )
 I_leak_total = var(
     "physical.mosfet.i_leak_total", "I_leak_tot", "A",
     "Combined static leakage current from subthreshold and gate tunneling.",
     scope="physical",
     sp_units=AMPERE,
+    references=[_MOS_TEXT],
 )
 
 

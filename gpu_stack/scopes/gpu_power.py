@@ -201,6 +201,7 @@ eq_gpu_memory_power = eq(
     hbm_utilization.symbol * hbm_bw_gpu_effective.symbol * e_per_byte_hbm.symbol,
     "HBM power is modeled as active HBM byte rate times HBM energy per byte.",
     references=[GPU_PACKAGE_POWER_REF],
+    check_units=True,
 )
 eq_gpu_interconnect_power = eq(
     "gpu.eq.interconnect_power",

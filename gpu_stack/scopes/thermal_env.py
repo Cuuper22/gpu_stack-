@@ -203,6 +203,7 @@ eq_wue = eq(
     water_usage_rate.symbol * sp.Integer(3_600_000) / cluster_power_it.symbol,
     "WUE in liters per kWh equals liters per second divided by watts, with the standard kWh conversion factor applied.",
     references=[THERMAL_ENV_REF],
+    check_units=True,
 )
 
 eq_dew_point_headroom = eq(
