@@ -45,6 +45,7 @@ def build_scenario_target_sets(
     dense_training_cost_fixture: Preset,
     pythia_industrial_power: Preset,
     pythia_energy_floor_cost: Preset,
+    pythia_full_tco: Preset,
     euv_tin120_source_context: Preset,
 ) -> Mapping[str, ScenarioTargetSet]:
     """Return the immutable public target registry for scenario artifacts."""
@@ -61,6 +62,7 @@ def build_scenario_target_sets(
             ),
             pythia_industrial_power.name: pythia_targets,
             pythia_energy_floor_cost.name: pythia_targets,
+            pythia_full_tco.name: pythia_targets,
             euv_tin120_source_context.name: tuple(
                 EUV_TIN120_SOURCE_TARGETS.items()
             ),
