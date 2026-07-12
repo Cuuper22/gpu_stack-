@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="GPUSTACK causal observatory for evidence-preserving virtual datacenter experiments.">
+  <meta name="theme-color" content="#f3f0e7">
+  <title>GPUSTACK Causal Observatory · E001</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/90-observatory.css?v=20260712.6">
+  <script src="observatory.js?v=20260712.2" defer></script>
+</head>
+<body data-depth="freshman" data-data-state="loading">
+  <a class="skip-link" href="#observatory-main">Skip to experiment</a>
+
+  <header class="obs-header" aria-label="Observatory header">
+    <a class="obs-identity" href="index.html" aria-label="GPUSTACK home">
+      <span class="obs-wordmark">GPUSTACK</span>
+      <span class="obs-product">/ Virtual Datacenter</span>
+    </a>
+
+    <nav class="obs-nav" aria-label="Observatory sections">
+      <a class="is-current" href="#observatory-main" aria-current="page">Observatory</a>
+      <a href="#comparison">Experiments</a>
+      <a href="#evidence">Evidence</a>
+    </nav>
+
+    <label class="experiment-picker">
+      <span class="visually-hidden">Experiment</span>
+      <select id="experiment-select" aria-label="Experiment">
+        <option value="E001">E001 · Beyond One Datacenter</option>
+      </select>
+      <svg aria-hidden="true" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg>
+    </label>
+
+    <button class="share-state" id="share-state" type="button">
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/>
+        <path d="m8.3 10.8 7.4-4.4M8.3 13.2l7.4 4.4"/>
+      </svg>
+      <span>Share state</span>
+    </button>
+  </header>
+
+  <main id="observatory-main">
+    <section class="question-band" aria-labelledby="experiment-question">
+      <div class="depth-cluster">
+        <span class="control-label">Semantic depth</span>
+        <div class="depth-control" role="group" aria-label="Semantic depth">
+          <button type="button" data-depth="freshman" aria-pressed="true">Freshman</button>
+          <button type="button" data-depth="researcher" aria-pressed="false">Researcher</button>
+          <button type="button" data-depth="full_trace" aria-pressed="false">Full trace</button>
+        </div>
+      </div>
+
+      <div class="question-copy">
+        <p class="experiment-kicker"><span>E001</span> Beyond One Datacenter</p>
+        <h1 id="experiment-question">Can one training run survive across three datacenters?</h1>
+        <div class="stage-boundary" id="stage-boundary">
+          <span class="stage-mark" aria-hidden="true"></span>
+          <strong>Virtual screening</strong>
+          <span aria-hidden="true">·</span>
+          <span>held-out validation absent</span>
+        </div>
+        <p class="plain-answer" id="plain-answer">Loading the generated experiment artifact. No conclusion is shown until its evidence boundary is known.</p>
+        <p class="artifact-state" id="artifact-state" role="status" aria-live="polite">Reading data/e001-screening-v1.json…</p>
+      </div>
+    </section>
+
+    <section class="research-band" aria-label="Causal field and evidence inspector">
+      <aside class="causal-reading" aria-labelledby="causal-reading-title">
+        <h2 id="causal-reading-title">Causal reading</h2>
+        <ol>
+          <li><span>1</span><p><strong>An assumed site interruption begins</strong><small>Availability is an input, not an observed outage rate.</small></p></li>
+          <li><span>2</span><p><strong>Membership response is missing</strong><small>Reactive outage membership is not implemented.</small></p></li>
+          <li><span>3</span><p><strong>Sync cadence changes</strong><small>The controller acts after a completed communication cycle.</small></p></li>
+          <li><span>4</span><p><strong>Traffic and elapsed time change</strong><small>Mechanics are modeled by event ordering and resources.</small></p></li>
+          <li><span>5</span><p><strong>Learning response is a prior</strong><small>One-step delay observations seed an unfitted sensitivity.</small></p></li>
+          <li><span>6</span><p><strong>Every gate stays explicit</strong><small>Scalar falsifiers and structured evidence requirements can fail or remain unresolved independently.</small></p></li>
+        </ol>
+
+        <div class="evidence-key" aria-label="Evidence class key">
+          <h3>Evidence key</h3>
+          <ul>
+            <li><span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span><span><b>Observed</b> paper table</span></li>
+            <li><span class="evidence-glyph evidence-glyph--modeled" aria-hidden="true"></span><span><b>Modeled</b> virtual mechanics</span></li>
+            <li><span class="evidence-glyph evidence-glyph--assumed" aria-hidden="true"></span><span><b>Assumed</b> scenario input</span></li>
+            <li><span class="evidence-glyph evidence-glyph--prior" aria-hidden="true"></span><span><b>Prior · not fitted</b> sensitivity only</span></li>
+            <li><span class="evidence-glyph evidence-glyph--unmeasured" aria-hidden="true"></span><span><b>Unmeasured</b> not evaluated</span></li>
+          </ul>
+        </div>
+      </aside>
+
+      <div class="research-core">
+        <section class="site-field" aria-labelledby="site-field-title">
+          <div class="section-line-heading">
+            <h2 id="site-field-title">Three-site scenario</h2>
+            <span id="site-field-source">Assumed screening inputs</span>
+          </div>
+          <div class="site-viewport" id="site-viewport" tabindex="0" aria-label="Pannable datacenter site rail">
+            <div class="site-rail" id="site-rail"></div>
+          </div>
+          <div class="site-position" id="site-position" aria-label="Site strip position: West, Central, East"><span data-label="W"></span><span class="is-active" data-label="C"></span><span data-label="E"></span></div>
+        </section>
+
+        <section class="causal-field" aria-labelledby="causal-field-title">
+          <div class="section-line-heading">
+            <h2 id="causal-field-title">Causal field</h2>
+            <span id="causal-field-note">Values follow the artifact; evidence class does not collapse into color.</span>
+          </div>
+          <div class="causal-svg-wrap">
+            <svg id="causal-svg" class="causal-svg" role="group" aria-labelledby="causal-svg-title causal-svg-desc"></svg>
+          </div>
+          <details class="structured-fallback">
+            <summary>Accessible causal graph list</summary>
+            <ol id="causal-fallback"></ol>
+          </details>
+        </section>
+      </div>
+
+      <aside class="evidence-inspector" id="evidence-inspector" aria-labelledby="inspector-title">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <header class="inspector-header">
+          <div>
+            <p class="control-label">Evidence inspector</p>
+            <h2 id="inspector-title">central-curtailment-1</h2>
+          </div>
+          <button class="icon-button inspector-close" id="inspector-close" type="button" aria-label="Close evidence inspector">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"/></svg>
+          </button>
+        </header>
+        <div class="inspector-body" id="inspector-body">
+          <p class="inspector-loading">Loading selected evidence…</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="timeline-band" id="timeline" aria-labelledby="timeline-title">
+      <header class="band-header">
+        <div>
+          <p class="control-label">Aligned experiment time</p>
+          <h2 id="timeline-title">Policy timeline</h2>
+        </div>
+        <output id="timeline-readout" for="time-scrubber">selected time: not run</output>
+      </header>
+
+      <div class="timeline-layout">
+        <div class="timeline-viewport" id="timeline-viewport" tabindex="0" aria-label="Pannable aligned policy timeline">
+          <svg id="timeline-svg" class="timeline-svg" role="group" aria-labelledby="timeline-svg-title timeline-svg-desc"></svg>
+        </div>
+        <div class="timeline-controls">
+          <label for="time-scrubber">Scrub modeled time</label>
+          <input id="time-scrubber" type="range" min="0" max="1" step="0.001" value="0" disabled>
+          <div class="timeline-control-row">
+            <button type="button" id="previous-event" disabled>
+              <svg aria-hidden="true" viewBox="0 0 16 16"><path d="m10 3-5 5 5 5"/></svg>
+              Previous event
+            </button>
+            <button type="button" id="next-event" disabled>Next event
+              <svg aria-hidden="true" viewBox="0 0 16 16"><path d="m6 3 5 5-5 5"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <ul class="event-legend" aria-label="Timeline event types">
+        <li><span data-event-kind="compute"></span>Compute</li>
+        <li><span data-event-kind="collective"></span>Collective</li>
+        <li><span data-event-kind="state_transfer"></span>State transfer</li>
+        <li><span data-event-kind="checkpoint"></span>Checkpoint</li>
+        <li><span data-event-kind="failure"></span>Failure</li>
+        <li><span data-event-kind="recovery"></span>Recovery</li>
+        <li><span data-event-kind="power"></span>Facility / grid</li>
+      </ul>
+
+      <details class="structured-fallback">
+        <summary>Accessible timeline event list</summary>
+        <div id="timeline-fallback"></div>
+      </details>
+    </section>
+
+    <section class="comparison-band" id="comparison" aria-labelledby="comparison-title">
+      <header class="band-header">
+        <div>
+          <p class="control-label">Artifact-derived comparison</p>
+          <h2 id="comparison-title">Three-policy comparison</h2>
+        </div>
+        <label class="uncertainty-control" for="uncertainty-select">
+          <span>Uncertainty display</span>
+          <select id="uncertainty-select">
+            <option value="intervals">Intervals and limits</option>
+            <option value="point">Reported point only</option>
+          </select>
+        </label>
+      </header>
+
+      <div class="comparison-scroll">
+        <table class="policy-comparison">
+          <caption class="visually-hidden">Comparison of synchronous, fixed-local, and adaptive-cadence E001 artifacts</caption>
+          <thead>
+            <tr>
+              <th scope="col">Policy</th>
+              <th scope="col">Local steps / decision</th>
+              <th scope="col">Progress per FLOP</th>
+              <th scope="col">Inter-site bytes</th>
+              <th scope="col">Time to target</th>
+              <th scope="col">Base + compute energy</th>
+              <th scope="col">Falsifier status</th>
+            </tr>
+          </thead>
+          <tbody id="comparison-body"></tbody>
+        </table>
+      </div>
+      <p class="comparison-boundary" id="comparison-boundary">Waiting for a generated artifact. Result cells remain not run.</p>
+    </section>
+
+    <section class="evidence-lab" id="evidence" aria-labelledby="evidence-title">
+      <header class="band-header">
+        <div>
+          <p class="control-label">Learning evidence chain</p>
+          <h2 id="evidence-title">What the learning prior does and does not know</h2>
+        </div>
+        <span class="evidence-lock"><svg aria-hidden="true" viewBox="0 0 18 18"><rect x="3" y="8" width="12" height="8" rx="1"/><path d="M6 8V5a3 3 0 0 1 6 0v3"/></svg> Evidence is immutable</span>
+      </header>
+
+      <div class="evidence-chain" id="evidence-chain" aria-label="Evidence chain">
+        <div class="chain-item evidence-unmeasured" id="source-chain-item"><span class="evidence-glyph evidence-glyph--unmeasured" aria-hidden="true"></span><p><span id="source-chain-label">Source observations</span><small id="source-chain-evidence">UNMEASURED · UNAVAILABLE FROM ARTIFACT</small></p></div>
+        <svg aria-hidden="true" viewBox="0 0 44 16"><path d="M1 8h38M35 4l4 4-4 4"/></svg>
+        <div class="chain-item evidence-prior"><span class="evidence-glyph evidence-glyph--prior" aria-hidden="true"></span><p>Unfitted sensitivity prior<small>PRIOR · NOT FITTED</small></p></div>
+        <svg aria-hidden="true" viewBox="0 0 44 16"><path d="M1 8h38M35 4l4 4-4 4"/></svg>
+        <div class="chain-item evidence-unmeasured"><span class="evidence-glyph evidence-glyph--unmeasured" aria-hidden="true"></span><p>Progress per FLOP<small>UNMEASURED</small></p></div>
+        <svg aria-hidden="true" viewBox="0 0 44 16"><path d="M1 8h38M35 4l4 4-4 4"/></svg>
+        <div class="chain-item evidence-unmeasured"><span class="evidence-glyph evidence-glyph--unmeasured" aria-hidden="true"></span><p>Held-out time to target<small>UNMEASURED</small></p></div>
+      </div>
+
+      <div class="evidence-grid">
+        <section class="source-observations" aria-labelledby="source-observations-title">
+          <h3 id="source-observations-title">Seed observations</h3>
+          <p>Published source measurements are read from the observatory artifact. Publication-rounding intervals remain distinct from run-to-run variance.</p>
+          <div class="source-table-scroll">
+            <table>
+              <thead><tr><th scope="col">Observation</th><th scope="col">Value</th><th scope="col">Evidence</th><th scope="col"><span class="visually-hidden">Action</span></th></tr></thead>
+              <tbody id="source-observation-body"></tbody>
+            </table>
+          </div>
+          <dl class="prior-parameters depth-researcher" id="prior-parameters"></dl>
+          <div class="transfer-boundary depth-researcher">
+            <h4>Transfer boundary</h4>
+            <p>The attached literature records cover a narrow delay setting. They do not identify progress per FLOP, longer local-update intervals, frontier-scale transfer, multi-site interruption behavior, or an active-outage controller.</p>
+          </div>
+        </section>
+
+        <section class="residual-panel" aria-labelledby="residual-title">
+          <h3 id="residual-title">Prediction vs observation</h3>
+          <div class="empty-residual">
+            <svg viewBox="0 0 720 330" role="img" aria-labelledby="residual-svg-title residual-svg-desc">
+              <title id="residual-svg-title">Empty residual plot</title>
+              <desc id="residual-svg-desc">No held-out multi-site learning observation exists, so no residual points or confidence bands are drawn.</desc>
+              <g class="residual-grid" aria-hidden="true">
+                <path d="M72 28V278H690M72 228H690M72 178H690M72 128H690M72 78H690M225 28V278M380 28V278M535 28V278"/>
+              </g>
+              <g class="residual-axis-labels" aria-hidden="true">
+                <text x="59" y="283">0.0</text><text x="59" y="233">0.5</text><text x="59" y="183">1.0</text><text x="59" y="133">1.5</text><text x="59" y="83">2.0</text>
+                <text x="72" y="301">10⁰</text><text x="218" y="301">10¹</text><text x="373" y="301">10²</text><text x="528" y="301">10³</text><text x="674" y="301">10⁴</text>
+                <text x="320" y="323">Local-update interval (steps)</text>
+                <text transform="translate(17 205) rotate(-90)">Progress per FLOP ratio</text>
+              </g>
+            </svg>
+            <div class="empty-residual-message">
+              <strong>No held-out multi-site learning observation</strong>
+              <span>Prediction requires observed data. No residual can be computed.</span>
+            </div>
+          </div>
+          <div class="resolve-list depth-researcher">
+            <h4>What would resolve this?</h4>
+            <ol>
+              <li><span>1</span><p><strong>Repeated small-model delay calibration</strong>Measure multiple delay intervals and optimizers rather than extrapolating one step.</p></li>
+              <li><span>2</span><p><strong>Held-out optimizer, model, and site combinations</strong>Evaluate combinations excluded from prior construction.</p></li>
+              <li><span>3</span><p><strong>Controlled 30B to 100B-plus multi-site run</strong>Vary delay and cadence under a defined policy with identical evaluation accounting.</p></li>
+            </ol>
+          </div>
+        </section>
+      </div>
+
+      <section class="decision-ledger depth-researcher" aria-labelledby="decision-ledger-title">
+        <div class="section-line-heading">
+          <h3 id="decision-ledger-title">Policy decision ledger</h3>
+          <span>The controller reads a completed communication cycle, then queues the next epoch.</span>
+        </div>
+        <div class="ledger-scroll">
+          <table>
+            <thead><tr><th scope="col">After</th><th scope="col">Observed state</th><th scope="col">Decision</th><th scope="col">Applies to</th><th scope="col">Evidence</th></tr></thead>
+            <tbody id="decision-ledger-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <details class="raw-trace" id="raw-trace">
+        <summary>
+          <span><svg aria-hidden="true" viewBox="0 0 18 18"><rect x="3" y="8" width="12" height="8" rx="1"/><path d="M6 8V5a3 3 0 0 1 6 0v3"/></svg> Full trace</span>
+          <span id="raw-trace-summary">Generated event JSON is not loaded.</span>
+          <svg aria-hidden="true" viewBox="0 0 16 16"><path d="m3 6 5 5 5-5"/></svg>
+        </summary>
+        <pre id="raw-trace-json" tabindex="0">not run</pre>
+      </details>
+    </section>
+  </main>
+
+  <footer class="obs-footer">
+    <span id="footer-evidence-state"><i></i> Evidence state: awaiting artifact</span>
+    <span>All experiment times shown in seconds unless nanoseconds are selected in full trace.</span>
+  </footer>
+
+  <div class="sr-status" id="sr-status" role="status" aria-live="polite"></div>
+</body>
+</html>

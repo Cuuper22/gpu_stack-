@@ -33,7 +33,7 @@ from typing import Dict, List, Optional, Tuple
 # Live truth
 # ---------------------------------------------------------------------------
 
-def _live_stats() -> Dict[str, int]:
+def _live_stats(repo_root: Optional[Path] = None) -> Dict[str, int]:
     """Return registry stats, coverage, and derived audit numbers."""
     import gpu_stack
     from gpu_stack import Registry, find_cycles, topological_sort
@@ -76,11 +76,28 @@ def _live_stats() -> Dict[str, int]:
     rows.sort(key=lambda r: (-r.dependents, r.name))
     family_rows = _root_debt_families(rows)
 
-    # Package version from metadata
-    try:
-        pkg_version = _pkg_version("gpu_stack")
-    except Exception:
-        pkg_version = "unknown"
+    # The checked source tree is authoritative. Editable-install metadata can
+    # legitimately lag pyproject.toml until the environment is reinstalled.
+    pkg_version = None
+    pyproject_path = None if repo_root is None else repo_root / "pyproject.toml"
+    if pyproject_path is not None and pyproject_path.is_file():
+        project_text = pyproject_path.read_text(encoding="utf-8")
+        project_block = re.search(
+            r"(?ms)^\[project\]\s*$.*?(?=^\[|\Z)",
+            project_text,
+        )
+        if project_block is not None:
+            version_match = re.search(
+                r'(?m)^version\s*=\s*"([^"]+)"\s*$',
+                project_block.group(0),
+            )
+            if version_match is not None:
+                pkg_version = version_match.group(1)
+    if pkg_version is None:
+        try:
+            pkg_version = _pkg_version("gpu_stack")
+        except Exception:
+            pkg_version = "unknown"
 
     return {
         # Registry stats
@@ -320,7 +337,7 @@ def check_docs_stats(repo_root: Path) -> List[StatMismatch]:
     Never raises on missing values from documents; instead records a mismatch
     with found="<not found>".
     """
-    live = _live_stats()
+    live = _live_stats(repo_root)
     mismatches: List[StatMismatch] = []
 
     readme_path = repo_root / "README.md"

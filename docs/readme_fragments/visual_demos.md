@@ -1,100 +1,101 @@
-# Visual README Fragments
+# Causal Observatory README Fragments
 
-Use these snippets near the top of `README.md` when the README is ready to move from registry summary into visual explanation. The intent is to show the stack before naming every subsystem.
+Use these fragments when the README needs a compact visual explanation of the
+research loop. The observatory is the primary visual artifact. The dependency
+cone remains useful as the symbolic ancestry view inside that larger system.
 
 ## Opening Visual
 
-Suggested placement: directly under the `# gpu_stack` heading, before the first long package description.
+Suggested placement: below the repository and observatory links.
 
 ```markdown
-![Dependency cone from datacenter economics down through GPU systems, transistor physics, lithography, atoms, nucleons, quarks, and equations.](docs/assets/readme-equation-cone.svg)
+![Dependency cone from datacenter economics through GPU systems, lithography, and primitive assumptions.](docs/assets/readme-equation-cone.svg)
 
-`gpu_stack` treats the training stack like one inspectable dependency cone. Start with a question such as "what sets cost per token?" or "why did throughput move?", then walk downward: datacenter, rack, GPU, memory, kernel, model math, thermal plant, lithography, atoms, and finally the primitive roots the model still asks you to supply.
+GPUSTACK connects measurements, a causal virtual datacenter, and falsifiable
+experiments. Pick a research question, compare interventions over one frozen
+scenario, and keep every modeled value attached to its provenance, uncertainty,
+and missing mechanisms.
 ```
 
-Alt text:
-
-```text
-Dependency cone from datacenter economics down through GPU systems, transistor physics, lithography, atoms, nucleons, quarks, and equations.
-```
-
-Caption option:
+## Explain The Observatory In One Screen
 
 ```markdown
-Each box is not a slide-deck layer. It is a registered symbolic neighborhood. Variables know what defines them, equations know what they depend on, and unresolved roots stay visible instead of being hidden behind fake defaults.
+The causal observatory has three synchronized readings of the same artifact:
+
+1. **Freshman:** what happened and why it matters in ordinary language.
+2. **Researcher:** the mechanism, intervention, uncertainty, and falsifier.
+3. **Full trace:** event records, equations, assumptions, observation IDs, and
+   unsupported claims.
+
+Changing depth changes explanation density. It never changes a metric,
+evidence class, or conclusion.
 ```
 
-## 3Blue1Brown-Style Intuition, With Cuper's Spin
-
-Suggested placement: after the first paragraph or after "Design rules."
+## Evidence Legend
 
 ```markdown
-The mental picture is a cone of explanations.
-
-At the wide end are questions humans actually ask: how expensive is this run, how fast do tokens move, how much site power disappears into cooling? At the narrow end are things the model refuses to pretend away: pulse fluence, gate geometry, medium composition, proton and neutron counts, valence quark roots, and universal constants.
-
-Most tooling stops at the first satisfying number. `gpu_stack` is built to keep asking "what is that number made of?" until the answer is either an equation, a cited scenario value, a universal constant, or an exposed root input.
+| Evidence class | Meaning |
+|---|---|
+| Measured | Recorded by named instrumentation with uncertainty and provenance. |
+| Modeled | Produced by an explicit engine mechanism. |
+| Assumed | Fixed by the scenario rather than inferred from data. |
+| Prior | A sensitivity belief that is not fitted evidence. |
+| Unmeasured | Required for the claim, but absent from the artifact. |
 ```
 
-## Tiny Dependency-Cone Demo
+The legend is a scientific boundary, not a color theme. A favorable modeled
+mechanics result cannot turn an unmeasured learning outcome into evidence.
 
-Suggested placement: before the existing "Export a graph slice" section, or as a replacement for the first purely textual registry demo.
+## E001 Demo
 
 ````markdown
-### See one output as a cone
+### Beyond One Datacenter
 
-```python
-import gpu_stack
-from gpu_stack import Registry, subgraph
+The first observatory artifact compares synchronous, fixed-local, and
+adaptive-cadence execution over the same three-site scenario. It can support
+claims about modeled event order, contention, collective payload-link bytes,
+elapsed time, and site base plus accelerator compute energy.
 
-target = Registry.variables["econ.cost.per_token"]
-cone = subgraph(target, direction="dependencies")
+It cannot yet support claims about held-out learning efficiency, time to a loss
+target, reactive membership during an active outage, lost work, or checkpoint
+recovery. Those gaps remain visible beside the result.
 
-print(target.name)
-print(f"{len(cone)} variables upstream")
-print("first few roots:")
-
-for var in sorted(v for v in cone if v.is_root_input)[:12]:
-    print("  ", var.name, f"[{var.units}]")
+```bash
+python -m gpu_stack.cli experiment-protocol E001 --json
+python -m gpu_stack.cli experiment-run E001 \
+  --scenario experiments/e001-beyond-one-datacenter/screening-scenario-v1.json \
+  --output experiments/e001-beyond-one-datacenter/results/screening-mechanics-v1.json \
+  --observatory-output docs/data/e001-screening-v1.json
 ```
-
-The important part is not the exact count. It is the posture: every cost number has an ancestry, and every unresolved ancestor is named.
 ````
 
-Note for integration: the nested Python fence above needs escaping if pasted into another fenced block. In normal README Markdown, paste it exactly as shown with the outer prose removed.
-
-## Visual Status Table Snippet
-
-Suggested placement: near "Current snapshot."
+## Dependency Cone As Supporting View
 
 ```markdown
-| What the visual cone means | Current registry evidence |
-|---|---:|
-| Named symbolic quantities | 1517 variables |
-| Relations between quantities | 959 equations |
-| Exposed primitive assumptions | 619 root inputs |
-| Graph loops hiding in the model | 0 cycles |
-| Equations with unit checks | 799 |
+The symbolic cone answers a narrower question: what is this number made of?
+Every upstream hop is an equation, sourced scenario value, universal constant,
+or exposed root input. That ancestry becomes useful research infrastructure
+when a held-out residual can be traced back to the mechanism that caused it.
 ```
 
-This keeps the stats attached to the visual claim: the README is not saying "a big system" in the abstract. It is saying "a directed symbolic graph you can inspect."
-
-## Future Visual Demos
-
-Suggested placement: near the end, after limitations.
+## Next Visual Research Views
 
 ```markdown
-## Next visual demos
+## Next visual research views
 
-- A live dependency-cone browser for `econ.cost.per_token`, `training.tokens_per_second`, and `thermal.dc.pue`.
-- A root-debt heatmap where unresolved assumptions glow by downstream blast radius.
-- A layer slider that walks from quark-count roots to lithography to transistor delay to GPU peak FLOPs to training step time.
-- A scenario trace view that shows which equations fired, which constraints were checked, and which roots stayed missing.
+- Residual attribution that aligns a measured trace with the modeled causal
+  path and names which mechanism owns the error.
+- Counterfactual small multiples that hold workload and exogenous events fixed
+  while one intervention changes.
+- A power-waveform view for E002 that aligns operation phases, facility power,
+  cooling response, and grid danger bands on one clock.
+- A learning-transfer view that refuses to render an E001 convergence claim
+  until held-out multi-site observations are attached.
 ```
 
 ## Tone Notes
 
-- Prefer "what is this number made of?" over "end-to-end modeling platform."
-- Define shorthand near first use: MFU means Model FLOPs Utilization, PUE means Power Usage Effectiveness, HBM means High Bandwidth Memory.
-- Keep root inputs honest. They are not failure. They are visible modeling debt.
-- Do not let the README become only a stats trophy case. The numbers are evidence for the visual story.
+- Prefer "what produced this result?" over "end-to-end platform."
+- Define MFU, PUE, HBM, TTFT, and TPOT on first use.
+- Keep evidence gaps adjacent to the result they constrain.
+- Do not turn registry size or test count into the research score.

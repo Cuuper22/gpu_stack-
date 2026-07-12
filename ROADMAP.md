@@ -31,6 +31,25 @@ Verification after the research reset: the temp-dependent CLI/docs pack passed
 `262.03s`, including the complete pytest, syntax, audit, demo, and docs-stats
 gates.
 
+## Virtual Datacenter Foundation: Implemented
+
+The first research substrate is no longer roadmap prose:
+
+- observations, calibration/evaluation splits, residual metrics, stratified
+  coverage, Kendall tau-b ranking, decision regret, and repeated benchmark
+  aggregation are implemented;
+- temporal and multi-site shared-resource mechanics, observable-only policies,
+  and E001 execution are implemented;
+- protocol schema v2 and the E001 to E006 structured evidence catalog are
+  implemented;
+- E001 persists full-trace and observatory artifacts and is visually inspectable
+  at three semantic depths;
+- the current adaptive-cadence mechanics screen is `inconclusive`, because
+  learning transfer and the full joint mechanism are not measured.
+
+Merge verification: focused research/docs pack `28 passed in 11.83s` and
+read-only full verifier `5/5` in `320.32s` with a 600-second gate ceiling.
+
 ## Latest Verified Wave
 
 Portfolio form-and-deliverable polish is implemented, verified, and
@@ -166,12 +185,12 @@ and preset export/discovery tests.
 
 | Priority | Work | Done when |
 |---|---|---|
-| P0 | Establish predictive validity. | Held-out hardware, model, workload, and topology evaluations report error, interval coverage, ranking regret, and residual attribution against simple baselines. |
-| P0 | Add observations and interventions. | Measured observations, calibration sets, evaluation sets, actions, and predictions are distinct versioned artifacts. |
-| P0 | Add temporal system semantics. | Event traces represent compute, collectives, state movement, failures, rack power, cooling response, and grid-facing power. |
-| P0 | Execute Experiment 001 virtually. | Adaptive multi-datacenter training is compared with centralized and fixed-consistency baselines, including explicit convergence-surrogate uncertainty and falsifiers. |
-| P1 | Build the causal observatory UI. | One shareable state supports semantic zoom from a plain-language causal story through uncertainty, equations, provenance, and raw trace evidence. |
-| P1 | Replace the continuation compass. | `next-work` ranks measured residuals, uncertainty contribution, and hypothesis leverage; root debt remains a secondary diagnostic. |
+| P0 | Measure E001 learning transfer. | Held-out learning curves resolve progress per FLOP and time to target across delay, interruption, correction, scale, and model families without reusing calibration observations. |
+| P0 | Add resumable failure and joint-control mechanics. | Preemption, lost work, checkpoint recovery, membership, topology, correction, parallelism, and cadence are causal mechanisms visible to a deployable controller. |
+| P0 | Re-execute E001 as a learning experiment. | The adaptive joint controller and both baselines resolve every scalar and structured gate; reversal conditions and negative results are reported. |
+| P1 | Build E002's measured power-waveform engine. | Rack/facility telemetry supports spectral danger-band energy, rebound, cooling, time-to-target, quality, and full-boundary power comparisons. |
+| P1 | Add observed observatory panels. | The existing shareable state renders measured residuals, calibrated uncertainty, counterfactuals, and provenance without changing the result's evidence class. |
+| P1 | Keep the continuation compass scientific. | `next-work` ranks missing evidence, mechanism leverage, residuals, and uncertainty contribution; root debt remains a secondary diagnostic. |
 | P2 | Deepen physical ancestry selectively. | New lower-level physics closes a measured residual, reduces uncertainty, or enables an experiment. |
 
 ## Future Work

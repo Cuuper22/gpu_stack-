@@ -53,3 +53,16 @@ def _format_large_files(files: Iterable[tuple[str, int]], limit: int = 4) -> str
     if remaining > 0:
         rendered = f"{rendered}, {remaining} more"
     return rendered
+
+
+def _format_capability_types(
+    implemented: Iterable[str],
+    missing: Iterable[str],
+) -> str:
+    """Render executable research types without confusing prose with code."""
+
+    implemented_names = tuple(implemented)
+    missing_names = tuple(missing)
+    implemented_text = ", ".join(implemented_names) if implemented_names else "none"
+    missing_text = ", ".join(missing_names) if missing_names else "none"
+    return f"implemented={implemented_text}; missing={missing_text}"

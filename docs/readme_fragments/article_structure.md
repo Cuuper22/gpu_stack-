@@ -2,18 +2,18 @@
 
 ## Proposed Section Order
 
-1. `gpu_stack`
-2. Why this exists
-3. The central idea
-4. A first walk through the graph
+1. `GPUSTACK`
+2. Telos: engine, observatory, research lab
+3. First frontier question
+4. Read one result at three depths
 5. What is implemented today
-6. Quick start
-7. The model surface
-8. Scenario artifacts and resolver workflows
-9. Design rules
-10. Current snapshot
-11. Current limitations
-12. Near-term work
+6. Run the E001 mechanics screen
+7. Observation and evaluation contracts
+8. Temporal engine and intervention boundary
+9. Symbolic causal backbone
+10. Experiment catalog and falsifiers
+11. Current evidence boundary
+12. Next research measurements
 13. Repository layout
 14. API reference
 15. Project status docs
@@ -22,18 +22,16 @@
 
 | Section | What the reader should feel or understand |
 |---|---|
-| `gpu_stack` | This is a serious technical object with a clear boundary: a symbolic model of GPU training systems, not a benchmark dashboard or simulator. |
-| Why this exists | Modern training cost is not caused by one layer. The point is to keep the whole dependency chain inspectable, from physical assumptions to cost per token. |
-| The central idea | The package treats equations as a graph. Root inputs are not hidden knobs; they are visible modeling debt. |
-| A first walk through the graph | The reader can imagine using it: pick a target, inspect its dependencies, resolve what can be resolved, and see what remains missing. |
-| What is implemented today | The project is already substantial and verified: 16 systems, 1517 variables, 959 equations, 0 graph cycles, 639 tests. |
-| Quick start | The reader can install it, verify it, and run one meaningful command without absorbing the whole model first. |
-| The model surface | The reader sees the breadth of scopes without drowning in every equation. |
-| Scenario artifacts and resolver workflows | The project has a reproducible evaluation surface, with JSON artifacts and missing-family diagnostics. |
-| Design rules | The model has taste and discipline: constants are rare, load order is centralized, and symbolic structure comes first. |
-| Current snapshot | The metrics become a compact accountability panel. |
-| Current limitations | The project is honest about unresolved roots, conservative resolving, and skeletal calibration. |
-| Near-term work | The roadmap is not "add more stuff." It is root closure, sourced scenarios, evaluator UX, and metadata/provenance coverage. |
+| `GPUSTACK` | This is a causal virtual datacenter whose claims stay attached to measurements, uncertainty, and missing mechanisms. |
+| Telos | The engine, visual explanation, and research program are one measurement-to-hypothesis loop. |
+| First frontier question | E001 is concrete enough to falsify: multi-site training must preserve learning efficiency while cutting WAN traffic under interruption. |
+| Three depths | A freshman and a systems researcher see the same artifact at different explanatory density, not different truth. |
+| What is implemented today | Observations, held-out splits, evaluation, temporal events, multi-site contention, observable-only policies, preregistered protocols, and an E001 mechanics runner exist alongside the symbolic graph. |
+| Run E001 | The reader can produce a result and observatory artifact from one frozen scenario. |
+| Evidence boundary | The mechanics screen can answer timing and payload questions, while learning transfer and real-cluster validity remain visibly unresolved. |
+| Symbolic backbone | Equations and roots matter when they explain residuals, uncertainty, or experiment behavior. |
+| Experiment catalog | Six frontier programs expose hypotheses, baselines, metrics, falsifiers, and real-validation ladders before results exist. |
+| Next research measurements | The queue starts with held-out learning transfer and missing failure semantics, not generic graph expansion. |
 | Repository layout | The reader can navigate the codebase. |
 | API reference | The README still works as a GitHub README for developers who came to copy commands or imports. |
 | Project status docs | The reader knows where the moving state lives. |
@@ -42,11 +40,18 @@
 
 ### 1. `gpu_stack`
 
-`gpu_stack` is a SymPy-backed symbolic model of the GPU training stack.
+GPUSTACK is a causal, uncertainty-aware virtual AI datacenter, visual
+observatory, and ML systems research lab. Its SymPy registry remains the
+symbolic causal backbone rather than the research finish line.
 
 It is built around a plain claim: the cost and performance of frontier training are not properties of a GPU alone. They pass through many layers: semiconductor transport, lithography and process geometry, memory hierarchy, numeric formats, kernels, collectives, model architecture, optimizer state, cluster topology, thermal infrastructure, and run economics. Most tools cut that chain into separate calculators. `gpu_stack` keeps the chain in one inspectable equation graph.
 
-The package is not trying to be a polished simulator. It is a modeling substrate. It registers variables, constants, equations, constraints, approximations, variants, and stochastic relations, then lets you inspect how one quantity depends on another. If a target cannot be resolved because a primitive assumption is still missing, the model reports that boundary instead of filling it with an invented number.
+The existing symbolic graph is now the causal ancestry layer inside a larger
+engine. The new research substrate records observations, separates calibration
+from evaluation, schedules causally ordered operations across sites, exposes an
+observable-only intervention boundary, and packages every result with its
+falsifiers and evidence gaps. If a quantity or mechanism is missing, the
+artifact reports that boundary instead of filling it with an invented number.
 
 ### 2. Why This Exists
 
@@ -80,13 +85,20 @@ That is the practical loop: choose a target, trace the dependency cone, assign o
 
 ### 5. What Is Implemented Today
 
-The current graph has 16 systems, 1517 variables, 24 constants, and 959 equations. It is graph-consistent: cycle detection returns 0 cycles, topological sorting succeeds across all 1517 variables, and the audit gate reports 0 hard failures. There are 799 equations checked for unit consistency at import time, 878 equations with references, and 639 collected pytest tests.
+The symbolic graph has 16 systems, 1517 variables, 24 constants, and 959
+equations. It is joined by typed observations, calibration and evaluation
+splits, prediction intervals and residual metrics, deterministic event
+timelines, multi-site resources and outages, interventions, experiment
+protocols, and an evidence-preserving observatory projection.
 
 The model spans physical and systems layers. The physical slice includes lithography source structure, imaging-medium composition and response, process geometry, self-heating, semiconductor transport, MOSFET behavior, interconnect physics, CMOS logic, and noise. The upper stack includes memory cells and memory hierarchy, numeric precision, parallelism, transformer architecture, arithmetic units, optimizer math, GPU package behavior, network interconnect, kernels, collectives, training throughput, cluster composition, thermal plant behavior, and economics.
 
-The newest verified public surfaces include `gpu_stack.next_work`, `build_next_work_plan(...)`, `NextWorkPlan`, `NextWorkItem`, `next-work`, `next-work --json`, `ScenarioReport.missing_family_summaries`, and `scenario-audit --missing-families`. The latest verified full test run reported `639 passed in 102.03s`, and the full verifier passed 4 out of 4 gates.
-
-The live session state notes one active in-progress wave around Pythia energy-floor cost closure and aggregate missing-family deduplication. That work should not be described as verified until parent integration and verification are complete.
+The research surfaces include `Observation`, `CalibrationSplit`,
+`EvaluationSplit`, `PredictionRecord`, `EventTimeline`, `VirtualDatacenter`,
+`Policy`, `ExperimentProtocol`, and `ExperimentRunArtifact`. The CLI exposes
+all six machine-readable protocols and executes E001 from an explicit scenario.
+The other five programs remain preregistered designs until their engines and
+observations exist.
 
 ## Recommended Content Ratio
 

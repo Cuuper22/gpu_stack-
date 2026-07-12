@@ -7,9 +7,10 @@ Read this first after compaction or restart. It is intentionally shorter than
 
 ## Strategic Research Reset
 
-The canonical tree is synced to GitHub main at
-`5b2b4c7490e9835e63b87197b64918527e5992a2`. The previous local directory was
-an interrupted, non-Git May snapshot and is no longer authoritative.
+The canonical branch is `main`. The July research-substrate wave was built
+from the synchronized GitHub base and is closed only after local `HEAD` and
+`origin/main` are proven equal. Do not recover from the interrupted, non-Git
+May snapshot.
 
 The project now treats the engine, visual medium, and research program as one
 loop. Read `RESEARCH.md`, then
@@ -24,8 +25,47 @@ loop. Read `RESEARCH.md`, then
   priority function.
 - Draft PR #14 remains parked until its physical decomposition improves an
   evaluated prediction, uncertainty, residual explanation, or experiment.
-- Post-reset verification: targeted temp-dependent pack `43 passed in 2.98s`;
-  read-only full verifier `5/5` gates in `262.03s`.
+- Merge verification for the research-substrate wave: focused research/docs
+  pack `28 passed in 11.83s`; read-only full verifier `5/5` gates in `320.32s`
+  with a 600-second gate ceiling after the default 300-second ceiling stopped
+  a still-green pytest stream at 97 percent.
+
+## Latest Verified Wave: Research Substrate, E001 Mechanics, And Observatory
+
+Status: implemented, browser-inspected, and merge-verified.
+
+- Immutable observations, calibration/evaluation splits, residual and
+  interval evaluation, Kendall tau-b ranking, decision regret, replicated
+  benchmark aggregation, temporal shared-resource events, multi-site
+  interventions, and observable-only policy boundaries are implemented.
+- Protocol schema v2 freezes scalar falsifiers and mandatory structured
+  evidence requirements. E001 through E006 are machine-readable before
+  execution; missing mandatory evidence makes a run inconclusive.
+- E001 now produces content-addressed full-trace and observatory artifacts.
+  The persisted mechanics screen compares synchronous, fixed-local, and
+  adaptive-cadence policies over the same compute, checkpoint, and site
+  scenario.
+- Observed mechanics: synchronous uses 33.6 TB of payload-link traffic and
+  6,047.01 s; fixed-local uses 4.2 TB and 1,341.98 s; adaptive cadence uses
+  1.68 TB and 938.60 s. These are virtual mechanics, not held-out learning
+  results.
+- The hypothesis policy remains `inconclusive`: held-out progress per FLOP,
+  time to target, reactive outage membership, complete energy, and all seven
+  structured E001 evidence gates remain unresolved.
+- The causal observatory is artifact-driven and shareable. Freshman,
+  Researcher, and Full trace depths preserve the same values and conclusion;
+  the full view exposes 1,395 event records. Desktop and 390 by 844 mobile
+  flows were inspected in the in-app browser.
+- Human inspection caught and fixed two product defects before merge: Share
+  state lacked visible copy feedback, and the mobile seed-observation table
+  widened the root canvas. The page now stays at horizontal offset zero while
+  the datacenter rail remains independently pannable.
+- Artifact binding: result
+  `fa26aeb9dca512356f496502e0bcf5c2ea88ea4f2e2737a122bcafd64543f562`;
+  engine source
+  `bfabd89583050b518c718f0ca7034eb6994bab20476d434e71a873ac8f97e1b7`;
+  scenario
+  `532fad5cf7698cc9f7f81090519f020374f43f059a4c0d67d59acd65d26b9e0d`.
 
 ## Latest Verified Wave: Ten-Step Expansion Integration
 
@@ -120,19 +160,21 @@ Status: implemented, verified, read-only verified, and source-clean.
 
 ## Current Aim
 
-Build the smallest measured virtual-datacenter substrate that can falsify
-Experiment 001:
+Turn the E001 mechanics screen into an experiment that can answer its learning
+question, while starting the next measured facility mechanism:
 
-1. Add observation artifacts and hard calibration/evaluation splits.
-2. Establish held-out prediction, uncertainty-coverage, ranking-regret, and
-   decision-regret baselines.
-3. Add temporal execution, state movement, shared contention, power, thermal,
-   grid, and failure semantics.
-4. Add interventions and policies without giving them hidden simulator state.
-5. Execute adaptive multi-datacenter training against centralized and fixed
-   consistency baselines.
-6. Render the resulting causal path, counterfactual, residual, and evidence
-   through one shareable semantic-zoom interface.
+1. Measure held-out E001 learning transfer across synchronization delay,
+   interruption, scale, optimizer correction, and model size.
+2. Add resumable failure semantics: preemption, lost work, checkpoint recovery,
+   membership change, topology change, and optimizer correction.
+3. Complete the joint E001 controller only after those mechanisms expose
+   deployable observations rather than simulator truth.
+4. Build E002's measured power-waveform engine with rack/facility telemetry,
+   spectral danger-band metrics, phase-safe interventions, rebound accounting,
+   and time-to-target controls.
+5. Keep the observatory on the same artifact contract so every new claim can
+   be read from freshman explanation through raw evidence without changing its
+   truth status.
 
 ## Previous Verified Wave: Physical Root-Debt Boundary Hardening
 

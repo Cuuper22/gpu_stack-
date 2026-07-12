@@ -4,22 +4,29 @@ Updated: 2026-07-12 PDT.
 
 Purpose: compact recovery surface for the visible backlog.
 
-## Active Research Wave: Virtual Datacenter Foundation
+## Active Research Wave: From Mechanics To Measured Learning
 
-Status: research direction and Experiment 001 are designed and verified as
-repository artifacts; engine implementation has not started. The read-only
-full verifier passed `5/5` gates in `262.03s`.
+Status: the virtual-datacenter foundation, E001 mechanics screen, protocol
+catalog, and causal observatory are implemented. The current E001 hypothesis
+policy is correctly `inconclusive`, not validated. Merge verification passed
+`5/5` read-only gates in `320.32s`.
 
-- Add a typed observation format with calibration and held-out evaluation
-  splits.
-- Benchmark the current engine against TDP, roofline, fixed-MFU, and simple
-  queueing baselines before adding a controller.
-- Add temporal event and state semantics for compute, collectives, migration,
-  failures, power, cooling, and grid-facing behavior.
-- Add interventions, policies, uncertainty coverage, residual attribution, and
-  decision regret.
-- Execute `experiments/e001-beyond-one-datacenter/experiment.md` virtually.
-- Build the causal observatory reading path defined in `RESEARCH.md`.
+- P0: collect held-out E001 learning transfer across local-step delay,
+  interruption, optimizer correction, scale, and model families. Resolve
+  progress per FLOP and real time-to-target instead of fitting the existing
+  three-observation sensitivity prior.
+- P0: add resumable failure semantics: preemption, lost work, checkpoint
+  recovery, reactive membership, topology changes, and optimizer correction.
+- P0: complete the joint E001 controller and compare it with synchronous and
+  preregistered fixed-local baselines over all mandatory scalar and structured
+  gates.
+- P1: build E002's measured power-waveform engine using rack/facility
+  telemetry, spectral energy in grid-danger bands, time-to-target, quality,
+  rebound, cooling, and full-boundary power accounting.
+- P1: add observed residual and uncertainty views to the same observatory
+  artifact once held-out measurements exist.
+- P2: advance E003 to E006 only when E001/E002 mechanisms or evidence are
+  reusable, not merely because their protocol files exist.
 
 Do not select new work from root-debt weight alone. Physical deepening needs an
 observed residual, decision-relevant uncertainty, or experiment dependency.

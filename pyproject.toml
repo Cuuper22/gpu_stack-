@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gpu_stack"
-version = "0.23.0"
-description = "A SymPy-backed symbolic model of the GPU training stack, from physical transport through cluster economics."
+version = "0.24.0"
+description = "A causal, uncertainty-aware virtual AI datacenter, visual observatory, and ML systems research lab."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -20,6 +20,9 @@ keywords = [
     "transformer",
     "roofline",
     "cost-model",
+    "virtual-datacenter",
+    "causal-modeling",
+    "systems-research",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -55,6 +58,9 @@ Homepage = "https://github.com/cuuper22/gpu_stack-"
 [tool.setuptools.packages.find]
 include = ["gpu_stack*"]
 exclude = ["tests*", "__pycache__", "*.__pycache__"]
+
+[tool.setuptools.package-data]
+gpu_stack = ["data/observations/literature/e001-one-step-delay/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

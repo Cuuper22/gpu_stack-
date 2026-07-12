@@ -1,6 +1,6 @@
 # E001: Beyond One Datacenter
 
-Status: designed
+Status: virtual mechanics screen implemented; hypothesis remains inconclusive
 
 ## Question
 
@@ -135,3 +135,15 @@ Implement the smallest substrate that can falsify the virtual result:
 - intervention and policy interface;
 - delayed-update learning surrogate with explicit calibration limits;
 - experiment report containing residuals, uncertainty, and decision regret.
+
+The implemented slice now produces a content-addressed mechanics artifact and
+causal-observatory projection. It models successive compute, collective, and
+checkpoint epochs; WAN and endpoint contention; fixed-time site interruption;
+base plus accelerator-compute energy; and cadence decisions made only from a
+completed communication cycle.
+
+It does not yet implement mid-operation policy callbacks, preemption, lost
+work, checkpoint recovery, reactive membership, topology changes, optimizer
+correction, the complete baseline vector, or held-out learning transfer. The
+machine protocol carries those as mandatory structured evidence requirements.
+They cannot disappear because the one computable WAN threshold looks good.

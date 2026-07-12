@@ -2,8 +2,11 @@
 
 ![A wide visual map of the training stack descending from datacenters through GPU systems, lithography, atoms, and particle-like root assumptions.](docs/assets/readme-hero.png)
 
-**Website:** <https://cuuper22.github.io/gpu_stack-/>  
-**Repository:** <https://github.com/Cuuper22/gpu_stack->
+**Website:** <https://cuuper22.github.io/gpu_stack-/><br>
+**Repository:** <https://github.com/Cuuper22/gpu_stack-><br>
+
+**Causal observatory:** <https://cuuper22.github.io/gpu_stack-/observatory.html><br>
+**Research program:** [RESEARCH.md](RESEARCH.md)
 
 `gpu_stack` started as a curiosity project in the overlap between my AI work and my physics brain.
 
@@ -13,7 +16,22 @@ Not rhetorically. Physically.
 
 A token passes through model architecture, kernels, collectives, memory bandwidth, transistor switching, lithography, materials, thermals, power delivery, and eventually a cost line item that someone has to pay. The stack is usually explained in slices. I wanted the uncomfortable version where the slices have to talk to each other.
 
-So `gpu_stack` is a SymPy-backed symbolic model of the GPU training stack. It is not a polished numerical simulator. It is a graph of equations, constraints, approximations, scenario values, and exposed missing assumptions. The point is not to hide the unknowns. The point is to make them visible enough that they can be attacked.
+That symbolic graph is still the causal backbone, but it is no longer the
+project's finish line.
+
+GPUSTACK is becoming a causal, uncertainty-aware virtual AI datacenter. It
+combines three expressions of one system:
+
+- an engine that predicts temporal execution, state movement, failures,
+  facility power, economics, and eventually learning or service outcomes;
+- a visual observatory that can explain the same result at freshman,
+  researcher, or full-trace depth without changing the underlying truth;
+- a research lab that turns frontier systems questions into preregistered,
+  falsifiable experiments before asking for datacenter-scale validation.
+
+Measurements calibrate the engine. The engine powers the explanation. The
+explanation exposes the hypothesis and its assumptions. Experiments produce
+new measurements. That loop is the telos now.
 
 If that sounds like a weird amount of effort to understand GPU training, yes. That is more or less how the project happened.
 
@@ -47,6 +65,12 @@ That choice matters.
 A variable with no defining value relation is a root input. Some roots should eventually be decomposed into lower-level physics. Some should remain scenario boundaries. Some require sourced calibration before the model is allowed to assign them.
 
 This is why root count alone is not the score. Decomposing one vague root into several primitive roots can make the count rise while making the model more honest.
+
+The research score is held-out predictive error, uncertainty coverage,
+configuration ranking, intervention regret, time to a learning or service
+target, facility energy and power behavior, and whether a preregistered
+hypothesis survives evidence. Equation count, root count, and passing tests are
+diagnostics. They are not research results.
 
 ## What The Graph Knows Right Now
 
@@ -256,33 +280,44 @@ python -m gpu_stack.cli scenario-audit --json
 python -m gpu_stack.cli scenario-audit --missing-families
 ```
 
+## Frontier Experiment Protocols
+
+All six research programs are machine-readable before they have results:
+
+```bash
+python -m gpu_stack.cli experiment-protocol E001 --json
+python -m gpu_stack.cli experiment-protocol E002 --json
+python -m gpu_stack.cli experiment-protocol E003 --json
+python -m gpu_stack.cli experiment-protocol E004 --json
+python -m gpu_stack.cli experiment-protocol E005 --json
+python -m gpu_stack.cli experiment-protocol E006 --json
+```
+
+Each protocol freezes scalar falsifiers and structured evidence requirements.
+The structured gates cover outcome vectors, baseline dominance, transfer
+panels, causal attribution, full-boundary accounting, and abstention questions
+that would be dishonest to squeeze into an invented scalar threshold. Missing
+mandatory gates make a run inconclusive; a failed computable gate still fails
+the virtual screen instead of being hidden by unrelated missing evidence.
+
 ## The Next-Work Compass
 
-The project now has a small continuation compass built from graph evidence:
+The continuation compass now scans executable research artifacts, experiments,
+persisted results, the deployable observatory, and the symbolic graph:
 
 ```bash
 python -m gpu_stack.cli next-work
 ```
 
-Observed summary:
+With the first mechanics artifact present, its highest-impact section advances
+to the evidence and mechanisms that can still change the research conclusion:
+held-out E001 learning transfer, resumable failure and complete joint-control
+semantics, and the measured E002 power-waveform engine. Pythia closure and
+root-debt ranking remain visible under
+`Legacy diagnostics (not scientific priorities)` so useful maintenance does
+not quietly become the roadmap again.
 
-```text
-Next work:
-  graph evidence: variables=1517 equations=959 root_inputs=619
-
-Top 3 highest impact:
-  1. Close the sourced Pythia cost frontier
-  2. Pay down the heaviest root-debt family
-  3. Finish metadata coverage before widening scenarios
-
-4 best implementations:
-  1. Registry import graph is currently coherent
-  2. Pythia sourced pack resolves the non-cost targets
-  3. EUV tin120 assumption pack is cleanly bounded
-  4. Dense cost fixture still exercises the full rollup
-```
-
-Caveat: `next-work` currently supports `--json`, but not `--limit`.
+`next-work --json` preserves the established three-key wire shape.
 
 ## Design Rules
 
@@ -294,9 +329,21 @@ These rules keep the package honest:
 4. `gpu_stack.scopes.SCOPE_MODULES` is the authoritative load order.
 5. The project is symbolic first. It is a graph of definitions, constraints, approximations, variants, iterative updates, and stochastic relations.
 6. A root input is visible modeling debt. It should be decomposed, sourced, or intentionally left as a scenario boundary.
+7. Observations, scenario assumptions, modeled values, priors, and unmeasured claims are different artifact classes.
+8. Calibration and evaluation IDs may not overlap.
+9. A policy sees deployable observable state, never hidden simulator truth or future traces.
+10. A virtual screen can reject a mechanism. It cannot validate a real datacenter claim by itself.
+11. A result with missing evidence stays inconclusive even when one numerical threshold looks favorable.
+12. Root-debt work enters the research queue only through a measured residual, decision-relevant uncertainty, or experiment dependency.
 
 ## What This Is Good For Now
 
+- Recording immutable measured observations with instrumentation uncertainty and provenance.
+- Enforcing calibration/evaluation separation and reporting residuals, interval coverage, configuration ranking, and decision regret.
+- Replaying causally ordered compute, collective, state-transfer, checkpoint, outage, recovery, facility-power, cooling, and grid events across multiple sites.
+- Applying observable-only membership, cadence, parallelism, configuration, migration, and power-cap interventions at explicit decision epochs.
+- Producing a content-addressed E001 mechanics artifact and visualizing modeled, assumed, prior, and unmeasured quantities without blending them.
+- Reporting site base plus accelerator-compute energy while explicitly excluding unmodeled network, checkpoint, storage, host, and cooling energy.
 - Inspecting symbolic dependencies across hardware, software, thermal, and economic layers.
 - Writing and checking new equations in a single registry.
 - Ranking unresolved roots by downstream blast radius.
@@ -309,7 +356,24 @@ These rules keep the package honest:
 
 This is the part where the README earns the numbers above.
 
-`gpu_stack` is not yet a calibrated training-cost oracle. It does not optimize over scenario choices. By default it does not solve simultaneous systems or switch relations when an approximation validity check is violated; both now exist as opt-in resolver flags (`--solve-systems` for 2 or 3 variable cycles, `--fallback-on-violated-validity`) that record exactly what they did in the trace. It does not fill missing physical or economic quantities with convenient defaults and call that wisdom.
+GPUSTACK is not yet a calibrated digital twin or training-cost oracle. E001's
+current controller adapts synchronization cadence at operation boundaries. It
+does not yet implement mid-operation decisions, preemption, lost work,
+checkpoint recovery, topology changes, optimizer correction, or the full joint
+controller in the hypothesis.
+
+The current learning response is an unfitted sensitivity prior seeded by three
+published 360M Muon observations at exactly one step of delay. Those papers
+report final validation loss. They do not identify progress per FLOP, longer
+local-update intervals, 70B transfer, or interruption behavior. GPUSTACK leaves
+the progress and time-to-target falsifiers unresolved instead of laundering
+that prior into a result.
+
+The symbolic resolver remains intentionally conservative. By default it does
+not solve simultaneous systems or switch relations when an approximation
+validity check fails; opt-in flags record those actions in the trace. Missing
+physical or economic quantities remain missing rather than becoming convenient
+defaults.
 
 The resolver is intentionally conservative. It propagates one selected defining relation per variable. Unassigned symbolic boundaries are reported as `missing`. Constraints and approximation-validity checks are surfaced instead of treated as decorative comments.
 
@@ -333,7 +397,7 @@ Calibration presets are still skeletal. Some presets are exact composition fixtu
 | Equations with references | 959 |
 | Equations with unit checks | 893 |
 | Root-debt families | 151 |
-| Package version | 0.23.0 |
+| Package version | 0.24.0 |
 
 Test counts can move as the model grows. Recheck locally with:
 
@@ -341,18 +405,17 @@ Test counts can move as the model grows. Recheck locally with:
 python -m pytest --collect-only -q
 ```
 
-## Future Visual Demos
+## Causal Observatory
 
-The long-term README should not just explain the graph. It should let the reader see it.
+The observatory is the primary visual artifact, not an equal-weight dashboard.
+It keeps a plain question, causal mechanism, counterfactual regime, model,
+evidence, residual, provenance, event trace, and falsifier in one shareable
+state. Semantic depth changes explanation density, never values or conclusions.
 
-Planned visual-first demos:
-
-- A live dependency-cone browser for `econ.cost.per_token`, `training.tokens_per_second`, and `thermal.dc.pue`.
-- A root-debt heatmap where unresolved assumptions glow by downstream blast radius.
-- A layer slider that walks from quark-count roots to lithography to transistor delay to GPU peak FLOPs to training step time.
-- A scenario trace view that shows which equations fired, which constraints were checked, and which roots stayed missing.
-
-For browser 3D work, shipped assets should be GLB or glTF 2.0, optimized after export, with normalized transforms, meaningful hierarchy names, reused materials, explicit pivots, and texture budgets tied to actual screen use. If the equations become spatial demos, the assets should be as disciplined as the equations.
+The first screen is E001, Beyond One Datacenter. It aligns synchronous,
+fixed-local, and adaptive-cadence mechanics; exposes the assumed 30-second
+Central-site curtailment; and shows an honest empty residual plot because no
+held-out multi-site learning observation exists yet.
 
 ## Core Types
 
@@ -365,6 +428,17 @@ For browser 3D work, shipped assets should be GLB or glTF 2.0, optimized after e
 - `System`: a scope-level collection of variables and equations.
 - `Registry`: the global lookup surface.
 - `Preset`: scenario assignments, variants, and target evaluation support.
+- `Observation`, `CalibrationSplit`, `EvaluationSplit`: measured evidence and leakage-safe partitions.
+- `PredictionRecord`, `ResidualMetrics`, `StratifiedIntervalCoverage`,
+  `KendallTauB`, `DecisionRegret`, `BenchmarkAggregation`: held-out error,
+  confidence-level coverage, ranking, replicated-panel aggregation, and the
+  consequence of decisions induced by the model.
+- `TemporalEvent`, `EventTimeline`, `VirtualDatacenter`: causal event and shared-resource mechanics.
+- `Intervention`, `Policy`, `VisibleDatacenterState`: observable-only control boundary.
+- `ExperimentProtocol`, `ExperimentRunArtifact`: frozen hypotheses, falsifiers, and evidence status.
+- `EvidenceRequirementSpec`, `EvidenceRequirementResult`: mandatory vector,
+  transfer, causal, accounting, and panel gates that cannot be omitted from a
+  run artifact just because they lack one honest scalar threshold.
 
 ## Inspect The Registry In Python
 

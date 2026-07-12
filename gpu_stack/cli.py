@@ -11,6 +11,10 @@ Subcommands:
   audit              Print graph-integrity and metadata audit signals.
   root-debt          Rank unresolved root inputs by downstream blast radius.
   next-work          Print a live continuation compass from graph evidence.
+  experiment-protocol
+                     Print a preregistered research protocol.
+  experiment-run     Execute a virtual research experiment from an explicit
+                     scenario artifact.
   verify             Run a compact local verification profile.
   list-presets       List the named presets under gpu_stack.presets.*.
   export-graph-json  Export dependency-cone JSON for portfolio page viewer.
@@ -77,6 +81,7 @@ from gpu_stack.cli_scenario import (
     cmd_scenario_report,
 )
 from gpu_stack.cli_export_graph import cmd_export_graph
+from gpu_stack.cli_research import cmd_experiment_protocol, cmd_experiment_run
 from gpu_stack.cli_verify import (
     DEFAULT_GATE_TIMEOUT_SECONDS,
     VERIFY_TIMEOUT_RETURN_CODE,
@@ -123,6 +128,16 @@ def cmd_next_work(args: argparse.Namespace) -> int:
         print()
         print(f"{title}:")
         for index, item in enumerate(items, start=1):
+            print(f"  {index}. {item.title}")
+            print(f"     evidence: {item.evidence}")
+            if item.command:
+                print(f"     command: {item.command}")
+            if item.path:
+                print(f"     path: {item.path}")
+    if plan.legacy_diagnostics:
+        print()
+        print("Legacy diagnostics (not scientific priorities):")
+        for index, item in enumerate(plan.legacy_diagnostics, start=1):
             print(f"  {index}. {item.title}")
             print(f"     evidence: {item.evidence}")
             if item.command:
@@ -186,7 +201,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_next_work = subparsers.add_parser(
         "next-work",
-        help="print the live top-impact, implementation, and bug-risk compass",
+        help="print the research-first priority, implementation, and risk compass",
     )
     p_next_work.add_argument(
         "--json",
@@ -194,6 +209,60 @@ def build_parser() -> argparse.ArgumentParser:
         help="emit the live next-work compass as structured JSON",
     )
     p_next_work.set_defaults(func=cmd_next_work)
+
+    p_experiment_protocol = subparsers.add_parser(
+        "experiment-protocol",
+        help="print a preregistered research protocol and falsifiers",
+    )
+    p_experiment_protocol.add_argument(
+        "experiment",
+        choices=("E001", "E002", "E003", "E004", "E005", "E006"),
+        help="experiment identifier",
+    )
+    p_experiment_protocol.add_argument(
+        "--json",
+        action="store_true",
+        help="emit the protocol and canonical hash as structured JSON",
+    )
+    p_experiment_protocol.set_defaults(func=cmd_experiment_protocol)
+
+    p_experiment_run = subparsers.add_parser(
+        "experiment-run",
+        help="execute a virtual experiment from an explicit scenario artifact",
+    )
+    p_experiment_run.add_argument(
+        "experiment",
+        choices=("E001",),
+        help="experiment identifier",
+    )
+    p_experiment_run.add_argument(
+        "--scenario",
+        required=True,
+        metavar="PATH",
+        help="path to the machine-readable experiment scenario",
+    )
+    p_experiment_run.add_argument(
+        "--output",
+        "-o",
+        default="-",
+        metavar="PATH",
+        help="result artifact path; defaults to stdout (use - for stdout)",
+    )
+    p_experiment_run.add_argument(
+        "--observatory-output",
+        metavar="PATH",
+        help="also write the evidence-preserving causal-observatory projection",
+    )
+    p_experiment_run.add_argument(
+        "--observation",
+        action="append",
+        metavar="PATH",
+        help=(
+            "observation JSON to embed in the observatory artifact; repeat for "
+            "multiple. E001 defaults to the repository literature observations"
+        ),
+    )
+    p_experiment_run.set_defaults(func=cmd_experiment_run)
 
     p_verify = subparsers.add_parser(
         "verify",

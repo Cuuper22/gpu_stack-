@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "observation_id": "arxiv:2606.30634:smollm-360m:muon:sync",
+  "timestamp": "2026-06-29T17:57:50Z",
+  "measured_values": {
+    "validation_loss": {
+      "value": 2.578,
+      "unit": "1",
+      "uncertainty": {
+        "standard_deviation": null,
+        "lower_bound": 2.5775,
+        "upper_bound": 2.5785,
+        "confidence_level": null,
+        "distribution": null,
+        "notes": "Rounding interval implied by the published three-decimal value; run-to-run uncertainty was not reported in Table 1."
+      },
+      "metadata": {
+        "table": "Table 1",
+        "reported_precision_decimal_places": 3
+      }
+    }
+  },
+  "topology": {
+    "gradient_delay_steps": 0,
+    "pipeline_schedule": "synchronous baseline",
+    "hardware": "not reported in Table 1"
+  },
+  "workload": {
+    "model": "SmoLLM-style dense decoder-only transformer",
+    "parameters": 360000000,
+    "dataset": "FineWeb-Edu",
+    "token_to_parameter_ratio": 20,
+    "optimizer": "Muon",
+    "comparison_recipe": "same hyperparameter search boundary as the delayed run"
+  },
+  "software": {
+    "training_implementation": "not reported in Table 1"
+  },
+  "instrumentation": {
+    "metric": "final validation loss",
+    "reporting_surface": "paper Table 1",
+    "repeat_count": "not reported in Table 1"
+  },
+  "provenance": {
+    "source": "Zmushko et al., One-Step Gradient Delay is Not a Barrier for Large-Scale Asynchronous Pipeline Parallel LLM Pretraining",
+    "uri": "https://arxiv.org/html/2606.30634",
+    "citation": "arXiv:2606.30634v1, Table 1, SmoLLM-360M Muon Sync",
+    "checksum": null,
+    "license": "CC BY 4.0",
+    "retrieved_at": "2026-07-12T00:00:00Z",
+    "notes": [
+      "The timestamp is the arXiv publication timestamp because the measurement-run timestamp is not reported.",
+      "This record transcribes a published value and does not infer missing variance."
+    ]
+  },
+  "metadata": {
+    "evidence_role": "calibration seed",
+    "measurement_timestamp_reported": false
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "scenario_id": "e001-three-site-h100-screening-v1",
+  "sites": [
+    {
+      "site_id": "west",
+      "accelerator_type": "NVIDIA H100 SXM 80GB",
+      "accelerator_count": 256,
+      "accelerator_flops_per_second": 500000000000000.0,
+      "collective_bandwidth_bytes_per_second": 400000000000.0,
+      "state_transfer_bandwidth_bytes_per_second": 12500000000.0,
+      "checkpoint_bandwidth_bytes_per_second": 10000000000.0,
+      "base_power_w": 50000.0,
+      "accelerator_power_w": 700.0,
+      "power_cap_w": 250000.0,
+      "cooling_capacity_w": 300000.0,
+      "grid_import_limit_w": 300000.0
+    },
+    {
+      "site_id": "central",
+      "accelerator_type": "NVIDIA H100 SXM 80GB",
+      "accelerator_count": 256,
+      "accelerator_flops_per_second": 500000000000000.0,
+      "collective_bandwidth_bytes_per_second": 400000000000.0,
+      "state_transfer_bandwidth_bytes_per_second": 12500000000.0,
+      "checkpoint_bandwidth_bytes_per_second": 10000000000.0,
+      "base_power_w": 50000.0,
+      "accelerator_power_w": 700.0,
+      "power_cap_w": 250000.0,
+      "cooling_capacity_w": 300000.0,
+      "grid_import_limit_w": 300000.0
+    },
+    {
+      "site_id": "east",
+      "accelerator_type": "NVIDIA H100 SXM 80GB",
+      "accelerator_count": 256,
+      "accelerator_flops_per_second": 500000000000000.0,
+      "collective_bandwidth_bytes_per_second": 400000000000.0,
+      "state_transfer_bandwidth_bytes_per_second": 12500000000.0,
+      "checkpoint_bandwidth_bytes_per_second": 10000000000.0,
+      "base_power_w": 50000.0,
+      "accelerator_power_w": 700.0,
+      "power_cap_w": 250000.0,
+      "cooling_capacity_w": 300000.0,
+      "grid_import_limit_w": 300000.0
+    }
+  ],
+  "links": [
+    {
+      "link_id": "west-central",
+      "site_a": "west",
+      "site_b": "central",
+      "bandwidth_bytes_per_second": 3125000000.0,
+      "latency_ns": 20000000,
+      "available": true
+    },
+    {
+      "link_id": "central-east",
+      "site_a": "central",
+      "site_b": "east",
+      "bandwidth_bytes_per_second": 3125000000.0,
+      "latency_ns": 20000000,
+      "available": true
+    }
+  ],
+  "total_steps": 120,
+  "flops_per_global_step": 1.68e18,
+  "gradient_bytes": 140000000000,
+  "checkpoint_bytes": 1120000000000,
+  "checkpoint_interval_steps": 40,
+  "learning_prior": {
+    "prior_id": "muon-delay-screening-prior-v1",
+    "seed_observation_ids": [
+      "arxiv:2606.30634:smollm-360m:muon:sync",
+      "arxiv:2606.30634:smollm-360m:muon:async-one-step",
+      "arxiv:2606.30634:smollm-360m:muon:async-one-step-error-feedback"
+    ],
+    "staleness_sensitivity": 0.002,
+    "staleness_exponent": 1.0,
+    "sensitivity_scale": 0.004,
+    "optimizer": "Muon",
+    "model_family": "dense decoder-only transformer",
+    "source": "https://arxiv.org/html/2606.30634, Tables 1 and 2. Published Muon observations are stored under observations/literature/e001-one-step-delay. They support one-step delay only and do not identify progress per FLOP. The numeric sensitivity and its extrapolation beyond one step remain an intentionally wide screening prior, not a fitted calibration."
+  },
+  "evaluation_observation_ids": [],
+  "fixed_local_steps": 8,
+  "adaptive_min_local_steps": 1,
+  "adaptive_max_local_steps": 64,
+  "outages": [
+    {
+      "event_id": "central-curtailment-1",
+      "site_id": "central",
+      "failure_start_ns": 100000000000,
+      "recovery_ns": 130000000000,
+      "cause": "screening curtailment event"
+    }
+  ],
+  "assumptions": [
+    "This is a virtual screening scenario and is not a claim about a deployed cluster.",
+    "Per-GPU 500 TFLOP/s is an assumed sustained training rate, distinct from NVIDIA's public peak specification.",
+    "Each WAN link is assumed to provide dedicated 25 Gbit/s payload bandwidth with 20 ms one-way latency.",
+    "The 70B dense model uses an approximate 140 GB BF16 gradient payload and 1.12 TB full training-state checkpoint.",
+    "The delay-response prior extrapolates beyond the cited paper and carries uncertainty large enough to expose that evidence gap.",
+    "The paper reports final validation loss, not learning progress per FLOP; GPUSTACK does not treat those as interchangeable measurements."
+  ],
+  "provenance": [
+    "NVIDIA H100 public specifications: https://www.nvidia.com/en-us/data-center/h100/",
+    "One-Step Gradient Delay Is Not a Barrier: https://arxiv.org/abs/2606.30634",
+    "DynaTrain: https://arxiv.org/abs/2605.18815",
+    "Provisioning to Runtime Optimization of a 100 MW-Scale AI Cluster: https://arxiv.org/abs/2605.24461"
+  ],
+  "metadata": {
+    "model_parameters": 70000000000,
+    "global_tokens_per_step": 4000000,
+    "purpose": "screen the E001 hypothesis and identify which real observations have the highest value"
+  }
+}

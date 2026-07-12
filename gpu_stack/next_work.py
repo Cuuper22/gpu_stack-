@@ -20,17 +20,11 @@ from .next_work_evidence import (
     _target_by_label,
 )
 from .next_work_models import NextWorkItem, NextWorkPlan
-from .next_work_rendering import (
-    _format_families,
-    _format_labels,
-    _format_large_files,
-    _format_roots,
-    _missing_family_summary,
-)
 from .next_work_reports import (
     _best_implementations,
     _bug_risks,
     _highest_impact,
+    _legacy_diagnostics,
 )
 
 
@@ -38,9 +32,11 @@ def build_next_work_plan(repo_root: Path | None = None) -> NextWorkPlan:
     """
     Build a live next-work plan from the currently imported registry.
 
-    The returned plan has exactly three top-level lists:
-    ``highest_impact`` with 3 items, ``best_implementations`` with 4 items,
-    and ``bug_risks`` with 10 items.
+    The stable JSON shape retains exactly three top-level lists:
+    ``highest_impact`` with 3 research priorities, ``best_implementations``
+    with 4 current foundations, and ``bug_risks`` with 10 active risks.
+    Legacy root-debt and Pythia closure items remain available on the Python
+    plan and in text output without competing for scientific priority.
     """
 
     evidence = _collect_evidence(repo_root)
@@ -53,6 +49,7 @@ def build_next_work_plan(repo_root: Path | None = None) -> NextWorkPlan:
             "equations": evidence.stats["equations"],
             "root_inputs": evidence.stats["root_inputs"],
         },
+        legacy_diagnostics=_legacy_diagnostics(evidence),
     )
 
 

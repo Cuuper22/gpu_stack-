@@ -48,6 +48,7 @@ def _copy_repo_docs(tmp_path: Path) -> Path:
     """
     src = _repo()
     shutil.copy(src / "README.md", tmp_path / "README.md")
+    shutil.copy(src / "pyproject.toml", tmp_path / "pyproject.toml")
     docs_dst = tmp_path / "docs"
     docs_dst.mkdir()
     shutil.copy(src / "docs" / "index.html", docs_dst / "index.html")

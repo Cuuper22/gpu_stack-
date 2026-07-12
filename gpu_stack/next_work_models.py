@@ -29,12 +29,24 @@ class NextWorkItem:
 
 @dataclass(frozen=True)
 class NextWorkPlan:
-    """Exactly three top-level next-work lists."""
+    """Research-first next-work plan with compatibility diagnostics.
+
+    ``highest_impact`` remains the stable public name used by existing API and
+    JSON consumers.  It now contains scientific research priorities.  Legacy
+    root-debt and scenario-closure diagnostics are carried separately so they
+    remain available without being mistaken for the research objective.
+    """
 
     highest_impact: tuple[NextWorkItem, ...]
     best_implementations: tuple[NextWorkItem, ...]
     bug_risks: tuple[NextWorkItem, ...]
     graph_evidence: Mapping[str, int]
+    legacy_diagnostics: tuple[NextWorkItem, ...] = ()
+
+    @property
+    def research_priorities(self) -> tuple[NextWorkItem, ...]:
+        """Explicit research-oriented alias for ``highest_impact``."""
+        return self.highest_impact
 
     @property
     def implementation(self) -> tuple[NextWorkItem, ...]:
@@ -42,6 +54,14 @@ class NextWorkPlan:
         return self.best_implementations
 
     def to_dict(self) -> dict[str, list[dict[str, str]]]:
+        """Return the established three-section JSON wire shape.
+
+        ``research_priorities`` and ``legacy_diagnostics`` are intentionally
+        properties of the Python plan rather than new default JSON keys.  This
+        lets existing command consumers keep parsing the same payload while
+        the meaning of ``highest_impact`` advances from root closure to
+        scientific leverage.
+        """
         return {
             "highest_impact": [item.to_dict() for item in self.highest_impact],
             "best_implementations": [

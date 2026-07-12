@@ -4,9 +4,10 @@ Status timestamp: July 12, 2026, America/Los_Angeles.
 
 ## Strategic Research Reset
 
-The repository is synced to GitHub main at `5b2b4c7490`. The engine, visual
-medium, and research program are now one closed loop. Read `RESEARCH.md` and
-`docs/research/frontier-scan-2026-07-12.md` before continuing.
+The engine, visual medium, and research program are one closed loop. Read
+`RESEARCH.md`, `docs/research/frontier-scan-2026-07-12.md`, and the E001 result
+artifact before continuing. `main` is canonical; closeout requires local
+`HEAD` to equal `origin/main`.
 
 Experiment 001 asks whether adaptive consistency, parallelism, optimizer
 correction, site membership, and power-aware placement can make frontier
@@ -14,41 +15,44 @@ training span heterogeneous, intermittently powered datacenters without losing
 centralized learning efficiency. Its preregistered virtual design is in
 `experiments/e001-beyond-one-datacenter/experiment.md`.
 
-The existing `next-work` output still promotes physical root-debt families.
-Treat that as a diagnostic until its priority function is replaced with
-prediction residual, uncertainty, and hypothesis leverage.
-
-Post-reset verification used an isolated writable temp root because the
-default Windows pytest temp directory has a broken ACL. The targeted
-temp-dependent pack passed `43 passed in 2.98s`; the read-only full verifier
-passed all `5/5` gates in `262.03s`.
+`next-work` now promotes held-out E001 learning transfer, resumable failure and
+joint-control semantics, and the E002 measured power-waveform engine. Physical
+root debt and Pythia closure remain visible as legacy diagnostics, not the
+scientific priority function.
 
 ## Latest Verified Wave
 
-`portfolio form and deliverable polish` is implemented and verified.
+`research substrate, E001 mechanics, and causal observatory` is implemented,
+browser-inspected, and merge-verified.
 
 Implemented facts:
 
-- Docs site typography now follows the three-font system from `DESIGN.md`:
-  IBM Plex Sans for reading copy, Pixelify Sans for OS chrome and headings,
-  IBM Plex Mono for commands. The impeccable static detector's `single-font`
-  finding on `docs/` is resolved.
-- `docs/index.html` gained absolute `og:image`, `og:url`, `og:type`, and
-  `twitter:card` metadata; leaked markdown backticks became `code` elements;
-  the dead `docs/styles.css` link and file were removed.
-- `docs/app.js` panel renders are null-guarded so one missing hook cannot
-  take down the other panels or the clock.
-- README example fixes: the dependency-cone snippet sorts roots by name
-  instead of comparing `Variable` objects, and the `evaluate_targets`
-  example targets `training.tokens_per_sec`. Both were re-run and pass.
-- Ledger reconciliation: the Pythia energy-floor wave's scope splits are
-  merged (suite grew 639 to 670, large project files 7 to 0), while the
-  Pythia `cost_per_token` path still reports 33 missing inputs and stays on
-  the visible backlog.
-- Observed gates on this base: full pytest `670 passed in 133.89s`; full
-  verifier `4/4 gates passed in 141.07s`; audit PASS with systems 16,
-  variables 1517, constants 24, equations 959, root inputs 619, leaves 253,
-  cycles 0, hard failures 0, large scope files 0, large project files 0.
+- New research modules implement immutable observations, hard split contracts,
+  residual and uncertainty evaluation, replicated benchmarks, causal temporal
+  events, shared resources, multi-site interventions, observable-only policies,
+  E001 execution, and observatory projection.
+- Protocol schema v2 binds scalar falsifiers and mandatory structured evidence
+  requirements into every run artifact. E001 through E006 are machine-readable
+  and cannot silently omit outcome vectors, transfer panels, causal
+  attribution, full-boundary accounting, or abstention gates.
+- Persisted E001 mechanics, all over the same modeled work: synchronous is
+  33.6 TB and 6,047.01 s; fixed-local is 4.2 TB and 1,341.98 s; adaptive
+  cadence is 1.68 TB and 938.60 s. Adaptive cadence uses 11 to 22 local steps.
+- The adaptive policy is still `inconclusive`. It passes the WAN scalar, but
+  held-out progress per FLOP, time to target, all seven structured gates,
+  reactive outage membership, optimizer correction, and complete energy are
+  unresolved.
+- The artifact-driven observatory exposes one truth at Freshman, Researcher,
+  and Full trace depths. URL state includes experiment, policy, node, event,
+  time, depth, and uncertainty. Full trace exposes 1,395 event records.
+- In-app browser inspection covered depth, uncertainty, policy selection,
+  state persistence, visible share feedback, desktop layout, mobile site-rail
+  panning, the mobile evidence drawer, and the mobile source table. The
+  concept-to-build ledger is `docs/design/observatory-fidelity-ledger.md`.
+- Exact verification: focused research/docs pack `28 passed in 11.83s`;
+  read-only full verifier `5/5` in `320.32s`. The default 300-second gate first
+  stopped a still-green pytest stream at 97 percent; the unchanged verifier
+  passed with `--gate-timeout 600`, with pytest completing in `313.48s`.
 
 ## Previous Verified Wave
 
@@ -79,10 +83,11 @@ Implemented facts:
 
 ## Resume Instructions
 
-Resume from the virtual-datacenter research reset. Do not begin another generic
-root-closure or metadata wave. Read `RESEARCH.md`, the frontier scan,
-`SESSION_STATE.md`, and `VISIBLE_BACKLOG.md`; then start with observation and
-held-out evaluation contracts required by Experiment 001.
+Resume from measured learning, not foundation work. Do not begin another
+generic root-closure or metadata wave. Read `RESEARCH.md`, the frontier scan,
+`SESSION_STATE.md`, `VISIBLE_BACKLOG.md`, and the persisted E001 result. Start
+with held-out E001 learning transfer or resumable failure semantics. Keep every
+new result on the protocol and observatory artifact contracts.
 
 ## Current State
 
@@ -169,13 +174,16 @@ and preset export/discovery tests.
 
 ## Next Real Work
 
-1. Keep scenario artifact API and CLI JSON output covered and deterministic.
-2. Keep SEMF numeric defaults blocked until source, SI conversion, and
-   pairing/reference-energy semantics are verified.
-3. Continue broader cited scenario expansion and model expansion in later
-   waves, keeping assumptions separate from sourced facts.
-4. Continue evaluator UX work where it deepens reproducibility, especially
-   selector semantics, concise diagnostics, and cited scenario coverage.
+1. Collect held-out E001 learning curves and progress-per-FLOP panels across
+   local-step delay, interruptions, optimizer correction, scale, and model
+   families.
+2. Implement preemption, lost work, checkpoint recovery, reactive membership,
+   topology change, and optimizer correction before claiming a joint E001
+   controller.
+3. Build E002's measured rack/facility power-waveform engine and preregistered
+   spectral, time-to-target, rebound, and full-boundary accounting panels.
+4. Add observed residual and uncertainty views to the same causal observatory
+   artifact as soon as held-out evidence exists.
 
 ## Verification Policy
 

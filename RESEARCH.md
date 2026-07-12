@@ -63,6 +63,9 @@ symbolic registry:
    scope, training data, uncertainty, and out-of-distribution behavior.
 7. **Experiment** freezes a hypothesis, baselines, variables, metrics,
    falsifiers, seeds, and validation path.
+8. **Evidence requirement** keeps vector outcomes, transfer panels, causal
+   attribution, full-boundary accounting, and abstention as mandatory gates
+   when no honest scalar threshold exists.
 
 ## Visual Medium Contract
 
@@ -114,6 +117,9 @@ Hypothesis: optimizer-preserving phase shaping can reduce grid-danger-band
 spectral energy by at least 50% with no more than 2% time-to-target regression,
 and can admit 10% more active accelerators under the same power envelope.
 
+The preregistered design is in
+`experiments/e002-power-waveform-shaping/experiment.md`.
+
 ### 3. Semantic Fault Tolerance
 
 Can hard failures, fail-slow devices, and silent corruption be treated as
@@ -122,6 +128,9 @@ bounded learning perturbations instead of job-ending events?
 Hypothesis: trajectory-sensitivity-guided canaries and selective redundancy can
 keep final behavior statistically indistinguishable from a clean run with less
 than 2% overhead under empirically structured fault processes.
+
+The preregistered design is in
+`experiments/e003-semantic-fault-tolerance/experiment.md`.
 
 ### 4. Fluid Inference Topology
 
@@ -133,6 +142,9 @@ Hypothesis: joint control produces superadditive gains because independent
 policies move queue, memory, network, and power pressure into one another. The
 optimal system repeatedly crosses between aggregated and disaggregated regimes.
 
+The preregistered design is in
+`experiments/e004-fluid-inference-topology/experiment.md`.
+
 ### 5. Architecture As A Datacenter Variable
 
 Can heterogeneous accelerators support a better model architecture under a
@@ -143,6 +155,9 @@ Hypothesis: jointly choosing modules, routing, precision, device type,
 parallelism, and placement improves capability per facility joule by at least
 25% over the best homogeneous design at equal power and wall-clock budgets.
 
+The preregistered design is in
+`experiments/e005-heterogeneous-architecture-codesign/experiment.md`.
+
 ### 6. Firm Grid-Responsive Inference
 
 Can an inference datacenter offer predictable demand response without a hidden
@@ -151,6 +166,9 @@ quality or tail-latency cliff?
 Hypothesis: request-conditioned control across model choice, precision,
 batching, routing, DVFS, and placement provides more firm power flexibility
 than any isolated mechanism while preserving per-request utility.
+
+The preregistered design is in
+`experiments/e006-firm-grid-responsive-inference/experiment.md`.
 
 ## Research Rules
 
@@ -167,13 +185,27 @@ than any isolated mechanism while preserving per-request utility.
 - Draft PR #14 remains parked until its nuclear and quark decomposition affects
   one of those criteria.
 
-## Build Order
+## Current Foundation And Next Research Order
 
-1. Observation schema, calibration/evaluation splits, benchmark runner, and
-   baseline models.
-2. Event and state graph with shared-resource contention and facility traces.
-3. Intervention and policy interface with decision-regret evaluation.
-4. Experiment 001 virtual environment and preregistered evaluation.
-5. Causal observatory views over live experiment artifacts.
-6. Shadow-mode comparison against real cluster telemetry before any controller
-   is trusted with live actions.
+The repository now contains the observation and split contracts, held-out
+evaluation and replicated-panel aggregation, deterministic temporal and
+multi-site mechanics, observable-only interventions, six scalar-plus-structured
+protocols, an E001 mechanics runner, and the artifact-driven causal observatory.
+That is infrastructure for research, not an E001 result.
+
+The next order is determined by what can change the conclusion:
+
+1. Measure multi-step learning-delay transfer across held-out optimizer, model,
+   and topology panels, then run controlled 7B to 30B E001 calibration.
+2. Add resumable mid-operation decisions, preemption, lost work, checkpoint
+   recovery, complete collective accounting, and the rest of E001's joint
+   controller and baseline vector.
+3. Shadow E001 mechanics and learning predictions against three real clusters
+   before attempting the 30B to 100B-plus confirmatory run.
+4. Build E002's calibrated operation-to-facility power waveform engine and
+   test phase shaping under frozen grid-mode uncertainty.
+5. Admit E003 through E006 only when their required observations, vector
+   metrics, baselines, and transfer panels are executable.
+
+No controller is trusted with live actions before shadow comparison and a
+separate controlled protocol.

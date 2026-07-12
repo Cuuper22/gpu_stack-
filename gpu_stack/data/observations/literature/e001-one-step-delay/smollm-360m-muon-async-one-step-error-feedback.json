@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "observation_id": "arxiv:2606.30634:smollm-360m:muon:async-one-step-error-feedback",
+  "timestamp": "2026-06-29T17:57:50Z",
+  "measured_values": {
+    "validation_loss": {
+      "value": 2.583,
+      "unit": "1",
+      "uncertainty": {
+        "standard_deviation": null,
+        "lower_bound": 2.5825,
+        "upper_bound": 2.5835,
+        "confidence_level": null,
+        "distribution": null,
+        "notes": "Rounding interval implied by the published three-decimal value; run-to-run uncertainty was not reported in Table 2."
+      },
+      "metadata": {
+        "table": "Table 2",
+        "reported_precision_decimal_places": 3,
+        "published_gap_recovery_percent": 71
+      }
+    }
+  },
+  "topology": {
+    "gradient_delay_steps": 1,
+    "pipeline_schedule": "PipeDream-2BW constant-delay abstraction",
+    "hardware": "not reported in Table 2"
+  },
+  "workload": {
+    "model": "SmoLLM-style dense decoder-only transformer",
+    "parameters": 360000000,
+    "dataset": "FineWeb-Edu",
+    "token_to_parameter_ratio": 20,
+    "optimizer": "Muon",
+    "error_feedback": true
+  },
+  "software": {
+    "training_implementation": "not reported in Table 2"
+  },
+  "instrumentation": {
+    "metric": "final validation loss",
+    "reporting_surface": "paper Table 2",
+    "repeat_count": "not reported in Table 2"
+  },
+  "provenance": {
+    "source": "Zmushko et al., One-Step Gradient Delay is Not a Barrier for Large-Scale Asynchronous Pipeline Parallel LLM Pretraining",
+    "uri": "https://arxiv.org/html/2606.30634",
+    "citation": "arXiv:2606.30634v1, Table 2, SmoLLM-360M Muon Error Feedback",
+    "checksum": null,
+    "license": "CC BY 4.0",
+    "retrieved_at": "2026-07-12T00:00:00Z",
+    "notes": [
+      "The timestamp is the arXiv publication timestamp because the measurement-run timestamp is not reported.",
+      "This is an optimizer-corrected one-step delayed run, not evidence for arbitrary staleness."
+    ]
+  },
+  "metadata": {
+    "evidence_role": "calibration seed",
+    "measurement_timestamp_reported": false
+  }
+}
