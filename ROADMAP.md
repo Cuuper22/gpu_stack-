@@ -1,6 +1,35 @@
 # gpu_stack roadmap
 
-Status timestamp: June 10, 2026, America/Los_Angeles.
+Status timestamp: July 12, 2026, America/Los_Angeles.
+
+## Research Reset: The Virtual Datacenter
+
+The project now optimizes one closed loop:
+
+`world model -> prediction -> visual explanation -> hypothesis -> experiment -> observation -> improved world model`
+
+The June engine is a strong symbolic foundation, but its live `next-work`
+ranking still rewards root-debt closure and graph completeness. That ranking is
+diagnostic evidence, not the research roadmap. Recent work such as Charon
+already reports operator-level training and inference simulation below 5.35%
+overall timing error. `gpu_stack` will not compete by becoming another static
+performance simulator with more equations.
+
+The research target is a causal, uncertainty-aware virtual datacenter that
+couples learning dynamics, temporal execution, failures, facility power, grid
+constraints, economics, and understandable intervention traces. See
+`RESEARCH.md` and `docs/research/frontier-scan-2026-07-12.md`.
+
+The first frontier program asks whether a frontier model can train across
+heterogeneous, intermittently powered datacenters without surrendering the
+learning efficiency of a tightly synchronized cluster. The second asks whether
+software-controlled phase shaping can suppress harmful power oscillations and
+admit more useful compute inside a fixed facility envelope.
+
+Verification after the research reset: the temp-dependent CLI/docs pack passed
+`43 passed in 2.98s`; the read-only full verifier passed `5/5` gates in
+`262.03s`, including the complete pytest, syntax, audit, demo, and docs-stats
+gates.
 
 ## Latest Verified Wave
 
@@ -137,18 +166,18 @@ and preset export/discovery tests.
 
 | Priority | Work | Done when |
 |---|---|---|
-| P0 | Preserve scenario artifact contracts. | API reports and CLI JSON stay deterministic, compact, and covered. |
-| P0 | Keep SEMF numeric defaults blocked. | Coefficients stay absent until source, SI conversion, and pairing/reference-energy semantics are verified. |
-| P0 | Preserve sourced-scenario provenance. | Public context stays distinct from numeric calibration; assumptions remain labeled. |
-| P1 | Expand cited scenarios. | New scenarios land only with explicit source data and semantics. |
-| P1 | Expand model coverage. | Add deeper physical decomposition and broader model families without arbitrary defaults. |
+| P0 | Establish predictive validity. | Held-out hardware, model, workload, and topology evaluations report error, interval coverage, ranking regret, and residual attribution against simple baselines. |
+| P0 | Add observations and interventions. | Measured observations, calibration sets, evaluation sets, actions, and predictions are distinct versioned artifacts. |
+| P0 | Add temporal system semantics. | Event traces represent compute, collectives, state movement, failures, rack power, cooling response, and grid-facing power. |
+| P0 | Execute Experiment 001 virtually. | Adaptive multi-datacenter training is compared with centralized and fixed-consistency baselines, including explicit convergence-surrogate uncertainty and falsifiers. |
+| P1 | Build the causal observatory UI. | One shareable state supports semantic zoom from a plain-language causal story through uncertainty, equations, provenance, and raw trace evidence. |
+| P1 | Replace the continuation compass. | `next-work` ranks measured residuals, uncertainty contribution, and hypothesis leverage; root debt remains a secondary diagnostic. |
+| P2 | Deepen physical ancestry selectively. | New lower-level physics closes a measured residual, reduces uncertainty, or enables an experiment. |
 
 ## Future Work
 
-Continue broader reality-model expansion: physical decomposition, cited
-scenarios, model-family coverage, metadata/provenance cleanup, topology and
-site-scale network models, transient thermal/controller behavior,
-financing/tariff cases, and user-facing examples.
-
-Prefer recursive model deepening on high-blast-radius roots plus cited
-scenarios that prove the layers interact cleanly.
+Build the research programs in `RESEARCH.md`: adaptive multi-datacenter
+training, power-waveform shaping, semantic fault tolerance, fluid inference
+topology, heterogeneous architecture co-design, and firm grid-responsive
+inference. Every program must move through virtual screening, held-out
+calibration, shadow-mode comparison, and real-cluster validation.

@@ -1,6 +1,27 @@
 # HANDOFF: gpu_stack active wave
 
-Status timestamp: June 10, 2026, America/Los_Angeles.
+Status timestamp: July 12, 2026, America/Los_Angeles.
+
+## Strategic Research Reset
+
+The repository is synced to GitHub main at `5b2b4c7490`. The engine, visual
+medium, and research program are now one closed loop. Read `RESEARCH.md` and
+`docs/research/frontier-scan-2026-07-12.md` before continuing.
+
+Experiment 001 asks whether adaptive consistency, parallelism, optimizer
+correction, site membership, and power-aware placement can make frontier
+training span heterogeneous, intermittently powered datacenters without losing
+centralized learning efficiency. Its preregistered virtual design is in
+`experiments/e001-beyond-one-datacenter/experiment.md`.
+
+The existing `next-work` output still promotes physical root-debt families.
+Treat that as a diagnostic until its priority function is replaced with
+prediction residual, uncertainty, and hypothesis leverage.
+
+Post-reset verification used an isolated writable temp root because the
+default Windows pytest temp directory has a broken ACL. The targeted
+temp-dependent pack passed `43 passed in 2.98s`; the read-only full verifier
+passed all `5/5` gates in `262.03s`.
 
 ## Latest Verified Wave
 
@@ -58,9 +79,10 @@ Implemented facts:
 
 ## Resume Instructions
 
-You are resuming after the portfolio form-and-deliverable polish wave was
-integrated and verified. Do not revert anyone else's work. For fast resume,
-read `SESSION_STATE.md` and `VISIBLE_BACKLOG.md` first.
+Resume from the virtual-datacenter research reset. Do not begin another generic
+root-closure or metadata wave. Read `RESEARCH.md`, the frontier scan,
+`SESSION_STATE.md`, and `VISIBLE_BACKLOG.md`; then start with observation and
+held-out evaluation contracts required by Experiment 001.
 
 ## Current State
 

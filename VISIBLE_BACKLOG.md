@@ -1,8 +1,28 @@
 # Visible Backlog
 
-Updated: 2026-06-10 PDT.
+Updated: 2026-07-12 PDT.
 
 Purpose: compact recovery surface for the visible backlog.
+
+## Active Research Wave: Virtual Datacenter Foundation
+
+Status: research direction and Experiment 001 are designed and verified as
+repository artifacts; engine implementation has not started. The read-only
+full verifier passed `5/5` gates in `262.03s`.
+
+- Add a typed observation format with calibration and held-out evaluation
+  splits.
+- Benchmark the current engine against TDP, roofline, fixed-MFU, and simple
+  queueing baselines before adding a controller.
+- Add temporal event and state semantics for compute, collectives, migration,
+  failures, power, cooling, and grid-facing behavior.
+- Add interventions, policies, uncertainty coverage, residual attribution, and
+  decision regret.
+- Execute `experiments/e001-beyond-one-datacenter/experiment.md` virtually.
+- Build the causal observatory reading path defined in `RESEARCH.md`.
+
+Do not select new work from root-debt weight alone. Physical deepening needs an
+observed residual, decision-relevant uncertainty, or experiment dependency.
 
 ## Latest Verified Wave: Portfolio Form And Deliverable Polish
 

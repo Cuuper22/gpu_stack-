@@ -10,9 +10,28 @@ brand
 
 ## Product Purpose
 
-The project models the GPU training stack as a symbolic graph of reality: datacenter, cluster, thermal plant, economics, GPU package, memory, kernels, training math, lithography, atoms, protons, neutrons, and quark-count roots. It is not a bounded simulator. It is a recursive system of equations where numerical leaves are modeling debt unless they are universal constants, sourced scenario facts, or explicitly exposed assumptions.
+`gpu_stack` is a causal, uncertainty-aware virtual AI datacenter. It joins
+learning progress, training and inference execution, communication, memory,
+failures, power, cooling, grid behavior, and economics in one inspectable world
+model.
 
-Success means a reader can understand the premise in one pass, run a small demo quickly, and see why the package exists as an intuition engine for learning AI infrastructure and physics together.
+The same engine has three inseparable jobs:
+
+1. Predict measured outcomes accurately enough to support real decisions.
+2. Explain any result at progressively deeper levels, from a freshman-readable
+   visual story to equations, provenance, uncertainty, and raw observations.
+3. Act as an experimental substrate for hypotheses that would otherwise require
+   a large AI datacenter to screen.
+
+The recursive physical graph remains valuable, but graph depth is not the
+objective. A deeper lithography or particle relation is research progress only
+when it improves an externally evaluated prediction, reduces decision-relevant
+uncertainty, explains a residual, or enables a falsifiable experiment.
+
+Success means the engine transfers to held-out hardware and workloads, carries
+calibrated uncertainty, recommends interventions with low decision regret, and
+makes the causal reason visible. A simulation result is a hypothesis, not
+evidence about the real datacenter until measurements validate it.
 
 ## Brand Personality
 
@@ -29,6 +48,11 @@ Do not make it sound like a SaaS landing page, a package index stub, or a generi
 3. Keep the human origin in frame: this started as a learning project, not a product committee.
 4. Let equations feel spatial and inspectable.
 5. Preserve factual claims by tying them to commands or generated registry stats.
+6. Rank work by predictive error, uncertainty, and scientific leverage, not equation or root counts.
+7. Keep observations, calibration data, assumptions, predictions, and interventions as distinct types.
+8. Evaluate decisions on held-out systems. Never grade the engine on the data used to tune it.
+9. Use semantic zoom: every visual claim must open into its mechanism, evidence, caveats, and equations.
+10. Design experiments with explicit falsifiers and a path to real-cluster validation.
 
 ## Accessibility & Inclusion
 

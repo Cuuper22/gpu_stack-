@@ -1,9 +1,31 @@
 # Session State
 
-Updated: 2026-06-10 PDT.
+Updated: 2026-07-12 PDT.
 
 Read this first after compaction or restart. It is intentionally shorter than
 `HANDOFF.md`.
+
+## Strategic Research Reset
+
+The canonical tree is synced to GitHub main at
+`5b2b4c7490e9835e63b87197b64918527e5992a2`. The previous local directory was
+an interrupted, non-Git May snapshot and is no longer authoritative.
+
+The project now treats the engine, visual medium, and research program as one
+loop. Read `RESEARCH.md`, then
+`docs/research/frontier-scan-2026-07-12.md`, before selecting work.
+
+- The engine target is a causal, uncertainty-aware virtual AI datacenter.
+- The visual target is semantic zoom from a freshman-readable explanation to
+  equations, uncertainty, provenance, and raw evidence.
+- The research target is a sequence of falsifiable datacenter-scale
+  experiments, beginning with adaptive multi-datacenter training.
+- Root-debt ranking remains a graph diagnostic. It is no longer the research
+  priority function.
+- Draft PR #14 remains parked until its physical decomposition improves an
+  evaluated prediction, uncertainty, residual explanation, or experiment.
+- Post-reset verification: targeted temp-dependent pack `43 passed in 2.98s`;
+  read-only full verifier `5/5` gates in `262.03s`.
 
 ## Latest Verified Wave: Ten-Step Expansion Integration
 
@@ -98,16 +120,19 @@ Status: implemented, verified, read-only verified, and source-clean.
 
 ## Current Aim
 
-Keep pushing `gpu_stack` toward a reality-modeling equation system, not a
-standalone simulation. The near-term visible backlog is:
+Build the smallest measured virtual-datacenter substrate that can falsify
+Experiment 001:
 
-1. Continue physical root-debt closure, with primitives decomposed or explicitly
-   bounded as calibration/operating boundaries.
-2. Expand sourced/calibrated scenario and preset coverage while keeping
-   assumptions separate from sourced facts.
-3. Improve evaluator UX so scenario packs are reproducible artifacts.
-4. Close metadata/provenance tail and split large project files only when
-   touching related behavior.
+1. Add observation artifacts and hard calibration/evaluation splits.
+2. Establish held-out prediction, uncertainty-coverage, ranking-regret, and
+   decision-regret baselines.
+3. Add temporal execution, state movement, shared contention, power, thermal,
+   grid, and failure semantics.
+4. Add interventions and policies without giving them hidden simulator state.
+5. Execute adaptive multi-datacenter training against centralized and fixed
+   consistency baselines.
+6. Render the resulting causal path, counterfactual, residual, and evidence
+   through one shareable semantic-zoom interface.
 
 ## Previous Verified Wave: Physical Root-Debt Boundary Hardening
 
