@@ -1,6 +1,6 @@
 # E001: Beyond One Datacenter
 
-Status: four-policy recovery mechanics executed; learning hypothesis remains inconclusive
+Status: recovery mechanics executed; LC1 small-model candidate falsified
 
 ## Question
 
@@ -169,21 +169,68 @@ adaptive loses much less work and uses less modeled energy. The oracle does
 not improve on adaptive time or traffic in this scenario. These are modeled
 mechanics, not a general controller ranking.
 
-Every policy still carries the same declared `0.1` learning-progress prior.
-The result therefore remains `inconclusive_frontier_hypothesis`. It resolves
-whether GPUSTACK can represent a recovery comparison, but not whether adaptive
-recovery preserves learning more efficiently.
+Every policy in this mechanics-only artifact carries the same declared `0.1`
+learning-progress prior. The recovery-v2 result therefore remains
+`inconclusive_frontier_hypothesis`: it resolves whether GPUSTACK can represent
+a recovery comparison, but not whether adaptive recovery preserves learning
+more efficiently. LC1 addresses that narrower learning question below.
 
 Result artifact:
 `results/recovery-mechanics-v2.json` (`b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57`).
 Observatory projection:
 `../../docs/data/e001-recovery-v2.json` (`2b3c33bac5a0e9e9009b758be54078ac8b4aa9ae4baf343145a81d7e0a6afb05`).
 
-## Next Experiment
+## Learning Calibration v1 Result
 
-Run fixed-local and adaptive recovery on one real small-model workload under
-the same interruptions, using disjoint calibration and evaluation runs.
-Measure held-out loss progress per FLOP, per joule, and per wall-clock second
-to a target. Bind those observations and residuals into the existing result and
-observatory. The outcome selects optimizer correction, topology, failure-aware
-control, or a published null result. Do not generalize the engine first.
+[E001-LC1](learning-calibration-v1.md) completed 40 local GPU runs: 10
+calibration observations and 30 untouched held-out evaluation observations.
+The calibration-derived target was held-out NLL `3.13759109564126`. Every
+policy first crossed it at the first 32-tick observation, so fixed-local and
+adaptive interruption both recorded tick 32.
+
+The preregistered candidate was falsified on this small-model calibration.
+Paired progress-per-FLOP `tau` had median `-7.19835770326443e-14` with a 90%
+interval `[-7.24876398177115e-14, -5.48204063742032e-14]`, failing the positive-
+effect gate. Adaptive passed the retained-progress and synchronous-reference
+gates with lower bounds `1.00215623908839` and `1.00265505192967`, and it did
+not diverge. It failed the separate requirement to reach the target sooner
+because both policies tied at tick 32.
+
+| Interrupted median | Fixed-local restart | Adaptive continuation |
+|---|---:|---:|
+| Final held-out NLL | 2.341145828 | 2.314653009 |
+| Attempted tokens | 458,752 | 524,288 |
+| Canonical tokens | 442,368 | 524,288 |
+| Replayed / discarded tokens | 16,384 / 16,384 | 0 / 0 |
+| Survivor-redistributed tokens | 0 | 32,768 |
+| First target crossing | tick 32 | tick 32 |
+| Checkpoint bytes | 302 MB | 1.049 GB |
+
+Adaptive ended with better held-out loss and completed all canonical work.
+Fixed-local did 12.5% less attempted work and ended worse, but its smaller
+finite-horizon from-scratch denominator made progress per attempted FLOP look
+12.7% better. LC1 therefore rejected the candidate while also showing that
+this progress-per-FLOP estimand is not a valid recovery-value comparator for
+the regime it created.
+
+Result artifact:
+`results/learning-calibration-v1.json` (`0597ca6deeeb34ae97d57d72b49187c687af921d3eec7b804ceb48b0d3994826`).
+Engine source:
+`3a51c72de99fd17580b0bbf4bbc6722db7470b41ac8d74d2f9fcabc386cdb010`.
+Scenario:
+`3ea1ccd6fc717ded9d4f7150574df806a8dc7572fa35d00314f9bb3ea744c319`.
+Observatory projection:
+`../../docs/data/e001-learning-v1.json` (`ff6b5a56dab3314f9ad0b1def40fda9ce9df540bda411284bb9766d9a3ee3c12`).
+
+This is measured small-model learning and device-only energy on one local GPU.
+The datacenter recovery timeline, concurrent-site throughput, WAN, storage,
+host, cooling, and facility-energy quantities remain modeled or unmeasured.
+
+## Next Experiment: LC2
+
+Warm-start fixed-local and adaptive recovery from the same late-training
+checkpoint, freeze a quality target before evaluation, and compare wall-clock
+time, device energy, attempted work, and canonical work to that target under
+matched interruptions. Then bridge the observed learning curves to the modeled
+datacenter mechanics with an explicit observation-to-model boundary; do not
+relabel modeled datacenter behavior as measured evidence.

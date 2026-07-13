@@ -5,6 +5,7 @@
   const ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001.v1";
   const RECOVERY_ARTIFACT_URL = "data/e001-recovery-v2.json";
   const RECOVERY_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001-recovery.v2";
+  const LEARNING_ARTIFACT_URL = "data/e001-learning-v1.json";
   const SVG_NS = "http://www.w3.org/2000/svg";
   const VALID_DEPTHS = new Set(["freshman", "researcher", "full_trace"]);
   const VALID_POLICIES = new Set(["synchronous", "fixed_local", "adaptive_cadence"]);
@@ -46,6 +47,12 @@
     ["recovery_state_redistribution_link_bytes", "recovery redistribution", "var(--obs-orange)"],
     ["planned_state_migration_link_bytes", "planned migration", "var(--obs-teal)"],
   ];
+  const LEARNING_POLICY_ORDER = ["synchronous_reference", "fixed_interrupted", "adaptive_interrupted"];
+  const LEARNING_POLICY_LABELS = {
+    synchronous_reference: "Synchronous reference",
+    fixed_interrupted: "Fixed-local interrupted",
+    adaptive_interrupted: "Adaptive interrupted",
+  };
   const EVIDENCE_LABELS = {
     observed: "OBSERVED",
     modeled: "MODELED",
@@ -160,6 +167,8 @@
   let artifactError = null;
   let recoveryArtifact = null;
   let recoveryArtifactError = null;
+  let learningArtifact = null;
+  let learningArtifactError = null;
   let state = readStateFromURL();
   let timelineScale = null;
   let transientInspector = false;
@@ -418,6 +427,27 @@
     return value;
   }
 
+  function validateLearningArtifact(value) {
+    const record = (candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate);
+    if (!record(value)) throw new ArtifactContractError("learning artifact root is not an object");
+    if (typeof value.schema !== "string" || !value.schema) throw new ArtifactContractError("learning artifact schema is missing");
+    if (typeof value.artifact_sha256 !== "string" || !/^(?:sha256:)?[0-9a-f]{64}$/.test(value.artifact_sha256)) throw new ArtifactContractError("learning artifact sha256 is invalid");
+    ["source_learning_result", "conclusion", "policy_comparison", "paired_effect", "falsifier_results"].forEach((key) => {
+      if (!record(value[key])) throw new ArtifactContractError(`learning artifact ${key} is missing`);
+    });
+    if (typeof value.conclusion.status !== "string" || typeof value.conclusion.plain_answer !== "string") throw new ArtifactContractError("learning artifact conclusion is incomplete");
+    if (value.target === undefined || value.target === null) throw new ArtifactContractError("learning artifact target is missing");
+    LEARNING_POLICY_ORDER.forEach((armId) => {
+      if (!record(value.policy_comparison[armId])) throw new ArtifactContractError(`learning artifact policy_comparison.${armId} is missing`);
+    });
+    ["learning_curves", "evaluation_pairs", "run_details"].forEach((key) => {
+      if (!Array.isArray(value[key])) throw new ArtifactContractError(`learning artifact ${key} is missing`);
+    });
+    if (!Array.isArray(value.paired_effect.values)) throw new ArtifactContractError("learning artifact paired_effect.values is missing");
+    if (value.dataset === undefined || value.runtime === undefined || value.evidence_boundary === undefined) throw new ArtifactContractError("learning artifact evidence provenance is incomplete");
+    return value;
+  }
+
   async function loadArtifact() {
     try {
       const response = await fetch(ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
@@ -448,6 +478,21 @@
     renderRecoveryV2();
   }
 
+  async function loadLearningArtifact() {
+    try {
+      const response = await fetch(LEARNING_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error(`learning artifact request returned ${response.status}`);
+      learningArtifact = validateLearningArtifact(await response.json());
+      learningArtifactError = null;
+      document.body.dataset.learningState = "ready";
+    } catch (error) {
+      learningArtifact = null;
+      learningArtifactError = error;
+      document.body.dataset.learningState = error instanceof ArtifactContractError ? "invalid" : "missing";
+    }
+    renderLearningV1();
+  }
+
   function cacheDOM() {
     [
       "experiment-select", "share-state", "plain-answer", "artifact-state", "stage-boundary",
@@ -460,6 +505,10 @@
       "recovery-v2", "recovery-v2-state", "recovery-depth-copy", "recovery-timeline-svg",
       "recovery-timeline-fallback", "recovery-work-bars", "recovery-byte-bars",
       "recovery-completion-ruler", "recovery-learning-boundary", "recovery-learning-trace",
+      "learning-v1", "learning-v1-state", "learning-insight-title", "learning-plain-answer",
+      "learning-depth-trace", "learning-policy-grid", "learning-curves-svg", "learning-curve-values",
+      "learning-paired-svg", "learning-paired-summary", "learning-gate-strip", "learning-evidence-boundary",
+      "learning-evaluation-pairs", "learning-run-details", "learning-provenance-json",
     ].forEach((id) => { dom[id.replaceAll("-", "")] = byId(id); });
     dom.researchBand = document.querySelector(".research-band");
     dom.depthButtons = [...document.querySelectorAll(".depth-control button")];
@@ -530,6 +579,7 @@
     renderAll();
     loadArtifact();
     loadRecoveryArtifact();
+    loadLearningArtifact();
   }
 
   document.addEventListener("DOMContentLoaded", init, { once: true });
@@ -550,6 +600,7 @@
     renderDecisionLedger();
     renderRawTrace();
     renderRecoveryV2();
+    renderLearningV1();
   }
 
   function recoveryRuns() {
@@ -863,7 +914,392 @@
     renderRecoveryByteBars();
     renderRecoveryCompletion();
     const unsupported = recoveryArtifact.result_scope && Array.isArray(recoveryArtifact.result_scope.unsupported) ? recoveryArtifact.result_scope.unsupported : [];
-    dom.recoverylearningtrace.textContent = unsupported.length ? `Unsupported: ${unsupported.join("; ")}.` : "No held-out recovery-quality observation is attached.";
+    dom.recoverylearningtrace.textContent = unsupported.length
+      ? `Recovery-v2 boundary: ${unsupported.join("; ")}. LC1 below is a separate local small-model calibration.`
+      : "Recovery-v2 has no held-out recovery-quality observation; LC1 below is separate evidence.";
+  }
+
+  function canonicalLearningArmId(value) {
+    const normalized = String(value || "").toLowerCase().replaceAll("-", "_");
+    if (normalized.includes("synchronous")) return "synchronous_reference";
+    if (normalized.includes("fixed")) return "fixed_interrupted";
+    if (normalized.includes("adaptive")) return "adaptive_interrupted";
+    return normalized || "unknown_arm";
+  }
+
+  function learningArmLabel(value, fallback) {
+    const armId = canonicalLearningArmId(value);
+    return String(fallback || LEARNING_POLICY_LABELS[armId] || value || "Unknown arm").replaceAll("_", " ");
+  }
+
+  function learningMetric(record, key) {
+    if (!record || typeof record !== "object") return null;
+    const value = record[key];
+    if (finiteNumber(value)) return value;
+    if (value && typeof value === "object") {
+      if (finiteNumber(value.median)) return value.median;
+      if (finiteNumber(value.value)) return value.value;
+    }
+    return null;
+  }
+
+  function firstLearningMetric(record, keys) {
+    for (const key of keys) {
+      const value = learningMetric(record, key);
+      if (finiteNumber(value)) return value;
+    }
+    return null;
+  }
+
+  function formatLearningNll(value) {
+    return finiteNumber(value) ? value.toLocaleString("en-US", { minimumFractionDigits: 3, maximumFractionDigits: 4 }) : "not reported";
+  }
+
+  function formatLearningTokens(value) {
+    return finiteNumber(value) ? Math.round(value).toLocaleString("en-US") : "not reported";
+  }
+
+  function formatScientific(value, digits = 3) {
+    return finiteNumber(value) ? value.toExponential(digits) : "not reported";
+  }
+
+  function formatLearningEnergy(value) {
+    if (!finiteNumber(value)) return "not reported";
+    return value >= 1000 ? `${(value / 1000).toLocaleString("en-US", { maximumFractionDigits: 2 })} kJ` : `${value.toLocaleString("en-US", { maximumFractionDigits: 2 })} J`;
+  }
+
+  function formatLearningSeconds(value) {
+    return finiteNumber(value) ? `${value.toLocaleString("en-US", { maximumFractionDigits: 2 })} s` : "not reported";
+  }
+
+  function learningTargetNll() {
+    if (!learningArtifact) return null;
+    if (finiteNumber(learningArtifact.target)) return learningArtifact.target;
+    return firstLearningMetric(learningArtifact.target, ["held_out_nll", "target_held_out_nll", "value"]);
+  }
+
+  function learningInsightTitle(status) {
+    const normalized = String(status || "").toLowerCase();
+    if (normalized.includes("falsif")) return "Adaptive recovery lost the paired learning-efficiency test";
+    if (normalized.includes("surviv")) return "Adaptive recovery survived the paired learning-efficiency test";
+    if (normalized.includes("inconclusive")) return "The paired calibration did not separate the policies";
+    return String(status || "Measured learning calibration").replaceAll("_", " ");
+  }
+
+  function renderLearningPolicyCards() {
+    dom.learningpolicygrid.replaceChildren();
+    const comparison = learningArtifact.policy_comparison;
+    LEARNING_POLICY_ORDER.forEach((armId) => {
+      const arm = comparison[armId] || {};
+      const card = element("article", "learning-policy-card");
+      card.dataset.arm = armId;
+      const heading = element("header");
+      const runCount = learningMetric(arm, "run_count");
+      heading.append(
+        element("h3", "", LEARNING_POLICY_LABELS[armId]),
+        element("span", "learning-arm-role", `${finiteNumber(runCount) ? `${runCount}-run median · ` : "median · "}${armId === "synchronous_reference" ? "reference" : "interrupted"}`),
+      );
+      const triad = element("dl", "learning-metric-triad");
+      const primary = [
+        ["Final held-out NLL", formatLearningNll(learningMetric(arm, "final_held_out_nll")), "lower is better"],
+        ["Attempted tokens", formatLearningTokens(learningMetric(arm, "attempted_tokens")), "physical work"],
+        ["Progress / FLOP", formatScientific(learningMetric(arm, "progress_per_flop")), "higher is better"],
+      ];
+      primary.forEach(([term, value, note]) => {
+        const metric = element("div", "learning-primary-metric");
+        metric.append(element("dt", "", term), element("dd", "", value), element("small", "", note));
+        triad.append(metric);
+      });
+      const supporting = element("dl", "learning-supporting-metrics");
+      [
+        ["Energy", formatLearningEnergy(learningMetric(arm, "energy_j"))],
+        ["Active time", formatLearningSeconds(learningMetric(arm, "active_seconds"))],
+        ["Target tick", finiteNumber(learningMetric(arm, "ticks_to_target")) ? String(learningMetric(arm, "ticks_to_target")) : "not reached"],
+      ].forEach(([term, value]) => supporting.append(element("dt", "", term), element("dd", "", value)));
+      card.append(heading, triad, supporting);
+      dom.learningpolicygrid.append(card);
+    });
+  }
+
+  function renderLearningCurves() {
+    const svg = dom.learningcurvessvg;
+    svg.replaceChildren();
+    dom.learningcurvevalues.replaceChildren();
+    const title = svgElement("title", { id: "learning-curves-svg-title" });
+    title.textContent = "Median held-out negative log likelihood by wall tick";
+    const description = svgElement("desc", { id: "learning-curves-svg-desc" });
+    svg.append(title, description);
+    const curves = learningArtifact.learning_curves.map((curve) => ({
+      ...curve,
+      arm_id: canonicalLearningArmId(curve.arm_id),
+      points: Array.isArray(curve.points) ? curve.points.filter((point) => point && finiteNumber(point.wall_tick) && finiteNumber(point.median_nll)) : [],
+    })).filter((curve) => curve.points.length && !String(curve.label || "").toLowerCase().includes("no failure"));
+    if (!curves.length) {
+      svg.setAttribute("viewBox", "0 0 1000 180");
+      description.textContent = "No finite median learning-curve points were reported.";
+      const empty = svgElement("text", { x: 500, y: 92, "text-anchor": "middle", class: "learning-chart-empty" });
+      empty.textContent = "LEARNING CURVES UNAVAILABLE";
+      svg.append(empty);
+      return;
+    }
+    const target = learningTargetNll();
+    const allPoints = curves.flatMap((curve) => curve.points);
+    const maxTick = Math.max(...allPoints.map((point) => point.wall_tick), 1);
+    const nllValues = allPoints.map((point) => point.median_nll);
+    if (finiteNumber(target)) nllValues.push(target);
+    let minNll = Math.min(...nllValues);
+    let maxNll = Math.max(...nllValues);
+    const nllSpan = Math.max(maxNll - minNll, Math.abs(maxNll || 1) * 0.04, 0.05);
+    minNll -= nllSpan * 0.12;
+    maxNll += nllSpan * 0.12;
+    const left = 72;
+    const right = 760;
+    const top = 28;
+    const bottom = 282;
+    const x = (tick) => left + tick / maxTick * (right - left);
+    const y = (nll) => top + (maxNll - nll) / (maxNll - minNll) * (bottom - top);
+    svg.setAttribute("viewBox", "0 0 1000 330");
+    description.textContent = `Three directly labeled median learning curves share a wall-tick axis. The held-out NLL target is ${formatLearningNll(target)}; lower values are better.`;
+    for (let tickIndex = 0; tickIndex <= 4; tickIndex += 1) {
+      const fraction = tickIndex / 4;
+      const yValue = maxNll - fraction * (maxNll - minNll);
+      const yPosition = top + fraction * (bottom - top);
+      svg.append(svgElement("line", { x1: left, x2: right, y1: yPosition, y2: yPosition, class: "learning-gridline" }));
+      const label = svgElement("text", { x: left - 10, y: yPosition + 4, "text-anchor": "end", class: "learning-axis-label" });
+      label.textContent = yValue.toFixed(2);
+      svg.append(label);
+    }
+    for (let tickIndex = 0; tickIndex <= 4; tickIndex += 1) {
+      const fraction = tickIndex / 4;
+      const tick = Math.round(maxTick * fraction);
+      const label = svgElement("text", { x: x(tick), y: bottom + 24, "text-anchor": "middle", class: "learning-axis-label" });
+      label.textContent = tick.toLocaleString("en-US");
+      svg.append(label);
+    }
+    svg.append(
+      svgElement("line", { x1: left, x2: left, y1: top, y2: bottom, class: "learning-axis" }),
+      svgElement("line", { x1: left, x2: right, y1: bottom, y2: bottom, class: "learning-axis" }),
+    );
+    const xTitle = svgElement("text", { x: (left + right) / 2, y: 324, "text-anchor": "middle", class: "learning-axis-title" });
+    xTitle.textContent = "WALL TICK";
+    const yTitle = svgElement("text", { x: 17, y: (top + bottom) / 2, transform: `rotate(-90 17 ${(top + bottom) / 2})`, "text-anchor": "middle", class: "learning-axis-title" });
+    yTitle.textContent = "HELD-OUT NLL ↓";
+    svg.append(xTitle, yTitle);
+    if (finiteNumber(target)) {
+      const targetY = y(target);
+      svg.append(svgElement("line", { x1: left, x2: right, y1: targetY, y2: targetY, class: "learning-target-line" }));
+      const targetLabel = svgElement("text", { x: right - 4, y: targetY - 6, "text-anchor": "end", class: "learning-target-label" });
+      targetLabel.textContent = `TARGET ${formatLearningNll(target)}`;
+      svg.append(targetLabel);
+    }
+    curves.forEach((curve, curveIndex) => {
+      const ordered = [...curve.points].sort((a, b) => a.wall_tick - b.wall_tick);
+      const path = svgElement("path", {
+        d: ordered.map((point, index) => `${index ? "L" : "M"}${x(point.wall_tick).toFixed(2)} ${y(point.median_nll).toFixed(2)}`).join(" "),
+        class: "learning-curve",
+        "data-arm": curve.arm_id,
+      });
+      svg.append(path);
+      ordered.forEach((point) => svg.append(svgElement("circle", { cx: x(point.wall_tick), cy: y(point.median_nll), r: 2.8, class: "learning-curve-point", "data-arm": curve.arm_id })));
+      const finalPoint = ordered[ordered.length - 1];
+      const labelY = bottom - 80 + curveIndex * 36;
+      svg.append(svgElement("line", { x1: x(finalPoint.wall_tick), x2: 780, y1: y(finalPoint.median_nll), y2: labelY - 4, class: "learning-label-leader", "data-arm": curve.arm_id }));
+      const endLabel = svgElement("text", { x: 790, y: labelY, class: "learning-curve-label", "data-arm": curve.arm_id });
+      endLabel.textContent = `${learningArmLabel(curve.arm_id, curve.label)} · ${formatLearningNll(finalPoint.median_nll)}`;
+      svg.append(endLabel);
+      const listItem = element("li");
+      listItem.dataset.arm = curve.arm_id;
+      listItem.append(element("span", "", learningArmLabel(curve.arm_id, curve.label)), element("strong", "", `${formatLearningNll(finalPoint.median_nll)} NLL at tick ${finalPoint.wall_tick.toLocaleString("en-US")}`));
+      dom.learningcurvevalues.append(listItem);
+    });
+  }
+
+  function pairedEffectValue(rawValue) {
+    if (finiteNumber(rawValue)) return rawValue;
+    return firstLearningMetric(rawValue, ["value", "effect", "tau", "direct_interrupted_difference", "adaptive_minus_fixed"]);
+  }
+
+  function renderLearningPairedEffect() {
+    const svg = dom.learningpairedsvg;
+    svg.replaceChildren();
+    const title = svgElement("title", { id: "learning-paired-svg-title" });
+    title.textContent = "Six paired adaptive-minus-fixed learning-efficiency effects";
+    const description = svgElement("desc", { id: "learning-paired-svg-desc" });
+    svg.append(title, description);
+    const effect = learningArtifact.paired_effect;
+    const pairs = Array.isArray(learningArtifact.evaluation_pairs) ? learningArtifact.evaluation_pairs : [];
+    const values = effect.values.map((rawValue, index) => ({
+      label: rawValue && typeof rawValue === "object" && rawValue.stratum_id ? String(rawValue.stratum_id) : pairs[index] && pairs[index].stratum_id ? String(pairs[index].stratum_id) : `E${index + 1}`,
+      value: pairedEffectValue(rawValue),
+    })).filter((entry) => finiteNumber(entry.value));
+    const median = pairedEffectValue(effect.median);
+    const lower = pairedEffectValue(effect.lower_bound);
+    const upper = pairedEffectValue(effect.upper_bound);
+    const domainValues = [0, ...values.map((entry) => entry.value), median, lower, upper].filter(finiteNumber);
+    if (!values.length || !domainValues.length) {
+      svg.setAttribute("viewBox", "0 0 1000 180");
+      description.textContent = "No finite paired effects were reported.";
+      const empty = svgElement("text", { x: 500, y: 92, "text-anchor": "middle", class: "learning-chart-empty" });
+      empty.textContent = "PAIRED EFFECTS UNAVAILABLE";
+      svg.append(empty);
+      dom.learningpairedsummary.textContent = "Paired interval not reported.";
+      return;
+    }
+    let domainMin = Math.min(...domainValues);
+    let domainMax = Math.max(...domainValues);
+    const span = Math.max(domainMax - domainMin, Math.max(Math.abs(domainMin), Math.abs(domainMax), 1e-16) * 0.2);
+    domainMin -= span * 0.12;
+    domainMax += span * 0.12;
+    const left = 155;
+    const right = 750;
+    const firstY = 48;
+    const rowGap = 34;
+    const intervalY = firstY + values.length * rowGap + 16;
+    const height = intervalY + 72;
+    const x = (value) => left + (value - domainMin) / (domainMax - domainMin) * (right - left);
+    svg.setAttribute("viewBox", `0 0 1000 ${height}`);
+    description.textContent = "Each row is one matched stratum. Effects left of zero favor fixed-local recovery; effects right of zero favor adaptive recovery. The final row shows the reported median interval.";
+    const zeroX = x(0);
+    svg.append(svgElement("line", { x1: zeroX, x2: zeroX, y1: 24, y2: intervalY + 16, class: "learning-zero-line" }));
+    values.forEach((entry, index) => {
+      const rowY = firstY + index * rowGap;
+      svg.append(svgElement("line", { x1: left, x2: right, y1: rowY, y2: rowY, class: "learning-effect-track" }));
+      const rowLabel = svgElement("text", { x: left - 12, y: rowY + 4, "text-anchor": "end", class: "learning-effect-label" });
+      rowLabel.textContent = entry.label;
+      const point = svgElement("circle", { cx: x(entry.value), cy: rowY, r: 5, class: "learning-effect-point" });
+      const pointTitle = svgElement("title");
+      pointTitle.textContent = `${entry.label}: adaptive minus fixed is ${formatScientific(entry.value)}`;
+      point.append(pointTitle);
+      const valueLabel = svgElement("text", { x: 780, y: rowY + 4, class: "learning-effect-value" });
+      valueLabel.textContent = formatScientific(entry.value);
+      svg.append(rowLabel, point, valueLabel);
+    });
+    if (finiteNumber(lower) && finiteNumber(upper) && finiteNumber(median)) {
+      svg.append(
+        svgElement("line", { x1: left, x2: right, y1: intervalY, y2: intervalY, class: "learning-effect-track" }),
+        svgElement("line", { x1: x(lower), x2: x(upper), y1: intervalY, y2: intervalY, class: "learning-interval-line" }),
+        svgElement("line", { x1: x(lower), x2: x(lower), y1: intervalY - 7, y2: intervalY + 7, class: "learning-interval-cap" }),
+        svgElement("line", { x1: x(upper), x2: x(upper), y1: intervalY - 7, y2: intervalY + 7, class: "learning-interval-cap" }),
+      );
+      const medianMark = svgElement("rect", { x: x(median) - 5, y: intervalY - 5, width: 10, height: 10, transform: `rotate(45 ${x(median)} ${intervalY})`, class: "learning-interval-median" });
+      const intervalLabel = svgElement("text", { x: left - 12, y: intervalY + 4, "text-anchor": "end", class: "learning-effect-label" });
+      intervalLabel.textContent = "MEDIAN INTERVAL";
+      svg.append(intervalLabel, medianMark);
+    }
+    const fixedLabel = svgElement("text", { x: left, y: height - 18, class: "learning-effect-direction" });
+    fixedLabel.textContent = "← FIXED BETTER";
+    const adaptiveLabel = svgElement("text", { x: right, y: height - 18, "text-anchor": "end", class: "learning-effect-direction" });
+    adaptiveLabel.textContent = "ADAPTIVE BETTER →";
+    svg.append(fixedLabel, adaptiveLabel);
+    const confidence = finiteNumber(effect.confidence_level) ? `${Math.round(effect.confidence_level * 100)}%` : "reported";
+    dom.learningpairedsummary.textContent = finiteNumber(median) && finiteNumber(lower) && finiteNumber(upper)
+      ? `${confidence} paired-median interval: ${formatScientific(lower)} to ${formatScientific(upper)}; median ${formatScientific(median)}. Positive values favor adaptive recovery.`
+      : "The artifact reports stratum effects without a complete interval.";
+  }
+
+  function renderLearningGates() {
+    dom.learninggatestrip.replaceChildren();
+    Object.entries(learningArtifact.falsifier_results).forEach(([gateId, passed]) => {
+      const gate = element("div", "learning-gate");
+      const labels = learningArtifact.falsifier_labels && typeof learningArtifact.falsifier_labels === "object" ? learningArtifact.falsifier_labels : {};
+      const label = typeof labels[gateId] === "string" ? labels[gateId] : gateId.replaceAll("_", " ");
+      gate.dataset.passed = String(passed === true);
+      gate.setAttribute("aria-label", `${label}: ${passed === true ? "pass" : "fail"}`);
+      gate.append(
+        element("span", "learning-gate-state", passed === true ? "PASS" : "FAIL"),
+        element("span", "learning-gate-label", label),
+      );
+      dom.learninggatestrip.append(gate);
+    });
+  }
+
+  function learningBoundaryText(boundary) {
+    if (typeof boundary === "string") return boundary;
+    if (Array.isArray(boundary)) return boundary.map(String).join("; ");
+    if (!boundary || typeof boundary !== "object") return "No evidence boundary was reported.";
+    const clauses = [];
+    if (typeof boundary.summary === "string") clauses.push(boundary.summary);
+    if (Array.isArray(boundary.supported)) clauses.push(`Supports: ${boundary.supported.join("; ")}`);
+    if (Array.isArray(boundary.unsupported)) clauses.push(`Does not support: ${boundary.unsupported.join("; ")}`);
+    if (!clauses.length) clauses.push(Object.entries(boundary).map(([key, value]) => `${key.replaceAll("_", " ")}: ${Array.isArray(value) ? value.join("; ") : String(value)}`).join(". "));
+    return clauses.join(". ");
+  }
+
+  function renderLearningTrace() {
+    dom.learningevaluationpairs.replaceChildren();
+    learningArtifact.evaluation_pairs.forEach((pair, index) => {
+      const row = element("tr");
+      const fixed = firstLearningMetric(pair, ["fixed_interrupted_progress_per_flop", "fixed_progress_per_flop"]);
+      const adaptive = firstLearningMetric(pair, ["adaptive_interrupted_progress_per_flop", "adaptive_progress_per_flop"]);
+      const difference = firstLearningMetric(pair, ["direct_interrupted_difference", "tau", "adaptive_minus_fixed"]);
+      row.append(
+        element("td", "", String(pair.stratum_id || pair.pair_id || `E${index + 1}`)),
+        element("td", "", formatScientific(fixed)),
+        element("td", "", formatScientific(adaptive)),
+        element("td", "", formatScientific(difference)),
+      );
+      dom.learningevaluationpairs.append(row);
+    });
+    if (!learningArtifact.evaluation_pairs.length) {
+      const row = element("tr");
+      const cell = element("td", "", "No paired evaluation rows reported.");
+      cell.colSpan = 4;
+      row.append(cell);
+      dom.learningevaluationpairs.append(row);
+    }
+    dom.learningrundetails.replaceChildren();
+    learningArtifact.run_details.forEach((run, index) => {
+      const energy = firstLearningMetric(run, ["energy_j", "idle_subtracted_energy_j", "raw_energy_j"])
+        ?? (run.energy && firstLearningMetric(run.energy, ["idle_subtracted_energy_j", "raw_energy_j"]));
+      const row = element("tr");
+      row.append(
+        element("td", "", String(run.run_id || run.arm_id || run.label || `run ${index + 1}`)),
+        element("td", "", String(run.stratum_id || "not reported")),
+        element("td", "", formatLearningNll(firstLearningMetric(run, ["final_held_out_nll", "median_final_held_out_nll"]))),
+        element("td", "", formatLearningTokens(firstLearningMetric(run, ["attempted_tokens"]))),
+        element("td", "", formatLearningEnergy(energy)),
+        element("td", "", formatLearningSeconds(firstLearningMetric(run, ["active_seconds", "local_wall_clock_seconds", "physical_wall_clock_seconds"]))),
+      );
+      dom.learningrundetails.append(row);
+    });
+    if (!learningArtifact.run_details.length) {
+      const row = element("tr");
+      const cell = element("td", "", "No run-level rows reported.");
+      cell.colSpan = 6;
+      row.append(cell);
+      dom.learningrundetails.append(row);
+    }
+    const provenance = {
+      schema: learningArtifact.schema,
+      artifact_sha256: learningArtifact.artifact_sha256,
+      source_learning_result: learningArtifact.source_learning_result,
+      target: learningArtifact.target,
+      dataset: learningArtifact.dataset,
+      runtime: learningArtifact.runtime,
+    };
+    dom.learningprovenancejson.textContent = JSON.stringify(provenance, null, 2);
+    const sourceHash = learningArtifact.source_learning_result && (learningArtifact.source_learning_result.artifact_sha256 || learningArtifact.source_learning_result.sha256);
+    dom.learningdepthtrace.textContent = `${learningArtifact.evaluation_pairs.length} paired strata · ${learningArtifact.run_details.length} run records · source ${String(sourceHash || "hash not reported")}.`;
+  }
+
+  function renderLearningV1() {
+    if (!dom.learningv1) return;
+    if (!learningArtifact) {
+      dom.learningv1.hidden = true;
+      return;
+    }
+    dom.learningv1.hidden = false;
+    const conclusion = learningArtifact.conclusion;
+    const hash = String(learningArtifact.artifact_sha256).replace(/^sha256:/, "").slice(0, 12);
+    dom.learningv1state.textContent = `${String(conclusion.status).replaceAll("_", " ")} · OBSERVED learning · artifact ${hash}`;
+    dom.learninginsighttitle.textContent = learningInsightTitle(conclusion.status);
+    dom.learningplainanswer.textContent = conclusion.plain_answer;
+    dom.learningevidenceboundary.textContent = learningBoundaryText(learningArtifact.evidence_boundary);
+    renderLearningPolicyCards();
+    renderLearningCurves();
+    renderLearningPairedEffect();
+    renderLearningGates();
+    renderLearningTrace();
   }
 
   function renderStatus() {

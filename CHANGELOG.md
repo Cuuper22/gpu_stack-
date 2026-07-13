@@ -8,10 +8,26 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
 
 ## Current physical deepening notes
 
-* Executed the first recovery-backed E001 research loop. A transition-driven
-  runner now compares synchronous wait/restore, fixed-local checkpoint restart,
-  adaptive recovery, and a future-trace oracle on one matched two-failure
-  scenario. All policies reach durable frontier 8 with exact work conservation.
+* Completed E001-LC1 with 40 real RTX 3060 Laptop GPU runs: 10 calibration and
+  30 held-out evaluation observations. The frozen conclusion is
+  `candidate_falsified_small_model_calibration` with
+  `candidate_survives_lc1=False`. Adaptive interrupted reached better median
+  final held-out NLL, 2.31465 versus fixed restart's 2.34115, but fixed did
+  exactly 12.5 percent less attempted work. The finite-horizon progress-per-
+  FLOP objective therefore favored fixed at worse quality, and every policy
+  crossed the calibration target at the first 32-tick observation. The result,
+  compact learning sidecar, and observatory preserve the hard split, paired
+  interval, falsifier outcomes, measured device boundary, and provenance.
+  Package version is now 0.26.0. Next is late-stage fixed-target E001-LC2,
+  followed by an explicit bridge from observed learning curves to modeled
+  datacenter mechanics; broader survivor continuation scales only if LC2
+  survives.
+
+* Prior wave: executed the first recovery-backed E001 research loop. A
+  transition-driven runner now compares synchronous wait/restore, fixed-local
+  checkpoint restart, adaptive recovery, and a future-trace oracle on one
+  matched two-failure scenario. All policies reach durable frontier 8 with
+  exact work conservation.
   Adaptive beats synchronous on completion time and modeled inter-site bytes,
   while fixed-local beats adaptive on time and bytes and adaptive beats
   fixed-local on lost work and modeled energy. The content-addressed result and
@@ -19,8 +35,6 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   because learning remains a shared declared prior. The observatory renders the
   four-policy failure clock, recovery episodes, work accounting, byte classes,
   and missing learning evidence at Freshman, Researcher, and Full trace depth.
-  Package version is now 0.25.0. The next research build is the measured
-  fixed-local versus adaptive learning comparison under matched interruption.
   End-of-feature read-only verification passed all five pytest, syntax, audit,
   demo, and docs-stats gates in `290.16s`.
 

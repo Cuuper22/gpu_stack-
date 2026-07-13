@@ -8,9 +8,9 @@ The project now optimizes one closed loop:
 
 `world model -> prediction -> visual explanation -> hypothesis -> experiment -> observation -> improved world model`
 
-The June engine is a strong symbolic foundation, but its live `next-work`
-ranking still rewards root-debt closure and graph completeness. That ranking is
-diagnostic evidence, not the research roadmap. Recent work such as Charon
+The June engine is a strong symbolic foundation. Its live `next-work` ranking
+now follows the measured E001 sequence; root-debt closure and graph
+completeness remain diagnostic evidence, not the research roadmap. Recent work such as Charon
 already reports operator-level training and inference simulation below 5.35%
 overall timing error. `gpu_stack` will not compete by becoming another static
 performance simulator with more equations.
@@ -44,8 +44,9 @@ The first research substrate is no longer roadmap prose:
   implemented;
 - E001 persists full-trace and observatory artifacts and is visually inspectable
   at three semantic depths;
-- the current adaptive-cadence mechanics screen is `inconclusive`, because
-  learning transfer and the full joint mechanism are not measured.
+- the recovery mechanics screen remains a prior Pareto result, while E001-LC1
+  now adds 40 measured small-model GPU runs and a held-out falsification of the
+  survivor-continuation candidate under its frozen finite-horizon objective.
 
 Merge verification: focused research/docs pack `28 passed in 11.83s` and
 read-only full verifier `5/5` in `320.32s` with a 600-second gate ceiling.
@@ -69,19 +70,32 @@ depth, including the shared failure clock, restore/replay intervals, exact work
 accounting, disjoint byte classes, recovery debt, assumptions, uncertainty, and
 missing evidence. Browser inspection of all three depths is complete.
 
-## Next Research Milestone: Measure The Learning Tradeoff
+## E001-LC1 Measured Learning Calibration: Completed
 
-E001 now asks a sharper question: under the same interruption trace, does
-adaptive recovery's lower lost-work and energy profile produce more held-out
-learning progress per FLOP, joule, or wall-clock second than fixed-local
-restart? The next build is a real small-model calibration/evaluation run for
-those two policies, bound to the existing artifact and observatory.
+E001-LC1 executed 40 real RTX 3060 Laptop GPU runs: 10 calibration
+observations and 30 untouched held-out evaluation observations across six
+strata. The frozen decision is
+`candidate_falsified_small_model_calibration`; `candidate_survives_lc1=False`.
 
-That result chooses the branch after it. If fixed-local wins after learning is
-measured, publish the failure and redirect. If staleness or rollback harm makes
-adaptive win, deepen optimizer correction and failure-aware control. If WAN
-dominates, deepen topology. Start E002 only when facility power is the binding
-constraint. Do not generalize the recovery engine before this loop closes.
+Adaptive survivor continuation ended at better held-out loss: median final NLL
+2.31465 versus fixed-local restart's 2.34115. The frozen finite-horizon
+progress-per-FLOP objective nevertheless favored fixed restart because it
+stopped with 458,752 attempted tokens rather than 524,288, exactly 12.5 percent
+less work, while every policy crossed the 3.13759 target at the first 32-tick
+observation. LC1 therefore published the candidate failure instead of
+retuning the target or the six held-out schedules. The result artifact,
+learning sidecar, and observatory projection preserve the measured curves,
+paired interval, falsifier outcomes, device-energy boundary, and provenance.
+
+## Next Research Milestone: Late-Stage Fixed-Target E001-LC2
+
+E001-LC2 must warm-start near a frozen late-training quality target so stopping
+quality is held constant. Compare quality-constrained time to target, measured
+device energy, and attempted work for fixed-local restart and survivor
+continuation. Then bridge the observed learning curves to recovery-v2 modeled
+time, WAN traffic, and facility-energy mechanics without relabeling modeled
+quantities as measurements. Scale model, optimizer, data, outage, and
+accelerator panels only if the candidate survives LC2.
 
 ## Latest Verified Wave
 
@@ -218,10 +232,10 @@ and preset export/discovery tests.
 
 | Priority | Work | Done when |
 |---|---|---|
-| P0 | Measure fixed-local versus adaptive learning under interruption. | Disjoint calibration and evaluation runs report loss progress per FLOP, joule, and wall-clock second to a held-out target on the same failure trace. |
-| P0 | Close the engine-artifact-observatory loop. | The measured learning observation, residual, interval, and provenance appear in the same recovery artifact and at all three semantic depths. |
-| P0 | Choose the next E001 mechanism from the result. | A measured reversal condition selects optimizer correction, topology, deeper failure-aware control, or a documented null result. |
-| P1 | Complete broader E001 baselines and panels. | Expansion follows a working observed-learning comparison instead of preceding it. |
+| P0 | Run late-stage fixed-target E001-LC2. | A warm-started held-out experiment compares quality-constrained time, measured device energy, and attempted work at one frozen late-training loss target. |
+| P0 | Bridge observed learning curves to datacenter mechanics. | Target-conditioned observations connect explicitly to recovery-v2 modeled time, WAN, facility energy, and work without crossing the measured/modeled evidence boundary. |
+| P0 | Preserve the LC1 falsification. | LC1 remains `candidate_falsified_small_model_calibration`; LC2 is a new frozen question, not a retune of LC1's target or six evaluation strata. |
+| P1 | Scale survivor continuation only after LC2 survives. | Model-family, optimizer, non-IID data, outage-duration, and accelerator panels follow only a positive held-out LC2 result. |
 | P1 | Build E002 only if power binds. | Rack/facility telemetry work starts when E001 evidence shows facility power, not communication or learning staleness, is the dominant constraint. |
 | P1 | Keep the continuation compass scientific. | `next-work` ranks missing evidence, mechanism leverage, residuals, and uncertainty contribution; root debt remains a secondary diagnostic. |
 | P2 | Deepen physical ancestry selectively. | New lower-level physics closes a measured residual, reduces uncertainty, or enables an experiment. |

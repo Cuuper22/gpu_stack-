@@ -92,6 +92,30 @@ def cmd_experiment_protocol(args) -> int:
 
 
 def cmd_experiment_run(args) -> int:
+    if args.experiment == "E001-LC1":
+        if not args.dataset:
+            raise ValueError("E001-LC1 requires --dataset")
+        from .research.e001_learning_calibration import (
+            run_e001_learning_calibration,
+        )
+        from .research.observatory_learning import (
+            build_e001_learning_observatory_artifact,
+        )
+
+        result_payload = run_e001_learning_calibration(args.scenario, args.dataset)
+        _write_json_artifact(
+            result_payload,
+            args.output,
+        )
+        if args.observatory_output:
+            _write_json_artifact(
+                build_e001_learning_observatory_artifact(
+                    result_payload,
+                    source_uri=None if args.output == "-" else args.output,
+                ),
+                args.observatory_output,
+            )
+        return 0
     if args.experiment == "E001-RECOVERY-V2":
         path = Path(args.scenario)
         scenario = E001RecoveryScenario.from_json_path(path)

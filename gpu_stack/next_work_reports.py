@@ -63,6 +63,52 @@ def _highest_impact(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
             )
             if name in evidence.production_symbol_names
         )
+        if evidence.e001_learning_result_present:
+            return (
+                NextWorkItem(
+                    title="Run late-stage fixed-target E001-LC2",
+                    evidence=(
+                        "live LC1 result scan: conclusion="
+                        f"{evidence.e001_learning_conclusion}, candidate_survives="
+                        f"{evidence.e001_learning_candidate_survives}, held-out "
+                        "evaluation observations="
+                        f"{evidence.e001_learning_evaluation_observation_count}; "
+                        "adaptive ended at better held-out loss, but the finite-horizon "
+                        "progress/FLOP rule rewarded fixed restart for doing less work "
+                        "and every policy crossed the target at the first observation. "
+                        "LC2 must warm-start near a frozen late-training target and "
+                        "compare quality-constrained time, device energy, and work"
+                    ),
+                    path=(
+                        "experiments/e001-beyond-one-datacenter/"
+                        "learning-calibration-v1.md"
+                    ),
+                ),
+                NextWorkItem(
+                    title="Bridge observed learning curves to datacenter mechanics",
+                    evidence=(
+                        "live artifact scan: LC1 sidecar present=True, learning "
+                        "observatory present="
+                        f"{evidence.e001_learning_observatory_present}; observed loss "
+                        "and local GPU energy remain separate from the recovery-v2 "
+                        "modeled time, WAN, and facility-energy boundary. LC2 needs one "
+                        "explicit target-conditioned bridge without relabeling modeled "
+                        "datacenter quantities as measurements"
+                    ),
+                    path="gpu_stack/research/e001_learning_calibration.py",
+                ),
+                NextWorkItem(
+                    title="Scale survivor continuation only after LC2 survives",
+                    evidence=(
+                        "live LC1 result is a published small-model falsification, not "
+                        "frontier validation. If the late-stage candidate survives, the "
+                        "next held-out panels are model family, optimizer, non-IID site "
+                        "data, outage duration, and accelerator family; if it fails, "
+                        "redirect E001 rather than retuning the six frozen LC1 strata"
+                    ),
+                    path="experiments/e001-beyond-one-datacenter/experiment.md",
+                ),
+            )
         if "run_e001_recovery_v2" in e001_recovery_integration_symbols:
             return (
                 NextWorkItem(

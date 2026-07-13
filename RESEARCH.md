@@ -190,21 +190,34 @@ The preregistered design is in
 The repository now contains the observation and split contracts, held-out
 evaluation and replicated-panel aggregation, deterministic temporal and
 multi-site mechanics, observable-only interventions, six scalar-plus-structured
-protocols, an E001 mechanics runner, and the artifact-driven causal observatory.
-That is infrastructure for research, not an E001 result.
+protocols, E001 recovery mechanics, the artifact-driven causal observatory, and
+one completed measured learning calibration.
+
+E001-LC1 ran 40 local GPU runs: 10 calibration observations and 30 held-out
+evaluation observations. The small-model candidate was falsified. Adaptive
+ended with better interrupted held-out NLL, but fixed performed 12.5% less work
+and the finite-horizon from-scratch progress-per-FLOP denominator made fixed
+look 12.7% better. Every policy crossed the loose calibration target at tick
+32. This is measured small-model learning and device-only energy; datacenter
+mechanics remain modeled.
 
 The next order is determined by what can change the conclusion:
 
-1. Measure multi-step learning-delay transfer across held-out optimizer, model,
-   and topology panels, then run controlled 7B to 30B E001 calibration.
-2. Add resumable mid-operation decisions, preemption, lost work, checkpoint
-   recovery, complete collective accounting, and the rest of E001's joint
-   controller and baseline vector.
-3. Shadow E001 mechanics and learning predictions against three real clusters
-   before attempting the 30B to 100B-plus confirmatory run.
-4. Build E002's calibrated operation-to-facility power waveform engine and
+1. Run LC2 from a shared late-training checkpoint with a frozen quality target;
+   compare fixed restart and adaptive continuation by time, device energy, and
+   attempted and canonical work to target.
+2. Bridge the observed LC1 and LC2 learning curves to the modeled E001
+   datacenter timeline with an explicit observation-to-model boundary. Do not
+   relabel modeled concurrency, WAN, storage, cooling, or facility energy as
+   measured.
+3. Expand held-out optimizer, model, and topology transfer panels, then run
+   controlled 7B to 30B E001 calibration and shadow predictions against three
+   real clusters before a 30B to 100B-plus confirmatory run.
+4. Complete the rest of E001's joint controller and baseline vector only where
+   LC2 or shadow residuals identify a decision-relevant mechanism.
+5. Build E002's calibrated operation-to-facility power waveform engine and
    test phase shaping under frozen grid-mode uncertainty.
-5. Admit E003 through E006 only when their required observations, vector
+6. Admit E003 through E006 only when their required observations, vector
    metrics, baselines, and transfer panels are executable.
 
 No controller is trusted with live actions before shadow comparison and a

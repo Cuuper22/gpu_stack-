@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/90-observatory.css?v=20260712.8">
-  <script src="observatory.js?v=20260712.4" defer></script>
+  <link rel="stylesheet" href="styles/90-observatory.css?v=20260712.9">
+  <script src="observatory.js?v=20260712.5" defer></script>
 </head>
 <body data-depth="freshman" data-data-state="loading">
   <a class="skip-link" href="#observatory-main">Skip to experiment</a>
@@ -239,19 +239,119 @@
         <aside class="recovery-learning-boundary" id="recovery-learning-boundary" aria-labelledby="recovery-learning-title">
           <span class="evidence-glyph evidence-glyph--unmeasured" aria-hidden="true"></span>
           <div>
-            <h3 id="recovery-learning-title">Learning remains unresolved</h3>
-            <p>No held-out multi-site learning observation.</p>
-            <p class="depth-researcher">Mechanical recovery was modeled; learning recovery is unmeasured. No residual can be computed.</p>
-            <p class="depth-full_trace" id="recovery-learning-trace">No recovery-quality observation IDs are attached.</p>
+            <h3 id="recovery-learning-title">Recovery-v2 learning was unresolved</h3>
+            <p>This mechanics artifact contains no held-out learning observation.</p>
+            <p class="depth-researcher">LC1 below adds measured local small-model learning. It does not turn the recovery-v2 mechanics run into real multi-site learning evidence.</p>
+            <p class="depth-full_trace" id="recovery-learning-trace">Recovery-v2 has no recovery-quality observation IDs; LC1 is a separate attached calibration artifact.</p>
           </div>
         </aside>
+      </div>
+    </section>
+
+    <section class="learning-v1-band" id="learning-v1" aria-labelledby="learning-v1-title" hidden>
+      <header class="band-header learning-v1-header">
+        <div>
+          <p class="control-label">Measured small-model learning</p>
+          <h2 id="learning-v1-title">Did adaptive recovery preserve learning efficiency?</h2>
+        </div>
+        <output id="learning-v1-state" role="status" aria-live="polite">Reading learning artifact…</output>
+      </header>
+
+      <article class="learning-insight" aria-labelledby="learning-insight-title">
+        <div>
+          <p class="learning-eyebrow">LC1 · paired interrupted calibration</p>
+          <h3 id="learning-insight-title">The learning result is loading</h3>
+        </div>
+        <p id="learning-plain-answer">The observatory will state the measured answer once the persisted artifact is available.</p>
+      </article>
+
+      <div class="learning-depth-copy" id="learning-depth-copy">
+        <p class="depth-freshman">Lower held-out loss means the model predicts better. The cards show how much training each policy attempted to get there, and the lines show what it learned over the same failure clock.</p>
+        <p class="depth-researcher">Policy medians summarize matched strata. The paired effect subtracts fixed-local progress per FLOP from adaptive progress per FLOP within each stratum, so zero means no retained-efficiency difference.</p>
+        <p class="depth-full_trace" id="learning-depth-trace">Artifact, dataset, runtime, paired evaluation, and per-run records remain attached below.</p>
+      </div>
+
+      <div class="learning-policy-grid" id="learning-policy-grid" aria-label="Learning policy metric comparison"></div>
+
+      <div class="learning-visual-grid">
+        <section class="learning-figure learning-curves-figure" aria-labelledby="learning-curves-title">
+          <header>
+            <div>
+              <p class="control-label">Median trajectory</p>
+              <h3 id="learning-curves-title">Held-out NLL over wall ticks</h3>
+            </div>
+            <span>lower is better</span>
+          </header>
+          <div class="learning-svg-scroll">
+            <svg id="learning-curves-svg" class="learning-curves-svg" role="img" aria-labelledby="learning-curves-svg-title learning-curves-svg-desc"></svg>
+          </div>
+          <ul id="learning-curve-values" class="learning-direct-values" aria-label="Final curve values"></ul>
+        </section>
+
+        <section class="learning-figure learning-paired-figure" aria-labelledby="learning-paired-title">
+          <header>
+            <div>
+              <p class="control-label">Paired causal contrast</p>
+              <h3 id="learning-paired-title">Adaptive minus fixed progress per FLOP</h3>
+            </div>
+            <span>six matched strata</span>
+          </header>
+          <div class="learning-svg-scroll">
+            <svg id="learning-paired-svg" class="learning-paired-svg" role="img" aria-labelledby="learning-paired-svg-title learning-paired-svg-desc"></svg>
+          </div>
+          <p id="learning-paired-summary" class="learning-paired-summary">Paired interval not loaded.</p>
+        </section>
+      </div>
+
+      <section class="learning-gates" aria-labelledby="learning-gates-title">
+        <header>
+          <div>
+            <p class="control-label">Preregistered decision</p>
+            <h3 id="learning-gates-title">Falsifier gate strip</h3>
+          </div>
+          <span>every gate remains individually visible</span>
+        </header>
+        <div id="learning-gate-strip" class="learning-gate-strip"></div>
+      </section>
+
+      <aside class="learning-boundary" aria-labelledby="learning-boundary-title">
+        <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
+        <div>
+          <h3 id="learning-boundary-title">What this evidence can carry</h3>
+          <p id="learning-evidence-boundary">Learning evidence boundary not loaded.</p>
+        </div>
+      </aside>
+
+      <div class="learning-trace depth-full_trace">
+        <details open>
+          <summary>Exact paired evaluations</summary>
+          <div class="learning-table-scroll">
+            <table class="learning-trace-table">
+              <thead><tr><th scope="col">Stratum</th><th scope="col">Fixed progress/FLOP</th><th scope="col">Adaptive progress/FLOP</th><th scope="col">Adaptive − fixed</th></tr></thead>
+              <tbody id="learning-evaluation-pairs"></tbody>
+            </table>
+          </div>
+        </details>
+        <details>
+          <summary>Run-level measurements</summary>
+          <div class="learning-table-scroll">
+            <table class="learning-trace-table">
+              <thead><tr><th scope="col">Run</th><th scope="col">Stratum</th><th scope="col">Final NLL</th><th scope="col">Attempted tokens</th><th scope="col">Energy</th><th scope="col">Active time</th></tr></thead>
+              <tbody id="learning-run-details"></tbody>
+            </table>
+          </div>
+        </details>
+        <details>
+          <summary>Dataset, runtime, and source identity</summary>
+          <pre id="learning-provenance-json" tabindex="0">not loaded</pre>
+        </details>
       </div>
     </section>
 
     <section class="comparison-band" id="comparison" aria-labelledby="comparison-title">
       <header class="band-header">
         <div>
-          <p class="control-label">Artifact-derived comparison</p>
+          <p class="control-label">E001 v1 screening artifact</p>
           <h2 id="comparison-title">Three-policy comparison</h2>
         </div>
         <label class="uncertainty-control" for="uncertainty-select">
@@ -286,8 +386,8 @@
     <section class="evidence-lab" id="evidence" aria-labelledby="evidence-title">
       <header class="band-header">
         <div>
-          <p class="control-label">Learning evidence chain</p>
-          <h2 id="evidence-title">What the learning prior does and does not know</h2>
+          <p class="control-label">E001 v1 screening evidence chain</p>
+          <h2 id="evidence-title">What the v1 learning prior did and did not know</h2>
         </div>
         <span class="evidence-lock"><svg aria-hidden="true" viewBox="0 0 18 18"><rect x="3" y="8" width="12" height="8" rx="1"/><path d="M6 8V5a3 3 0 0 1 6 0v3"/></svg> Evidence is immutable</span>
       </header>

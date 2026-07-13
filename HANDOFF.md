@@ -15,40 +15,40 @@ training span heterogeneous, intermittently powered datacenters without losing
 centralized learning efficiency. Its preregistered virtual design is in
 `experiments/e001-beyond-one-datacenter/experiment.md`.
 
-`next-work` now promotes the measured fixed-local versus adaptive interrupted
-learning comparison, held-out evaluation of that response, and projection of
-the observed residual into the observatory. Physical root debt and Pythia
-closure remain legacy diagnostics, not the scientific priority function.
+`next-work` now promotes `Run late-stage fixed-target E001-LC2`, `Bridge
+observed learning curves to datacenter mechanics`, and `Scale survivor
+continuation only after LC2 survives`. Physical root debt and Pythia closure
+remain legacy diagnostics, not the scientific priority function.
 
-## Active Wave: First Recovery-Backed E001 Research Loop
+## Active Wave: E001-LC1 Measured Learning Result
 
-Status: the vertical slice has executed on `feature/e001-resumable-failures`.
-The result and observatory artifacts are persisted and browser-inspected. The
-read-only full verifier passed `5/5` gates in `290.16s`; merge, push, and the
-local/GitHub equality check remain.
+Status: completed on `research/e001-learning-calibration`. E001-LC1 persisted
+40 real RTX 3060 Laptop GPU runs: 10 calibration observations and 30 held-out
+evaluation observations across six frozen evaluation strata.
 
-- `python -B -m gpu_stack.cli experiment-run E001-RECOVERY-V2` executes four
-  matched policies through explicit failure, preemption, checkpoint restore,
-  replay, membership rejoin, and durable-progress recovery.
-- All policies reach durable frontier 8 and conserve work exactly.
-- Synchronous: 1.584 s, 15.2 GB, 114.64 PFLOP lost, 0.274 MJ.
-- Fixed-local: 1.516 s, 10.4 GB, 144.50 PFLOP lost, 0.283 MJ.
-- Adaptive: 1.536 s, 13.6 GB, 48.43 PFLOP lost, 0.255 MJ.
-- Oracle: 1.536 s, 13.6 GB, 57.00 PFLOP lost, 0.257 MJ.
-- The adaptive-vs-synchronous mechanics gate passes on this trace: equal
-  frontier, 48 ms faster, and 1.6 GB fewer modeled inter-site link bytes.
-  Fixed-local still beats adaptive on time and bytes; adaptive beats it on
-  lost work and modeled energy. This is a Pareto split, not validation.
-- Learning remains unmeasured: every policy carries the same declared `0.1`
-  prior. The next experiment must measure fixed-local versus adaptive learning
-  progress under matched interruption before topology expansion or E002.
-- The observatory now renders the four-policy timeline, work conservation,
-  six disjoint byte classes, completion/recovery debt, evidence boundaries,
-  and missing learning evidence at Freshman, Researcher, and Full trace depth.
-- Result hash:
-  `b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57`.
-  Observatory hash:
-  `2b3c33bac5a0e9e9009b758be54078ac8b4aa9ae4baf343145a81d7e0a6afb05`.
+- The frozen conclusion is `candidate_falsified_small_model_calibration`;
+  `candidate_survives_lc1=False`.
+- Adaptive interrupted ended at better median held-out NLL, 2.31465 versus
+  fixed restart's 2.34115. Fixed attempted 458,752 tokens versus adaptive's
+  524,288, exactly 12.5 percent less work. LC1's frozen finite-horizon
+  progress-per-FLOP objective therefore favored fixed despite its worse loss.
+- Every policy crossed the 3.13759 target at the first 32-tick observation, so
+  the target could not distinguish stopping quality. The paired-positive-effect
+  and faster-target gates failed; four other frozen gates passed.
+- The full result, compact sidecar, and observatory projection are present.
+  Their evidence boundary treats loss, local wall time, NVML device energy, and
+  attempted work as observed, while recovery-v2 time, WAN, and facility energy
+  remain modeled datacenter mechanics.
+
+## Prior Completed Wave: Recovery-Backed E001 Mechanics
+
+The recovery-v2 vertical slice remains the prior result. Four matched policies
+reached durable frontier 8 with exact work conservation. Synchronous recorded
+1.584 s, 15.2 GB, 114.64 PFLOP lost, and 0.274 MJ; fixed-local 1.516 s,
+10.4 GB, 144.50 PFLOP, and 0.283 MJ; adaptive 1.536 s, 13.6 GB, 48.43 PFLOP,
+and 0.255 MJ; oracle 1.536 s, 13.6 GB, 57.00 PFLOP, and 0.257 MJ. Fixed-local
+won time and bytes while adaptive won lost work and modeled energy. This stays
+a mechanical Pareto split, not a learning or frontier-validation claim.
 
 ## Latest Verified Wave
 
@@ -114,12 +114,11 @@ Implemented facts:
 
 ## Resume Instructions
 
-Resume from measured learning, not recovery infrastructure. Do not begin
-another generic root-closure, metadata, recovery-contract, or schema-audit
-wave. Read the persisted recovery-v2 result and compare fixed-local restart
-against adaptive recovery with observed learning progress under the same
-interruptions. Project that observation into the existing artifact and
-observatory. Generalize only after this complete research loop closes.
+Resume from the LC1 falsification, not recovery infrastructure. Run LC2 from a
+late-training warm start near one frozen quality target and compare
+quality-constrained time, measured device energy, and attempted work. Then
+bridge the learning curves to modeled recovery mechanics. Generalize only if
+LC2 survives; otherwise redirect E001 without retuning LC1.
 
 ## Current State
 
@@ -206,14 +205,13 @@ and preset export/discovery tests.
 
 ## Next Real Work
 
-1. Run fixed-local restart and adaptive recovery on the same small-model
-   training workload and interruption trace.
-2. Hold out evaluation runs and compare loss progress per FLOP, joule, and
-   wall-clock second to target. Do not fit and score on the same observations.
-3. Put the observed residual, uncertainty, and provenance into the existing
-   recovery artifact and three-depth observatory.
-4. Let that result select optimizer correction, topology, deeper failure-aware
-   control, E002, or a published null result.
+1. Run late-stage fixed-target E001-LC2 with a warm start and disjoint held-out
+   schedules.
+2. Compare quality-constrained time to target, measured device energy, and
+   attempted work rather than rewarding early stopping at worse quality.
+3. Bridge observed learning curves to recovery-v2 modeled time, WAN, facility
+   energy, and work without crossing the measured/modeled evidence boundary.
+4. Scale survivor continuation only if LC2 survives; otherwise redirect E001.
 
 ## Verification Policy
 

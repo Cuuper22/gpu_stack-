@@ -1,0 +1,2069 @@
+{
+  "artifact_sha256": "ff6b5a56dab3314f9ad0b1def40fda9ce9df540bda411284bb9766d9a3ee3c12",
+  "conclusion": {
+    "candidate_survives_lc1": false,
+    "next_question": "In late-stage training near a fixed loss target, does survivor continuation reduce time and device energy to target without sacrificing learning progress per FLOP?",
+    "plain_answer": "Adaptive survivor continuation ended with better held-out loss, but the frozen LC1 rule rejected it: fixed restart performed less work and therefore looked better per attempted FLOP, while every policy crossed the calibration target at the first observation.",
+    "status": "candidate_falsified_small_model_calibration"
+  },
+  "dataset": {
+    "config": "default",
+    "dataset_id": "roneneldan/TinyStories",
+    "encoding": "utf-8 bytes",
+    "loaded_train_bytes": 44669127,
+    "loaded_train_rows": 50000,
+    "loaded_validation_bytes": 1645617,
+    "loaded_validation_rows": 2000,
+    "local_path_not_persisted": true,
+    "separator_byte": 0,
+    "sha256": "77cf780cebe52b6e83e3a2ac84bc56d8059363113e41d17a023f1d8b2ed0fc0b",
+    "shard": "0000.parquet",
+    "split": "train",
+    "train_rows": 50000,
+    "uri": "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet",
+    "validation_rows": 2000,
+    "validation_start_row": 50000
+  },
+  "direct_interrupted_contrast": {
+    "confidence_level": 0.9,
+    "draws": 10000,
+    "lower_bound": -7.274232815979927e-14,
+    "median": -7.19835770326443e-14,
+    "method": "paired percentile bootstrap of the median",
+    "upper_bound": -5.4820406374203204e-14,
+    "values": [
+      -5.4820406374203204e-14,
+      -5.1668537823135587e-14,
+      -7.227688480733979e-14,
+      -7.248763981771148e-14,
+      -7.320777151225876e-14,
+      -7.16902692579488e-14
+    ]
+  },
+  "evaluation_pairs": [
+    {
+      "adaptive_interrupted_progress_per_flop": 5.567307919723311e-13,
+      "adaptive_no_failure_progress_per_flop": 5.55094754038134e-13,
+      "adaptive_retained_ratio": 1.002947312908824,
+      "adaptive_ticks_to_target": 32,
+      "adaptive_vs_synchronous_ratio": 1.0037978831724348,
+      "direct_interrupted_difference": -5.4820406374203204e-14,
+      "fixed_interrupted_progress_per_flop": 6.115511983465343e-13,
+      "fixed_no_failure_progress_per_flop": 5.55094754038134e-13,
+      "fixed_ticks_to_target": 32,
+      "stratum_id": "E1",
+      "synchronous_progress_per_flop": 5.546243933219119e-13,
+      "tau": -5.4820406374203204e-14
+    },
+    {
+      "adaptive_interrupted_progress_per_flop": 5.39457894209334e-13,
+      "adaptive_no_failure_progress_per_flop": 5.377752242247537e-13,
+      "adaptive_retained_ratio": 1.003128946646819,
+      "adaptive_ticks_to_target": 32,
+      "adaptive_vs_synchronous_ratio": 1.0030996285180227,
+      "direct_interrupted_difference": -5.1668537823135587e-14,
+      "fixed_interrupted_progress_per_flop": 5.911264320324696e-13,
+      "fixed_no_failure_progress_per_flop": 5.377752242247537e-13,
+      "fixed_ticks_to_target": 32,
+      "stratum_id": "E2",
+      "synchronous_progress_per_flop": 5.37790942068564e-13,
+      "tau": -5.1668537823135587e-14
+    },
+    {
+      "adaptive_interrupted_progress_per_flop": 5.476507639704538e-13,
+      "adaptive_no_failure_progress_per_flop": 5.458420069566409e-13,
+      "adaptive_retained_ratio": 1.0033137006510322,
+      "adaptive_ticks_to_target": 32,
+      "adaptive_vs_synchronous_ratio": 1.0034196439968581,
+      "direct_interrupted_difference": -7.227688480733979e-14,
+      "fixed_interrupted_progress_per_flop": 6.199276487777936e-13,
+      "fixed_no_failure_progress_per_flop": 5.458420069566409e-13,
+      "fixed_ticks_to_target": 32,
+      "stratum_id": "E3",
+      "synchronous_progress_per_flop": 5.457843757064901e-13,
+      "tau": -7.227688480733979e-14
+    },
+    {
+      "adaptive_interrupted_progress_per_flop": 5.540770609904705e-13,
+      "adaptive_no_failure_progress_per_flop": 5.522412122767932e-13,
+      "adaptive_retained_ratio": 1.0033243602122857,
+      "adaptive_ticks_to_target": 32,
+      "adaptive_vs_synchronous_ratio": 1.0028719875676995,
+      "direct_interrupted_difference": -7.248763981771148e-14,
+      "fixed_interrupted_progress_per_flop": 6.26564700808182e-13,
+      "fixed_no_failure_progress_per_flop": 5.522412122767932e-13,
+      "fixed_ticks_to_target": 32,
+      "stratum_id": "E4",
+      "synchronous_progress_per_flop": 5.524903156725845e-13,
+      "tau": -7.248763981771148e-14
+    },
+    {
+      "adaptive_interrupted_progress_per_flop": 5.502185189289079e-13,
+      "adaptive_no_failure_progress_per_flop": 5.495680877691747e-13,
+      "adaptive_retained_ratio": 1.0011835315299573,
+      "adaptive_ticks_to_target": 32,
+      "adaptive_vs_synchronous_ratio": 1.0020157261129603,
+      "direct_interrupted_difference": -7.320777151225876e-14,
+      "fixed_interrupted_progress_per_flop": 6.234262904411667e-13,
+      "fixed_no_failure_progress_per_flop": 5.495680877691747e-13,
+      "fixed_ticks_to_target": 32,
+      "stratum_id": "E5",
+      "synchronous_progress_per_flop": 5.491116602164786e-13,
+      "tau": -7.320777151225876e-14
+    },
+    {
+      "adaptive_interrupted_progress_per_flop": 5.531297425696274e-13,
+      "adaptive_no_failure_progress_per_flop": 5.513057740042834e-13,
+      "adaptive_retained_ratio": 1.0033084517727722,
+      "adaptive_ticks_to_target": 32,
+      "adaptive_vs_synchronous_ratio": 1.0032943777463796,
+      "direct_interrupted_difference": -7.16902692579488e-14,
+      "fixed_interrupted_progress_per_flop": 6.248200118275762e-13,
+      "fixed_no_failure_progress_per_flop": 5.513057740042834e-13,
+      "fixed_ticks_to_target": 32,
+      "stratum_id": "E6",
+      "synchronous_progress_per_flop": 5.513135076188494e-13,
+      "tau": -7.16902692579488e-14
+    }
+  ],
+  "evidence_boundary": {
+    "overall_e001_status": "inconclusive_frontier_hypothesis",
+    "supported": [
+      "measured byte-level TinyStories held-out learning response",
+      "paired interruption effect across six frozen evaluation strata",
+      "local RTX harness time and sampled device energy"
+    ],
+    "unsupported": [
+      "frontier-scale convergence or capability",
+      "real multi-site speedup, WAN, or facility energy",
+      "failure detector, hybrid parallelism, or migration performance",
+      "transfer beyond the frozen model, dataset, optimizer, and failures"
+    ]
+  },
+  "experiment_id": "E001-LC1",
+  "falsifier_labels": {
+    "adaptive_does_not_diverge": "Adaptive has zero held-out divergences",
+    "adaptive_reaches_target_sooner": "Adaptive reaches the frozen target sooner",
+    "adaptive_retains_progress_per_flop": "Adaptive retains at least 95% of clean progress/FLOP",
+    "adaptive_vs_synchronous_progress_per_flop": "Adaptive reaches 95% of synchronous progress/FLOP",
+    "no_failure_learning_equivalence": "No-failure policy implementations agree within 1%",
+    "paired_tau_positive": "Adaptive interruption effect improves progress/FLOP"
+  },
+  "falsifier_results": {
+    "adaptive_does_not_diverge": true,
+    "adaptive_reaches_target_sooner": false,
+    "adaptive_retains_progress_per_flop": true,
+    "adaptive_vs_synchronous_progress_per_flop": true,
+    "no_failure_learning_equivalence": true,
+    "paired_tau_positive": false
+  },
+  "interpretation": {
+    "denominator_trap": "Fixed restart ends worse but receives a larger progress/FLOP ratio because it attempts fewer tokens inside the finite horizon.",
+    "target_resolution": "The calibration-derived target was crossed by every evaluation arm at the first 32-tick observation, so ticks-to-target cannot rank them.",
+    "valid_control": "Fixed and adaptive no-failure arms are learning-equivalent, so the interrupted contrast is not an implementation mismatch."
+  },
+  "learning_curves": [
+    {
+      "arm_id": "synchronous-reference:no-failure",
+      "interrupted": false,
+      "label": "Synchronous reference",
+      "points": [
+        {
+          "maximum_nll": 5.587284088134766,
+          "median_nll": 5.56114387512207,
+          "minimum_nll": 5.485540390014648,
+          "wall_tick": 0
+        },
+        {
+          "maximum_nll": 3.018829584121704,
+          "median_nll": 2.9840630292892456,
+          "minimum_nll": 2.966486692428589,
+          "wall_tick": 32
+        },
+        {
+          "maximum_nll": 2.588739275932312,
+          "median_nll": 2.56637704372406,
+          "minimum_nll": 2.5515142679214478,
+          "wall_tick": 64
+        },
+        {
+          "maximum_nll": 2.473972260951996,
+          "median_nll": 2.4558669924736023,
+          "minimum_nll": 2.4390395283699036,
+          "wall_tick": 96
+        },
+        {
+          "maximum_nll": 2.418624311685562,
+          "median_nll": 2.4070736914873123,
+          "minimum_nll": 2.3888773918151855,
+          "wall_tick": 128
+        },
+        {
+          "maximum_nll": 2.391386926174164,
+          "median_nll": 2.377340480685234,
+          "minimum_nll": 2.3610023260116577,
+          "wall_tick": 160
+        },
+        {
+          "maximum_nll": 2.365965813398361,
+          "median_nll": 2.3534591794013977,
+          "minimum_nll": 2.3401874899864197,
+          "wall_tick": 192
+        },
+        {
+          "maximum_nll": 2.3511608093976974,
+          "median_nll": 2.3377897515892982,
+          "minimum_nll": 2.3212042450904846,
+          "wall_tick": 224
+        },
+        {
+          "maximum_nll": 2.3333610445261,
+          "median_nll": 2.3263456895947456,
+          "minimum_nll": 2.30745005607605,
+          "wall_tick": 256
+        }
+      ],
+      "policy_id": "synchronous-reference"
+    },
+    {
+      "arm_id": "fixed-local-checkpoint-restart:no-failure",
+      "interrupted": false,
+      "label": "Fixed local \u00b7 no failure",
+      "points": [
+        {
+          "maximum_nll": 5.587284088134766,
+          "median_nll": 5.56114387512207,
+          "minimum_nll": 5.485540390014648,
+          "wall_tick": 0
+        },
+        {
+          "maximum_nll": 3.0162649154663086,
+          "median_nll": 2.988012671470642,
+          "minimum_nll": 2.972135305404663,
+          "wall_tick": 32
+        },
+        {
+          "maximum_nll": 2.5892977714538574,
+          "median_nll": 2.57054603099823,
+          "minimum_nll": 2.551508665084839,
+          "wall_tick": 64
+        },
+        {
+          "maximum_nll": 2.476266324520111,
+          "median_nll": 2.4586398899555206,
+          "minimum_nll": 2.442819893360138,
+          "wall_tick": 96
+        },
+        {
+          "maximum_nll": 2.419876515865326,
+          "median_nll": 2.406847357749939,
+          "minimum_nll": 2.389605790376663,
+          "wall_tick": 128
+        },
+        {
+          "maximum_nll": 2.3924688696861267,
+          "median_nll": 2.379127100110054,
+          "minimum_nll": 2.3603075742721558,
+          "wall_tick": 160
+        },
+        {
+          "maximum_nll": 2.3702904284000397,
+          "median_nll": 2.356429249048233,
+          "minimum_nll": 2.34085014462471,
+          "wall_tick": 192
+        },
+        {
+          "maximum_nll": 2.3490160703659058,
+          "median_nll": 2.3384032770991325,
+          "minimum_nll": 2.3216941952705383,
+          "wall_tick": 224
+        },
+        {
+          "maximum_nll": 2.3334065675735474,
+          "median_nll": 2.3238414525985718,
+          "minimum_nll": 2.308916375041008,
+          "wall_tick": 256
+        }
+      ],
+      "policy_id": "fixed-local-checkpoint-restart"
+    },
+    {
+      "arm_id": "fixed-local-checkpoint-restart:interrupted",
+      "interrupted": true,
+      "label": "Fixed local \u00b7 interrupted",
+      "points": [
+        {
+          "maximum_nll": 5.587284088134766,
+          "median_nll": 5.56114387512207,
+          "minimum_nll": 5.485540390014648,
+          "wall_tick": 0
+        },
+        {
+          "maximum_nll": 3.0162649154663086,
+          "median_nll": 2.988012671470642,
+          "minimum_nll": 2.972135305404663,
+          "wall_tick": 32
+        },
+        {
+          "maximum_nll": 2.694269895553589,
+          "median_nll": 2.5831044912338257,
+          "minimum_nll": 2.551508665084839,
+          "wall_tick": 64
+        },
+        {
+          "maximum_nll": 2.510056495666504,
+          "median_nll": 2.489201694726944,
+          "minimum_nll": 2.442819893360138,
+          "wall_tick": 96
+        },
+        {
+          "maximum_nll": 2.4678695797920227,
+          "median_nll": 2.433095157146454,
+          "minimum_nll": 2.419140040874481,
+          "wall_tick": 128
+        },
+        {
+          "maximum_nll": 2.426694691181183,
+          "median_nll": 2.4075039476156235,
+          "minimum_nll": 2.38143989443779,
+          "wall_tick": 160
+        },
+        {
+          "maximum_nll": 2.3980864882469177,
+          "median_nll": 2.3744563460350037,
+          "minimum_nll": 2.357606142759323,
+          "wall_tick": 192
+        },
+        {
+          "maximum_nll": 2.3766763508319855,
+          "median_nll": 2.3602607548236847,
+          "minimum_nll": 2.3402262032032013,
+          "wall_tick": 224
+        },
+        {
+          "maximum_nll": 2.3604148626327515,
+          "median_nll": 2.3411458283662796,
+          "minimum_nll": 2.3249409049749374,
+          "wall_tick": 256
+        }
+      ],
+      "policy_id": "fixed-local-checkpoint-restart"
+    },
+    {
+      "arm_id": "adaptive-survivor-continuation:no-failure",
+      "interrupted": false,
+      "label": "Adaptive \u00b7 no failure",
+      "points": [
+        {
+          "maximum_nll": 5.587284088134766,
+          "median_nll": 5.56114387512207,
+          "minimum_nll": 5.485540390014648,
+          "wall_tick": 0
+        },
+        {
+          "maximum_nll": 3.0162649154663086,
+          "median_nll": 2.988012671470642,
+          "minimum_nll": 2.972135305404663,
+          "wall_tick": 32
+        },
+        {
+          "maximum_nll": 2.5892977714538574,
+          "median_nll": 2.57054603099823,
+          "minimum_nll": 2.551508665084839,
+          "wall_tick": 64
+        },
+        {
+          "maximum_nll": 2.476266324520111,
+          "median_nll": 2.4586398899555206,
+          "minimum_nll": 2.442819893360138,
+          "wall_tick": 96
+        },
+        {
+          "maximum_nll": 2.419876515865326,
+          "median_nll": 2.406847357749939,
+          "minimum_nll": 2.389605790376663,
+          "wall_tick": 128
+        },
+        {
+          "maximum_nll": 2.3924688696861267,
+          "median_nll": 2.379127100110054,
+          "minimum_nll": 2.3603075742721558,
+          "wall_tick": 160
+        },
+        {
+          "maximum_nll": 2.3702904284000397,
+          "median_nll": 2.356429249048233,
+          "minimum_nll": 2.34085014462471,
+          "wall_tick": 192
+        },
+        {
+          "maximum_nll": 2.3490160703659058,
+          "median_nll": 2.3384032770991325,
+          "minimum_nll": 2.3216941952705383,
+          "wall_tick": 224
+        },
+        {
+          "maximum_nll": 2.3334065675735474,
+          "median_nll": 2.3238414525985718,
+          "minimum_nll": 2.308916375041008,
+          "wall_tick": 256
+        }
+      ],
+      "policy_id": "adaptive-survivor-continuation"
+    },
+    {
+      "arm_id": "adaptive-survivor-continuation:interrupted",
+      "interrupted": true,
+      "label": "Adaptive \u00b7 interrupted",
+      "points": [
+        {
+          "maximum_nll": 5.587284088134766,
+          "median_nll": 5.56114387512207,
+          "minimum_nll": 5.485540390014648,
+          "wall_tick": 0
+        },
+        {
+          "maximum_nll": 3.0162649154663086,
+          "median_nll": 2.988012671470642,
+          "minimum_nll": 2.972135305404663,
+          "wall_tick": 32
+        },
+        {
+          "maximum_nll": 2.5840208530426025,
+          "median_nll": 2.5531237721443176,
+          "minimum_nll": 2.520360827445984,
+          "wall_tick": 64
+        },
+        {
+          "maximum_nll": 2.470142900943756,
+          "median_nll": 2.4496573507785797,
+          "minimum_nll": 2.423142910003662,
+          "wall_tick": 96
+        },
+        {
+          "maximum_nll": 2.4095427095890045,
+          "median_nll": 2.39363557100296,
+          "minimum_nll": 2.3814155757427216,
+          "wall_tick": 128
+        },
+        {
+          "maximum_nll": 2.3818530440330505,
+          "median_nll": 2.3680460080504417,
+          "minimum_nll": 2.3515471518039703,
+          "wall_tick": 160
+        },
+        {
+          "maximum_nll": 2.3658600002527237,
+          "median_nll": 2.3469565734267235,
+          "minimum_nll": 2.3335419595241547,
+          "wall_tick": 192
+        },
+        {
+          "maximum_nll": 2.3712017983198166,
+          "median_nll": 2.3309816420078278,
+          "minimum_nll": 2.312520921230316,
+          "wall_tick": 224
+        },
+        {
+          "maximum_nll": 2.3238668590784073,
+          "median_nll": 2.3146530091762543,
+          "minimum_nll": 2.298109859228134,
+          "wall_tick": 256
+        }
+      ],
+      "policy_id": "adaptive-survivor-continuation"
+    }
+  ],
+  "paired_effect": {
+    "confidence_level": 0.9,
+    "draws": 10000,
+    "lower_bound": -7.248763981771148e-14,
+    "median": -7.19835770326443e-14,
+    "method": "paired percentile bootstrap of the median",
+    "upper_bound": -5.4820406374203204e-14,
+    "values": [
+      -5.4820406374203204e-14,
+      -5.1668537823135587e-14,
+      -7.227688480733979e-14,
+      -7.248763981771148e-14,
+      -7.320777151225876e-14,
+      -7.16902692579488e-14
+    ]
+  },
+  "policy_comparison": {
+    "adaptive_interrupted": {
+      "active_seconds": 11.047018999997817,
+      "attempted_tokens": 524288.0,
+      "canonical_tokens": 524288.0,
+      "checkpoint_bytes": 1049652192.0,
+      "discarded_tokens": 0.0,
+      "divergence_count": 0,
+      "energy_j": 78.53970939404863,
+      "final_held_out_nll": 2.3146530091762543,
+      "held_out_loss_progress": 3.24736737459898,
+      "interrupted": true,
+      "label": "Adaptive survivor continuation",
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.516741307492677e-13,
+      "replayed_tokens": 0.0,
+      "run_count": 6,
+      "survivor_redistributed_tokens": 32768.0,
+      "ticks_to_target": 32.0
+    },
+    "derived": {
+      "adaptive_minus_fixed_final_nll": -0.02649281919002533,
+      "adaptive_to_fixed_attempted_token_ratio": 1.1428571428571428,
+      "adaptive_to_fixed_progress_per_flop_ratio": 0.8873967634603125
+    },
+    "fixed_interrupted": {
+      "active_seconds": 8.691437049999877,
+      "attempted_tokens": 458752.0,
+      "canonical_tokens": 442368.0,
+      "checkpoint_bytes": 302151504.0,
+      "discarded_tokens": 16384.0,
+      "divergence_count": 0,
+      "energy_j": 74.36638051234999,
+      "final_held_out_nll": 2.3411458283662796,
+      "held_out_loss_progress": 3.214601546525955,
+      "interrupted": true,
+      "label": "Fixed-local restart",
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 6.216769696094801e-13,
+      "replayed_tokens": 16384.0,
+      "run_count": 6,
+      "survivor_redistributed_tokens": 0.0,
+      "ticks_to_target": 32.0
+    },
+    "synchronous_reference": {
+      "active_seconds": 11.59857424999791,
+      "attempted_tokens": 524288.0,
+      "canonical_tokens": 524288.0,
+      "checkpoint_bytes": 7681536.0,
+      "discarded_tokens": 0.0,
+      "divergence_count": 0,
+      "energy_j": 89.49937266049088,
+      "final_held_out_nll": 2.3263456895947456,
+      "held_out_loss_progress": 3.2387641444802284,
+      "interrupted": false,
+      "label": "Synchronous no-failure reference",
+      "policy_id": "synchronous-reference",
+      "progress_per_flop": 5.502125839176639e-13,
+      "replayed_tokens": 0.0,
+      "run_count": 6,
+      "survivor_redistributed_tokens": 0.0,
+      "ticks_to_target": 32.0
+    }
+  },
+  "run_details": [
+    {
+      "active_seconds": 26.545947499998874,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 7681536,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 68,
+      "energy_j": 91.53774447415424,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3151616007089615,
+      "held_out_loss_progress": 3.2294131368398666,
+      "initial_held_out_nll": 5.544574737548828,
+      "interrupted": false,
+      "physical_seconds": 26.545947499998874,
+      "policy_id": "synchronous-reference",
+      "progress_per_flop": 5.486240020245349e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:C1:synchronous-reference:no-failure",
+      "seed": 11,
+      "split": "calibration",
+      "start_temperature_c": 67,
+      "stratum_id": "C1",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 36.93587090000074,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 370106112,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 68,
+      "energy_j": 78.36587258333611,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.319759249687195,
+      "held_out_loss_progress": 3.2248154878616333,
+      "initial_held_out_nll": 5.544574737548828,
+      "interrupted": false,
+      "physical_seconds": 36.93587090000074,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 5.478429373309012e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:C1:fixed-local-checkpoint-restart:no-failure",
+      "seed": 11,
+      "split": "calibration",
+      "start_temperature_c": 67,
+      "stratum_id": "C1",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 8.668763699999545,
+      "attempted_tokens": 475136,
+      "canonical_tokens": 475136,
+      "checkpoint_bytes": 324803040,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 74.04085972573887,
+      "failure_schedule": [
+        [
+          48,
+          8
+        ],
+        [
+          152,
+          16
+        ]
+      ],
+      "final_held_out_nll": 2.3371497988700867,
+      "held_out_loss_progress": 3.2074249386787415,
+      "initial_held_out_nll": 5.544574737548828,
+      "interrupted": true,
+      "physical_seconds": 8.668763699999545,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 6.012563530963891e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:C1:fixed-local-checkpoint-restart:interrupted",
+      "seed": 11,
+      "split": "calibration",
+      "start_temperature_c": 68,
+      "stratum_id": "C1",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 10.178055500000482,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 732530688,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 80.8321059183092,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.319759249687195,
+      "held_out_loss_progress": 3.2248154878616333,
+      "initial_held_out_nll": 5.544574737548828,
+      "interrupted": false,
+      "physical_seconds": 10.178055500000482,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.478429373309012e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:C1:adaptive-survivor-continuation:no-failure",
+      "seed": 11,
+      "split": "calibration",
+      "start_temperature_c": 69,
+      "stratum_id": "C1",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 11.116004700001213,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 981697584,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 75.54233236345777,
+      "failure_schedule": [
+        [
+          48,
+          8
+        ],
+        [
+          152,
+          16
+        ]
+      ],
+      "final_held_out_nll": 2.310830608010292,
+      "held_out_loss_progress": 3.233744129538536,
+      "initial_held_out_nll": 5.544574737548828,
+      "interrupted": true,
+      "physical_seconds": 11.116004700001213,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.493597662164797e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:C1:adaptive-survivor-continuation:interrupted",
+      "seed": 11,
+      "split": "calibration",
+      "start_temperature_c": 68,
+      "stratum_id": "C1",
+      "survivor_redistributed_tokens": 24576,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 9.713008200000331,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 370106112,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 76.53344324085123,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.330335706472397,
+      "held_out_loss_progress": 3.296527773141861,
+      "initial_held_out_nll": 5.626863479614258,
+      "interrupted": false,
+      "physical_seconds": 9.713008200000331,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 5.60025671244984e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:C2:fixed-local-checkpoint-restart:no-failure",
+      "seed": 29,
+      "split": "calibration",
+      "start_temperature_c": 69,
+      "stratum_id": "C2",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 7.889117499998974,
+      "attempted_tokens": 458752,
+      "canonical_tokens": 442368,
+      "checkpoint_bytes": 302151504,
+      "discarded_tokens": 16384,
+      "diverged": false,
+      "end_temperature_c": 71,
+      "energy_j": 82.25620381019218,
+      "failure_schedule": [
+        [
+          80,
+          16
+        ],
+        [
+          184,
+          16
+        ]
+      ],
+      "final_held_out_nll": 2.3518005907535553,
+      "held_out_loss_progress": 3.2750628888607025,
+      "initial_held_out_nll": 5.626863479614258,
+      "interrupted": true,
+      "physical_seconds": 7.889117499998974,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 6.358618761220942e-13,
+      "replayed_tokens": 16384,
+      "run_id": "e001-lc1:C2:fixed-local-checkpoint-restart:interrupted",
+      "seed": 29,
+      "split": "calibration",
+      "start_temperature_c": 69,
+      "stratum_id": "C2",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 12.42429379999885,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 732530688,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 89.62722549748082,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.330335706472397,
+      "held_out_loss_progress": 3.296527773141861,
+      "initial_held_out_nll": 5.626863479614258,
+      "interrupted": false,
+      "physical_seconds": 12.42429379999885,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.60025671244984e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:C2:adaptive-survivor-continuation:no-failure",
+      "seed": 29,
+      "split": "calibration",
+      "start_temperature_c": 71,
+      "stratum_id": "C2",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 12.074823999999353,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 1049652192,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 80.91033710680387,
+      "failure_schedule": [
+        [
+          80,
+          16
+        ],
+        [
+          184,
+          16
+        ]
+      ],
+      "final_held_out_nll": 2.318938046693802,
+      "held_out_loss_progress": 3.307925432920456,
+      "initial_held_out_nll": 5.626863479614258,
+      "interrupted": true,
+      "physical_seconds": 12.074823999999353,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.619619455637185e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:C2:adaptive-survivor-continuation:interrupted",
+      "seed": 29,
+      "split": "calibration",
+      "start_temperature_c": 69,
+      "stratum_id": "C2",
+      "survivor_redistributed_tokens": 32768,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 13.092066600002,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 7681536,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 88.85782626695993,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3279352486133575,
+      "held_out_loss_progress": 3.2989282310009003,
+      "initial_held_out_nll": 5.626863479614258,
+      "interrupted": false,
+      "physical_seconds": 13.092066600002,
+      "policy_id": "synchronous-reference",
+      "progress_per_flop": 5.604334694242551e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:C2:synchronous-reference:no-failure",
+      "seed": 29,
+      "split": "calibration",
+      "start_temperature_c": 69,
+      "stratum_id": "C2",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 9.470783900000242,
+      "attempted_tokens": 475136,
+      "canonical_tokens": 442368,
+      "checkpoint_bytes": 302151504,
+      "discarded_tokens": 32768,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 74.67778184948901,
+      "failure_schedule": [
+        [
+          40,
+          8
+        ],
+        [
+          136,
+          16
+        ]
+      ],
+      "final_held_out_nll": 2.3249409049749374,
+      "held_out_loss_progress": 3.262343183159828,
+      "initial_held_out_nll": 5.587284088134766,
+      "interrupted": true,
+      "physical_seconds": 9.470783900000242,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 6.115511983465343e-13,
+      "replayed_tokens": 32768,
+      "run_id": "e001-lc1:E1:fixed-local-checkpoint-restart:interrupted",
+      "seed": 101,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E1",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 10.965416200000618,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 732530688,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 76.33680388423892,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3197816014289856,
+      "held_out_loss_progress": 3.26750248670578,
+      "initial_held_out_nll": 5.587284088134766,
+      "interrupted": false,
+      "physical_seconds": 10.965416200000618,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.55094754038134e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E1:adaptive-survivor-continuation:no-failure",
+      "seed": 101,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E1",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 11.609250400000747,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 981697584,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 78.72121974446088,
+      "failure_schedule": [
+        [
+          40,
+          8
+        ],
+        [
+          136,
+          16
+        ]
+      ],
+      "final_held_out_nll": 2.3101512491703033,
+      "held_out_loss_progress": 3.2771328389644623,
+      "initial_held_out_nll": 5.587284088134766,
+      "interrupted": true,
+      "physical_seconds": 11.609250400000747,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.567307919723311e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E1:adaptive-survivor-continuation:interrupted",
+      "seed": 101,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E1",
+      "survivor_redistributed_tokens": 24576,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 12.755863499998668,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 7681536,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 89.8684491155517,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3225503265857697,
+      "held_out_loss_progress": 3.264733761548996,
+      "initial_held_out_nll": 5.587284088134766,
+      "interrupted": false,
+      "physical_seconds": 12.755863499998668,
+      "policy_id": "synchronous-reference",
+      "progress_per_flop": 5.546243933219119e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E1:synchronous-reference:no-failure",
+      "seed": 101,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E1",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 11.153836599998613,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 370106112,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 78.14966522404939,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3197816014289856,
+      "held_out_loss_progress": 3.26750248670578,
+      "initial_held_out_nll": 5.587284088134766,
+      "interrupted": false,
+      "physical_seconds": 11.153836599998613,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 5.55094754038134e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E1:fixed-local-checkpoint-restart:no-failure",
+      "seed": 101,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E1",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 10.307454099998722,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 732530688,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 83.17365529678801,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3199873566627502,
+      "held_out_loss_progress": 3.165553033351898,
+      "initial_held_out_nll": 5.485540390014648,
+      "interrupted": false,
+      "physical_seconds": 10.307454099998722,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.377752242247537e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E2:adaptive-survivor-continuation:no-failure",
+      "seed": 131,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E2",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 11.04268559999764,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 981697584,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 81.16459752388397,
+      "failure_schedule": [
+        [
+          64,
+          16
+        ],
+        [
+          200,
+          8
+        ]
+      ],
+      "final_held_out_nll": 2.310082510113716,
+      "held_out_loss_progress": 3.1754578799009323,
+      "initial_held_out_nll": 5.485540390014648,
+      "interrupted": true,
+      "physical_seconds": 11.04268559999764,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.39457894209334e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E2:adaptive-survivor-continuation:interrupted",
+      "seed": 131,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E2",
+      "survivor_redistributed_tokens": 24576,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 11.910294399996928,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 7681536,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 89.13029620543006,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3198948353528976,
+      "held_out_loss_progress": 3.165645554661751,
+      "initial_held_out_nll": 5.485540390014648,
+      "interrupted": false,
+      "physical_seconds": 11.910294399996928,
+      "policy_id": "synchronous-reference",
+      "progress_per_flop": 5.37790942068564e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E2:synchronous-reference:no-failure",
+      "seed": 131,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E2",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 9.667490499999985,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 370106112,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 70,
+      "energy_j": 73.96132561398139,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3199873566627502,
+      "held_out_loss_progress": 3.165553033351898,
+      "initial_held_out_nll": 5.485540390014648,
+      "interrupted": false,
+      "physical_seconds": 9.667490499999985,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 5.377752242247537e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E2:fixed-local-checkpoint-restart:no-failure",
+      "seed": 131,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E2",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 8.694327100001829,
+      "attempted_tokens": 475136,
+      "canonical_tokens": 458752,
+      "checkpoint_bytes": 324803040,
+      "discarded_tokens": 16384,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 75.20255773600371,
+      "failure_schedule": [
+        [
+          64,
+          16
+        ],
+        [
+          200,
+          8
+        ]
+      ],
+      "final_held_out_nll": 2.3321539014577866,
+      "held_out_loss_progress": 3.153386488556862,
+      "initial_held_out_nll": 5.485540390014648,
+      "interrupted": true,
+      "physical_seconds": 8.694327100001829,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 5.911264320324696e-13,
+      "replayed_tokens": 16384,
+      "run_id": "e001-lc1:E2:fixed-local-checkpoint-restart:interrupted",
+      "seed": 131,
+      "split": "evaluation",
+      "start_temperature_c": 70,
+      "stratum_id": "E2",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 10.978329699999449,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 1049652192,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 77.85702722898395,
+      "failure_schedule": [
+        [
+          72,
+          8
+        ],
+        [
+          128,
+          24
+        ]
+      ],
+      "final_held_out_nll": 2.319154769182205,
+      "held_out_loss_progress": 3.2236842811107635,
+      "initial_held_out_nll": 5.542839050292969,
+      "interrupted": true,
+      "physical_seconds": 10.978329699999449,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.476507639704538e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E3:adaptive-survivor-continuation:interrupted",
+      "seed": 151,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E3",
+      "survivor_redistributed_tokens": 32768,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 11.283155799999804,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 7681536,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 90.66264456853679,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3301410526037216,
+      "held_out_loss_progress": 3.212697997689247,
+      "initial_held_out_nll": 5.542839050292969,
+      "interrupted": false,
+      "physical_seconds": 11.283155799999804,
+      "policy_id": "synchronous-reference",
+      "progress_per_flop": 5.457843757064901e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E3:synchronous-reference:no-failure",
+      "seed": 151,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E3",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 9.801222599999164,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 370106112,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 82.70596623417305,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3298018127679825,
+      "held_out_loss_progress": 3.2130372375249863,
+      "initial_held_out_nll": 5.542839050292969,
+      "interrupted": false,
+      "physical_seconds": 9.801222599999164,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 5.458420069566409e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E3:fixed-local-checkpoint-restart:no-failure",
+      "seed": 151,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E3",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 8.45268600000054,
+      "attempted_tokens": 458752,
+      "canonical_tokens": 442368,
+      "checkpoint_bytes": 302151504,
+      "discarded_tokens": 16384,
+      "diverged": false,
+      "end_temperature_c": 70,
+      "energy_j": 74.07180390265285,
+      "failure_schedule": [
+        [
+          72,
+          8
+        ],
+        [
+          128,
+          24
+        ]
+      ],
+      "final_held_out_nll": 2.3498468101024628,
+      "held_out_loss_progress": 3.192992240190506,
+      "initial_held_out_nll": 5.542839050292969,
+      "interrupted": true,
+      "physical_seconds": 8.45268600000054,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 6.199276487777936e-13,
+      "replayed_tokens": 16384,
+      "run_id": "e001-lc1:E3:fixed-local-checkpoint-restart:interrupted",
+      "seed": 151,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E3",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 10.140389600001072,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 732530688,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 82.10370745394226,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3298018127679825,
+      "held_out_loss_progress": 3.2130372375249863,
+      "initial_held_out_nll": 5.542839050292969,
+      "interrupted": false,
+      "physical_seconds": 10.140389600001072,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.458420069566409e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E3:adaptive-survivor-continuation:no-failure",
+      "seed": 151,
+      "split": "evaluation",
+      "start_temperature_c": 70,
+      "stratum_id": "E3",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 11.28685409999889,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 7681536,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 90.10294518955158,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.30745005607605,
+      "held_out_loss_progress": 3.252171754837036,
+      "initial_held_out_nll": 5.559621810913086,
+      "interrupted": false,
+      "physical_seconds": 11.28685409999889,
+      "policy_id": "synchronous-reference",
+      "progress_per_flop": 5.524903156725845e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E4:synchronous-reference:no-failure",
+      "seed": 181,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E4",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 10.120212699999684,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 370106112,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 82.91587144531053,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.308916375041008,
+      "held_out_loss_progress": 3.250705435872078,
+      "initial_held_out_nll": 5.559621810913086,
+      "interrupted": false,
+      "physical_seconds": 10.120212699999684,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 5.522412122767932e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E4:fixed-local-checkpoint-restart:no-failure",
+      "seed": 181,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E4",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 9.018778099998599,
+      "attempted_tokens": 458752,
+      "canonical_tokens": 442368,
+      "checkpoint_bytes": 302151504,
+      "discarded_tokens": 16384,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 70.22643789531651,
+      "failure_schedule": [
+        [
+          104,
+          16
+        ],
+        [
+          184,
+          16
+        ]
+      ],
+      "final_held_out_nll": 2.3324448466300964,
+      "held_out_loss_progress": 3.2271769642829895,
+      "initial_held_out_nll": 5.559621810913086,
+      "interrupted": true,
+      "physical_seconds": 9.018778099998599,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 6.26564700808182e-13,
+      "replayed_tokens": 16384,
+      "run_id": "e001-lc1:E4:fixed-local-checkpoint-restart:interrupted",
+      "seed": 181,
+      "split": "evaluation",
+      "start_temperature_c": 68,
+      "stratum_id": "E4",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 10.184151699999347,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 732530688,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 82.72272888168715,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.308916375041008,
+      "held_out_loss_progress": 3.250705435872078,
+      "initial_held_out_nll": 5.559621810913086,
+      "interrupted": false,
+      "physical_seconds": 10.184151699999347,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.522412122767932e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E4:adaptive-survivor-continuation:no-failure",
+      "seed": 181,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E4",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 11.051352399997995,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 1049652192,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 78.35819904363638,
+      "failure_schedule": [
+        [
+          104,
+          16
+        ],
+        [
+          184,
+          16
+        ]
+      ],
+      "final_held_out_nll": 2.298109859228134,
+      "held_out_loss_progress": 3.261511951684952,
+      "initial_held_out_nll": 5.559621810913086,
+      "interrupted": true,
+      "physical_seconds": 11.051352399997995,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.540770609904705e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E4:adaptive-survivor-continuation:interrupted",
+      "seed": 181,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E4",
+      "survivor_redistributed_tokens": 32768,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 9.704121399998257,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 370106112,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 78.00914308704108,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3276955485343933,
+      "held_out_loss_progress": 3.2349703907966614,
+      "initial_held_out_nll": 5.562665939331055,
+      "interrupted": false,
+      "physical_seconds": 9.704121399998257,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 5.495680877691747e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E5:fixed-local-checkpoint-restart:no-failure",
+      "seed": 211,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E5",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 8.688546999997925,
+      "attempted_tokens": 458752,
+      "canonical_tokens": 442368,
+      "checkpoint_bytes": 302151504,
+      "discarded_tokens": 16384,
+      "diverged": false,
+      "end_temperature_c": 68,
+      "energy_j": 74.66095712204714,
+      "failure_schedule": [
+        [
+          32,
+          8
+        ],
+        [
+          104,
+          8
+        ],
+        [
+          216,
+          16
+        ]
+      ],
+      "final_held_out_nll": 2.3516536355018616,
+      "held_out_loss_progress": 3.211012303829193,
+      "initial_held_out_nll": 5.562665939331055,
+      "interrupted": true,
+      "physical_seconds": 8.688546999997925,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 6.234262904411667e-13,
+      "replayed_tokens": 16384,
+      "run_id": "e001-lc1:E5:fixed-local-checkpoint-restart:interrupted",
+      "seed": 211,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E5",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 10.363843500002986,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 732530688,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 78.87516970584,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3276955485343933,
+      "held_out_loss_progress": 3.2349703907966614,
+      "initial_held_out_nll": 5.562665939331055,
+      "interrupted": false,
+      "physical_seconds": 10.363843500002986,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.495680877691747e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E5:adaptive-survivor-continuation:no-failure",
+      "seed": 211,
+      "split": "evaluation",
+      "start_temperature_c": 68,
+      "stratum_id": "E5",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 10.674872399999003,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 1072303728,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 83.21421502310216,
+      "failure_schedule": [
+        [
+          32,
+          8
+        ],
+        [
+          104,
+          8
+        ],
+        [
+          216,
+          16
+        ]
+      ],
+      "final_held_out_nll": 2.3238668590784073,
+      "held_out_loss_progress": 3.2387990802526474,
+      "initial_held_out_nll": 5.562665939331055,
+      "interrupted": true,
+      "physical_seconds": 10.674872399999003,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.502185189289079e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E5:adaptive-survivor-continuation:interrupted",
+      "seed": 211,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E5",
+      "survivor_redistributed_tokens": 32768,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 11.042796699999599,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 7681536,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 88.25625576838297,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3303822576999664,
+      "held_out_loss_progress": 3.2322836816310883,
+      "initial_held_out_nll": 5.562665939331055,
+      "interrupted": false,
+      "physical_seconds": 11.042796699999599,
+      "policy_id": "synchronous-reference",
+      "progress_per_flop": 5.491116602164786e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E5:synchronous-reference:no-failure",
+      "seed": 211,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E5",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 8.39654789999986,
+      "attempted_tokens": 458752,
+      "canonical_tokens": 425984,
+      "checkpoint_bytes": 302151504,
+      "discarded_tokens": 32768,
+      "diverged": false,
+      "end_temperature_c": 70,
+      "energy_j": 71.22749766090362,
+      "failure_schedule": [
+        [
+          88,
+          24
+        ],
+        [
+          168,
+          8
+        ]
+      ],
+      "final_held_out_nll": 2.3604148626327515,
+      "held_out_loss_progress": 3.2181907892227173,
+      "initial_held_out_nll": 5.578605651855469,
+      "interrupted": true,
+      "physical_seconds": 8.39654789999986,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 6.248200118275762e-13,
+      "replayed_tokens": 32768,
+      "run_id": "e001-lc1:E6:fixed-local-checkpoint-restart:interrupted",
+      "seed": 241,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E6",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 10.839820699999109,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 732530688,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 68,
+      "energy_j": 81.47415916402298,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3334065675735474,
+      "held_out_loss_progress": 3.2451990842819214,
+      "initial_held_out_nll": 5.578605651855469,
+      "interrupted": false,
+      "physical_seconds": 10.839820699999109,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.513057740042834e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E6:adaptive-survivor-continuation:no-failure",
+      "seed": 241,
+      "split": "evaluation",
+      "start_temperature_c": 70,
+      "stratum_id": "E6",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 11.140074200000527,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 1049652192,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 68,
+      "energy_j": 69.69280721169241,
+      "failure_schedule": [
+        [
+          88,
+          24
+        ],
+        [
+          168,
+          8
+        ]
+      ],
+      "final_held_out_nll": 2.3226699829101562,
+      "held_out_loss_progress": 3.2559356689453125,
+      "initial_held_out_nll": 5.578605651855469,
+      "interrupted": true,
+      "physical_seconds": 11.140074200000527,
+      "policy_id": "adaptive-survivor-continuation",
+      "progress_per_flop": 5.531297425696274e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E6:adaptive-survivor-continuation:interrupted",
+      "seed": 241,
+      "split": "evaluation",
+      "start_temperature_c": 68,
+      "stratum_id": "E6",
+      "survivor_redistributed_tokens": 32768,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 11.935574600000109,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 7681536,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 85.60470336790286,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3333610445261,
+      "held_out_loss_progress": 3.2452446073293686,
+      "initial_held_out_nll": 5.578605651855469,
+      "interrupted": false,
+      "physical_seconds": 11.935574600000109,
+      "policy_id": "synchronous-reference",
+      "progress_per_flop": 5.513135076188494e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E6:synchronous-reference:no-failure",
+      "seed": 241,
+      "split": "evaluation",
+      "start_temperature_c": 68,
+      "stratum_id": "E6",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    },
+    {
+      "active_seconds": 9.351594900002965,
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 370106112,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "end_temperature_c": 69,
+      "energy_j": 81.07032535755138,
+      "failure_schedule": [],
+      "final_held_out_nll": 2.3334065675735474,
+      "held_out_loss_progress": 3.2451990842819214,
+      "initial_held_out_nll": 5.578605651855469,
+      "interrupted": false,
+      "physical_seconds": 9.351594900002965,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "progress_per_flop": 5.513057740042834e-13,
+      "replayed_tokens": 0,
+      "run_id": "e001-lc1:E6:fixed-local-checkpoint-restart:no-failure",
+      "seed": 241,
+      "split": "evaluation",
+      "start_temperature_c": 69,
+      "stratum_id": "E6",
+      "survivor_redistributed_tokens": 0,
+      "thermal_pause_seconds": 0.0,
+      "ticks_to_target": 32
+    }
+  ],
+  "runtime": {
+    "cuda_version": "13.0",
+    "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+    "gpu_compute_capability": [
+      8,
+      6
+    ],
+    "idle_power_w": 30.012999999999998,
+    "nvml_power_available": true,
+    "torch_version": "2.12.1+cu130"
+  },
+  "scenario_id": "e001-tinystories-survivor-continuation-v1",
+  "schema": "gpu-stack.causal-observatory.e001-learning-calibration.v1",
+  "source_learning_result": {
+    "artifact_sha256": "0597ca6deeeb34ae97d57d72b49187c687af921d3eec7b804ceb48b0d3994826",
+    "engine_source_sha256": "3a51c72de99fd17580b0bbf4bbc6722db7470b41ac8d74d2f9fcabc386cdb010",
+    "scenario_sha256": "3ea1ccd6fc717ded9d4f7150574df806a8dc7572fa35d00314f9bb3ea744c319",
+    "schema": "gpu-stack.e001-recovery-learning-evidence.v1",
+    "uri": "experiments/e001-beyond-one-datacenter/results/learning-calibration-v1.json"
+  },
+  "source_recovery_result": {
+    "artifact_sha256": "b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57",
+    "path": "experiments/e001-beyond-one-datacenter/results/recovery-mechanics-v2.json",
+    "protocol_hash": "5182a8e518706252fb24a9812351eb19d2bc9070fd3190e4095c1b0106a4a5a2",
+    "scenario_hash": "e5840301e4fa2902ee31071943f7d13d7d2d3cc158b1b9220b46f514f29f65ab",
+    "schema": "gpu-stack.e001-recovery-comparison.v2"
+  },
+  "split": {
+    "calibration": {
+      "metadata": {},
+      "name": "calibration",
+      "observation_ids": [
+        "e001-lc1:C1:synchronous-reference:no-failure",
+        "e001-lc1:C1:fixed-local-checkpoint-restart:no-failure",
+        "e001-lc1:C1:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc1:C1:adaptive-survivor-continuation:no-failure",
+        "e001-lc1:C1:adaptive-survivor-continuation:interrupted",
+        "e001-lc1:C2:fixed-local-checkpoint-restart:no-failure",
+        "e001-lc1:C2:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc1:C2:adaptive-survivor-continuation:no-failure",
+        "e001-lc1:C2:adaptive-survivor-continuation:interrupted",
+        "e001-lc1:C2:synchronous-reference:no-failure"
+      ]
+    },
+    "evaluation": {
+      "metadata": {},
+      "name": "evaluation",
+      "observation_ids": [
+        "e001-lc1:E1:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc1:E1:adaptive-survivor-continuation:no-failure",
+        "e001-lc1:E1:adaptive-survivor-continuation:interrupted",
+        "e001-lc1:E1:synchronous-reference:no-failure",
+        "e001-lc1:E1:fixed-local-checkpoint-restart:no-failure",
+        "e001-lc1:E2:adaptive-survivor-continuation:no-failure",
+        "e001-lc1:E2:adaptive-survivor-continuation:interrupted",
+        "e001-lc1:E2:synchronous-reference:no-failure",
+        "e001-lc1:E2:fixed-local-checkpoint-restart:no-failure",
+        "e001-lc1:E2:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc1:E3:adaptive-survivor-continuation:interrupted",
+        "e001-lc1:E3:synchronous-reference:no-failure",
+        "e001-lc1:E3:fixed-local-checkpoint-restart:no-failure",
+        "e001-lc1:E3:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc1:E3:adaptive-survivor-continuation:no-failure",
+        "e001-lc1:E4:synchronous-reference:no-failure",
+        "e001-lc1:E4:fixed-local-checkpoint-restart:no-failure",
+        "e001-lc1:E4:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc1:E4:adaptive-survivor-continuation:no-failure",
+        "e001-lc1:E4:adaptive-survivor-continuation:interrupted",
+        "e001-lc1:E5:fixed-local-checkpoint-restart:no-failure",
+        "e001-lc1:E5:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc1:E5:adaptive-survivor-continuation:no-failure",
+        "e001-lc1:E5:adaptive-survivor-continuation:interrupted",
+        "e001-lc1:E5:synchronous-reference:no-failure",
+        "e001-lc1:E6:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc1:E6:adaptive-survivor-continuation:no-failure",
+        "e001-lc1:E6:adaptive-survivor-continuation:interrupted",
+        "e001-lc1:E6:synchronous-reference:no-failure",
+        "e001-lc1:E6:fixed-local-checkpoint-restart:no-failure"
+      ]
+    },
+    "metadata": {
+      "evaluation_strata_frozen_before_execution": true,
+      "target_selected_from_calibration_only": true
+    },
+    "split_id": "e001-lc1-calibration-evaluation-v1"
+  },
+  "study": {
+    "arms": [
+      {
+        "interrupted": false,
+        "policy_id": "synchronous-reference"
+      },
+      {
+        "interrupted": false,
+        "policy_id": "fixed-local-checkpoint-restart"
+      },
+      {
+        "interrupted": true,
+        "policy_id": "fixed-local-checkpoint-restart"
+      },
+      {
+        "interrupted": false,
+        "policy_id": "adaptive-survivor-continuation"
+      },
+      {
+        "interrupted": true,
+        "policy_id": "adaptive-survivor-continuation"
+      }
+    ],
+    "calibration_strata": [
+      {
+        "failures": [
+          [
+            48,
+            8
+          ],
+          [
+            152,
+            16
+          ]
+        ],
+        "seed": 11,
+        "stratum_id": "C1"
+      },
+      {
+        "failures": [
+          [
+            80,
+            16
+          ],
+          [
+            184,
+            16
+          ]
+        ],
+        "seed": 29,
+        "stratum_id": "C2"
+      }
+    ],
+    "evaluation_strata": [
+      {
+        "failures": [
+          [
+            40,
+            8
+          ],
+          [
+            136,
+            16
+          ]
+        ],
+        "seed": 101,
+        "stratum_id": "E1"
+      },
+      {
+        "failures": [
+          [
+            64,
+            16
+          ],
+          [
+            200,
+            8
+          ]
+        ],
+        "seed": 131,
+        "stratum_id": "E2"
+      },
+      {
+        "failures": [
+          [
+            72,
+            8
+          ],
+          [
+            128,
+            24
+          ]
+        ],
+        "seed": 151,
+        "stratum_id": "E3"
+      },
+      {
+        "failures": [
+          [
+            104,
+            16
+          ],
+          [
+            184,
+            16
+          ]
+        ],
+        "seed": 181,
+        "stratum_id": "E4"
+      },
+      {
+        "failures": [
+          [
+            32,
+            8
+          ],
+          [
+            104,
+            8
+          ],
+          [
+            216,
+            16
+          ]
+        ],
+        "seed": 211,
+        "stratum_id": "E5"
+      },
+      {
+        "failures": [
+          [
+            88,
+            24
+          ],
+          [
+            168,
+            8
+          ]
+        ],
+        "seed": 241,
+        "stratum_id": "E6"
+      }
+    ],
+    "falsifiers": {
+      "adaptive_divergence_count_eq": 0,
+      "adaptive_median_ticks_to_target_lt_fixed": true,
+      "adaptive_progress_per_flop_vs_synchronous_gte": 0.95,
+      "adaptive_retained_progress_per_flop_ratio_lower_bound_gte": 0.95,
+      "no_failure_policy_progress_per_flop_relative_difference_lte": 0.01,
+      "paired_tau_lower_bound_gt": 0.0
+    },
+    "model": {
+      "context_length": 256,
+      "dropout": 0.0,
+      "heads": 4,
+      "layers": 4,
+      "mlp_width": 768,
+      "tie_embeddings": true,
+      "vocab_size": 256,
+      "width": 192
+    },
+    "optimization": {
+      "adaptive_checkpoint_merge_interval": 1,
+      "autocast": "bfloat16",
+      "batch_size_per_site": 4,
+      "beta1": 0.9,
+      "beta2": 0.95,
+      "deterministic_cuda_algorithms": false,
+      "evaluation_interval_ticks": 32,
+      "fixed_checkpoint_merge_interval": 2,
+      "flop_model": "6 * parameter_count * attempted_tokens",
+      "gradient_clip_norm": 1.0,
+      "healthy_local_ticks": 8,
+      "learning_rate": 0.0003,
+      "opportunity_ticks": 256,
+      "optimizer": "AdamW",
+      "post_rejoin_sync_ticks": 2,
+      "reduced_membership_checkpoint_ticks": 2,
+      "validation_batches": 16,
+      "weight_decay": 0.1
+    }
+  },
+  "target": {
+    "calibration_initial_median_nll": 5.585719108581543,
+    "calibration_synchronous_final_median_nll": 2.3215484246611595,
+    "fraction_of_synchronous_improvement": 0.75,
+    "held_out_nll": 3.1375910956412554,
+    "selected_from": [
+      "e001-lc1:C1:synchronous-reference:no-failure",
+      "e001-lc1:C2:synchronous-reference:no-failure"
+    ]
+  }
+}

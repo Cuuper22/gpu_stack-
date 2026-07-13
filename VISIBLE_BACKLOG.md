@@ -4,31 +4,31 @@ Updated: 2026-07-12 PDT.
 
 Purpose: compact recovery surface for the visible backlog.
 
-## Active Research Wave: From Mechanics To Measured Learning
+## Active Research Wave: E001-LC2 After LC1 Falsification
 
-Status: the recovery-backed E001 vertical slice has executed and the
-three-depth observatory explains it. The hypothesis remains correctly
-`inconclusive_frontier_hypothesis` because learning response is a prior.
-The read-only full verifier passed `5/5` gates in `290.16s`; merge is pending.
+Status: E001-LC1 completed 40 real GPU runs with a hard split of 10 calibration
+and 30 held-out evaluation observations. The persisted conclusion is
+`candidate_falsified_small_model_calibration` and
+`candidate_survives_lc1=False`; the learning sidecar and observatory are
+present.
 
-The four-policy result is a Pareto split. Fixed-local is fastest and moves the
-fewest modeled link bytes, but loses the most work. Adaptive loses 48.43 PFLOP
-versus fixed-local's 144.50 PFLOP and uses 0.255 MJ versus 0.283 MJ, but takes
-20 ms longer and moves 3.2 GB more state. Synchronous is mechanically dominated
-by adaptive on this trace. The oracle does not improve on adaptive time or
-bytes here. No policy has observed learning evidence.
+Adaptive interrupted ended at better median final NLL, 2.31465 versus 2.34115,
+but fixed restart attempted exactly 12.5 percent less work. The frozen
+finite-horizon progress-per-FLOP objective therefore favored fixed at worse
+quality. Every policy crossed the calibration target at the first 32-tick
+observation, so the target could not distinguish stopping time. The earlier
+recovery-v2 mechanical Pareto result remains completed prior evidence.
 
-- P0: run a measured fixed-local versus adaptive interrupted-training
-  calibration on one real, small model/workload. Measure loss progress per
-  FLOP, per joule, and per wall-clock second to a held-out target.
-- P0: attach those observations to a hard calibration/evaluation split and
-  replace the equal `0.1` learning prior with an evaluated residual and
-  uncertainty interval. The engine and observatory must consume the same data.
-- P0: use the result to decide whether E001 next deepens optimizer correction,
-  communication topology, or failure-aware control. Publish a null result if
-  fixed-local remains superior after learning is measured.
-- P1: complete other E001 baselines and larger panels only after the first
-  observed learning comparison works end to end.
+- P0: run late-stage fixed-target E001-LC2. Warm-start near a frozen quality
+  target and compare quality-constrained time, measured device energy, and
+  attempted work.
+- P0: bridge observed learning curves to datacenter mechanics. Connect the LC2
+  target-conditioned observations to recovery-v2 modeled time, WAN, facility
+  energy, and work without presenting modeled values as measurements.
+- P0: preserve LC1 as a published small-model falsification. LC2 must freeze a
+  new target and held-out schedules before execution rather than retune LC1.
+- P1: scale survivor continuation only after LC2 survives. Then expand model
+  family, optimizer, non-IID data, outage duration, and accelerator panels.
 - P1: start E002 only if the E001 result shows power/energy, rather than
   communication or learning staleness, is the binding constraint.
 - P2: advance E003 to E006 only when an earlier experiment yields a reusable

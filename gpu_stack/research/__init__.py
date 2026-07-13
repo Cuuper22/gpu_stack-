@@ -53,6 +53,14 @@ from .e001_recovery_runner import (
     E001RecoveryScenario,
     run_e001_recovery_v2,
 )
+from .e001_learning_calibration import (
+    ADAPTIVE_POLICY as E001_LC1_ADAPTIVE_POLICY,
+    ENGINE_ID as E001_LC1_ENGINE_ID,
+    FIXED_POLICY as E001_LC1_FIXED_POLICY,
+    SCHEMA as E001_LC1_SCHEMA,
+    SYNC_POLICY as E001_LC1_SYNC_POLICY,
+    run_e001_learning_calibration,
+)
 
 from .evaluation import (
     DecisionRegret,
@@ -101,6 +109,11 @@ from .observatory_recovery import (
     E001_RECOVERY_OBSERVATORY_SCHEMA,
     build_e001_recovery_observatory_artifact,
     e001_recovery_observatory_json,
+)
+from .observatory_learning import (
+    E001_LEARNING_OBSERVATORY_SCHEMA,
+    build_e001_learning_observatory_artifact,
+    project_e001_learning_result_file,
 )
 from .recovery import (
     CheckpointLedger,
@@ -313,6 +326,12 @@ __all__ = [
     "run_e001_recovery_v2",
     "build_e001_recovery_result",
     "e001_recovery_result_json",
+    "E001_LC1_ADAPTIVE_POLICY",
+    "E001_LC1_ENGINE_ID",
+    "E001_LC1_FIXED_POLICY",
+    "E001_LC1_SCHEMA",
+    "E001_LC1_SYNC_POLICY",
+    "run_e001_learning_calibration",
     "LearningProgressCalibration",
     "LearningProgressPrior",
     "SiteOutage",
@@ -323,6 +342,9 @@ __all__ = [
     "E001_RECOVERY_OBSERVATORY_SCHEMA",
     "build_e001_recovery_observatory_artifact",
     "e001_recovery_observatory_json",
+    "E001_LEARNING_OBSERVATORY_SCHEMA",
+    "build_e001_learning_observatory_artifact",
+    "project_e001_learning_result_file",
     "CheckpointLedger",
     "CompletedCheckpoint",
     "EvidenceBasis",

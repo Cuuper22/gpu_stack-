@@ -50,7 +50,7 @@
 
     <div class="desktop-logo">
       <span class="logo-text">CuperOS</span>
-      <span class="logo-version">GPUSTACK RESEARCH V0.24</span>
+      <span class="logo-version">GPUSTACK RESEARCH V0.26</span>
     </div>
 
     <main class="window app-window" id="top" aria-label="gpu_stack project window">
@@ -96,9 +96,10 @@
             </div>
             <aside class="status-panel" aria-label="Project status lights">
               <div class="status-light"><span class="led"></span><span>registry import graph coherent</span></div>
-              <div class="status-light"><span class="led warn"></span><span>temporal research substrate awaiting merge verification</span></div>
-              <div class="status-light"><span class="led warn"></span><span>E001 mechanics screen is not learning validation</span></div>
-              <div class="status-light"><span class="led red"></span><span>held-out multi-site learning evidence absent</span></div>
+              <div class="status-light"><span class="led"></span><span>E001 recovery mechanics published</span></div>
+              <div class="status-light"><span class="led"></span><span>40-run LC1 learning calibration recorded</span></div>
+              <div class="status-light"><span class="led warn"></span><span>LC1 candidate falsified by its frozen efficiency rule</span></div>
+              <div class="status-light"><span class="led red"></span><span>frontier-scale multi-site learning evidence absent</span></div>
             </aside>
           </section>
 
@@ -311,6 +312,7 @@ python -m gpu_stack.cli verify --profile fast
 python -m gpu_stack.cli resolve econ.cost.per_token --preset scenarios.dense_training_cost_fixture --trace --missing
 python -m gpu_stack.cli root-debt --families --limit 5
 python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --json
+python -m gpu_stack.cli next-work
 python -m gpu_stack.cli experiment-protocol E001 --json
 python -m gpu_stack.cli experiment-run E001 --scenario experiments/e001-beyond-one-datacenter/screening-scenario-v1.json --output result.json --observatory-output docs/data/e001-screening-v1.json</code></pre>
           </section>
@@ -349,7 +351,7 @@ python -m gpu_stack.cli experiment-run E001 --scenario experiments/e001-beyond-o
             </article>
             <article class="dialog-body">
               <h3>Not finished yet</h3>
-              <p>E001 does not yet model mid-operation preemption, lost work, checkpoint recovery, or the complete joint controller. Its learning response is an unfitted prior seeded by one-step 360M observations, not evidence that a 70B multi-site run converges.</p>
+              <p>E001 now has explicit recovery mechanics and a measured local small-model learning calibration. LC1 falsified its survivor-continuation candidate because a finite-horizon progress-per-FLOP ratio rewarded the fixed policy for stopping with less work and worse loss. This is not evidence that a frontier-scale multi-site run converges, and local GPU energy is not facility energy.</p>
             </article>
           </section>
 
@@ -358,7 +360,7 @@ python -m gpu_stack.cli experiment-run E001 --scenario experiments/e001-beyond-o
               <p class="eyebrow">next_work.exe</p>
               <h2 id="next-heading">The frontier program is six falsifiable questions.</h2>
             </div>
-            <div class="timeline-row"><b>1. Beyond One Datacenter</b><span>Test whether joint consistency, topology, optimizer, parallelism, and membership control can retain learning efficiency while cutting cross-site communication.</span></div>
+            <div class="timeline-row"><b>1. Beyond One Datacenter · LC2 next</b><span>Warm-start near a frozen late-training quality target, then test whether survivor continuation reduces time, device energy, and total work to that target. Only after it survives should the mechanism scale across models, optimizers, outages, and real sites.</span></div>
             <div class="timeline-row"><b>2. Shape the Power Waveform</b><span>Test whether dependency-safe phase control can suppress grid-danger-band energy without changing optimizer semantics.</span></div>
             <div class="timeline-row"><b>3. Semantic Fault Tolerance</b><span>Allocate canaries, replay, and redundancy by counterfactual learning harm instead of fault label.</span></div>
             <div class="timeline-row"><b>4. Fluid Inference Topology</b><span>Measure interaction gains and regime crossings when serving topology changes per request.</span></div>

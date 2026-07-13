@@ -18,7 +18,7 @@ Simulation-only results never advance beyond `virtual`.
 
 | ID | Experiment | Current state | Primary causal test |
 |---|---|---|---|
-| E001 | [Beyond One Datacenter](e001-beyond-one-datacenter/experiment.md) | four-policy recovery mechanics executed and visualized; learning comparison unresolved | Can a joint controller preserve learning efficiency while cutting cross-site communication under interruption? |
+| E001 | [Beyond One Datacenter](e001-beyond-one-datacenter/experiment.md) | recovery mechanics executed; LC1 small-model candidate falsified on held-out learning evidence | Can a joint controller preserve learning efficiency while cutting cross-site communication under interruption? |
 | E002 | [Shape the Power Waveform](e002-power-waveform-shaping/experiment.md) | designed | Can dependency-safe phase control suppress grid-danger-band power without changing optimizer semantics? |
 | E003 | [Semantic Fault Tolerance](e003-semantic-fault-tolerance/experiment.md) | designed | Can protection be allocated by counterfactual learning harm rather than fault label? |
 | E004 | [Fluid Inference Topology](e004-fluid-inference-topology/experiment.md) | designed | Do jointly controlled serving mechanisms create interaction gains and repeated topology-regime crossings? |
@@ -59,12 +59,50 @@ and 0.274 MJ. Fixed-local records 1.516 s, 10.4 GB, 144.50 PFLOP lost, and
 0.283 MJ. Adaptive records 1.536 s, 13.6 GB, 48.43 PFLOP lost, and 0.255 MJ.
 The oracle records 1.536 s, 13.6 GB, 57.00 PFLOP lost, and 0.257 MJ.
 
-Adaptive beats synchronous on the narrow mechanical comparison, but
-fixed-local is faster and lower-traffic than adaptive while adaptive loses far
-less work and uses less modeled energy. Learning progress is the same declared
-prior for every policy. The result is therefore a Pareto split and the only
-honest current conclusion remains `inconclusive_frontier_hypothesis`.
+Adaptive beats synchronous on the narrow modeled mechanical comparison, but
+fixed-local is faster and lower-traffic while adaptive loses far less work and
+uses less modeled energy. LC1 now supplies the previously missing measured
+small-model learning response.
 
-The next experiment is a measured fixed-local versus adaptive learning
-comparison under matched interruption. It must resolve held-out progress per
-FLOP, per joule, and per wall-clock second before the engine is generalized.
+### Learning calibration v1
+
+E001-LC1 completed 40 local GPU runs: 10 calibration observations and 30
+held-out evaluation observations. The calibration-only target was held-out NLL
+`3.13759109564126`; every evaluation policy first crossed it at tick 32, so the
+frozen time-to-target test tied.
+
+The preregistered conclusion is
+`candidate_falsified_small_model_calibration`. Paired progress-per-FLOP `tau`
+had median `-7.19835770326443e-14` with a 90% interval
+`[-7.24876398177115e-14, -5.48204063742032e-14]`. Adaptive nevertheless passed
+the retention and synchronous-reference gates: their lower bounds were
+`1.00215623908839` and `1.00265505192967`.
+
+Under interruption, fixed-local ended at median held-out NLL `2.341145828`
+after 458,752 attempted and 442,368 canonical tokens, with 16,384 replayed and
+16,384 discarded. Adaptive ended better at `2.314653009` after 524,288
+attempted and canonical tokens, with no replay or discard and 32,768 survivor-
+redistributed tokens. Both reached the loose target at tick 32. Adaptive wrote
+1.049 GB of checkpoints versus fixed-local's 302 MB.
+
+Fixed-local did 12.5% less attempted work and ended worse, yet the
+finite-horizon from-scratch progress-per-FLOP denominator made it look 12.7%
+better. That estimand does not rank recovery value in this regime. LC2 will
+warm-start late in training, freeze the quality target, and compare time,
+device energy, and work to target. Observed learning curves will then be
+bridged to modeled datacenter mechanics without calling those mechanics
+measured.
+
+Artifacts:
+
+- measured result: `e001-beyond-one-datacenter/results/learning-calibration-v1.json`
+  (`0597ca6deeeb34ae97d57d72b49187c687af921d3eec7b804ceb48b0d3994826`);
+- engine source: `3a51c72de99fd17580b0bbf4bbc6722db7470b41ac8d74d2f9fcabc386cdb010`;
+- scenario: `3ea1ccd6fc717ded9d4f7150574df806a8dc7572fa35d00314f9bb3ea744c319`;
+- observatory projection: `../docs/data/e001-learning-v1.json`
+  (`ff6b5a56dab3314f9ad0b1def40fda9ce9df540bda411284bb9766d9a3ee3c12`).
+
+The evidence is one byte-level small model on one local GPU. Energy is sampled
+device energy only. Simultaneous-site throughput, WAN, checkpoint storage,
+host, cooling, facility energy, and other datacenter mechanics remain modeled
+or unmeasured.

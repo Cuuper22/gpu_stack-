@@ -106,6 +106,11 @@ class _Evidence:
     e001_spec_present: bool
     experiment_spec_count: int
     experiment_result_artifact_count: int
+    e001_learning_result_present: bool
+    e001_learning_evaluation_observation_count: int
+    e001_learning_conclusion: str | None
+    e001_learning_candidate_survives: bool | None
+    e001_learning_observatory_present: bool
     e002_result_artifact_count: int
     observation_artifact_count: int
     evaluation_observation_reference_count: int
@@ -285,6 +290,7 @@ def _collect_evidence_uncached(resolved_repo_root: Path) -> _Evidence:
         experiment_results,
     )
     e001_v1_identity = _e001_v1_identity(resolved_repo_root)
+    e001_learning = _e001_learning_result(resolved_repo_root)
 
     return _Evidence(
         stats=stats,
@@ -325,6 +331,23 @@ def _collect_evidence_uncached(resolved_repo_root: Path) -> _Evidence:
         ).is_file(),
         experiment_spec_count=len(experiment_specs),
         experiment_result_artifact_count=len(experiment_results),
+        e001_learning_result_present=bool(e001_learning["present"]),
+        e001_learning_evaluation_observation_count=int(
+            e001_learning["evaluation_observation_count"]
+        ),
+        e001_learning_conclusion=(
+            str(e001_learning["conclusion"])
+            if e001_learning["conclusion"] is not None
+            else None
+        ),
+        e001_learning_candidate_survives=(
+            bool(e001_learning["candidate_survives"])
+            if e001_learning["candidate_survives"] is not None
+            else None
+        ),
+        e001_learning_observatory_present=(
+            resolved_repo_root / "docs" / "data" / "e001-learning-v1.json"
+        ).is_file(),
         e002_result_artifact_count=research_counts["e002_results"],
         observation_artifact_count=research_counts["observations"],
         evaluation_observation_reference_count=research_counts[
@@ -361,6 +384,56 @@ def _collect_evidence_uncached(resolved_repo_root: Path) -> _Evidence:
             / "experiment.md"
         ).is_file(),
     )
+
+
+def _e001_learning_result(repo_root: Path) -> dict[str, object]:
+    path = (
+        repo_root
+        / "experiments"
+        / "e001-beyond-one-datacenter"
+        / "results"
+        / "learning-calibration-v1.json"
+    )
+    empty = {
+        "present": False,
+        "evaluation_observation_count": 0,
+        "conclusion": None,
+        "candidate_survives": None,
+    }
+    if not path.is_file():
+        return empty
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return empty
+    if not isinstance(payload, dict) or payload.get("schema") != (
+        "gpu-stack.e001-recovery-learning-evidence.v1"
+    ):
+        return empty
+    split = payload.get("split")
+    evaluation_count = 0
+    if isinstance(split, dict):
+        evaluation = split.get("evaluation")
+        if isinstance(evaluation, dict):
+            ids = evaluation.get("observation_ids")
+            if isinstance(ids, list):
+                evaluation_count = sum(
+                    isinstance(item, str) and bool(item) for item in ids
+                )
+    summary = payload.get("summary")
+    conclusion = None
+    candidate_survives = None
+    if isinstance(summary, dict):
+        if isinstance(summary.get("conclusion"), str):
+            conclusion = summary["conclusion"]
+        if isinstance(summary.get("candidate_survives_lc1"), bool):
+            candidate_survives = summary["candidate_survives_lc1"]
+    return {
+        "present": True,
+        "evaluation_observation_count": evaluation_count,
+        "conclusion": conclusion,
+        "candidate_survives": candidate_survives,
+    }
 
 
 def _e001_v1_identity(repo_root: Path) -> dict[str, str | bool | None]:

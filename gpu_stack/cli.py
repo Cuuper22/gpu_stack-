@@ -240,7 +240,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_experiment_run.add_argument(
         "experiment",
-        choices=("E001", "E001-RECOVERY-V2"),
+        choices=("E001", "E001-RECOVERY-V2", "E001-LC1"),
         help="experiment identifier",
     )
     p_experiment_run.add_argument(
@@ -260,6 +260,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--observatory-output",
         metavar="PATH",
         help="also write the evidence-preserving causal-observatory projection",
+    )
+    p_experiment_run.add_argument(
+        "--dataset",
+        metavar="PATH",
+        help=(
+            "local source dataset shard for a measured experiment; required by "
+            "E001-LC1 and never copied into the repository"
+        ),
     )
     p_experiment_run.add_argument(
         "--observation",
