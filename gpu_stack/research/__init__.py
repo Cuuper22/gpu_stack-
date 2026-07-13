@@ -35,6 +35,24 @@ from .e001 import (
     run_e001,
     e001_engine_source_hash,
 )
+from .e001_recovery_v2 import (
+    E001_PARENT_BASELINE_OBLIGATION_IDS,
+    E001_RECOVERY_V2_BASELINE_POLICY_IDS,
+    E001_RECOVERY_V2_CANDIDATE_POLICY_ID,
+    E001_RECOVERY_V2_POLICY_IDS,
+    E001_RECOVERY_V2_POLICY_ROLES,
+    E001_RECOVERY_V2_PROTOCOL,
+)
+from .e001_recovery_artifact import (
+    E001_RECOVERY_RESULT_SCHEMA,
+    build_e001_recovery_result,
+    e001_recovery_result_json,
+)
+from .e001_recovery_runner import (
+    E001RecoveryExecution,
+    E001RecoveryScenario,
+    run_e001_recovery_v2,
+)
 
 from .evaluation import (
     DecisionRegret,
@@ -79,6 +97,30 @@ from .observations import (
     Provenance,
 )
 from .observatory import build_e001_observatory_artifact, e001_observatory_json
+from .observatory_recovery import (
+    E001_RECOVERY_OBSERVATORY_SCHEMA,
+    build_e001_recovery_observatory_artifact,
+    e001_recovery_observatory_json,
+)
+from .recovery import (
+    CheckpointLedger,
+    CompletedCheckpoint,
+    EvidenceBasis,
+    EvidenceBoundary,
+    FailureInterval,
+    FailureObservation,
+    FailureStatus,
+    FailureTrace,
+    RecoveryPlan,
+    RecoveryPlanningError,
+    RecoveryRequest,
+    SiteWorkAttempt,
+    WorkAttemptKind,
+    WorkAttemptOutcome,
+    WorkLedger,
+    evaluate_work_attempt,
+    plan_recovery,
+)
 from .multisite import (
     ConfigurationIntervention,
     DatacenterMetrics,
@@ -259,6 +301,18 @@ __all__ = [
     "E001_ENGINE_ID",
     "E001_PROTOCOL",
     "E001_RESULT_SCHEMA",
+    "E001_PARENT_BASELINE_OBLIGATION_IDS",
+    "E001_RECOVERY_V2_BASELINE_POLICY_IDS",
+    "E001_RECOVERY_V2_CANDIDATE_POLICY_ID",
+    "E001_RECOVERY_V2_POLICY_IDS",
+    "E001_RECOVERY_V2_POLICY_ROLES",
+    "E001_RECOVERY_V2_PROTOCOL",
+    "E001_RECOVERY_RESULT_SCHEMA",
+    "E001RecoveryExecution",
+    "E001RecoveryScenario",
+    "run_e001_recovery_v2",
+    "build_e001_recovery_result",
+    "e001_recovery_result_json",
     "LearningProgressCalibration",
     "LearningProgressPrior",
     "SiteOutage",
@@ -266,4 +320,24 @@ __all__ = [
     "e001_engine_source_hash",
     "build_e001_observatory_artifact",
     "e001_observatory_json",
+    "E001_RECOVERY_OBSERVATORY_SCHEMA",
+    "build_e001_recovery_observatory_artifact",
+    "e001_recovery_observatory_json",
+    "CheckpointLedger",
+    "CompletedCheckpoint",
+    "EvidenceBasis",
+    "EvidenceBoundary",
+    "FailureInterval",
+    "FailureObservation",
+    "FailureStatus",
+    "FailureTrace",
+    "RecoveryPlan",
+    "RecoveryPlanningError",
+    "RecoveryRequest",
+    "SiteWorkAttempt",
+    "WorkAttemptKind",
+    "WorkAttemptOutcome",
+    "WorkLedger",
+    "evaluate_work_attempt",
+    "plan_recovery",
 ]

@@ -15,10 +15,40 @@ training span heterogeneous, intermittently powered datacenters without losing
 centralized learning efficiency. Its preregistered virtual design is in
 `experiments/e001-beyond-one-datacenter/experiment.md`.
 
-`next-work` now promotes held-out E001 learning transfer, resumable failure and
-joint-control semantics, and the E002 measured power-waveform engine. Physical
-root debt and Pythia closure remain visible as legacy diagnostics, not the
-scientific priority function.
+`next-work` now promotes the measured fixed-local versus adaptive interrupted
+learning comparison, held-out evaluation of that response, and projection of
+the observed residual into the observatory. Physical root debt and Pythia
+closure remain legacy diagnostics, not the scientific priority function.
+
+## Active Wave: First Recovery-Backed E001 Research Loop
+
+Status: the vertical slice has executed on `feature/e001-resumable-failures`.
+The result and observatory artifacts are persisted and browser-inspected. The
+read-only full verifier passed `5/5` gates in `290.16s`; merge, push, and the
+local/GitHub equality check remain.
+
+- `python -B -m gpu_stack.cli experiment-run E001-RECOVERY-V2` executes four
+  matched policies through explicit failure, preemption, checkpoint restore,
+  replay, membership rejoin, and durable-progress recovery.
+- All policies reach durable frontier 8 and conserve work exactly.
+- Synchronous: 1.584 s, 15.2 GB, 114.64 PFLOP lost, 0.274 MJ.
+- Fixed-local: 1.516 s, 10.4 GB, 144.50 PFLOP lost, 0.283 MJ.
+- Adaptive: 1.536 s, 13.6 GB, 48.43 PFLOP lost, 0.255 MJ.
+- Oracle: 1.536 s, 13.6 GB, 57.00 PFLOP lost, 0.257 MJ.
+- The adaptive-vs-synchronous mechanics gate passes on this trace: equal
+  frontier, 48 ms faster, and 1.6 GB fewer modeled inter-site link bytes.
+  Fixed-local still beats adaptive on time and bytes; adaptive beats it on
+  lost work and modeled energy. This is a Pareto split, not validation.
+- Learning remains unmeasured: every policy carries the same declared `0.1`
+  prior. The next experiment must measure fixed-local versus adaptive learning
+  progress under matched interruption before topology expansion or E002.
+- The observatory now renders the four-policy timeline, work conservation,
+  six disjoint byte classes, completion/recovery debt, evidence boundaries,
+  and missing learning evidence at Freshman, Researcher, and Full trace depth.
+- Result hash:
+  `b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57`.
+  Observatory hash:
+  `2b3c33bac5a0e9e9009b758be54078ac8b4aa9ae4baf343145a81d7e0a6afb05`.
 
 ## Latest Verified Wave
 
@@ -38,10 +68,11 @@ Implemented facts:
 - Persisted E001 mechanics, all over the same modeled work: synchronous is
   33.6 TB and 6,047.01 s; fixed-local is 4.2 TB and 1,341.98 s; adaptive
   cadence is 1.68 TB and 938.60 s. Adaptive cadence uses 11 to 22 local steps.
-- The adaptive policy is still `inconclusive`. It passes the WAN scalar, but
-  held-out progress per FLOP, time to target, all seven structured gates,
-  reactive outage membership, optimizer correction, and complete energy are
-  unresolved.
+- The adaptive policy is still `inconclusive`. Its collective-payload ratio is
+  5 percent, but that is a component diagnostic rather than a complete WAN
+  scalar. Held-out progress per FLOP, time to target, all seven v1 structured
+  gates, reactive outage membership, optimizer correction, complete inter-site
+  traffic, and complete energy are unresolved.
 - The artifact-driven observatory exposes one truth at Freshman, Researcher,
   and Full trace depths. URL state includes experiment, policy, node, event,
   time, depth, and uncertainty. Full trace exposes 1,395 event records.
@@ -83,11 +114,12 @@ Implemented facts:
 
 ## Resume Instructions
 
-Resume from measured learning, not foundation work. Do not begin another
-generic root-closure or metadata wave. Read `RESEARCH.md`, the frontier scan,
-`SESSION_STATE.md`, `VISIBLE_BACKLOG.md`, and the persisted E001 result. Start
-with held-out E001 learning transfer or resumable failure semantics. Keep every
-new result on the protocol and observatory artifact contracts.
+Resume from measured learning, not recovery infrastructure. Do not begin
+another generic root-closure, metadata, recovery-contract, or schema-audit
+wave. Read the persisted recovery-v2 result and compare fixed-local restart
+against adaptive recovery with observed learning progress under the same
+interruptions. Project that observation into the existing artifact and
+observatory. Generalize only after this complete research loop closes.
 
 ## Current State
 
@@ -174,21 +206,22 @@ and preset export/discovery tests.
 
 ## Next Real Work
 
-1. Collect held-out E001 learning curves and progress-per-FLOP panels across
-   local-step delay, interruptions, optimizer correction, scale, and model
-   families.
-2. Implement preemption, lost work, checkpoint recovery, reactive membership,
-   topology change, and optimizer correction before claiming a joint E001
-   controller.
-3. Build E002's measured rack/facility power-waveform engine and preregistered
-   spectral, time-to-target, rebound, and full-boundary accounting panels.
-4. Add observed residual and uncertainty views to the same causal observatory
-   artifact as soon as held-out evidence exists.
+1. Run fixed-local restart and adaptive recovery on the same small-model
+   training workload and interruption trace.
+2. Hold out evaluation runs and compare loss progress per FLOP, joule, and
+   wall-clock second to target. Do not fit and score on the same observations.
+3. Put the observed residual, uncertainty, and provenance into the existing
+   recovery artifact and three-depth observatory.
+4. Let that result select optimizer correction, topology, deeper failure-aware
+   control, E002, or a published null result.
 
 ## Verification Policy
 
-Run focused tests for touched surfaces and report only exact observed results.
-Use the full verifier before handoff after broad graph or scenario changes.
+For each E-00N milestone, run one feature-level verification at the end. Do not
+build new audit/checklist infrastructure or repeatedly test partial recovery
+semantics while implementing. Fix a direct validity failure if it blocks the
+research path; otherwise finish the experiment, artifact, and visual result
+before verification.
 
 ## 2026-05-06 22:35 PDT Parent Closeout
 

@@ -3,6 +3,8 @@
 
   const ARTIFACT_URL = "data/e001-screening-v1.json";
   const ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001.v1";
+  const RECOVERY_ARTIFACT_URL = "data/e001-recovery-v2.json";
+  const RECOVERY_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001-recovery.v2";
   const SVG_NS = "http://www.w3.org/2000/svg";
   const VALID_DEPTHS = new Set(["freshman", "researcher", "full_trace"]);
   const VALID_POLICIES = new Set(["synchronous", "fixed_local", "adaptive_cadence"]);
@@ -13,6 +15,37 @@
     fixed_local: "Fixed local",
     adaptive_cadence: "Adaptive cadence",
   };
+  const RECOVERY_ROLE_LABELS = {
+    failure: "Failure",
+    preemption: "Preemption",
+    checkpoint_restore: "Restore",
+    state_transfer: "State transfer",
+    replay: "Replay",
+    membership_rejoin: "Rejoin",
+    resynchronize: "Resynchronize",
+    availability_recovery: "Availability restored",
+    durable_progress_recovery: "Durable frontier recovered",
+  };
+  const RECOVERY_POLICY_LABELS = {
+    "synchronous-wait-restore": "Synchronous wait + restore",
+    "fixed-local-checkpoint-restart": "Fixed-local checkpoint restart",
+    "adaptive-recovery": "Adaptive recovery",
+    "future-trace-recovery-oracle": "Future-trace recovery oracle",
+  };
+  const RECOVERY_POLICY_ROLES = {
+    "synchronous-wait-restore": "baseline",
+    "fixed-local-checkpoint-restart": "baseline",
+    "adaptive-recovery": "candidate",
+    "future-trace-recovery-oracle": "oracle_comparator",
+  };
+  const RECOVERY_BYTE_CLASSES = [
+    ["completed_collective_link_bytes", "completed collective", "var(--obs-cobalt)"],
+    ["aborted_collective_link_bytes", "aborted collective", "var(--obs-red)"],
+    ["remote_checkpoint_replication_link_bytes", "checkpoint replication", "var(--obs-event-checkpoint)"],
+    ["remote_checkpoint_restore_link_bytes", "checkpoint restore", "#8c74bd"],
+    ["recovery_state_redistribution_link_bytes", "recovery redistribution", "var(--obs-orange)"],
+    ["planned_state_migration_link_bytes", "planned migration", "var(--obs-teal)"],
+  ];
   const EVIDENCE_LABELS = {
     observed: "OBSERVED",
     modeled: "MODELED",
@@ -125,6 +158,8 @@
   const dom = {};
   let artifact = null;
   let artifactError = null;
+  let recoveryArtifact = null;
+  let recoveryArtifactError = null;
   let state = readStateFromURL();
   let timelineScale = null;
   let transientInspector = false;
@@ -357,6 +392,32 @@
     return value;
   }
 
+  function validateRecoveryArtifact(value) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) throw new ArtifactContractError("recovery artifact root is not an object");
+    if (value.schema !== RECOVERY_ARTIFACT_SCHEMA) throw new ArtifactContractError(`unsupported recovery schema: ${String(value.schema || "missing")}`);
+    if (value.experiment_id !== "E001-RECOVERY-V2") throw new ArtifactContractError("recovery artifact experiment_id is not E001-RECOVERY-V2");
+    const requiredObjects = ["source_result", "status", "matched_trace", "matched_frontier", "comparison", "causal_graph", "result_scope"];
+    requiredObjects.forEach((key) => {
+      if (!value[key] || typeof value[key] !== "object" || Array.isArray(value[key])) throw new ArtifactContractError(`recovery artifact ${key} is missing`);
+    });
+    if (typeof value.artifact_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.artifact_sha256)) throw new ArtifactContractError("recovery artifact sha256 is invalid");
+    if (typeof value.protocol_hash !== "string" || !value.protocol_hash) throw new ArtifactContractError("recovery artifact protocol_hash is missing");
+    if (!Array.isArray(value.semantic_depths) || value.semantic_depths.join("|") !== "freshman|researcher|full_trace") throw new ArtifactContractError("recovery artifact semantic_depths are invalid");
+    if (!Array.isArray(value.runs) || value.runs.length !== 4) throw new ArtifactContractError("recovery artifact requires exactly four matched policy runs");
+    const arrayKeys = ["recovery_episodes", "decision_batches", "work_dispositions", "link_segments", "state_snapshots", "falsifiers", "evidence_requirements"];
+    value.runs.forEach((run) => {
+      if (!run || typeof run !== "object" || Array.isArray(run) || typeof run.policy_id !== "string" || !run.policy_id || typeof run.policy_role !== "string") throw new ArtifactContractError("recovery artifact contains an invalid run identity");
+      if (!Object.prototype.hasOwnProperty.call(RECOVERY_POLICY_ROLES, run.policy_id) || RECOVERY_POLICY_ROLES[run.policy_id] !== run.policy_role) throw new ArtifactContractError(`recovery run ${String(run.policy_id || "unknown")} has an invalid policy role`);
+      if (!run.summary || typeof run.summary !== "object" || Array.isArray(run.summary) || !run.metrics || typeof run.metrics !== "object" || Array.isArray(run.metrics)) throw new ArtifactContractError(`recovery run ${String(run.policy_id || "unknown")} lacks summary or metrics`);
+      if (!run.checkpoint_lineage || typeof run.checkpoint_lineage !== "object" || Array.isArray(run.checkpoint_lineage)) throw new ArtifactContractError(`recovery run ${run.policy_id} lacks checkpoint_lineage`);
+      arrayKeys.forEach((key) => {
+        if (!Array.isArray(run[key])) throw new ArtifactContractError(`recovery run ${run.policy_id} lacks ${key}`);
+      });
+    });
+    if (new Set(value.runs.map((run) => run.policy_id)).size !== 4) throw new ArtifactContractError("recovery artifact policy runs are not unique");
+    return value;
+  }
+
   async function loadArtifact() {
     try {
       const response = await fetch(ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
@@ -372,6 +433,21 @@
     renderAll();
   }
 
+  async function loadRecoveryArtifact() {
+    try {
+      const response = await fetch(RECOVERY_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error(`recovery artifact request returned ${response.status}`);
+      recoveryArtifact = validateRecoveryArtifact(await response.json());
+      recoveryArtifactError = null;
+      document.body.dataset.recoveryState = "ready";
+    } catch (error) {
+      recoveryArtifact = null;
+      recoveryArtifactError = error;
+      document.body.dataset.recoveryState = error instanceof ArtifactContractError ? "invalid" : "missing";
+    }
+    renderRecoveryV2();
+  }
+
   function cacheDOM() {
     [
       "experiment-select", "share-state", "plain-answer", "artifact-state", "stage-boundary",
@@ -381,6 +457,9 @@
       "next-event", "timeline-fallback", "uncertainty-select", "comparison-body", "comparison-boundary",
       "source-observation-body", "prior-parameters", "decision-ledger-body", "raw-trace-summary",
       "raw-trace-json", "source-chain-item", "source-chain-label", "source-chain-evidence", "footer-evidence-state", "sr-status",
+      "recovery-v2", "recovery-v2-state", "recovery-depth-copy", "recovery-timeline-svg",
+      "recovery-timeline-fallback", "recovery-work-bars", "recovery-byte-bars",
+      "recovery-completion-ruler", "recovery-learning-boundary", "recovery-learning-trace",
     ].forEach((id) => { dom[id.replaceAll("-", "")] = byId(id); });
     dom.researchBand = document.querySelector(".research-band");
     dom.depthButtons = [...document.querySelectorAll(".depth-control button")];
@@ -450,6 +529,7 @@
     writeStateToURL(true);
     renderAll();
     loadArtifact();
+    loadRecoveryArtifact();
   }
 
   document.addEventListener("DOMContentLoaded", init, { once: true });
@@ -469,6 +549,321 @@
     renderPriorParameters();
     renderDecisionLedger();
     renderRawTrace();
+    renderRecoveryV2();
+  }
+
+  function recoveryRuns() {
+    return recoveryArtifact && Array.isArray(recoveryArtifact.runs) ? recoveryArtifact.runs : [];
+  }
+
+  function recoveryPolicyLabel(policyId) {
+    if (Object.prototype.hasOwnProperty.call(RECOVERY_POLICY_LABELS, policyId)) return RECOVERY_POLICY_LABELS[policyId];
+    return String(policyId || "unknown policy")
+      .split(/[-_]/g)
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }
+
+  function formatFlops(value) {
+    if (!finiteNumber(value)) return "unmeasured";
+    const magnitude = Math.abs(value);
+    if (magnitude >= 1e18) return `${(value / 1e18).toLocaleString("en-US", { maximumFractionDigits: 2 })} EFLOP`;
+    if (magnitude >= 1e15) return `${(value / 1e15).toLocaleString("en-US", { maximumFractionDigits: 2 })} PFLOP`;
+    if (magnitude >= 1e12) return `${(value / 1e12).toLocaleString("en-US", { maximumFractionDigits: 2 })} TFLOP`;
+    return `${value.toLocaleString("en-US", { maximumFractionDigits: 2 })} FLOP`;
+  }
+
+  function recoveryRecordTime(record) {
+    if (finiteNumber(record.start_ns)) return record.start_ns;
+    if (finiteNumber(record.timestamp_ns)) return record.timestamp_ns;
+    if (finiteNumber(record.at_ns)) return record.at_ns;
+    if (finiteNumber(record.applied_at_ns)) return record.applied_at_ns;
+    return null;
+  }
+
+  function recoveryRecordEnd(record, startNs) {
+    if (finiteNumber(record.end_ns)) return Math.max(startNs, record.end_ns);
+    if (finiteNumber(record.completed_at_ns)) return Math.max(startNs, record.completed_at_ns);
+    return startNs;
+  }
+
+  function recoveryRecordId(record, fallback) {
+    const candidates = [record.event_id, record.milestone_id, record.record_id, record.attempt_id, record.decision_id, record.transition_id];
+    const found = candidates.find((value) => typeof value === "string" && value);
+    return found || fallback;
+  }
+
+  function recoveryRecordsForRun(run) {
+    const records = [];
+    const seenObjects = new Set();
+    const seenRecords = new Set();
+    const visit = (value, path) => {
+      if (!value || typeof value !== "object" || seenObjects.has(value)) return;
+      seenObjects.add(value);
+      if (Array.isArray(value)) {
+        value.forEach((item, index) => visit(item, `${path}[${index}]`));
+        return;
+      }
+      if (typeof value.recovery_role === "string" && Object.prototype.hasOwnProperty.call(RECOVERY_ROLE_LABELS, value.recovery_role)) {
+        const startNs = recoveryRecordTime(value);
+        if (finiteNumber(startNs)) {
+          const endNs = recoveryRecordEnd(value, startNs);
+          const recordId = recoveryRecordId(value, path);
+          const key = `${recordId}|${value.recovery_role}|${startNs}|${endNs}`;
+          if (!seenRecords.has(key)) {
+            seenRecords.add(key);
+            records.push({ ...value, event_id: recordId, start_ns: startNs, end_ns: endNs, policy_id: run.policy_id });
+          }
+        }
+      }
+      Object.entries(value).forEach(([key, nested]) => {
+        if (key !== "metadata") visit(nested, `${path}.${key}`);
+      });
+    };
+    (Array.isArray(run.recovery_episodes) ? run.recovery_episodes : []).forEach((episode, index) => visit(episode, `recovery_episodes[${index}]`));
+    return records.sort((a, b) => a.start_ns - b.start_ns || a.end_ns - b.end_ns || String(a.event_id).localeCompare(String(b.event_id)));
+  }
+
+  function renderRecoveryTimeline() {
+    const svg = dom.recoverytimelinesvg;
+    svg.replaceChildren();
+    const title = svgElement("title", { id: "recovery-timeline-title" });
+    title.textContent = "Aligned four-policy recovery timeline";
+    const description = svgElement("desc", { id: "recovery-timeline-desc" });
+    svg.append(title, description);
+
+    const runs = recoveryRuns();
+    const recordsByPolicy = runs.map((run) => ({ run, records: recoveryRecordsForRun(run) }));
+    const records = recordsByPolicy.flatMap((entry) => entry.records);
+    if (!records.length) {
+      svg.setAttribute("viewBox", "0 0 1000 180");
+      svg.setAttribute("height", "180");
+      description.textContent = "The recovery artifact contains no timeline records with explicit recovery roles.";
+      const empty = svgElement("text", { x: 500, y: 92, "text-anchor": "middle", class: "recovery-policy-label" });
+      empty.textContent = "RECOVERY TIMELINE UNAVAILABLE IN ARTIFACT";
+      svg.append(empty);
+      renderRecoveryTimelineFallback(recordsByPolicy);
+      return;
+    }
+
+    const minNs = Math.min(...records.map((record) => record.start_ns));
+    const maxNs = Math.max(...records.map((record) => record.end_ns), minNs + 1);
+    const left = 240;
+    const right = 975;
+    const axisY = 30;
+    const rowHeight = 90;
+    const height = 58 + rowHeight * recordsByPolicy.length;
+    const scaleX = (value) => left + (value - minNs) / (maxNs - minNs) * (right - left);
+    svg.setAttribute("viewBox", `0 0 1000 ${height}`);
+    svg.setAttribute("height", String(height));
+    description.textContent = "Four ordered policy tracks share one artifact time scale. Intervals show restore and replay; milestone marks show failure, preemption, recovery, and rejoin.";
+    svg.append(svgElement("line", { x1: left, x2: right, y1: axisY, y2: axisY, class: "recovery-axis" }));
+    for (let tickIndex = 0; tickIndex <= 5; tickIndex += 1) {
+      const fraction = tickIndex / 5;
+      const timestamp = minNs + fraction * (maxNs - minNs);
+      const x = left + fraction * (right - left);
+      svg.append(svgElement("line", { x1: x, x2: x, y1: axisY, y2: height - 12, class: "recovery-gridline" }));
+      const tick = svgElement("text", { x, y: axisY - 8, "text-anchor": tickIndex === 0 ? "start" : tickIndex === 5 ? "end" : "middle", class: "recovery-tick" });
+      tick.textContent = formatSecondsFromNs(timestamp, { fixed: timestamp / 1e9 < 10 ? 2 : 1 });
+      svg.append(tick);
+    }
+
+    recordsByPolicy.forEach(({ run, records: policyRecords }, runIndex) => {
+      const top = 52 + runIndex * rowHeight;
+      const baseline = top + 28;
+      const policy = svgElement("text", { x: 10, y: top + 4, class: "recovery-policy-label" });
+      policy.dataset.policyRole = run.policy_role || "comparator";
+      policy.textContent = recoveryPolicyLabel(run.policy_id);
+      const role = svgElement("text", { x: 10, y: top + 20, class: "recovery-event-id" });
+      role.textContent = String(run.policy_role || "comparator").replaceAll("_", " ").toUpperCase();
+      svg.append(policy, role, svgElement("line", { x1: left, x2: right, y1: baseline, y2: baseline, class: "recovery-track" }));
+
+      policyRecords.forEach((record, recordIndex) => {
+        const x = scaleX(record.start_ns);
+        const intervalWidth = Math.max(0, scaleX(record.end_ns) - x);
+        const milestone = intervalWidth < 2;
+        const y = baseline + 10 + recordIndex % 3 * 14;
+        const mark = svgElement(milestone ? "rect" : "rect", {
+          x: milestone ? x - 4 : x,
+          y,
+          width: milestone ? 8 : Math.max(3, intervalWidth),
+          height: milestone ? 8 : 9,
+          transform: milestone ? `rotate(45 ${x} ${y + 4})` : undefined,
+          class: "recovery-event",
+          "data-role": record.recovery_role,
+        });
+        const markTitle = svgElement("title");
+        markTitle.textContent = `${RECOVERY_ROLE_LABELS[record.recovery_role]}: ${record.event_id}, ${formatSecondsFromNs(record.start_ns)} to ${formatSecondsFromNs(record.end_ns)}`;
+        mark.append(markTitle);
+        svg.append(mark);
+        if (!milestone && intervalWidth > 42) {
+          const label = svgElement("text", { x: x + 4, y: y + 8, class: "recovery-event-label" });
+          label.textContent = RECOVERY_ROLE_LABELS[record.recovery_role].toUpperCase();
+          svg.append(label);
+        }
+        if (state.depth === "full_trace" && recordIndex < 3) {
+          const id = svgElement("text", { x: Math.min(right - 100, x + 3), y: y + 20, class: "recovery-event-id" });
+          id.textContent = String(record.event_id).slice(0, 28);
+          svg.append(id);
+        }
+      });
+
+      const failure = policyRecords.find((record) => record.recovery_role === "failure");
+      const recovered = policyRecords.find((record) => record.recovery_role === "durable_progress_recovery");
+      if (failure && recovered && recovered.start_ns >= failure.start_ns) {
+        const startX = scaleX(failure.start_ns);
+        const endX = scaleX(recovered.start_ns);
+        const bracketY = top + 4;
+        svg.append(svgElement("path", { d: `M${startX} ${bracketY + 7}V${bracketY}H${endX}V${bracketY + 7}`, class: "recovery-debt-bracket" }));
+        const label = svgElement("text", { x: (startX + endX) / 2, y: bracketY - 3, "text-anchor": "middle", class: "recovery-debt-label" });
+        label.textContent = `DURABLE RECOVERY ${formatSecondsFromNs(recovered.start_ns - failure.start_ns)}`;
+        svg.append(label);
+      }
+    });
+    renderRecoveryTimelineFallback(recordsByPolicy);
+  }
+
+  function renderRecoveryTimelineFallback(recordsByPolicy) {
+    dom.recoverytimelinefallback.replaceChildren();
+    recordsByPolicy.forEach(({ run, records }) => {
+      const heading = element("h3", "", `${recoveryPolicyLabel(run.policy_id)} · ${String(run.policy_role || "comparator").replaceAll("_", " ")}`);
+      dom.recoverytimelinefallback.append(heading);
+      if (!records.length) {
+        dom.recoverytimelinefallback.append(element("p", "", "No explicit recovery-role timeline records were projected."));
+        return;
+      }
+      const table = element("table", "recovery-timeline-table");
+      const head = element("thead");
+      const headRow = element("tr");
+      ["Role", "Starts", "Ends", "Record"].forEach((label) => headRow.append(element("th", "", label)));
+      head.append(headRow);
+      const body = element("tbody");
+      records.forEach((record) => {
+        const row = element("tr");
+        row.append(
+          element("td", "", RECOVERY_ROLE_LABELS[record.recovery_role]),
+          element("td", "", formatSecondsFromNs(record.start_ns)),
+          element("td", "", formatSecondsFromNs(record.end_ns)),
+          element("td", "", record.event_id),
+        );
+        body.append(row);
+      });
+      table.append(head, body);
+      dom.recoverytimelinefallback.append(table);
+    });
+  }
+
+  function recoveryMeasureRow(run, track, value, legend) {
+    const row = element("div", "recovery-policy-measure");
+    row.dataset.policyRole = run.policy_role || "comparator";
+    const label = element("span", "recovery-measure-label");
+    label.title = `${recoveryPolicyLabel(run.policy_id)} · ${String(run.policy_role || "comparator").replaceAll("_", " ")}`;
+    label.append(
+      document.createTextNode(recoveryPolicyLabel(run.policy_id)),
+      element("small", "", String(run.policy_role || "comparator").replaceAll("_", " ")),
+    );
+    row.append(label, track, element("span", "recovery-measure-value", value));
+    if (legend) row.append(legend);
+    return row;
+  }
+
+  function renderRecoveryWorkBars() {
+    dom.recoveryworkbars.replaceChildren();
+    recoveryRuns().forEach((run) => {
+      const metrics = run.metrics || {};
+      const attempted = metrics.attempted_compute_flops;
+      const retained = metrics.valid_final_state_compute_flops;
+      const lost = metrics.lost_compute_flops;
+      const replay = metrics.replay_compute_flops;
+      const track = element("div", "recovery-stack");
+      const retainedSegment = element("span", "recovery-stack-segment");
+      retainedSegment.dataset.work = "retained";
+      retainedSegment.style.width = finiteNumber(attempted) && attempted > 0 && finiteNumber(retained) ? `${Math.max(0, Math.min(100, retained / attempted * 100))}%` : "0%";
+      const lostSegment = element("span", "recovery-stack-segment");
+      lostSegment.dataset.work = "lost";
+      lostSegment.style.width = finiteNumber(attempted) && attempted > 0 && finiteNumber(lost) ? `${Math.max(0, Math.min(100, lost / attempted * 100))}%` : "0%";
+      track.append(retainedSegment, lostSegment);
+      const legend = element("div", "recovery-stack-legend");
+      legend.append(
+        element("span", "", `retained ${formatFlops(retained)}`),
+        element("span", "", `lost ${formatFlops(lost)}`),
+        element("span", "", `replayed subset ${formatFlops(replay)}`),
+      );
+      dom.recoveryworkbars.append(recoveryMeasureRow(run, track, `attempted ${formatFlops(attempted)}`, legend));
+    });
+  }
+
+  function renderRecoveryByteBars() {
+    dom.recoverybytebars.replaceChildren();
+    recoveryRuns().forEach((run) => {
+      const metrics = run.metrics || {};
+      const total = metrics.total_inter_site_link_bytes;
+      const track = element("div", "recovery-stack");
+      const legend = element("div", "recovery-stack-legend");
+      RECOVERY_BYTE_CLASSES.forEach(([key, label, color]) => {
+        const value = metrics[key];
+        const segment = element("span", "recovery-stack-segment recovery-byte-segment");
+        segment.dataset.byteClass = key;
+        segment.style.width = finiteNumber(total) && total > 0 && finiteNumber(value) ? `${Math.max(0, Math.min(100, value / total * 100))}%` : "0%";
+        segment.title = `${label}: ${formatBytes(value)}`;
+        track.append(segment);
+        const legendItem = element("span");
+        const swatch = element("i");
+        swatch.style.setProperty("--legend-color", color);
+        legendItem.append(swatch, document.createTextNode(`${label} ${formatBytes(value)}`));
+        legend.append(legendItem);
+      });
+      dom.recoverybytebars.append(recoveryMeasureRow(run, track, `total ${formatBytes(total)}`, legend));
+    });
+  }
+
+  function recoveryCompletionNs(run) {
+    const summary = run && run.summary && typeof run.summary === "object" ? run.summary : {};
+    const keys = ["mechanical_completion_ns", "durable_frontier_reached_at_ns", "completion_time_ns", "terminal_time_ns"];
+    const key = keys.find((candidate) => finiteNumber(summary[candidate]));
+    if (key) return summary[key];
+    const durableRecovery = recoveryRecordsForRun(run).find((record) => record.recovery_role === "durable_progress_recovery");
+    return durableRecovery ? durableRecovery.start_ns : null;
+  }
+
+  function renderRecoveryCompletion() {
+    dom.recoverycompletionruler.replaceChildren();
+    const runs = recoveryRuns();
+    const completions = runs.map((run) => recoveryCompletionNs(run));
+    const finiteCompletions = completions.filter(finiteNumber);
+    const maxCompletion = finiteCompletions.length ? Math.max(...finiteCompletions) : null;
+    runs.forEach((run, index) => {
+      const completion = completions[index];
+      const track = element("div", "recovery-completion-track");
+      if (finiteNumber(completion) && finiteNumber(maxCompletion) && maxCompletion > 0) {
+        const mark = element("span", "recovery-completion-mark");
+        mark.style.left = `${Math.max(0, Math.min(100, completion / maxCompletion * 100))}%`;
+        track.append(mark);
+      }
+      const debt = run.metrics && finiteNumber(run.metrics.recovery_debt_ns) ? formatSecondsFromNs(run.metrics.recovery_debt_ns, { fixed: 1 }) : null;
+      const note = finiteNumber(completion) ? `${formatSecondsFromNs(completion)}${debt ? ` · debt ${debt}` : ""}` : "completion anchor not reported";
+      dom.recoverycompletionruler.append(recoveryMeasureRow(run, track, note));
+    });
+    dom.recoverycompletionruler.append(element("span", "recovery-completion-axis"));
+  }
+
+  function renderRecoveryV2() {
+    if (!dom.recoveryv2) return;
+    if (!recoveryArtifact) {
+      dom.recoveryv2.hidden = true;
+      return;
+    }
+    dom.recoveryv2.hidden = false;
+    const status = recoveryArtifact.status || {};
+    const protocol = String(recoveryArtifact.protocol_hash || "not reported").slice(0, 12);
+    dom.recoveryv2state.textContent = `${String(status.conclusion || "inconclusive").replaceAll("_", " ")} · MODELED mechanics · protocol ${protocol}`;
+    renderRecoveryTimeline();
+    renderRecoveryWorkBars();
+    renderRecoveryByteBars();
+    renderRecoveryCompletion();
+    const unsupported = recoveryArtifact.result_scope && Array.isArray(recoveryArtifact.result_scope.unsupported) ? recoveryArtifact.result_scope.unsupported : [];
+    dom.recoverylearningtrace.textContent = unsupported.length ? `Unsupported: ${unsupported.join("; ")}.` : "No held-out recovery-quality observation is attached.";
   }
 
   function renderStatus() {

@@ -1,6 +1,6 @@
 # E001: Beyond One Datacenter
 
-Status: virtual mechanics screen implemented; hypothesis remains inconclusive
+Status: four-policy recovery mechanics executed; learning hypothesis remains inconclusive
 
 ## Question
 
@@ -142,8 +142,48 @@ checkpoint epochs; WAN and endpoint contention; fixed-time site interruption;
 base plus accelerator-compute energy; and cadence decisions made only from a
 completed communication cycle.
 
-It does not yet implement mid-operation policy callbacks, preemption, lost
-work, checkpoint recovery, reactive membership, topology changes, optimizer
-correction, the complete baseline vector, or held-out learning transfer. The
-machine protocol carries those as mandatory structured evidence requirements.
-They cannot disappear because the one computable WAN threshold looks good.
+The v1 slice does not implement mid-operation recovery. That boundary is now
+covered separately by [Recovery Mechanics v2](recovery-mechanics-v2.md) and
+`E001_RECOVERY_V2_PROTOCOL`, without changing the frozen v1 artifact.
+
+## Recovery Mechanics v2 Result
+
+The v2 runner executes synchronous wait and restore, fixed-local checkpoint
+restart, adaptive recovery, and a future-trace oracle comparator against one
+absolute-time failure trace. It records failure visibility, preemption,
+atomic checkpoint lineage, restore, replay, desired/effective membership,
+durable frontier, lost work, recovery time, traffic classes, and modeled energy.
+
+All four policies reach durable frontier 8 with exact work conservation:
+
+| Policy | Completion | Inter-site bytes | Lost work | Modeled energy |
+|---|---:|---:|---:|---:|
+| Synchronous wait + restore | 1.584 s | 15.2 GB | 114.64 PFLOP | 0.274 MJ |
+| Fixed-local checkpoint restart | 1.516 s | 10.4 GB | 144.50 PFLOP | 0.283 MJ |
+| Adaptive recovery | 1.536 s | 13.6 GB | 48.43 PFLOP | 0.255 MJ |
+| Future-trace recovery oracle | 1.536 s | 13.6 GB | 57.00 PFLOP | 0.257 MJ |
+
+Adaptive beats synchronous by 48 ms and 1.6 GB on this trace. It does not
+dominate fixed-local: fixed-local is faster and moves fewer bytes, while
+adaptive loses much less work and uses less modeled energy. The oracle does
+not improve on adaptive time or traffic in this scenario. These are modeled
+mechanics, not a general controller ranking.
+
+Every policy still carries the same declared `0.1` learning-progress prior.
+The result therefore remains `inconclusive_frontier_hypothesis`. It resolves
+whether GPUSTACK can represent a recovery comparison, but not whether adaptive
+recovery preserves learning more efficiently.
+
+Result artifact:
+`results/recovery-mechanics-v2.json` (`b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57`).
+Observatory projection:
+`../../docs/data/e001-recovery-v2.json` (`2b3c33bac5a0e9e9009b758be54078ac8b4aa9ae4baf343145a81d7e0a6afb05`).
+
+## Next Experiment
+
+Run fixed-local and adaptive recovery on one real small-model workload under
+the same interruptions, using disjoint calibration and evaluation runs.
+Measure held-out loss progress per FLOP, per joule, and per wall-clock second
+to a target. Bind those observations and residuals into the existing result and
+observatory. The outcome selects optimizer correction, topology, failure-aware
+control, or a published null result. Do not generalize the engine first.

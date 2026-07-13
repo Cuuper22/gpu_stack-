@@ -30,6 +30,46 @@ loop. Read `RESEARCH.md`, then
   with a 600-second gate ceiling after the default 300-second ceiling stopped
   a still-green pytest stream at 97 percent.
 
+## Active Wave: First Recovery-Backed E001 Research Loop
+
+Status: the experiment, result artifact, and observatory projection exist on
+`feature/e001-resumable-failures`. Human browser inspection is complete. The
+read-only full verifier passed `5/5` gates in `290.16s`; merge and synchronized
+GitHub closeout remain.
+
+- `E001-RECOVERY-V2` now runs four policies against the same two-failure clock:
+  synchronous wait and restore, fixed-local checkpoint restart, adaptive
+  recovery, and a future-trace oracle comparator.
+- Every run reaches durable frontier 8 with exact attempted = retained + lost
+  work conservation. The artifacts expose preemption, checkpoint lineage,
+  restore, replay, membership rejoin, recovery time, link-byte classes, and
+  modeled compute plus network energy.
+- Synchronous records 1.584 s, 15.2 GB, 114.64 PFLOP lost, and 0.274 MJ.
+  Fixed-local records 1.516 s, 10.4 GB, 144.50 PFLOP lost, and 0.283 MJ.
+  Adaptive records 1.536 s, 13.6 GB, 48.43 PFLOP lost, and 0.255 MJ. The
+  oracle records 1.536 s, 13.6 GB, 57.00 PFLOP lost, and 0.257 MJ.
+- Adaptive therefore beats synchronous on mechanical completion time and
+  complete modeled inter-site bytes on this trace. Fixed-local remains faster
+  and lower-traffic than adaptive, while adaptive loses much less work and
+  uses less modeled energy. There is no global winner.
+- Learning progress is still the same declared `0.1` prior for every policy.
+  The E001 hypothesis remains `inconclusive_frontier_hypothesis`; this run
+  cannot choose between fixed-local and adaptive on learning efficiency.
+- The next research build is a measured fixed-local versus adaptive interrupted
+  training calibration. Its outcome must be progress per FLOP, progress per
+  joule, and time to a held-out target, projected into the same observatory.
+  Do not generalize the recovery engine or start E002 before this comparison.
+- Artifact binding: result
+  `b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57`;
+  observatory
+  `2b3c33bac5a0e9e9009b758be54078ac8b4aa9ae4baf343145a81d7e0a6afb05`;
+  engine
+  `ddf909d46553c3e419df9323aadc692cd340297bfb314f685e0bf71c50c4a0e7`;
+  scenario
+  `e5840301e4fa2902ee31071943f7d13d7d2d3cc158b1b9220b46f514f29f65ab`;
+  protocol
+  `5182a8e518706252fb24a9812351eb19d2bc9070fd3190e4095c1b0106a4a5a2`.
+
 ## Latest Verified Wave: Research Substrate, E001 Mechanics, And Observatory
 
 Status: implemented, browser-inspected, and merge-verified.
@@ -45,10 +85,11 @@ Status: implemented, browser-inspected, and merge-verified.
   The persisted mechanics screen compares synchronous, fixed-local, and
   adaptive-cadence policies over the same compute, checkpoint, and site
   scenario.
-- Observed mechanics: synchronous uses 33.6 TB of payload-link traffic and
+- Observed mechanics: synchronous uses 33.6 TB of collective-payload link
+  traffic and
   6,047.01 s; fixed-local uses 4.2 TB and 1,341.98 s; adaptive cadence uses
   1.68 TB and 938.60 s. These are virtual mechanics, not held-out learning
-  results.
+  results, and the 5 percent ratio is not complete inter-site traffic.
 - The hypothesis policy remains `inconclusive`: held-out progress per FLOP,
   time to target, reactive outage membership, complete energy, and all seven
   structured E001 evidence gates remain unresolved.
@@ -160,21 +201,18 @@ Status: implemented, verified, read-only verified, and source-clean.
 
 ## Current Aim
 
-Turn the E001 mechanics screen into an experiment that can answer its learning
-question, while starting the next measured facility mechanism:
+Turn the recovery mechanics split into observed learning evidence:
 
-1. Measure held-out E001 learning transfer across synchronization delay,
-   interruption, scale, optimizer correction, and model size.
-2. Add resumable failure semantics: preemption, lost work, checkpoint recovery,
-   membership change, topology change, and optimizer correction.
-3. Complete the joint E001 controller only after those mechanisms expose
-   deployable observations rather than simulator truth.
-4. Build E002's measured power-waveform engine with rack/facility telemetry,
-   spectral danger-band metrics, phase-safe interventions, rebound accounting,
-   and time-to-target controls.
-5. Keep the observatory on the same artifact contract so every new claim can
-   be read from freshman explanation through raw evidence without changing its
-   truth status.
+1. Run fixed-local and adaptive recovery on the same real small-model workload
+   and interruption trace.
+2. Use disjoint calibration and evaluation runs to measure loss progress per
+   FLOP, joule, and wall-clock second to a held-out target.
+3. Put the observed residual, interval, and provenance into the existing
+   recovery artifact and observatory without changing the mechanical trace.
+4. Let the result choose optimizer correction, topology, deeper failure-aware
+   control, E002, or a published null result.
+5. Do not generalize the engine or add verification infrastructure before this
+   end-to-end research loop closes.
 
 ## Previous Verified Wave: Physical Root-Debt Boundary Hardening
 

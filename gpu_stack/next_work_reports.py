@@ -34,15 +34,94 @@ def _highest_impact(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
         and evidence.observatory_artifact_present
     )
     if first_screen_complete:
-        resumable_symbols = tuple(
+        recovery_contract_symbols = tuple(
             name
             for name in (
-                "run_until",
-                "InterruptedOperation",
-                "CheckpointRecovery",
+                "FailureTrace",
+                "CheckpointLedger",
+                "WorkLedger",
+                "RecoveryPlan",
+                "evaluate_work_attempt",
+                "plan_recovery",
             )
             if name in evidence.production_symbol_names
         )
+        transition_runtime_symbols = tuple(
+            name
+            for name in (
+                "DecisionBoundary",
+                "RecoveryRuntime",
+                "RuntimeSnapshot",
+            )
+            if name in evidence.production_symbol_names
+        )
+        e001_recovery_integration_symbols = tuple(
+            name
+            for name in (
+                "E001RecoveryV2Runner",
+                "run_e001_recovery_v2",
+            )
+            if name in evidence.production_symbol_names
+        )
+        if "run_e001_recovery_v2" in e001_recovery_integration_symbols:
+            return (
+                NextWorkItem(
+                    title="Measure fixed-local versus adaptive interrupted learning",
+                    evidence=(
+                        "live recovery scan: persisted experiment results="
+                        f"{evidence.experiment_result_artifact_count}, recovery contract "
+                        "symbols="
+                        f"{', '.join(recovery_contract_symbols) or 'none'}, transition "
+                        "runtime symbols="
+                        f"{', '.join(transition_runtime_symbols) or 'none'}, recovery "
+                        "runner class="
+                        f"{'E001RecoveryV2Runner' if 'E001RecoveryV2Runner' in e001_recovery_integration_symbols else 'none'}, "
+                        "recovery integration symbols=run_e001_recovery_v2; "
+                        "v1_protocol_hash_match="
+                        f"{evidence.e001_v1_protocol_hash_matches_persisted}, "
+                        "v1_engine_hash_match="
+                        f"{evidence.e001_v1_engine_hash_matches_persisted}; the four-policy "
+                        "mechanics artifact reaches a matched durable frontier, but "
+                        "learning progress remains a shared declared prior. The next "
+                        "experiment must observe loss progress per FLOP, joule, and "
+                        "wall-clock second for fixed-local and adaptive recovery under "
+                        "the same interruptions"
+                    ),
+                    path="experiments/e001-beyond-one-datacenter/experiment.md",
+                ),
+                NextWorkItem(
+                    title="Evaluate the learning response on held-out runs",
+                    evidence=(
+                        "live evidence scan: attached observation artifacts="
+                        f"{evidence.observation_artifact_count}, held-out evaluation "
+                        "observation references="
+                        f"{evidence.evaluation_observation_reference_count}, structured "
+                        "requirement results="
+                        f"{evidence.structured_requirement_result_count}, unresolved="
+                        f"{evidence.unresolved_requirement_result_count}; a calibration "
+                        "fit cannot choose the policy unless the ranking transfers to "
+                        "disjoint interruption and workload runs"
+                    ),
+                    path="experiments/e001-beyond-one-datacenter/experiment.md",
+                ),
+                NextWorkItem(
+                    title="Put measured learning residuals in the observatory",
+                    evidence=(
+                        "live product scan: the recovery observatory renders mechanics "
+                        "at three semantic depths, while held-out learning observation "
+                        "references remain "
+                        f"{evidence.evaluation_observation_reference_count}; "
+                        "e002_spec_present="
+                        f"{evidence.e002_spec_present}, E002 result artifacts="
+                        f"{evidence.e002_result_artifact_count}; the next "
+                        "artifact must replace the empty learning panel with observed "
+                        "progress, residuals, intervals, and provenance without changing "
+                        "the mechanical trace"
+                    ),
+                    path="docs/observatory.html",
+                ),
+            )
+
         return (
             NextWorkItem(
                 title="Measure held-out E001 learning transfer",
@@ -50,37 +129,31 @@ def _highest_impact(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
                     "live evidence scan: attached observation artifacts="
                     f"{evidence.observation_artifact_count}, held-out evaluation "
                     "observation references="
-                    f"{evidence.evaluation_observation_reference_count}, "
-                    "structured requirement results="
+                    f"{evidence.evaluation_observation_reference_count}, structured "
+                    "requirement results="
                     f"{evidence.structured_requirement_result_count}, unresolved="
-                    f"{evidence.unresolved_requirement_result_count}; the current "
-                    "360M one-step-delay records cannot resolve progress per FLOP, "
-                    "30B to 100B-plus transfer, or time to a held-out target"
+                    f"{evidence.unresolved_requirement_result_count}"
                 ),
                 path="experiments/e001-beyond-one-datacenter/experiment.md",
             ),
             NextWorkItem(
-                title="Add resumable failures and complete the E001 joint controller",
+                title="Integrate transition-driven recovery into E001",
                 evidence=(
-                    "live mechanics scan: persisted experiment results="
-                    f"{evidence.experiment_result_artifact_count}, resumable runtime "
-                    f"symbols={', '.join(resumable_symbols) or 'none'}; the current "
-                    "engine postpones whole operations and implements cadence only, "
-                    "so preemption, lost work, checkpoint recovery, topology, "
-                    "optimizer correction, placement, and reactive membership remain "
-                    "mandatory unresolved gates"
+                    "live mechanics scan: recovery contract symbols="
+                    f"{', '.join(recovery_contract_symbols) or 'none'}, transition "
+                    "runtime symbols="
+                    f"{', '.join(transition_runtime_symbols) or 'none'}, E001 recovery "
+                    "integration symbols="
+                    f"{', '.join(e001_recovery_integration_symbols) or 'none'}"
                 ),
-                path="gpu_stack/research/multisite.py",
+                path="gpu_stack/research/e001_recovery_runner.py",
             ),
             NextWorkItem(
                 title="Build E002's measured power-waveform engine",
                 evidence=(
                     "live program scan: e002_spec_present="
-                    f"{evidence.e002_spec_present}, preregistered_specs="
-                    f"{evidence.experiment_spec_count}, E002 result artifacts="
-                    f"{evidence.e002_result_artifact_count}; no calibrated operation, "
-                    "facility, cooling, or grid waveform engine has evaluated the "
-                    "50% spectral-energy, 2% time-to-target, and 10% admission claims"
+                    f"{evidence.e002_spec_present}, E002 result artifacts="
+                    f"{evidence.e002_result_artifact_count}"
                 ),
                 path="experiments/e002-power-waveform-shaping/experiment.md",
             ),
@@ -216,6 +289,24 @@ def _bug_risks(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
     """Return ten active risks, omitting metadata categories whose gap is zero."""
 
     candidates: list[NextWorkItem] = []
+
+    if (
+        evidence.e001_v1_protocol_hash_matches_persisted is False
+        or evidence.e001_v1_engine_hash_matches_persisted is False
+    ):
+        candidates.append(
+            NextWorkItem(
+                title="Persisted E001 v1 identity drifted from its frozen source",
+                evidence=(
+                    "live v1 identity check: protocol_hash_match="
+                    f"{evidence.e001_v1_protocol_hash_matches_persisted}, "
+                    "engine_source_hash_match="
+                    f"{evidence.e001_v1_engine_hash_matches_persisted}; a v1 artifact "
+                    "must not be regenerated under the separate recovery-v2 protocol"
+                ),
+                path="gpu_stack/research/e001.py",
+            )
+        )
     temporal_capabilities = _format_capability_types(
         evidence.temporal_types,
         evidence.missing_temporal_types,
@@ -365,14 +456,18 @@ def _bug_risks(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
                     path="experiments/e001-beyond-one-datacenter/experiment.md",
                 ),
                 NextWorkItem(
-                    title="Adaptive policy results need an oracle decision-regret bound",
+                    title="Oracle policy regret needs a preregistered scalar objective",
                     evidence=(
                         "live experiment scan: machine-readable result artifacts="
                         f"{evidence.experiment_result_artifact_count}; "
-                        "E001 specifies an oracle with future power and failure traces "
-                        "solely as the regret bound for adaptive policy decisions"
+                        "E001 names an oracle with future power and failure traces, "
+                        "but recovery v2 cannot report regret until objective units, "
+                        "horizon, normalization, ties, and oracle actions are frozen"
                     ),
-                    path="experiments/e001-beyond-one-datacenter/experiment.md",
+                    path=(
+                        "experiments/e001-beyond-one-datacenter/"
+                        "recovery-mechanics-v2.md"
+                    ),
                 ),
             )
         )
@@ -392,36 +487,42 @@ def _bug_risks(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
             )
         )
 
+    if (
+        evidence.experiment_result_artifact_count
+        and "run_e001_recovery_v2" not in evidence.production_symbol_names
+    ):
+        candidates.append(
+            NextWorkItem(
+                title="Recovery substrate is not yet an E001 execution path",
+                evidence=(
+                    "live E001 artifact exists, but no E001 recovery-v2 runner symbol "
+                    "exists; recovery mechanics therefore cannot change the result"
+                ),
+                path="gpu_stack/research/e001_recovery_runner.py",
+            )
+        )
+
     if evidence.experiment_result_artifact_count:
         candidates.extend(
             (
                 NextWorkItem(
-                    title="Whole-operation outage postponement hides recovery cost",
+                    title="Modeled link bytes are not measured WAN traffic",
                     evidence=(
-                        "live E001 artifact exists, but its own evidence boundary "
-                        "states that preemption, lost work, and checkpoint recovery "
-                        "are absent; interruption timing can change after resumable "
-                        "operation semantics are implemented"
+                        "recovery v2 separates completed and aborted collectives, "
+                        "checkpoint replication, restore, redistribution, and migration, "
+                        "but sizes and timing remain scenario constants without measured "
+                        "collective stages, retries, congestion, or transfer curves"
                     ),
-                    path="gpu_stack/research/e001.py",
-                ),
-                NextWorkItem(
-                    title="Payload-link bytes are not complete all-reduce traffic",
-                    evidence=(
-                        "live E001 artifact reports modeled collective payload per WAN "
-                        "link; protocol overhead, algorithm stages, retries, and full "
-                        "state movement remain outside the WAN comparison"
-                    ),
-                    path="gpu_stack/research/e001.py",
+                    path="gpu_stack/research/e001_recovery_runner.py",
                 ),
                 NextWorkItem(
                     title="Partial energy accounting can reverse the policy ranking",
                     evidence=(
-                        "live E001 artifact reports site base plus accelerator compute "
-                        "energy only; network, checkpoint, storage, host, cooling, and "
-                        "curtailment-waveform energy remain unmodeled"
+                        "recovery v2 reports modeled compute plus network energy, but "
+                        "checkpoint storage, host, cooling, facility conversion, and "
+                        "curtailment-waveform energy remain outside the boundary"
                     ),
-                    path="gpu_stack/research/multisite.py",
+                    path="gpu_stack/research/e001_recovery_runner.py",
                 ),
             )
         )

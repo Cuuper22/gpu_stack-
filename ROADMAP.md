@@ -50,6 +50,39 @@ The first research substrate is no longer roadmap prose:
 Merge verification: focused research/docs pack `28 passed in 11.83s` and
 read-only full verifier `5/5` in `320.32s` with a 600-second gate ceiling.
 
+## Recovery-Backed E001 Vertical Slice: Executed
+
+The feature branch now carries one complete research path: scenario input,
+transition-driven failure/recovery execution, four matched policies, a
+content-addressed result, and a three-depth observatory projection. All four
+runs reach durable frontier 8 and conserve attempted, retained, and lost work.
+
+On this deterministic trace, adaptive recovery beats synchronous wait and
+restore by 48 ms and 1.6 GB while losing 66.21 PFLOP less work. Fixed-local
+restart is 20 ms faster and moves 3.2 GB fewer bytes than adaptive, but loses
+96.07 PFLOP more work and uses 0.028 MJ more modeled energy. The oracle ties
+adaptive on time and traffic and loses more work. The mechanics therefore
+produce a Pareto split, not a validated controller hierarchy.
+
+The observatory renders the same result at Freshman, Researcher, and Full trace
+depth, including the shared failure clock, restore/replay intervals, exact work
+accounting, disjoint byte classes, recovery debt, assumptions, uncertainty, and
+missing evidence. Browser inspection of all three depths is complete.
+
+## Next Research Milestone: Measure The Learning Tradeoff
+
+E001 now asks a sharper question: under the same interruption trace, does
+adaptive recovery's lower lost-work and energy profile produce more held-out
+learning progress per FLOP, joule, or wall-clock second than fixed-local
+restart? The next build is a real small-model calibration/evaluation run for
+those two policies, bound to the existing artifact and observatory.
+
+That result chooses the branch after it. If fixed-local wins after learning is
+measured, publish the failure and redirect. If staleness or rollback harm makes
+adaptive win, deepen optimizer correction and failure-aware control. If WAN
+dominates, deepen topology. Start E002 only when facility power is the binding
+constraint. Do not generalize the recovery engine before this loop closes.
+
 ## Latest Verified Wave
 
 Portfolio form-and-deliverable polish is implemented, verified, and
@@ -185,11 +218,11 @@ and preset export/discovery tests.
 
 | Priority | Work | Done when |
 |---|---|---|
-| P0 | Measure E001 learning transfer. | Held-out learning curves resolve progress per FLOP and time to target across delay, interruption, correction, scale, and model families without reusing calibration observations. |
-| P0 | Add resumable failure and joint-control mechanics. | Preemption, lost work, checkpoint recovery, membership, topology, correction, parallelism, and cadence are causal mechanisms visible to a deployable controller. |
-| P0 | Re-execute E001 as a learning experiment. | The adaptive joint controller and both baselines resolve every scalar and structured gate; reversal conditions and negative results are reported. |
-| P1 | Build E002's measured power-waveform engine. | Rack/facility telemetry supports spectral danger-band energy, rebound, cooling, time-to-target, quality, and full-boundary power comparisons. |
-| P1 | Add observed observatory panels. | The existing shareable state renders measured residuals, calibrated uncertainty, counterfactuals, and provenance without changing the result's evidence class. |
+| P0 | Measure fixed-local versus adaptive learning under interruption. | Disjoint calibration and evaluation runs report loss progress per FLOP, joule, and wall-clock second to a held-out target on the same failure trace. |
+| P0 | Close the engine-artifact-observatory loop. | The measured learning observation, residual, interval, and provenance appear in the same recovery artifact and at all three semantic depths. |
+| P0 | Choose the next E001 mechanism from the result. | A measured reversal condition selects optimizer correction, topology, deeper failure-aware control, or a documented null result. |
+| P1 | Complete broader E001 baselines and panels. | Expansion follows a working observed-learning comparison instead of preceding it. |
+| P1 | Build E002 only if power binds. | Rack/facility telemetry work starts when E001 evidence shows facility power, not communication or learning staleness, is the dominant constraint. |
 | P1 | Keep the continuation compass scientific. | `next-work` ranks missing evidence, mechanism leverage, residuals, and uncertainty contribution; root debt remains a secondary diagnostic. |
 | P2 | Deepen physical ancestry selectively. | New lower-level physics closes a measured residual, reduces uncertainty, or enables an experiment. |
 

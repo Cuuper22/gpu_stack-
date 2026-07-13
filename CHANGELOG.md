@@ -8,6 +8,22 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
 
 ## Current physical deepening notes
 
+* Executed the first recovery-backed E001 research loop. A transition-driven
+  runner now compares synchronous wait/restore, fixed-local checkpoint restart,
+  adaptive recovery, and a future-trace oracle on one matched two-failure
+  scenario. All policies reach durable frontier 8 with exact work conservation.
+  Adaptive beats synchronous on completion time and modeled inter-site bytes,
+  while fixed-local beats adaptive on time and bytes and adaptive beats
+  fixed-local on lost work and modeled energy. The content-addressed result and
+  observatory artifacts preserve the `inconclusive_frontier_hypothesis` status
+  because learning remains a shared declared prior. The observatory renders the
+  four-policy failure clock, recovery episodes, work accounting, byte classes,
+  and missing learning evidence at Freshman, Researcher, and Full trace depth.
+  Package version is now 0.25.0. The next research build is the measured
+  fixed-local versus adaptive learning comparison under matched interruption.
+  End-of-feature read-only verification passed all five pytest, syntax, audit,
+  demo, and docs-stats gates in `290.16s`.
+
 * Integrated the ten-step expansion wave (nine of ten branches; the SEMF
   plus quark-decomposition branch remains a draft pending test
   reconciliation). New surfaces: a sourced DGX H100 power BOM with an

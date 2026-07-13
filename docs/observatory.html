@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/90-observatory.css?v=20260712.6">
-  <script src="observatory.js?v=20260712.2" defer></script>
+  <link rel="stylesheet" href="styles/90-observatory.css?v=20260712.8">
+  <script src="observatory.js?v=20260712.4" defer></script>
 </head>
 <body data-depth="freshman" data-data-state="loading">
   <a class="skip-link" href="#observatory-main">Skip to experiment</a>
@@ -179,6 +179,73 @@
         <summary>Accessible timeline event list</summary>
         <div id="timeline-fallback"></div>
       </details>
+    </section>
+
+    <section class="recovery-v2-band" id="recovery-v2" aria-labelledby="recovery-v2-title" hidden>
+      <header class="band-header recovery-v2-header">
+        <div>
+          <p class="control-label">Matched recovery trace</p>
+          <h2 id="recovery-v2-title">Four policies, one failure clock</h2>
+        </div>
+        <output id="recovery-v2-state" role="status" aria-live="polite">Reading recovery artifact…</output>
+      </header>
+
+      <div class="recovery-depth-copy" id="recovery-depth-copy">
+        <p class="depth-freshman">The same failure hits all four policies. The shared clock shows what stops, what is restored, what must be redone, and when useful work catches up.</p>
+        <p class="depth-researcher">All policy tracks share the artifact time domain. Recovery completion is mechanical: each policy reaches the same durable frontier after explicit preemption, restore, replay, and membership transitions.</p>
+        <p class="depth-full_trace">Every mark is projected from a persisted recovery episode. Event IDs, nanosecond bounds, work dispositions, checkpoint lineage, and matched-frontier hashes remain available in the structured trace.</p>
+      </div>
+
+      <div class="recovery-timeline-well">
+        <svg id="recovery-timeline-svg" class="recovery-timeline-svg" role="img" aria-labelledby="recovery-timeline-title recovery-timeline-desc"></svg>
+      </div>
+      <ul class="recovery-role-key" aria-label="Recovery timeline roles">
+        <li><span data-recovery-role="failure"></span>Failure</li>
+        <li><span data-recovery-role="preemption"></span>Preemption</li>
+        <li><span data-recovery-role="checkpoint_restore"></span>Restore</li>
+        <li><span data-recovery-role="replay"></span>Replay</li>
+        <li><span data-recovery-role="membership_rejoin"></span>Rejoin</li>
+      </ul>
+      <details class="structured-fallback recovery-timeline-fallback">
+        <summary>Accessible recovery timeline list</summary>
+        <div id="recovery-timeline-fallback"></div>
+      </details>
+
+      <div class="recovery-mechanics-grid">
+        <section class="recovery-measure" aria-labelledby="work-conservation-title">
+          <div class="recovery-measure-heading">
+            <h3 id="work-conservation-title">Work conservation</h3>
+            <span>attempted = retained + lost</span>
+          </div>
+          <div id="recovery-work-bars" class="recovery-work-bars"></div>
+        </section>
+
+        <section class="recovery-measure" aria-labelledby="byte-composition-title">
+          <div class="recovery-measure-heading">
+            <h3 id="byte-composition-title">Inter-site byte composition</h3>
+            <span>six disjoint traffic classes</span>
+          </div>
+          <div id="recovery-byte-bars" class="recovery-byte-bars"></div>
+        </section>
+
+        <section class="recovery-measure recovery-completion" aria-labelledby="completion-compare-title">
+          <div class="recovery-measure-heading">
+            <h3 id="completion-compare-title">Mechanical completion</h3>
+            <span>same durable frontier</span>
+          </div>
+          <div id="recovery-completion-ruler" class="recovery-completion-ruler"></div>
+        </section>
+
+        <aside class="recovery-learning-boundary" id="recovery-learning-boundary" aria-labelledby="recovery-learning-title">
+          <span class="evidence-glyph evidence-glyph--unmeasured" aria-hidden="true"></span>
+          <div>
+            <h3 id="recovery-learning-title">Learning remains unresolved</h3>
+            <p>No held-out multi-site learning observation.</p>
+            <p class="depth-researcher">Mechanical recovery was modeled; learning recovery is unmeasured. No residual can be computed.</p>
+            <p class="depth-full_trace" id="recovery-learning-trace">No recovery-quality observation IDs are attached.</p>
+          </div>
+        </aside>
+      </div>
     </section>
 
     <section class="comparison-band" id="comparison" aria-labelledby="comparison-title">

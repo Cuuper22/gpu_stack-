@@ -300,6 +300,15 @@ that would be dishonest to squeeze into an invented scalar threshold. Missing
 mandatory gates make a run inconclusive; a failed computable gate still fails
 the virtual screen instead of being hidden by unrelated missing evidence.
 
+Reproduce the current recovery-backed E001 result and its observatory payload:
+
+```bash
+python -B -m gpu_stack.cli experiment-run E001-RECOVERY-V2 \
+  --scenario experiments/e001-beyond-one-datacenter/recovery-scenario-v2.json \
+  --output experiments/e001-beyond-one-datacenter/results/recovery-mechanics-v2.json \
+  --observatory-output docs/data/e001-recovery-v2.json
+```
+
 ## The Next-Work Compass
 
 The continuation compass now scans executable research artifacts, experiments,
@@ -309,10 +318,11 @@ persisted results, the deployable observatory, and the symbolic graph:
 python -m gpu_stack.cli next-work
 ```
 
-With the first mechanics artifact present, its highest-impact section advances
-to the evidence and mechanisms that can still change the research conclusion:
-held-out E001 learning transfer, resumable failure and complete joint-control
-semantics, and the measured E002 power-waveform engine. Pythia closure and
+With the four-policy recovery artifact present, its highest-impact section now
+advances to the experiment that can change the conclusion: measure fixed-local
+restart against adaptive recovery under identical interruptions, then evaluate
+held-out progress per FLOP, joule, and wall-clock second. Topology, broader
+joint control, and E002 follow the observed bottleneck. Pythia closure and
 root-debt ranking remain visible under
 `Legacy diagnostics (not scientific priorities)` so useful maintenance does
 not quietly become the roadmap again.
@@ -340,9 +350,14 @@ These rules keep the package honest:
 
 - Recording immutable measured observations with instrumentation uncertainty and provenance.
 - Enforcing calibration/evaluation separation and reporting residuals, interval coverage, configuration ranking, and decision regret.
-- Replaying causally ordered compute, collective, state-transfer, checkpoint, outage, recovery, facility-power, cooling, and grid events across multiple sites.
+- Replaying causally ordered compute, collective, state-transfer, checkpoint,
+  outage, facility-power, cooling, and grid events across multiple sites.
+- Executing four matched recovery policies through explicit failure,
+  preemption, checkpoint restore, replay, membership rejoin, and durable
+  frontier recovery with exact work conservation.
 - Applying observable-only membership, cadence, parallelism, configuration, migration, and power-cap interventions at explicit decision epochs.
-- Producing a content-addressed E001 mechanics artifact and visualizing modeled, assumed, prior, and unmeasured quantities without blending them.
+- Producing content-addressed E001 v1 and recovery-v2 artifacts and visualizing
+  modeled, assumed, prior, and unmeasured quantities without blending them.
 - Reporting site base plus accelerator-compute energy while explicitly excluding unmodeled network, checkpoint, storage, host, and cooling energy.
 - Inspecting symbolic dependencies across hardware, software, thermal, and economic layers.
 - Writing and checking new equations in a single registry.
@@ -356,18 +371,24 @@ These rules keep the package honest:
 
 This is the part where the README earns the numbers above.
 
-GPUSTACK is not yet a calibrated digital twin or training-cost oracle. E001's
-current controller adapts synchronization cadence at operation boundaries. It
-does not yet implement mid-operation decisions, preemption, lost work,
-checkpoint recovery, topology changes, optimizer correction, or the full joint
-controller in the hypothesis.
+GPUSTACK is not yet a calibrated digital twin or training-cost oracle. Recovery
+v2 now executes preemption, lost work, checkpoint restore, replay, and reactive
+membership for four matched policies. It does not yet measure learning under
+those interruptions, implement topology changes or optimizer correction, or
+complete the full joint controller in the hypothesis.
 
-The current learning response is an unfitted sensitivity prior seeded by three
-published 360M Muon observations at exactly one step of delay. Those papers
-report final validation loss. They do not identify progress per FLOP, longer
-local-update intervals, 70B transfer, or interruption behavior. GPUSTACK leaves
-the progress and time-to-target falsifiers unresolved instead of laundering
-that prior into a result.
+The recovery-v2 artifact records complete modeled traffic classes for its
+focused scenario. Adaptive reaches the same durable frontier as synchronous in
+1.536 rather than 1.584 seconds and moves 13.6 rather than 15.2 GB. Fixed-local
+is still faster and lower-traffic than adaptive, while adaptive loses much less
+work and uses less modeled energy. This Pareto split does not establish a
+globally superior controller.
+
+The current recovery-v2 learning response is the same declared `0.1` prior for
+all four policies. Existing 360M Muon observations at exactly one step of delay
+do not identify progress per FLOP, longer local-update intervals, scale
+transfer, or interruption behavior. GPUSTACK leaves progress and time-to-target
+unresolved instead of laundering that prior into a result.
 
 The symbolic resolver remains intentionally conservative. By default it does
 not solve simultaneous systems or switch relations when an approximation
@@ -397,7 +418,7 @@ Calibration presets are still skeletal. Some presets are exact composition fixtu
 | Equations with references | 959 |
 | Equations with unit checks | 893 |
 | Root-debt families | 151 |
-| Package version | 0.24.0 |
+| Package version | 0.25.0 |
 
 Test counts can move as the model grows. Recheck locally with:
 
@@ -412,10 +433,12 @@ It keeps a plain question, causal mechanism, counterfactual regime, model,
 evidence, residual, provenance, event trace, and falsifier in one shareable
 state. Semantic depth changes explanation density, never values or conclusions.
 
-The first screen is E001, Beyond One Datacenter. It aligns synchronous,
-fixed-local, and adaptive-cadence mechanics; exposes the assumed 30-second
-Central-site curtailment; and shows an honest empty residual plot because no
-held-out multi-site learning observation exists yet.
+The first screen is E001, Beyond One Datacenter. It retains the v1 mechanics
+screen and adds a recovery-v2 panel where synchronous, fixed-local, adaptive,
+and oracle policies share one failure clock. The page exposes restore/replay
+intervals, work conservation, traffic composition, completion and recovery
+debt, assumptions, and the still-empty learning evidence at Freshman,
+Researcher, and Full trace depth.
 
 ## Core Types
 

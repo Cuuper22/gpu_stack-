@@ -6,27 +6,33 @@ Purpose: compact recovery surface for the visible backlog.
 
 ## Active Research Wave: From Mechanics To Measured Learning
 
-Status: the virtual-datacenter foundation, E001 mechanics screen, protocol
-catalog, and causal observatory are implemented. The current E001 hypothesis
-policy is correctly `inconclusive`, not validated. Merge verification passed
-`5/5` read-only gates in `320.32s`.
+Status: the recovery-backed E001 vertical slice has executed and the
+three-depth observatory explains it. The hypothesis remains correctly
+`inconclusive_frontier_hypothesis` because learning response is a prior.
+The read-only full verifier passed `5/5` gates in `290.16s`; merge is pending.
 
-- P0: collect held-out E001 learning transfer across local-step delay,
-  interruption, optimizer correction, scale, and model families. Resolve
-  progress per FLOP and real time-to-target instead of fitting the existing
-  three-observation sensitivity prior.
-- P0: add resumable failure semantics: preemption, lost work, checkpoint
-  recovery, reactive membership, topology changes, and optimizer correction.
-- P0: complete the joint E001 controller and compare it with synchronous and
-  preregistered fixed-local baselines over all mandatory scalar and structured
-  gates.
-- P1: build E002's measured power-waveform engine using rack/facility
-  telemetry, spectral energy in grid-danger bands, time-to-target, quality,
-  rebound, cooling, and full-boundary power accounting.
-- P1: add observed residual and uncertainty views to the same observatory
-  artifact once held-out measurements exist.
-- P2: advance E003 to E006 only when E001/E002 mechanisms or evidence are
-  reusable, not merely because their protocol files exist.
+The four-policy result is a Pareto split. Fixed-local is fastest and moves the
+fewest modeled link bytes, but loses the most work. Adaptive loses 48.43 PFLOP
+versus fixed-local's 144.50 PFLOP and uses 0.255 MJ versus 0.283 MJ, but takes
+20 ms longer and moves 3.2 GB more state. Synchronous is mechanically dominated
+by adaptive on this trace. The oracle does not improve on adaptive time or
+bytes here. No policy has observed learning evidence.
+
+- P0: run a measured fixed-local versus adaptive interrupted-training
+  calibration on one real, small model/workload. Measure loss progress per
+  FLOP, per joule, and per wall-clock second to a held-out target.
+- P0: attach those observations to a hard calibration/evaluation split and
+  replace the equal `0.1` learning prior with an evaluated residual and
+  uncertainty interval. The engine and observatory must consume the same data.
+- P0: use the result to decide whether E001 next deepens optimizer correction,
+  communication topology, or failure-aware control. Publish a null result if
+  fixed-local remains superior after learning is measured.
+- P1: complete other E001 baselines and larger panels only after the first
+  observed learning comparison works end to end.
+- P1: start E002 only if the E001 result shows power/energy, rather than
+  communication or learning staleness, is the binding constraint.
+- P2: advance E003 to E006 only when an earlier experiment yields a reusable
+  mechanism or measurement need.
 
 Do not select new work from root-debt weight alone. Physical deepening needs an
 observed residual, decision-relevant uncertainty, or experiment dependency.

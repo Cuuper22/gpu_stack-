@@ -8,8 +8,17 @@ from pathlib import Path
 from typing import Any
 
 from .research.e001 import E001Scenario, run_e001
+from .research.e001_recovery_artifact import build_e001_recovery_result
+from .research.e001_recovery_runner import (
+    E001RecoveryScenario,
+    run_e001_recovery_v2,
+)
+from .research.e001_recovery_v2 import E001_RECOVERY_V2_PROTOCOL
 from .research.observations import Observation
 from .research.observatory import build_e001_observatory_artifact
+from .research.observatory_recovery import (
+    build_e001_recovery_observatory_artifact,
+)
 from .research.programs import protocol_for
 
 
@@ -50,7 +59,11 @@ def _load_observations(paths: list[str] | None) -> tuple[Observation, ...]:
 
 
 def cmd_experiment_protocol(args) -> int:
-    protocol = protocol_for(args.experiment)
+    protocol = (
+        E001_RECOVERY_V2_PROTOCOL
+        if args.experiment == "E001-RECOVERY-V2"
+        else protocol_for(args.experiment)
+    )
     payload = protocol.to_dict()
     payload["protocol_hash"] = protocol.protocol_hash
     if args.json:
@@ -79,6 +92,21 @@ def cmd_experiment_protocol(args) -> int:
 
 
 def cmd_experiment_run(args) -> int:
+    if args.experiment == "E001-RECOVERY-V2":
+        path = Path(args.scenario)
+        scenario = E001RecoveryScenario.from_json_path(path)
+        execution = run_e001_recovery_v2(scenario)
+        result_payload = build_e001_recovery_result(execution)
+        _write_json_artifact(result_payload, args.output)
+        if args.observatory_output:
+            _write_json_artifact(
+                build_e001_recovery_observatory_artifact(
+                    result_payload,
+                    source_uri=None if args.output == "-" else args.output,
+                ),
+                args.observatory_output,
+            )
+        return 0
     if args.experiment != "E001":
         raise ValueError(f"unknown experiment {args.experiment!r}")
     path = Path(args.scenario)

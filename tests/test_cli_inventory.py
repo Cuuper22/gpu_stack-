@@ -37,9 +37,9 @@ def test_next_work_text_prints_live_compass_sections():
     assert "Top 3 highest impact:" in out
     assert "4 best implementations:" in out
     assert "10 bugs/risks:" in out
-    assert "Measure held-out E001 learning transfer" in out
-    assert "Add resumable failures and complete the E001 joint controller" in out
-    assert "Build E002's measured power-waveform engine" in out
+    assert "Measure fixed-local versus adaptive interrupted learning" in out
+    assert "Evaluate the learning response on held-out runs" in out
+    assert "Put measured learning residuals in the observatory" in out
     assert "Legacy diagnostics (not scientific priorities):" in out
     assert "Close the sourced Pythia cost frontier" in out
     assert "cost_per_token has" in out
@@ -57,5 +57,5 @@ def test_next_work_json_shape_matches_public_compass_contract():
     assert len(payload["best_implementations"]) == 4
     assert len(payload["bug_risks"]) == 10
     assert payload["highest_impact"][0]["title"] == (
-        "Measure held-out E001 learning transfer"
+        "Measure fixed-local versus adaptive interrupted learning"
     )

@@ -112,6 +112,10 @@ class _Evidence:
     structured_requirement_result_count: int
     unresolved_requirement_result_count: int
     production_symbol_names: frozenset[str]
+    e001_v1_persisted_protocol_hash: str | None
+    e001_v1_persisted_engine_source_hash: str | None
+    e001_v1_protocol_hash_matches_persisted: bool | None
+    e001_v1_engine_hash_matches_persisted: bool | None
     causal_observatory_markers: tuple[str, ...]
     registry_cone_present: bool
     observatory_artifact_present: bool
@@ -280,6 +284,7 @@ def _collect_evidence_uncached(resolved_repo_root: Path) -> _Evidence:
         resolved_repo_root,
         experiment_results,
     )
+    e001_v1_identity = _e001_v1_identity(resolved_repo_root)
 
     return _Evidence(
         stats=stats,
@@ -332,6 +337,16 @@ def _collect_evidence_uncached(resolved_repo_root: Path) -> _Evidence:
             "unresolved_requirements"
         ],
         production_symbol_names=production_symbol_names,
+        e001_v1_persisted_protocol_hash=e001_v1_identity["persisted_protocol_hash"],
+        e001_v1_persisted_engine_source_hash=e001_v1_identity[
+            "persisted_engine_source_hash"
+        ],
+        e001_v1_protocol_hash_matches_persisted=e001_v1_identity[
+            "protocol_hash_matches"
+        ],
+        e001_v1_engine_hash_matches_persisted=e001_v1_identity[
+            "engine_hash_matches"
+        ],
         causal_observatory_markers=_causal_observatory_markers(resolved_repo_root),
         registry_cone_present=(
             resolved_repo_root / "docs" / "data" / "registry-cone.json"
@@ -346,6 +361,69 @@ def _collect_evidence_uncached(resolved_repo_root: Path) -> _Evidence:
             / "experiment.md"
         ).is_file(),
     )
+
+
+def _e001_v1_identity(repo_root: Path) -> dict[str, str | bool | None]:
+    """Compare the frozen v1 source identity with the published v1 projection."""
+
+    from .research.e001 import E001_PROTOCOL
+    from .research.e001_v1_identity import (
+        E001_V1_FROZEN_ENGINE_SOURCE_SHA256,
+        E001_V1_FROZEN_PROTOCOL_SHA256,
+    )
+
+    path = repo_root / "docs" / "data" / "e001-screening-v1.json"
+    if not path.is_file():
+        return {
+            "persisted_protocol_hash": None,
+            "persisted_engine_source_hash": None,
+            "protocol_hash_matches": None,
+            "engine_hash_matches": None,
+        }
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return {
+            "persisted_protocol_hash": None,
+            "persisted_engine_source_hash": None,
+            "protocol_hash_matches": False,
+            "engine_hash_matches": False,
+        }
+    if not isinstance(payload, dict):
+        return {
+            "persisted_protocol_hash": None,
+            "persisted_engine_source_hash": None,
+            "protocol_hash_matches": False,
+            "engine_hash_matches": False,
+        }
+    persisted_protocol_hash = payload.get("protocol_hash")
+    source_result = payload.get("source_result")
+    persisted_engine_source_hash = (
+        source_result.get("engine_source_sha256")
+        if isinstance(source_result, dict)
+        else None
+    )
+    valid_protocol_hash = (
+        persisted_protocol_hash
+        if isinstance(persisted_protocol_hash, str)
+        else None
+    )
+    valid_engine_hash = (
+        persisted_engine_source_hash
+        if isinstance(persisted_engine_source_hash, str)
+        else None
+    )
+    return {
+        "persisted_protocol_hash": valid_protocol_hash,
+        "persisted_engine_source_hash": valid_engine_hash,
+        "protocol_hash_matches": (
+            valid_protocol_hash == E001_V1_FROZEN_PROTOCOL_SHA256
+            and E001_PROTOCOL.protocol_hash == E001_V1_FROZEN_PROTOCOL_SHA256
+        ),
+        "engine_hash_matches": (
+            valid_engine_hash == E001_V1_FROZEN_ENGINE_SOURCE_SHA256
+        ),
+    }
 
 
 def _research_artifact_counts(

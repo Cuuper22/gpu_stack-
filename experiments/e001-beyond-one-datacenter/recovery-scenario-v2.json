@@ -1,0 +1,60 @@
+{
+  "adaptive_checkpoint_interval_steps": 1,
+  "assumptions": [
+    "Failure times are exogenous absolute-time scenario inputs shared by all policies.",
+    "Each durable step requires one canonical contribution from every site.",
+    "Learning progress is a declared prior attached to durable steps, not held-out evidence.",
+    "Compute and network energy are modeled from explicit constant coefficients."
+  ],
+  "baseline_checkpoint_interval_steps": 2,
+  "checkpoint_bytes": 800000000,
+  "checkpoint_store_id": "checkpoint-store-west",
+  "checkpoint_write_ns": 10000000,
+  "compute_energy_j_per_flop": 3e-13,
+  "dense_collective_link_bytes": 1200000000,
+  "dense_collective_ns": 40000000,
+  "failed_site_id": "site-a",
+  "failures": [
+    {
+      "cause": "regional network isolation",
+      "failure_id": "e001-failure-1",
+      "failure_start_ns": 180000000,
+      "recovery_ns": 320000000,
+      "site_id": "site-a"
+    },
+    {
+      "cause": "accelerator host loss",
+      "failure_id": "e001-failure-2",
+      "failure_start_ns": 820000000,
+      "recovery_ns": 980000000,
+      "site_id": "site-a"
+    }
+  ],
+  "fixed_restart_latency_ns": 20000000,
+  "learning_prior_progress_per_step": 0.0125,
+  "learning_prior_source_id": "declared-prior:e001-v2-equivalent-durable-step",
+  "membership_reconfiguration_ns": 12000000,
+  "metadata": {
+    "purpose": "first end-to-end recovery-backed E001 vertical slice",
+    "trace_kind": "deterministic_virtual",
+    "units": {
+      "energy": "joule",
+      "time": "nanosecond",
+      "traffic": "physical_link_byte",
+      "work": "FLOP"
+    }
+  },
+  "network_energy_j_per_link_byte": 5e-10,
+  "replay_work_per_second": 4e18,
+  "restore_bandwidth_bytes_per_second": 200000000000,
+  "scenario_id": "e001-recovery-v2-first-loop",
+  "site_ids": [
+    "site-a",
+    "site-b"
+  ],
+  "source_scenario_id": "e001-screening-v1",
+  "sparse_collective_every_steps": 2,
+  "step_compute_ns": 100000000,
+  "target_steps": 8,
+  "work_per_site_step_flops": 5e16
+}

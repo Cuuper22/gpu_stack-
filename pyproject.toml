@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gpu_stack"
-version = "0.24.0"
+version = "0.25.0"
 description = "A causal, uncertainty-aware virtual AI datacenter, visual observatory, and ML systems research lab."
 readme = "README.md"
 requires-python = ">=3.10"

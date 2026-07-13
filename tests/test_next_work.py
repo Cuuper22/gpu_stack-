@@ -78,9 +78,9 @@ def test_highest_impact_is_research_first_and_legacy_diagnostics_stay_secondary(
     plan = build_next_work_plan()
 
     assert [item.title for item in plan.highest_impact] == [
-        "Measure held-out E001 learning transfer",
-        "Add resumable failures and complete the E001 joint controller",
-        "Build E002's measured power-waveform engine",
+        "Measure fixed-local versus adaptive interrupted learning",
+        "Evaluate the learning response on held-out runs",
+        "Put measured learning residuals in the observatory",
     ]
     highest_titles = "\n".join(item.title.lower() for item in plan.highest_impact)
     assert "pythia" not in highest_titles
@@ -105,7 +105,11 @@ def test_research_priorities_are_backed_by_live_executable_artifact_evidence():
     assert "held-out evaluation observation references=" in rendered
     assert "structured requirement results=" in rendered
     assert "persisted experiment results=" in rendered
-    assert "resumable runtime symbols=" in rendered
+    assert "recovery contract symbols=" in rendered
+    assert "transition runtime symbols=" in rendered
+    assert "recovery integration symbols=run_e001_recovery_v2" in rendered
+    assert "v1_protocol_hash_match=True" in rendered
+    assert "v1_engine_hash_match=True" in rendered
     assert "e002_spec_present=True" in rendered
     assert "E002 result artifacts=" in rendered
 

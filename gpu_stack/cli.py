@@ -216,7 +216,15 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_experiment_protocol.add_argument(
         "experiment",
-        choices=("E001", "E002", "E003", "E004", "E005", "E006"),
+        choices=(
+            "E001",
+            "E001-RECOVERY-V2",
+            "E002",
+            "E003",
+            "E004",
+            "E005",
+            "E006",
+        ),
         help="experiment identifier",
     )
     p_experiment_protocol.add_argument(
@@ -232,7 +240,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_experiment_run.add_argument(
         "experiment",
-        choices=("E001",),
+        choices=("E001", "E001-RECOVERY-V2"),
         help="experiment identifier",
     )
     p_experiment_run.add_argument(
