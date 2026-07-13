@@ -256,6 +256,43 @@
     return String(value || "not reported").replaceAll("_", " ");
   }
 
+  // Freshman translation layer. Artifact wording stays verbatim everywhere it
+  // is quoted; these are clearly marked plain-language companions keyed on the
+  // persisted conclusion string, shown only at freshman depth. A conclusion
+  // without an entry simply shows no companion. Values and verdicts are never
+  // changed here, only restated.
+  const PLAIN_WORDS = {
+    abstain_without_policy_claim:
+      "We stress-tested the controller in conditions it had never seen. It noticed it was out of its depth, logged an honest fallback 104 times, and declined to call itself the winner. That refusal is the result, and it is the most trustworthy behavior a controller can show.",
+    candidate_falsified_equal_canonical_work:
+      "With the workload held exactly equal, the adaptive policy kept learning quality and finished sooner, but drew more energy than the rule frozen before the run allowed. The experiment's own rule killed the claim. That is the system working.",
+    candidate_falsified_small_model_calibration:
+      "On this small test model, the clever adaptive policy did not beat the boring baseline. The hypothesis lost, and the loss is recorded instead of retried until it flattered us.",
+    checkpoint_cadence_attributed_sparse_continuation_survives:
+      "Checkpoint timing really was the cause of the extra energy draw, and the lighter checkpointing variant passed every gate. One real causal result, valid for one GPU on one workload, and not a datacenter claim.",
+    measurement_invalid:
+      "The power meter turned out to sample about 25 times slower than requested, so every energy number from this run was thrown out instead of quietly kept. A broken measurement gets recorded as broken.",
+    inconclusive_frontier_hypothesis:
+      "The virtual mechanics ran and every event is inspectable, but nothing here proves the big multi-datacenter question either way yet.",
+    protocol_failed_calibration_validity:
+      "The experiment's own preflight checks failed, so it stopped before making any claim.",
+    protocol_failed_warm_start_not_late_stage:
+      "The experiment's own preflight checks failed, so it stopped before making any claim.",
+  };
+
+  function setPlainWords(id, conclusionKey) {
+    const target = document.getElementById(id);
+    if (!target) return;
+    const text = PLAIN_WORDS[String(conclusionKey || "")];
+    if (text) {
+      target.textContent = text;
+      target.classList.add("has-text");
+    } else {
+      target.textContent = "";
+      target.classList.remove("has-text");
+    }
+  }
+
   function evidenceGlyph(evidenceClass) {
     const kind = normalizedEvidence(evidenceClass);
     const glyph = element("span", `evidence-glyph evidence-glyph--${kind}`);
@@ -1753,6 +1790,7 @@
     dom.learningv1state.textContent = `${String(conclusion.status).replaceAll("_", " ")} · OBSERVED learning · artifact ${hash}`;
     dom.learninginsighttitle.textContent = learningInsightTitle(conclusion.status);
     dom.learningplainanswer.textContent = conclusion.plain_answer;
+    setPlainWords("learning-plain-words", conclusion.status);
     dom.learningevidenceboundary.textContent = learningBoundaryText(learningArtifact.evidence_boundary);
     renderLearningPolicyCards();
     renderLearningCurves();
@@ -2023,6 +2061,7 @@
     dom.equalworkv1state.textContent = `${String(conclusion.status).replaceAll("_", " ")} · OBSERVED local learning · artifact ${equalWorkArtifact.artifact_sha256.slice(0, 12)}`;
     dom.equalworkinsighttitle.textContent = "Adaptive kept the learning and saved work, but missed the energy bound";
     dom.equalworkplainanswer.textContent = conclusion.plain_answer;
+    setPlainWords("equal-work-plain-words", conclusion.status);
     dom.equalworkevidenceboundary.textContent = learningBoundaryText(equalWorkArtifact.evidence_boundary);
     const fixed = equalWorkArtifact.policy_comparison.fixed_interrupted;
     const adaptive = equalWorkArtifact.policy_comparison.adaptive_interrupted;
@@ -2317,6 +2356,7 @@
     dom.checkpointpowerv1state.textContent = `measurement invalid · 32/32 runs · artifact ${checkpointPowerArtifact.artifact_sha256.slice(0, 12)}`;
     dom.checkpointpowerinsighttitle.textContent = freshman.headline;
     dom.checkpointpowerplainanswer.textContent = freshman.plain_answer;
+    setPlainWords("checkpoint-power-plain-words", "measurement_invalid");
     dom.checkpointpowerdecision.textContent = freshman.decision;
     const boundary = checkpointPowerArtifact.facility_bridge.plain_boundary;
     const unmeasured = checkpointPowerArtifact.evidence_boundary.unmeasured.join(", ");
@@ -2605,6 +2645,7 @@
     dom.checkpointenergyv2state.textContent = `measurement valid · 11/11 gates pass · artifact ${checkpointEnergyArtifact.artifact_sha256.slice(0, 12)}`;
     dom.checkpointenergyinsighttitle.textContent = freshman.headline;
     dom.checkpointenergyplainanswer.textContent = freshman.plain_answer;
+    setPlainWords("checkpoint-energy-plain-words", checkpointEnergyArtifact.conclusion);
     dom.checkpointenergymechanism.textContent = freshman.mechanism;
     const gpu = checkpointEnergyArtifact.full_trace.runtime.hardware.gpu;
     dom.checkpointenergyevidenceboundary.textContent = `${freshman.boundary} Observed boundary: ${gpu}, cumulative GPU-board energy, and the frozen TinyStories learning setup. Facility claim allowed: no.`;
@@ -3083,6 +3124,7 @@
     dom.semanticconsistencyeyebrow.textContent = `${semanticConsistencyArtifact.work_contract.canonical_tokens.toLocaleString("en-US")} canonical tokens · ${familyCount} untouched families`;
     dom.semanticconsistencyinsighttitle.textContent = freshman.headline;
     dom.semanticconsistencyplainanswer.textContent = freshman.plain_answer;
+    setPlainWords("semantic-consistency-plain-words", status.conclusion);
     dom.semanticconsistencyboundaryshort.textContent = freshman.boundary;
     dom.semanticconsistencyfreshmancopy.textContent = freshman.explanation;
     dom.semanticconsistencyresearchercopy.textContent = semanticConsistencyArtifact.researcher.explanation;
@@ -3710,11 +3752,13 @@
           document.createTextNode(String(status.validation || "held-out family evaluation").replaceAll("_", " ")),
         );
         dom.plainanswer.textContent = String(status.plain_answer || semanticConsistencyArtifact.freshman.plain_answer || "The artifact does not report a plain answer.");
+        setPlainWords("plain-words", status.conclusion);
         dom.artifactstate.textContent = `Artifact loaded · ${String(status.conclusion || "inconclusive").replaceAll("_", " ")} · ${semanticConsistencyArtifact.schema} · ${semanticConsistencyArtifact.artifact_sha256.slice(0, 12)}`;
         dom.footerevidencestate.lastChild.textContent = " Evidence state: measured learning + exact accounting + modeled infrastructure";
       } else {
         dom.stageboundary.append(element("strong", "", "Software experiment"), document.createTextNode("·"), document.createTextNode("result not loaded"));
         dom.plainanswer.textContent = "No semantic-consistency result is loaded. No controller ranking, interval, or learning conclusion is shown.";
+        setPlainWords("plain-words", null);
         if (semanticConsistencyArtifactError instanceof ArtifactContractError) {
           dom.artifactstate.textContent = `Artifact rejected: ${semanticConsistencyArtifactError.message}.`;
         } else if (semanticConsistencyArtifactError) {
@@ -3737,12 +3781,14 @@
       const validation = artifact.status.held_out_learning_validation === true ? "held-out validation attached" : "held-out validation absent";
       dom.stageboundary.append(stageStrong, document.createTextNode("·"), document.createTextNode(validation));
       dom.plainanswer.textContent = String(artifact.status.plain_answer || "The artifact does not report a plain answer.");
+      setPlainWords("plain-words", artifact.status.conclusion);
       const protocol = typeof artifact.protocol_hash === "string" ? artifact.protocol_hash.slice(0, 12) : "not reported";
       dom.artifactstate.textContent = `Artifact loaded · ${conclusionLabel(artifact.status.conclusion)} · ${artifact.schema} · protocol ${protocol}`;
       dom.footerevidencestate.lastChild.textContent = " Evidence state: mixed artifact evidence";
     } else {
       dom.stageboundary.append(element("strong", "", "Virtual screening"), document.createTextNode("·"), document.createTextNode("held-out validation absent"));
       dom.plainanswer.textContent = "No generated experiment artifact is loaded. The scenario can be inspected, but policy results and the learning-efficiency answer remain not run.";
+      setPlainWords("plain-words", null);
       if (artifactError instanceof ArtifactContractError) {
         dom.artifactstate.textContent = `Artifact rejected: ${artifactError.message}. No result values are displayed.`;
       } else if (artifactError) {

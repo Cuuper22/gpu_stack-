@@ -242,6 +242,37 @@ summary:focus-visible,
 }
 
 /* ------------------------------------------------------------------ */
+/* Freshman translation companions                                      */
+/* The artifact verdict stays verbatim above; this box restates it in   */
+/* plain words at freshman depth only. Marked visually as commentary,   */
+/* never as data: gold well, labeled, no evidence tag.                  */
+/* ------------------------------------------------------------------ */
+
+.plain-words {
+  display: none;
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 2px inset var(--window-chrome);
+  background: var(--gold-wash);
+  color: var(--text-dark);
+  font: 500 15px/1.55 var(--font-body);
+  max-width: 70ch;
+}
+
+body[data-depth="freshman"] .plain-words.has-text {
+  display: block;
+}
+
+.plain-words.has-text::before {
+  content: "In plain words";
+  display: block;
+  margin-bottom: 4px;
+  font: 700 11px/1.2 var(--font-display);
+  text-transform: uppercase;
+  color: oklch(0.45 0.09 88);
+}
+
+/* ------------------------------------------------------------------ */
 /* Taskbar labels                                                       */
 /* ------------------------------------------------------------------ */
 
