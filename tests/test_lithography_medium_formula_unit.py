@@ -84,14 +84,14 @@ def test_lithography_medium_formula_unit_inputs_and_constraints():
 
     assert component_a_stoich.is_root_input
     assert component_b_stoich.is_root_input
-    assert component_a_up_quarks.is_root_input
-    assert component_a_down_quarks.is_root_input
-    assert component_b_up_quarks.is_root_input
-    assert component_b_down_quarks.is_root_input
-    assert not component_a_protons.is_root_input
-    assert not component_b_protons.is_root_input
-    assert not component_a_neutrons.is_root_input
-    assert not component_b_neutrons.is_root_input
+    assert component_a_protons.is_root_input
+    assert component_b_protons.is_root_input
+    assert component_a_neutrons.is_root_input
+    assert component_b_neutrons.is_root_input
+    assert not component_a_up_quarks.is_root_input
+    assert not component_a_down_quarks.is_root_input
+    assert not component_b_up_quarks.is_root_input
+    assert not component_b_down_quarks.is_root_input
     assert not component_a_atomic_number.is_root_input
     assert not component_b_atomic_number.is_root_input
     assert not component_a_mass_number.is_root_input

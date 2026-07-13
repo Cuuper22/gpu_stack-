@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-06-11T22:25:35Z",
+  "generated_at": "2026-07-13T22:11:53Z",
   "targets": [
     "econ.cost.per_token",
     "thermal.dc.pue",
@@ -3106,12 +3106,10 @@
       "name": "physical.lithography.medium_component_a_neutron_count",
       "units": "count",
       "scope": "physical",
-      "description": "Neutron count of component A in the representative imaging-medium formula unit.",
-      "is_root_input": false,
+      "description": "Neutron count N of component A in the imaging-medium formula unit.",
+      "is_root_input": true,
       "is_constant": false,
-      "defining_equations": [
-        "physical.eq.lithography_medium_component_a_neutron_count_from_valence_quarks"
-      ]
+      "defining_equations": []
     },
     "physical.lithography.medium_component_a_neutron_excess": {
       "name": "physical.lithography.medium_component_a_neutron_excess",
@@ -3150,36 +3148,16 @@
       "name": "physical.lithography.medium_component_a_proton_count",
       "units": "count",
       "scope": "physical",
-      "description": "Proton count of component A in the representative imaging-medium formula unit.",
-      "is_root_input": false,
+      "description": "Proton count (atomic number Z) of component A in the imaging-medium formula unit.",
+      "is_root_input": true,
       "is_constant": false,
-      "defining_equations": [
-        "physical.eq.lithography_medium_component_a_proton_count_from_valence_quarks"
-      ]
+      "defining_equations": []
     },
     "physical.lithography.medium_component_a_stoichiometric_count": {
       "name": "physical.lithography.medium_component_a_stoichiometric_count",
       "units": "count",
       "scope": "physical",
       "description": "Stoichiometric count of component A in the representative imaging-medium formula unit.",
-      "is_root_input": true,
-      "is_constant": false,
-      "defining_equations": []
-    },
-    "physical.lithography.medium_component_a_valence_down_quark_count": {
-      "name": "physical.lithography.medium_component_a_valence_down_quark_count",
-      "units": "count",
-      "scope": "physical",
-      "description": "Total valence down-quark count in one component A isotope of the imaging medium.",
-      "is_root_input": true,
-      "is_constant": false,
-      "defining_equations": []
-    },
-    "physical.lithography.medium_component_a_valence_up_quark_count": {
-      "name": "physical.lithography.medium_component_a_valence_up_quark_count",
-      "units": "count",
-      "scope": "physical",
-      "description": "Total valence up-quark count in one component A isotope of the imaging medium.",
       "is_root_input": true,
       "is_constant": false,
       "defining_equations": []
@@ -3307,12 +3285,10 @@
       "name": "physical.lithography.medium_component_b_neutron_count",
       "units": "count",
       "scope": "physical",
-      "description": "Neutron count of component B in the representative imaging-medium formula unit.",
-      "is_root_input": false,
+      "description": "Neutron count N of component B in the imaging-medium formula unit.",
+      "is_root_input": true,
       "is_constant": false,
-      "defining_equations": [
-        "physical.eq.lithography_medium_component_b_neutron_count_from_valence_quarks"
-      ]
+      "defining_equations": []
     },
     "physical.lithography.medium_component_b_neutron_excess": {
       "name": "physical.lithography.medium_component_b_neutron_excess",
@@ -3351,36 +3327,16 @@
       "name": "physical.lithography.medium_component_b_proton_count",
       "units": "count",
       "scope": "physical",
-      "description": "Proton count of component B in the representative imaging-medium formula unit.",
-      "is_root_input": false,
+      "description": "Proton count (atomic number Z) of component B in the imaging-medium formula unit.",
+      "is_root_input": true,
       "is_constant": false,
-      "defining_equations": [
-        "physical.eq.lithography_medium_component_b_proton_count_from_valence_quarks"
-      ]
+      "defining_equations": []
     },
     "physical.lithography.medium_component_b_stoichiometric_count": {
       "name": "physical.lithography.medium_component_b_stoichiometric_count",
       "units": "count",
       "scope": "physical",
       "description": "Stoichiometric count of component B in the representative imaging-medium formula unit.",
-      "is_root_input": true,
-      "is_constant": false,
-      "defining_equations": []
-    },
-    "physical.lithography.medium_component_b_valence_down_quark_count": {
-      "name": "physical.lithography.medium_component_b_valence_down_quark_count",
-      "units": "count",
-      "scope": "physical",
-      "description": "Total valence down-quark count in one component B isotope of the imaging medium.",
-      "is_root_input": true,
-      "is_constant": false,
-      "defining_equations": []
-    },
-    "physical.lithography.medium_component_b_valence_up_quark_count": {
-      "name": "physical.lithography.medium_component_b_valence_up_quark_count",
-      "units": "count",
-      "scope": "physical",
-      "description": "Total valence up-quark count in one component B isotope of the imaging medium.",
       "is_root_input": true,
       "is_constant": false,
       "defining_equations": []
@@ -4292,12 +4248,10 @@
       "name": "physical.lithography.source_neutron_count",
       "units": "count",
       "scope": "physical",
-      "description": "Neutron count of the emitting source isotope.",
-      "is_root_input": false,
+      "description": "Neutron count N of the emitting source isotope.",
+      "is_root_input": true,
       "is_constant": false,
-      "defining_equations": [
-        "physical.eq.lithography_source_neutron_count_from_valence_quarks"
-      ]
+      "defining_equations": []
     },
     "physical.lithography.source_neutron_excess": {
       "name": "physical.lithography.source_neutron_excess",
@@ -5300,12 +5254,10 @@
       "name": "physical.lithography.source_proton_count",
       "units": "count",
       "scope": "physical",
-      "description": "Proton count of the emitting source nucleus or ion species.",
-      "is_root_input": false,
+      "description": "Proton count (atomic number Z) of the emitting source isotope.",
+      "is_root_input": true,
       "is_constant": false,
-      "defining_equations": [
-        "physical.eq.lithography_source_proton_count_from_valence_quarks"
-      ]
+      "defining_equations": []
     },
     "physical.lithography.source_reduced_mass": {
       "name": "physical.lithography.source_reduced_mass",
@@ -5449,24 +5401,6 @@
       "defining_equations": [
         "physical.eq.lithography_source_upper_principal_quantum_number"
       ]
-    },
-    "physical.lithography.source_valence_down_quark_count": {
-      "name": "physical.lithography.source_valence_down_quark_count",
-      "units": "count",
-      "scope": "physical",
-      "description": "Total valence down-quark count in the emitting source isotope.",
-      "is_root_input": true,
-      "is_constant": false,
-      "defining_equations": []
-    },
-    "physical.lithography.source_valence_up_quark_count": {
-      "name": "physical.lithography.source_valence_up_quark_count",
-      "units": "count",
-      "scope": "physical",
-      "description": "Total valence up-quark count in the emitting source isotope.",
-      "is_root_input": true,
-      "is_constant": false,
-      "defining_equations": []
     },
     "physical.lithography.wavelength": {
       "name": "physical.lithography.wavelength",
@@ -8827,22 +8761,6 @@
       "to": "physical.lithography.medium_intercomponent_charge_unit"
     },
     {
-      "from": "physical.lithography.medium_component_a_valence_down_quark_count",
-      "to": "physical.lithography.medium_component_a_neutron_count"
-    },
-    {
-      "from": "physical.lithography.medium_component_a_valence_down_quark_count",
-      "to": "physical.lithography.medium_component_a_proton_count"
-    },
-    {
-      "from": "physical.lithography.medium_component_a_valence_up_quark_count",
-      "to": "physical.lithography.medium_component_a_neutron_count"
-    },
-    {
-      "from": "physical.lithography.medium_component_a_valence_up_quark_count",
-      "to": "physical.lithography.medium_component_a_proton_count"
-    },
-    {
       "from": "physical.lithography.medium_component_b_binding_asymmetry_term",
       "to": "physical.lithography.medium_component_b_binding_energy"
     },
@@ -8985,22 +8903,6 @@
     {
       "from": "physical.lithography.medium_component_b_stoichiometric_count",
       "to": "physical.lithography.medium_intercomponent_charge_unit"
-    },
-    {
-      "from": "physical.lithography.medium_component_b_valence_down_quark_count",
-      "to": "physical.lithography.medium_component_b_neutron_count"
-    },
-    {
-      "from": "physical.lithography.medium_component_b_valence_down_quark_count",
-      "to": "physical.lithography.medium_component_b_proton_count"
-    },
-    {
-      "from": "physical.lithography.medium_component_b_valence_up_quark_count",
-      "to": "physical.lithography.medium_component_b_neutron_count"
-    },
-    {
-      "from": "physical.lithography.medium_component_b_valence_up_quark_count",
-      "to": "physical.lithography.medium_component_b_proton_count"
     },
     {
       "from": "physical.lithography.medium_component_binding_asymmetry_coefficient",
@@ -10265,22 +10167,6 @@
     {
       "from": "physical.lithography.source_upper_principal_quantum_number",
       "to": "physical.lithography.source_transition_energy"
-    },
-    {
-      "from": "physical.lithography.source_valence_down_quark_count",
-      "to": "physical.lithography.source_neutron_count"
-    },
-    {
-      "from": "physical.lithography.source_valence_down_quark_count",
-      "to": "physical.lithography.source_proton_count"
-    },
-    {
-      "from": "physical.lithography.source_valence_up_quark_count",
-      "to": "physical.lithography.source_neutron_count"
-    },
-    {
-      "from": "physical.lithography.source_valence_up_quark_count",
-      "to": "physical.lithography.source_proton_count"
     },
     {
       "from": "physical.lithography.wavelength",

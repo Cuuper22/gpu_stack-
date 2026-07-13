@@ -60,11 +60,7 @@ def test_lithography_source_quantum_numeric_chain_resolves_binding_terms():
     )
     assert float(pairing_ref_result.value) == pytest.approx(16.0)
     pairing_ref_trace = [step.equation for step in pairing_ref_result.trace]
-    assert set(pairing_ref_trace[:2]) == {
-        "physical.eq.lithography_source_neutron_count_from_valence_quarks",
-        "physical.eq.lithography_source_proton_count_from_valence_quarks",
-    }
-    assert pairing_ref_trace[2:] == [
+    assert pairing_ref_trace == [
         "physical.eq.lithography_source_isotope_mass_number",
         "physical.eq.lithography_source_mass_number",
         "physical.eq.lithography_source_pairing_reference_mass_number",

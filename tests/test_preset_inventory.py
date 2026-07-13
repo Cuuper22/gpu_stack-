@@ -86,11 +86,25 @@ def test_material_source_composition_presets_resolve_nuclear_counts():
     assert float(oxygen.resolve("physical.lithography.source_proton_count").value) == 8
     assert float(oxygen.resolve("physical.lithography.source_neutron_count").value) == 8
     assert tin.assignments == {
-        "physical.lithography.source_valence_up_quark_count": 170,
-        "physical.lithography.source_valence_down_quark_count": 190,
+        "physical.lithography.source_proton_count": 50,
+        "physical.lithography.source_neutron_count": 70,
     }
-    assert float(tin.resolve("physical.lithography.source_proton_count").value) == 50
-    assert float(tin.resolve("physical.lithography.source_neutron_count").value) == 70
+    assert (
+        float(
+            tin.resolve(
+                "physical.lithography.source_valence_up_quark_count"
+            ).value
+        )
+        == 170
+    )
+    assert (
+        float(
+            tin.resolve(
+                "physical.lithography.source_valence_down_quark_count"
+            ).value
+        )
+        == 190
+    )
 
 
 def test_material_medium_composition_preset_resolves_formula_counts():

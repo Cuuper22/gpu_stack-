@@ -81,16 +81,19 @@ def test_euv_tin120_source_context_pack_contract_is_explicit():
 
 
 @pytest.mark.parametrize(
-    ("label", "expected"),
+    ("label", "expected", "expect_trace"),
     [
-        ("source_proton_count", 50.0),
-        ("source_neutron_count", 70.0),
-        ("pulse_repetition_rate", lithography.ASML_EUV_REPETITION_RATE_HZ),
+        # Proton/neutron counts are the composition roots now, so they are
+        # direct boundary assignments with no derivation trace.
+        ("source_proton_count", 50.0, False),
+        ("source_neutron_count", 70.0, False),
+        ("pulse_repetition_rate", lithography.ASML_EUV_REPETITION_RATE_HZ, True),
     ],
 )
 def test_euv_tin120_source_context_resolves_counts_and_repetition_rate(
     label,
     expected,
+    expect_trace,
 ):
     preset = scenarios.euv_tin120_lpp_source_context_assumption
     target = scenarios.EUV_TIN120_SOURCE_TARGETS[label]
@@ -99,7 +102,10 @@ def test_euv_tin120_source_context_resolves_counts_and_repetition_rate(
     assert float(result.value) == pytest.approx(expected)
     assert result.missing == set()
     assert result.violated_constraints == []
-    assert result.trace
+    if expect_trace:
+        assert result.trace
+    else:
+        assert result.trace == []
 
 
 def test_euv_tin120_source_context_resolves_all_advertised_targets():

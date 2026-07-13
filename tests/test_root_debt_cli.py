@@ -139,7 +139,10 @@ def test_physical_root_debt_top_rows_expose_source_frontier():
 
     rows = _parse_root_debt_rows(output)
     variables = [row.variable for row in rows]
-    assert any(".source_valence_" in variable for variable in variables[:5])
+    assert any(
+        variable.endswith(("source_proton_count", "source_neutron_count"))
+        for variable in variables[:5]
+    )
     assert any(
         variable.startswith("physical.lithography.source_plasma")
         for variable in variables
@@ -224,13 +227,13 @@ def test_physical_root_debt_families_group_ranked_rows():
         key=lambda item: (-item[0], -item[1], item[2]),
     )
 
-    source_valence = next(
+    source_nucleons = next(
         row for row in rows
-        if row.family == "physical.lithography.source_valence"
+        if row.family == "physical.lithography.source"
     )
-    assert source_valence.root_count == 2
-    assert "source_valence_down_quark_count" in source_valence.top_roots
-    assert "source_valence_up_quark_count" in source_valence.top_roots
+    assert source_nucleons.root_count == 2
+    assert "source_proton_count" in source_nucleons.top_roots
+    assert "source_neutron_count" in source_nucleons.top_roots
 
     assert any(
         row.family == "physical.lithography.source_plasma_drive"
@@ -337,7 +340,7 @@ def test_root_debt_family_groups_known_physical_clusters():
     )
     assert (
         _root_debt_family(
-            "physical.lithography.medium_component_a_valence_up_quark_count"
+            "physical.lithography.medium_component_a_proton_count"
         )
         == "physical.lithography.medium_component"
     )

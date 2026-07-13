@@ -3,7 +3,7 @@ const primerSteps = {
   target: {
     text: "Start with a human question, then follow the named dependencies upstream. Every hop should tell you whether you are looking at an equation, a scenario value, or an unresolved root input.",
     facts: [
-      "The registry currently names 1517 variables and 959 equations.",
+      "The registry currently names 1517 variables and 950 equations.",
       "The target is easier to trust when its ancestry is still attached."
     ],
     statusTitle: "Target selected: start with the question.",
@@ -13,7 +13,7 @@ const primerSteps = {
   upstream: {
     text: "Walking upstream means refusing to let a final number float by itself. The graph keeps run cost, token count, power, throughput, units, and constraints in the same visible chain.",
     facts: [
-      "893 equations are currently covered by unit checks.",
+      "884 equations are currently covered by unit checks.",
       "The gold highlight marks the part of the receipt you are inspecting."
     ],
     statusTitle: "Upstream selected: equations carry the number.",

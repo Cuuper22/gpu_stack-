@@ -27,11 +27,9 @@ def test_source_plasma_radial_expansion_uses_species_mass_chain():
         expansion_factor * (boltzmann * gas_temperature / species_mass) ** 0.5
     )
     assert [step.equation for step in result.trace] == [
-        "physical.eq.lithography_source_proton_count_from_valence_quarks",
-        "physical.eq.lithography_source_neutron_count_from_valence_quarks",
+        "physical.eq.lithography_source_plasma_column_expansion_speed_factor_from_monatomic_sound_speed",
         "physical.eq.lithography_source_plasma_species_particle_mass_from_nuclear_counts",
         "physical.eq.lithography_source_plasma_species_thermal_speed_from_gas_temperature",
-        "physical.eq.lithography_source_plasma_column_expansion_speed_factor_from_monatomic_sound_speed",
         "physical.eq.lithography_source_plasma_column_radial_expansion_speed_from_species_thermal_speed",
     ]
 

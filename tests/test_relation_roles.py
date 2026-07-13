@@ -59,9 +59,6 @@ def test_no_inequality_collapses_to_true():
 # The counts reflect the audited variables from IMPROVEMENT_MAP.md after
 # role tagging in this batch.
 MULTI_DEFINITION_EXPECTATIONS = [
-    ("physical.lithography.source_valence_up_quark_count", 0, 3, 0, 0),
-    ("physical.lithography.medium_component_a_valence_up_quark_count", 0, 3, 0, 0),
-    ("physical.lithography.medium_component_b_valence_up_quark_count", 0, 3, 0, 0),
     ("physical.lithography.source_plasma_species_number_density", 0, 1, 1, 0),
     ("physical.lithography.source_plasma_species_thermal_speed", 0, 2, 1, 0),
     ("physical.lithography.source_plasma_drive_acceptance_half_angle", 0, 1, 1, 0),

@@ -8,9 +8,14 @@ from gpu_stack import Registry
 
 
 def source_quark_assignments(protons, neutrons):
+    """Return nucleon (proton/neutron) root assignments for the source species.
+
+    Quark counts are now DERIVED from proton/neutron counts via the identity
+    U = 2Z + N and D = Z + 2N, so proton and neutron counts are the roots.
+    """
     return {
-        "physical.lithography.source_valence_up_quark_count": 2 * protons + neutrons,
-        "physical.lithography.source_valence_down_quark_count": protons + 2 * neutrons,
+        "physical.lithography.source_proton_count": protons,
+        "physical.lithography.source_neutron_count": neutrons,
     }
 
 
@@ -22,13 +27,14 @@ def failed_constraint(result, equation):
 
 
 def medium_component_quark_assignments(component: str, protons: int, neutrons: int):
+    """Return nucleon (proton/neutron) root assignments for a medium component.
+
+    Quark counts are now DERIVED from proton/neutron counts via the identity
+    U = 2Z + N and D = Z + 2N, so proton and neutron counts are the roots.
+    """
     return {
-        f"physical.lithography.medium_component_{component}_valence_up_quark_count": (
-            2 * protons + neutrons
-        ),
-        f"physical.lithography.medium_component_{component}_valence_down_quark_count": (
-            protons + 2 * neutrons
-        ),
+        f"physical.lithography.medium_component_{component}_proton_count": protons,
+        f"physical.lithography.medium_component_{component}_neutron_count": neutrons,
     }
 
 

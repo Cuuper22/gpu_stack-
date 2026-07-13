@@ -12,8 +12,8 @@ from gpu_stack.presets import lithography
 
 
 TIN120_SOURCE_ROOTS = {
-    "physical.lithography.source_valence_up_quark_count": 170,
-    "physical.lithography.source_valence_down_quark_count": 190,
+    "physical.lithography.source_proton_count": 50,
+    "physical.lithography.source_neutron_count": 70,
 }
 
 FORBIDDEN_UNCALIBRATED_ROOTS = {
@@ -151,8 +151,8 @@ def test_tin120_source_composition_is_marked_as_an_assumption():
 @pytest.mark.parametrize(
     ("target", "expected"),
     [
-        ("physical.lithography.source_proton_count", 50.0),
-        ("physical.lithography.source_neutron_count", 70.0),
+        ("physical.lithography.source_valence_up_quark_count", 170.0),
+        ("physical.lithography.source_valence_down_quark_count", 190.0),
         ("physical.lithography.source_isotope_mass_number", 120.0),
     ],
 )

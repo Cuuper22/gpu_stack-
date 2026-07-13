@@ -132,7 +132,7 @@ def test_scenario_report_json_custom_material_target_keeps_exact_label():
             "scenario-report",
             "materials.source_hydrogen_1",
             "--target",
-            "source_z=physical.lithography.source_proton_count",
+            "source_u=physical.lithography.source_valence_up_quark_count",
             "--json",
         ])
 
@@ -143,12 +143,12 @@ def test_scenario_report_json_custom_material_target_keeps_exact_label():
     assert report["variant_count"] >= 0
     assert report["sourced"] is True
     assert report["issue_count"] == 0
-    assert [target["label"] for target in report["targets"]] == ["source_z"]
+    assert [target["label"] for target in report["targets"]] == ["source_u"]
 
     target = report["targets"][0]
     assert target["status"] == "ok"
-    assert target["target"] == "physical.lithography.source_proton_count"
-    assert target["value"] == 1
+    assert target["target"] == "physical.lithography.source_valence_up_quark_count"
+    assert target["value"] == 2
     assert target["missing_count"] == 0
     assert target["violated_constraint_count"] == 0
     assert target["violated_approximation_validity_count"] == 0
@@ -376,25 +376,31 @@ def test_scenario_report_custom_target_and_fail_on_issues():
             "scenario-report",
             "materials.source_hydrogen_1",
             "--target",
-            "source_z=physical.lithography.source_proton_count",
+            "source_u=physical.lithography.source_valence_up_quark_count",
             "--fail-on-issues",
         ])
     out = buf.getvalue()
     assert rc == 0
-    assert "source_z: ok target=physical.lithography.source_proton_count" in out
-    assert "value=1" in out
+    assert (
+        "source_u: ok target=physical.lithography.source_valence_up_quark_count"
+        in out
+    )
+    assert "value=2" in out
 
     with captured_stdout() as buf:
         rc = main([
             "scenario-report",
             "materials.source_hydrogen_1",
             "--target",
-            "source_z=physical.lithography.source_proton_count",
+            "source_u=physical.lithography.source_valence_up_quark_count",
             "--assign",
-            "physical.lithography.source_valence_up_quark_count=0",
+            "physical.lithography.source_proton_count=0",
             "--fail-on-issues",
         ])
     out = buf.getvalue()
     assert rc == 1
-    assert "source_z: issues target=physical.lithography.source_proton_count" in out
+    assert (
+        "source_u: issues target=physical.lithography.source_valence_up_quark_count"
+        in out
+    )
     assert "violated_constraints=" in out

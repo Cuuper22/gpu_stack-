@@ -12,10 +12,10 @@ from tests.helpers.lithography_medium_formula import (
 
 def test_lithography_medium_formula_unit_composition_dependencies():
     variables = medium_formula_variables()
-    component_a_protons = variables["component_a_protons"]
-    component_b_protons = variables["component_b_protons"]
-    component_a_neutrons = variables["component_a_neutrons"]
-    component_b_neutrons = variables["component_b_neutrons"]
+    component_a_up_quarks = variables["component_a_up_quarks"]
+    component_a_down_quarks = variables["component_a_down_quarks"]
+    component_b_up_quarks = variables["component_b_up_quarks"]
+    component_b_down_quarks = variables["component_b_down_quarks"]
     component_a_atomic_number = variables["component_a_atomic_number"]
     component_b_atomic_number = variables["component_b_atomic_number"]
     component_a_mass_number = variables["component_a_mass_number"]
@@ -24,21 +24,21 @@ def test_lithography_medium_formula_unit_composition_dependencies():
     neutron_count = variables["neutron_count"]
     electron_count = variables["electron_count"]
 
-    assert dependency_names(component_a_protons) == {
-        "physical.lithography.medium_component_a_valence_down_quark_count",
-        "physical.lithography.medium_component_a_valence_up_quark_count",
+    assert dependency_names(component_a_up_quarks) == {
+        "physical.lithography.medium_component_a_proton_count",
+        "physical.lithography.medium_component_a_neutron_count",
     }
-    assert dependency_names(component_a_neutrons) == {
-        "physical.lithography.medium_component_a_valence_down_quark_count",
-        "physical.lithography.medium_component_a_valence_up_quark_count",
+    assert dependency_names(component_a_down_quarks) == {
+        "physical.lithography.medium_component_a_proton_count",
+        "physical.lithography.medium_component_a_neutron_count",
     }
-    assert dependency_names(component_b_protons) == {
-        "physical.lithography.medium_component_b_valence_down_quark_count",
-        "physical.lithography.medium_component_b_valence_up_quark_count",
+    assert dependency_names(component_b_up_quarks) == {
+        "physical.lithography.medium_component_b_proton_count",
+        "physical.lithography.medium_component_b_neutron_count",
     }
-    assert dependency_names(component_b_neutrons) == {
-        "physical.lithography.medium_component_b_valence_down_quark_count",
-        "physical.lithography.medium_component_b_valence_up_quark_count",
+    assert dependency_names(component_b_down_quarks) == {
+        "physical.lithography.medium_component_b_proton_count",
+        "physical.lithography.medium_component_b_neutron_count",
     }
     assert dependency_names(component_a_atomic_number) == {
         "physical.lithography.medium_component_a_proton_count",
