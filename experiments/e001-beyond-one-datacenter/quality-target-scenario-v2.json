@@ -1,0 +1,117 @@
+{
+  "schema": "gpu-stack.e001-quality-target-scenario.v1",
+  "experiment_id": "E001-LC2",
+  "scenario_id": "e001-late-target-survivor-continuation-v2",
+  "predecessor_protocol_failure": {
+    "path": "experiments/e001-beyond-one-datacenter/results/quality-target-v1.json",
+    "artifact_sha256": "4781781857ae638f6e64868ed3fa156d9459f5f64e62f82aad3db6cde3bfd0c6",
+    "conclusion": "protocol_failed_warm_start_not_late_stage",
+    "observed_final_256_tick_nll_improvement": 0.0862674061208963
+  },
+  "source_learning_result": {
+    "path": "experiments/e001-beyond-one-datacenter/results/learning-calibration-v1.json",
+    "artifact_sha256": "0597ca6deeeb34ae97d57d72b49187c687af921d3eec7b804ceb48b0d3994826"
+  },
+  "source_recovery_result": {
+    "path": "experiments/e001-beyond-one-datacenter/results/recovery-mechanics-v2.json",
+    "artifact_sha256": "b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57"
+  },
+  "dataset": {
+    "dataset_id": "roneneldan/TinyStories",
+    "config": "default",
+    "split": "train",
+    "shard": "0000.parquet",
+    "uri": "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet",
+    "sha256": "77cf780cebe52b6e83e3a2ac84bc56d8059363113e41d17a023f1d8b2ed0fc0b",
+    "train_rows": 50000,
+    "validation_start_row": 50000,
+    "validation_rows": 2000,
+    "encoding": "utf-8 bytes",
+    "separator_byte": 0
+  },
+  "model": {
+    "vocab_size": 256,
+    "context_length": 256,
+    "layers": 4,
+    "width": 192,
+    "heads": 4,
+    "mlp_width": 768,
+    "dropout": 0.0,
+    "tie_embeddings": true
+  },
+  "optimization": {
+    "optimizer": "AdamW",
+    "learning_rate": 0.0003,
+    "weight_decay": 0.1,
+    "beta1": 0.9,
+    "beta2": 0.95,
+    "gradient_clip_norm": 1.0,
+    "autocast": "bfloat16",
+    "deterministic_cuda_algorithms": false,
+    "batch_size_per_site": 4,
+    "warm_start_ticks": 8192,
+    "warm_start_seed": 7,
+    "warm_start_late_window_start_tick": 7936,
+    "warm_start_max_window_nll_improvement": 0.03,
+    "calibration_ticks": 256,
+    "maximum_evaluation_ticks": 384,
+    "healthy_local_ticks": 8,
+    "reduced_membership_checkpoint_ticks": 2,
+    "post_rejoin_sync_ticks": 2,
+    "fixed_checkpoint_merge_interval": 2,
+    "adaptive_checkpoint_merge_interval": 1,
+    "evaluation_interval_ticks": 8,
+    "validation_batches": 64,
+    "validation_seed": 20260712,
+    "flop_model": "6 * parameter_count * attempted_tokens"
+  },
+  "thermal_guard": {
+    "start_temperature_c_lte": 90,
+    "pause_temperature_c_gte": 94,
+    "resume_temperature_c_lte": 91,
+    "poll_seconds": 2.0
+  },
+  "target": {
+    "calibration_target_ticks": [240, 248, 256],
+    "selection": "median fixed-local no-failure NLL across C1/C2 and ticks 240, 248, 256",
+    "required_first_crossing_tick_min": 192,
+    "required_first_crossing_tick_max": 288
+  },
+  "bootstrap": {
+    "confidence_level": 0.9,
+    "draws": 10000,
+    "seed": 20260712
+  },
+  "calibration_strata": [
+    {"stratum_id": "C1", "seed": 11, "failures": []},
+    {"stratum_id": "C2", "seed": 29, "failures": []}
+  ],
+  "evaluation_strata": [
+    {"stratum_id": "E1", "seed": 101, "failures": [[40, 8], [136, 16]]},
+    {"stratum_id": "E2", "seed": 131, "failures": [[64, 16], [200, 8]]},
+    {"stratum_id": "E3", "seed": 151, "failures": [[72, 8], [128, 24]]},
+    {"stratum_id": "E4", "seed": 181, "failures": [[104, 16], [184, 16]]},
+    {"stratum_id": "E5", "seed": 211, "failures": [[32, 8], [104, 8], [216, 16]]},
+    {"stratum_id": "E6", "seed": 241, "failures": [[88, 24], [168, 8]]}
+  ],
+  "calibration_arms": [
+    {"policy_id": "fixed-local-checkpoint-restart", "interrupted": false},
+    {"policy_id": "adaptive-survivor-continuation", "interrupted": false}
+  ],
+  "evaluation_arms": [
+    {"policy_id": "fixed-local-checkpoint-restart", "interrupted": true},
+    {"policy_id": "adaptive-survivor-continuation", "interrupted": true}
+  ],
+  "falsifiers": {
+    "paired_target_count_eq": 6,
+    "paired_attempted_flop_savings_lower_bound_gt": 0.0,
+    "paired_attempted_flop_savings_median_gte": 0.03,
+    "adaptive_to_fixed_canonical_token_ratio_upper_bound_lte": 1.05,
+    "median_opportunity_tick_savings_gte": 8,
+    "adaptive_earlier_strata_count_gte": 5,
+    "adaptive_to_fixed_device_energy_ratio_upper_bound_lte": 1.05,
+    "calibration_no_failure_exact_equivalence": true,
+    "adaptive_target_attainment_count_eq": 6,
+    "adaptive_divergence_count_eq": 0
+  }
+}

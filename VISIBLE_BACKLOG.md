@@ -4,33 +4,32 @@ Updated: 2026-07-12 PDT.
 
 Purpose: compact recovery surface for the visible backlog.
 
-## Active Research Wave: E001-LC2 After LC1 Falsification
+## Active Research Wave: E002 After LC3's Isolated Energy Failure
 
-Status: E001-LC1 completed 40 real GPU runs with a hard split of 10 calibration
-and 30 held-out evaluation observations. The persisted conclusion is
-`candidate_falsified_small_model_calibration` and
-`candidate_survives_lc1=False`; the learning sidecar and observatory are
-present.
+Status: LC1's 40-run finite-horizon falsification remains published. LC2 v1
+and v2 preserve protocol-stage failures before held-out evaluation: first the
+checkpoint was not late-stage, then raw NLL first crossing failed the frozen
+target-window validity gate. LC3 redirected to equal canonical work without
+smoothing or retuning.
 
-Adaptive interrupted ended at better median final NLL, 2.31465 versus 2.34115,
-but fixed restart attempted exactly 12.5 percent less work. The frozen
-finite-horizon progress-per-FLOP objective therefore favored fixed at worse
-quality. Every policy crossed the calibration target at the first 32-tick
-observation, so the target could not distinguish stopping time. The earlier
-recovery-v2 mechanical Pareto result remains completed prior evidence.
+All 12 LC3 held-out observations reached 524,288 canonical tokens. Adaptive
+passed learning noninferiority, attempted-work saving, and opportunity-tick
+saving, with median 3.03 percent less attempted work and 40 fewer opportunity
+ticks. It failed solely on sampled training-device energy: median ratio 1.068
+and paired 90 percent upper bound 1.134 versus the frozen 1.05 ceiling. The
+persisted conclusion is `candidate_falsified_equal_canonical_work`; the
+`docs/data/e001-equal-work-v1.json` observatory sidecar is present.
 
-- P0: run late-stage fixed-target E001-LC2. Warm-start near a frozen quality
-  target and compare quality-constrained time, measured device energy, and
-  attempted work.
-- P0: bridge observed learning curves to datacenter mechanics. Connect the LC2
-  target-conditioned observations to recovery-v2 modeled time, WAN, facility
-  energy, and work without presenting modeled values as measurements.
-- P0: preserve LC1 as a published small-model falsification. LC2 must freeze a
-  new target and held-out schedules before execution rather than retune LC1.
-- P1: scale survivor continuation only after LC2 survives. Then expand model
-  family, optimizer, non-IID data, outage duration, and accelerator panels.
-- P1: start E002 only if the E001 result shows power/energy, rather than
-  communication or learning staleness, is the binding constraint.
+- P0: run E002 checkpoint-power waveform attribution. Freeze a 2x2 factorial
+  crossing checkpoint cadence with survivor continuation at equal canonical
+  work.
+- P0: separate checkpoint cadence from survivor continuation. Attribute
+  checkpoint, training, restore, and synchronization power so main effects and
+  their interaction are identifiable.
+- P0: preserve LC1, both LC2 protocol results, and LC3 as distinct evidence.
+  Do not retune or collapse the sequence into one favorable claim.
+- P1: scale survivor continuation only after the factorial result preserves
+  LC3's learning/work/tick gates and passes the 1.05 energy ceiling.
 - P2: advance E003 to E006 only when an earlier experiment yields a reusable
   mechanism or measurement need.
 

@@ -316,6 +316,19 @@ The measured LC1 result is persisted at
 with observatory projection `docs/data/e001-learning-v1.json`
 (`ff6b5a56dab3314f9ad0b1def40fda9ce9df540bda411284bb9766d9a3ee3c12`).
 
+The two LC2 protocol-stage artifacts are preserved at
+`experiments/e001-beyond-one-datacenter/results/quality-target-v1.json`
+(`4781781857ae638f6e64868ed3fa156d9459f5f64e62f82aad3db6cde3bfd0c6`)
+and `experiments/e001-beyond-one-datacenter/results/quality-target-v2.json`
+(`a3bb91b74a99708a08b5196ffc8d16bb27bca697f7f54fb63e60564851f97517`).
+Neither contains held-out policy evidence.
+
+The held-out LC3 result is persisted at
+`experiments/e001-beyond-one-datacenter/results/equal-work-v1.json`
+(`f7548b68d4791978260f0bd557bf92041d0f769b796b1e684bbcab99e88f639f`),
+with observatory projection `docs/data/e001-equal-work-v1.json`
+(`5ff07c4cf5b59be04d14f1b66961e679c2cec127b521c386d54ff9ebaadc1ae1`).
+
 ## The Next-Work Compass
 
 The continuation compass now scans executable research artifacts, experiments,
@@ -325,13 +338,13 @@ persisted results, the deployable observatory, and the symbolic graph:
 python -m gpu_stack.cli next-work
 ```
 
-With the 40-run E001-LC1 learning artifact present, its highest-impact section
-now advances to LC2: start from a late-training checkpoint, freeze a
-quality target, and compare fixed restart with adaptive continuation by time,
-device energy, and work to that target. LC2 will bridge observed learning
-curves to the modeled datacenter mechanics without relabeling modeled WAN,
-facility, or concurrency quantities as measurements. Pythia closure and
-root-debt ranking remain visible under
+With LC3 complete, its highest-impact section now advances to the failed gate:
+E002 phase-level energy attribution. The next experiment crosses checkpoint
+cadence with survivor continuation in a frozen 2x2 design, measures the
+operation-level power waveform, and asks whether dependency-safe phase
+scheduling removes the adaptive energy penalty without giving back LC3's
+learning, attempted-work, or opportunity-tick gains. Scaling E001 is downstream
+of that result. Pythia closure and root-debt ranking remain visible under
 `Legacy diagnostics (not scientific priorities)` so useful maintenance does
 not quietly become the roadmap again.
 
@@ -364,9 +377,9 @@ These rules keep the package honest:
   preemption, checkpoint restore, replay, membership rejoin, and durable
   frontier recovery with exact work conservation.
 - Applying observable-only membership, cadence, parallelism, configuration, migration, and power-cap interventions at explicit decision epochs.
-- Producing content-addressed E001 v1, recovery-v2, and LC1 learning artifacts
-  and visualizing measured, modeled, assumed, prior, and unmeasured quantities
-  without blending them.
+- Producing content-addressed E001 v1, recovery-v2, LC1, LC2 protocol, and LC3
+  equal-work artifacts and visualizing measured, modeled, assumed, prior, and
+  unmeasured quantities without blending them.
 - Reporting site base plus accelerator-compute energy while explicitly excluding unmodeled network, checkpoint, storage, host, and cooling energy.
 - Inspecting symbolic dependencies across hardware, software, thermal, and economic layers.
 - Writing and checking new equations in a single registry.
@@ -382,8 +395,8 @@ This is the part where the README earns the numbers above.
 
 GPUSTACK is not yet a calibrated digital twin or training-cost oracle. Recovery
 v2 executes preemption, lost work, checkpoint restore, replay, and reactive
-membership for four matched policies. LC1 now measures learning under matched
-interruptions on one local small-model workload. It does not establish
+membership for four matched policies. LC1 and LC3 measure learning under
+matched interruptions on one local small-model workload. They do not establish
 frontier-scale transfer, real multi-site concurrency, WAN or facility energy,
 topology changes, optimizer correction, or the full joint controller.
 
@@ -403,9 +416,35 @@ had median `-7.19835770326443e-14` and a 90% interval
 on time-to-target. Adaptive still ended better under interruption, at median
 NLL `2.314653009` versus `2.341145828` for fixed. Fixed attempted 12.5% less
 work and ended worse, but dividing from-scratch finite-horizon progress by its
-smaller attempted-work denominator made fixed look 12.7% better per FLOP. LC2
-therefore replaces that invalid recovery comparator with warm-started time,
-device-energy, and work-to-quality measurements.
+smaller attempted-work denominator made fixed look 12.7% better per FLOP.
+
+LC2 then tried to replace that invalid comparator with a warm-started
+quality-to-target endpoint. V1 stopped before held-out evaluation because the
+2,048-tick checkpoint was not late-stage: NLL improved
+`1.52376570366323 -> 1.43749829754233`, or `0.08626740612089634`, above the
+frozen `0.03` maximum. V2's 8,192-tick checkpoint passed with improvement
+`0.004534989595413208`, and fixed/adaptive calibration was exactly equivalent.
+But the frozen target `1.01961656101048` was first crossed at ticks 40 and 96,
+not inside the required 192 to 288 window, because late-stage NLL was
+non-monotonic. V1 concluded `protocol_failed_warm_start_not_late_stage`; V2
+concluded `protocol_failed_calibration_validity`. Neither result opened held-out
+evaluation, so neither ranks the policies.
+
+LC3 removed unstable first crossing and compared six untouched held-out pairs
+at exactly 524,288 canonical tokens. Adaptive passed learning noninferiority:
+adaptive-minus-fixed NLL had median `0.003338515292853117` and paired 90%
+interval `[0.0023927902802824974, 0.008503663819283247]`, below the frozen
+`0.01` upper margin. It saved a median `3.030303%` attempted work and 40
+opportunity ticks, and was earlier in all six schedules. It failed only the
+sampled device-energy gate: the adaptive/fixed ratio had median
+`1.0683917796356628` and interval
+`[1.0017954332700434, 1.134269402803286]`, above the frozen `1.05` bound.
+
+The persisted LC3 conclusion is `candidate_falsified_equal_canonical_work`.
+The next question is not whether to scale it. It is which checkpoint and
+recovery phases caused the energy penalty, and whether an E002 2x2 cadence by
+continuation experiment can remove that penalty without erasing the passed
+learning, work, or tick effects.
 
 The symbolic resolver remains intentionally conservative. By default it does
 not solve simultaneous systems or switch relations when an approximation
@@ -435,7 +474,7 @@ Calibration presets are still skeletal. Some presets are exact composition fixtu
 | Equations with references | 959 |
 | Equations with unit checks | 893 |
 | Root-debt families | 151 |
-| Package version | 0.26.0 |
+| Package version | 0.27.0 |
 
 Test counts can move as the model grows. Recheck locally with:
 
@@ -450,11 +489,13 @@ It keeps a plain question, causal mechanism, counterfactual regime, model,
 evidence, residual, provenance, event trace, and falsifier in one shareable
 state. Semantic depth changes explanation density, never values or conclusions.
 
-The first screen is E001, Beyond One Datacenter. It retains the v1 mechanics
-and recovery-v2 views, then adds the LC1 measured learning result. The page
-exposes the frozen target, held-out paired effects, falsifier outcomes, learning
-curves, work conservation, checkpoint overhead, assumptions, and evidence
-boundary at Freshman, Researcher, and Full trace depth.
+The first screen is E001, Beyond One Datacenter. It retains the v1 mechanics,
+recovery-v2, and LC1 views, then adds the LC3 equal-work result. The page makes
+the central result legible at three depths: adaptive preserved learning and
+saved work and opportunity ticks, but its measured device energy exceeded the
+frozen bound. Researcher and Full trace views expose all six paired effects,
+falsifier outcomes, learning curves, work conservation, checkpoint overhead,
+source hashes, assumptions, and the observed/modelled evidence boundary.
 
 ## Core Types
 

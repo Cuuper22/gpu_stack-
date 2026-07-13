@@ -78,9 +78,9 @@ def test_highest_impact_is_research_first_and_legacy_diagnostics_stay_secondary(
     plan = build_next_work_plan()
 
     assert [item.title for item in plan.highest_impact] == [
-        "Run late-stage fixed-target E001-LC2",
-        "Bridge observed learning curves to datacenter mechanics",
-        "Scale survivor continuation only after LC2 survives",
+        "Run E002 checkpoint-power waveform attribution",
+        "Separate checkpoint cadence from survivor continuation",
+        "Scale survivor continuation only after the energy gate passes",
     ]
     highest_titles = "\n".join(item.title.lower() for item in plan.highest_impact)
     assert "pythia" not in highest_titles
@@ -101,11 +101,18 @@ def test_research_priorities_are_backed_by_live_executable_artifact_evidence():
     plan = build_next_work_plan()
     rendered = "\n".join(item.evidence for item in plan.highest_impact)
 
-    assert "conclusion=candidate_falsified_small_model_calibration" in rendered
+    assert "schema=gpu-stack.e001-equal-work-evidence.v1" in rendered
+    assert "conclusion=candidate_falsified_equal_canonical_work" in rendered
     assert "candidate_survives=False" in rendered
-    assert "held-out evaluation observations=30" in rendered
-    assert "LC1 sidecar present=True" in rendered
-    assert "learning observatory present=True" in rendered
+    assert "held-out evaluation observations=12" in rendered
+    assert "false solely on the measured device-energy gate" in rendered
+    assert "median adaptive/fixed=1.068" in rendered
+    assert "90% upper=1.134 versus the frozen 1.05 ceiling" in rendered
+    assert "learning_noninferior=True" in rendered
+    assert "attempted_work_passed=True" in rendered
+    assert "opportunity_ticks_passed=True" in rendered
+    assert "energy_passed=False" in rendered
+    assert "LC3 observatory sidecar present=True" in rendered
 
 
 def test_experiment_result_scan_does_not_count_scenario_inputs(tmp_path):

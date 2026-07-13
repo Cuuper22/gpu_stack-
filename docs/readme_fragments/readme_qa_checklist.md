@@ -5,7 +5,7 @@ Prepared 2026-05-11 18:11 America/Los_Angeles for a README rewrite into a Medium
 ## 1. Factual Claims To Preserve Or Reverify
 
 - Preserve the package identity: GPUSTACK is a causal, uncertainty-aware virtual AI datacenter, visual observatory, and ML systems research lab. The SymPy registry is its symbolic causal backbone, not its sole product or progress metric.
-- Preserve the declared project metadata from `pyproject.toml`: package name `gpu_stack`, version `0.26.0`, Python `>=3.10`, MIT license, dependency `sympy>=1.12`, optional dev dependencies `pytest>=7` and `pytest-asyncio>=0.24`, console script `gpu-stack = gpu_stack.cli:main`, homepage `https://github.com/cuuper22/gpu_stack-`.
+- Preserve the declared project metadata from `pyproject.toml`: package name `gpu_stack`, version `0.27.0`, Python `>=3.10`, MIT license, dependency `sympy>=1.12`, optional dev dependencies `pytest>=7` and `pytest-asyncio>=0.24`, console script `gpu-stack = gpu_stack.cli:main`, homepage `https://github.com/cuuper22/gpu_stack-`.
 - Preserve the current live registry/audit counts unless a fresh command disagrees:
   - 16 systems
   - 1517 variables

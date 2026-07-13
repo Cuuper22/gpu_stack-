@@ -1,0 +1,120 @@
+{
+  "artifact_sha256": "4781781857ae638f6e64868ed3fa156d9459f5f64e62f82aad3db6cde3bfd0c6",
+  "engine": {
+    "engine_id": "gpu-stack.e001-lc2-quality-target.v1",
+    "source_sha256": "94a5f1454407e4a2316d831c0ed7340a161e2d6a78312dcc0b8dfe19cd81a502"
+  },
+  "experiment_id": "E001-LC2",
+  "mechanics_bridge": {
+    "assumptions": [
+      "one LC2 logical tick is treated as one recovery-v2 durable-frontier unit",
+      "the recovery-v2 two-failure trace is repeated linearly",
+      "adaptive-recovery is a mechanical proxy for adaptive-survivor-continuation"
+    ],
+    "densities": {
+      "adaptive-survivor-continuation": {
+        "durable_frontier_units": 8,
+        "learning_policy_id": "adaptive-survivor-continuation",
+        "modeled_elapsed_ns_per_frontier_unit": 192000000.0,
+        "modeled_energy_j_per_frontier_unit": 31816.921428571422,
+        "modeled_inter_site_link_bytes_per_frontier_unit": 1700000000.0,
+        "modeled_lost_compute_flops_per_frontier_unit": 6053571428571428.0,
+        "recovery_policy_proxy": "adaptive-recovery",
+        "traffic_by_class": {
+          "checkpoint": 7200000000,
+          "restore": 1600000000,
+          "sparse_collective": 4800000000
+        }
+      },
+      "fixed-local-checkpoint-restart": {
+        "durable_frontier_units": 8,
+        "learning_policy_id": "fixed-local-checkpoint-restart",
+        "modeled_elapsed_ns_per_frontier_unit": 189500000.0,
+        "modeled_energy_j_per_frontier_unit": 35419.4,
+        "modeled_inter_site_link_bytes_per_frontier_unit": 1300000000.0,
+        "modeled_lost_compute_flops_per_frontier_unit": 1.80625e+16,
+        "recovery_policy_proxy": "fixed-local-checkpoint-restart",
+        "traffic_by_class": {
+          "checkpoint": 4000000000,
+          "restore": 1600000000,
+          "sparse_collective": 4800000000
+        }
+      }
+    },
+    "evidence_class": "modeled_bridge_sensitivity",
+    "non_comparabilities": [
+      "recovery-v2 failures are absolute-time events, not the LC2 schedules",
+      "modeled energy is constant-coefficient compute plus network energy, not measured device or facility energy",
+      "modeled lost FLOP is not observed replayed or discarded LC2 tokens",
+      "simultaneous datacenter throughput remains unmeasured"
+    ],
+    "plain_boundary": "Modeled repeated-trace sensitivity conditioned on observed LC2 target crossing. Not measured datacenter performance.",
+    "policy_mapping": {
+      "adaptive-survivor-continuation": "adaptive-recovery",
+      "fixed-local-checkpoint-restart": "fixed-local-checkpoint-restart"
+    },
+    "projections": [],
+    "source_recovery_artifact_sha256": "b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57"
+  },
+  "observations": [],
+  "result_scope": {
+    "overall_e001_status": "protocol_failure_before_evaluation",
+    "supported": [
+      "measured warm-start loss-window improvement"
+    ],
+    "unsupported": [
+      "any LC2 policy comparison"
+    ]
+  },
+  "runs": [],
+  "scenario_id": "e001-late-target-survivor-continuation-v1",
+  "scenario_sha256": "2e921ca9bc870ef66bffe122621d5f786236961b717c916aa67799231852c713",
+  "schema": "gpu-stack.e001-quality-target-evidence.v1",
+  "source_learning_result": {
+    "artifact_sha256": "0597ca6deeeb34ae97d57d72b49187c687af921d3eec7b804ceb48b0d3994826",
+    "path": "experiments/e001-beyond-one-datacenter/results/learning-calibration-v1.json",
+    "schema": "gpu-stack.e001-recovery-learning-evidence.v1"
+  },
+  "source_recovery_result": {
+    "artifact_sha256": "b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57",
+    "path": "experiments/e001-beyond-one-datacenter/results/recovery-mechanics-v2.json",
+    "schema": "gpu-stack.e001-recovery-comparison.v2"
+  },
+  "summary": {
+    "candidate_survives_lc2": false,
+    "conclusion": "protocol_failed_warm_start_not_late_stage",
+    "falsifier_results": {
+      "late_stage_warm_start": false
+    }
+  },
+  "warm_start": {
+    "attempted_compute_flops": 47091095175168.0,
+    "attempted_tokens": 4194304,
+    "checkpoint_bytes": 22651536,
+    "checkpoint_sha256": "b75c7982a854f892f0c637997ca4b93c0cd003dc8eaf6939dddb0e486cb83e3e",
+    "cooldown_before_seconds": 0.00028789999851142056,
+    "end_temperature_c": 83,
+    "energy": {
+      "idle_power_w": 28.8474,
+      "idle_subtracted_energy_j": 1482.6007565753964,
+      "raw_energy_j": 2812.8302536610904,
+      "sample_count": 432
+    },
+    "late_window": {
+      "end_held_out_nll": 1.4374982975423336,
+      "end_tick": 2048,
+      "late_stage_gate_passed": false,
+      "maximum_nll_improvement": 0.03,
+      "nll_improvement": 0.08626740612089634,
+      "start_held_out_nll": 1.52376570366323,
+      "start_tick": 1792
+    },
+    "local_active_seconds": 46.1428468999984,
+    "parameter_count": 1871232,
+    "physical_seconds": 46.59414319999996,
+    "seed": 7,
+    "start_temperature_c": 60,
+    "thermal_pause_seconds": 0.0,
+    "ticks": 2048
+  }
+}

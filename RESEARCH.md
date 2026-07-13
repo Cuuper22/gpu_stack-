@@ -190,33 +190,47 @@ The preregistered design is in
 The repository now contains the observation and split contracts, held-out
 evaluation and replicated-panel aggregation, deterministic temporal and
 multi-site mechanics, observable-only interventions, six scalar-plus-structured
-protocols, E001 recovery mechanics, the artifact-driven causal observatory, and
-one completed measured learning calibration.
+protocols, E001 recovery mechanics, the artifact-driven causal observatory,
+and three successive measured learning questions through E001-LC3.
 
-E001-LC1 ran 40 local GPU runs: 10 calibration observations and 30 held-out
-evaluation observations. The small-model candidate was falsified. Adaptive
-ended with better interrupted held-out NLL, but fixed performed 12.5% less work
-and the finite-horizon from-scratch progress-per-FLOP denominator made fixed
-look 12.7% better. Every policy crossed the loose calibration target at tick
-32. This is measured small-model learning and device-only energy; datacenter
-mechanics remain modeled.
+LC2 preserved two protocol failures without opening held-out evaluation. V1's
+2,048-tick checkpoint was not late-stage: NLL improved `0.0862674` over its
+final 256 ticks against a frozen `0.03` ceiling. V2's 8,192-tick checkpoint
+passed that gate with `0.00453499` improvement and exact no-failure
+equivalence, but its target was crossed at ticks 40 and 96 rather than the
+frozen 192 to 288 window because late-stage NLL was non-monotonic. These
+results invalidate the protocol instances, not the recovery candidate.
 
-The next order is determined by what can change the conclusion:
+LC3 then compared fixed restart and adaptive continuation at the exact same
+524,288-token canonical frontier across six untouched held-out schedules.
+Adaptive passed learning noninferiority: adaptive-minus-fixed NLL had median
+`0.0033385` and 90% interval `[0.00239279, 0.00850366]`, below the frozen
+`0.01` margin. It saved a median `3.0303%` attempted work and 40 opportunity
+ticks, and was earlier in all six schedules. The candidate was nevertheless
+falsified solely on measured training-device energy: the adaptive/fixed ratio
+had median `1.06839` and 90% interval `[1.001795, 1.134269]`, above the frozen
+`1.05` upper bound.
 
-1. Run LC2 from a shared late-training checkpoint with a frozen quality target;
-   compare fixed restart and adaptive continuation by time, device energy, and
-   attempted and canonical work to target.
-2. Bridge the observed LC1 and LC2 learning curves to the modeled E001
-   datacenter timeline with an explicit observation-to-model boundary. Do not
-   relabel modeled concurrency, WAN, storage, cooling, or facility energy as
-   measured.
-3. Expand held-out optimizer, model, and topology transfer panels, then run
-   controlled 7B to 30B E001 calibration and shadow predictions against three
-   real clusters before a 30B to 100B-plus confirmatory run.
-4. Complete the rest of E001's joint controller and baseline vector only where
-   LC2 or shadow residuals identify a decision-relevant mechanism.
-5. Build E002's calibrated operation-to-facility power waveform engine and
-   test phase shaping under frozen grid-mode uncertainty.
+This is measured small-model learning and sampled board energy from one local
+GPU. Opportunity ticks are simulated. Datacenter concurrency, WAN, storage,
+host, cooling, and facility-energy behavior remain modeled or unmeasured.
+
+The next order is determined by the only LC3 gate that failed:
+
+1. Build E002's operation-to-facility power-waveform attribution path for the
+   checkpoint and recovery phases exercised by LC3.
+2. Run a frozen 2x2 experiment crossing checkpoint cadence with survivor
+   continuation. Test whether dependency-safe phase scheduling removes the
+   measured energy penalty without giving back learning noninferiority,
+   attempted-work saving, or opportunity-tick saving.
+3. Keep observed RTX learning, token, time, and energy quantities separate
+   from the modeled E001 recovery timeline. Use the model bridge only for
+   explicit sensitivity attribution, never as measured facility evidence.
+4. Scale E001 across optimizer, model, topology, and real-cluster transfer only
+   if the energy mechanism survives the 2x2 attribution experiment. A larger
+   run is not the next answer to a phase-level energy failure.
+5. Complete other E001 controller mechanisms only where the E002 attribution
+   or later shadow residuals identify decision-relevant missing behavior.
 6. Admit E003 through E006 only when their required observations, vector
    metrics, baselines, and transfer panels are executable.
 

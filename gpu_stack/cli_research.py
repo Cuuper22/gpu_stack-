@@ -92,6 +92,41 @@ def cmd_experiment_protocol(args) -> int:
 
 
 def cmd_experiment_run(args) -> int:
+    if args.experiment == "E001-LC3":
+        if not args.dataset:
+            raise ValueError("E001-LC3 requires --dataset")
+        from .research.e001_lc3_equal_work import run_e001_lc3_equal_work
+        from .research.observatory_equal_work import (
+            build_e001_equal_work_observatory_artifact,
+        )
+
+        result_payload = run_e001_lc3_equal_work(
+            args.scenario,
+            args.dataset,
+        )
+        _write_json_artifact(result_payload, args.output)
+        if args.observatory_output:
+            _write_json_artifact(
+                build_e001_equal_work_observatory_artifact(
+                    result_payload,
+                    source_uri=None if args.output == "-" else args.output,
+                ),
+                args.observatory_output,
+            )
+        return 0
+    if args.experiment == "E001-LC2":
+        if not args.dataset:
+            raise ValueError("E001-LC2 requires --dataset")
+        from .research.e001_lc2_quality_target import (
+            run_e001_lc2_quality_target,
+        )
+
+        result_payload = run_e001_lc2_quality_target(
+            args.scenario,
+            args.dataset,
+        )
+        _write_json_artifact(result_payload, args.output)
+        return 0
     if args.experiment == "E001-LC1":
         if not args.dataset:
             raise ValueError("E001-LC1 requires --dataset")

@@ -37,9 +37,9 @@ def test_next_work_text_prints_live_compass_sections():
     assert "Top 3 highest impact:" in out
     assert "4 best implementations:" in out
     assert "10 bugs/risks:" in out
-    assert "Run late-stage fixed-target E001-LC2" in out
-    assert "Bridge observed learning curves to datacenter mechanics" in out
-    assert "Scale survivor continuation only after LC2 survives" in out
+    assert "Run E002 checkpoint-power waveform attribution" in out
+    assert "Separate checkpoint cadence from survivor continuation" in out
+    assert "Scale survivor continuation only after the energy gate passes" in out
     assert "Legacy diagnostics (not scientific priorities):" in out
     assert "Close the sourced Pythia cost frontier" in out
     assert "cost_per_token has" in out
@@ -57,5 +57,5 @@ def test_next_work_json_shape_matches_public_compass_contract():
     assert len(payload["best_implementations"]) == 4
     assert len(payload["bug_risks"]) == 10
     assert payload["highest_impact"][0]["title"] == (
-        "Run late-stage fixed-target E001-LC2"
+        "Run E002 checkpoint-power waveform attribution"
     )

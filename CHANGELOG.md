@@ -8,6 +8,22 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
 
 ## Current physical deepening notes
 
+* Executed the LC2-to-LC3 research redirect without overwriting failed
+  protocols. LC2 v1 persisted `protocol_failed_warm_start_not_late_stage`; LC2
+  v2 established a valid 8,192-tick late-stage checkpoint and exact no-failure
+  equivalence, then persisted `protocol_failed_calibration_validity` before
+  held-out evaluation. LC3 replaced raw NLL first crossing with an exact
+  524,288-canonical-token frontier and completed 12 held-out observations. The
+  candidate passed learning noninferiority, attempted-work saving, and
+  opportunity-tick saving, but failed solely on sampled device energy: median
+  adaptive/fixed 1.068 and paired 90 percent upper bound 1.134 versus the
+  frozen 1.05 ceiling. The persisted conclusion is
+  `candidate_falsified_equal_canonical_work`; the result and compact
+  observatory sidecar preserve all gates and the measured/modeled boundary.
+  Package version is now 0.27.0. Next is a frozen E002 2x2 checkpoint-cadence
+  x survivor-continuation power-waveform attribution experiment; scale only
+  after its energy gate passes.
+
 * Completed E001-LC1 with 40 real RTX 3060 Laptop GPU runs: 10 calibration and
   30 held-out evaluation observations. The frozen conclusion is
   `candidate_falsified_small_model_calibration` with
@@ -18,10 +34,10 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   crossed the calibration target at the first 32-tick observation. The result,
   compact learning sidecar, and observatory preserve the hard split, paired
   interval, falsifier outcomes, measured device boundary, and provenance.
-  Package version is now 0.26.0. Next is late-stage fixed-target E001-LC2,
-  followed by an explicit bridge from observed learning curves to modeled
-  datacenter mechanics; broader survivor continuation scales only if LC2
-  survives.
+  The LC1 wave set package version 0.26.0 and selected late-stage fixed-target
+  E001-LC2, followed by an explicit bridge from observed learning curves to
+  modeled datacenter mechanics. That historical decision is preserved by the
+  later LC2 and LC3 records above.
 
 * Prior wave: executed the first recovery-backed E001 research loop. A
   transition-driven runner now compares synchronous wait/restore, fixed-local

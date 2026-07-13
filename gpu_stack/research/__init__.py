@@ -61,6 +61,16 @@ from .e001_learning_calibration import (
     SYNC_POLICY as E001_LC1_SYNC_POLICY,
     run_e001_learning_calibration,
 )
+from .e001_lc2_quality_target import (
+    ENGINE_ID as E001_LC2_ENGINE_ID,
+    SCHEMA as E001_LC2_SCHEMA,
+    run_e001_lc2_quality_target,
+)
+from .e001_lc3_equal_work import (
+    ENGINE_ID as E001_LC3_ENGINE_ID,
+    SCHEMA as E001_LC3_SCHEMA,
+    run_e001_lc3_equal_work,
+)
 
 from .evaluation import (
     DecisionRegret,
@@ -114,6 +124,11 @@ from .observatory_learning import (
     E001_LEARNING_OBSERVATORY_SCHEMA,
     build_e001_learning_observatory_artifact,
     project_e001_learning_result_file,
+)
+from .observatory_equal_work import (
+    SCHEMA as E001_EQUAL_WORK_OBSERVATORY_SCHEMA,
+    build_e001_equal_work_observatory_artifact,
+    project_e001_equal_work_result_file,
 )
 from .recovery import (
     CheckpointLedger,
@@ -332,6 +347,12 @@ __all__ = [
     "E001_LC1_SCHEMA",
     "E001_LC1_SYNC_POLICY",
     "run_e001_learning_calibration",
+    "E001_LC2_ENGINE_ID",
+    "E001_LC2_SCHEMA",
+    "run_e001_lc2_quality_target",
+    "E001_LC3_ENGINE_ID",
+    "E001_LC3_SCHEMA",
+    "run_e001_lc3_equal_work",
     "LearningProgressCalibration",
     "LearningProgressPrior",
     "SiteOutage",
@@ -345,6 +366,9 @@ __all__ = [
     "E001_LEARNING_OBSERVATORY_SCHEMA",
     "build_e001_learning_observatory_artifact",
     "project_e001_learning_result_file",
+    "E001_EQUAL_WORK_OBSERVATORY_SCHEMA",
+    "build_e001_equal_work_observatory_artifact",
+    "project_e001_equal_work_result_file",
     "CheckpointLedger",
     "CompletedCheckpoint",
     "EvidenceBasis",

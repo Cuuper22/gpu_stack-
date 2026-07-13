@@ -44,9 +44,10 @@ The first research substrate is no longer roadmap prose:
   implemented;
 - E001 persists full-trace and observatory artifacts and is visually inspectable
   at three semantic depths;
-- the recovery mechanics screen remains a prior Pareto result, while E001-LC1
-  now adds 40 measured small-model GPU runs and a held-out falsification of the
-  survivor-continuation candidate under its frozen finite-horizon objective.
+- the recovery mechanics screen remains a prior Pareto result; E001-LC1 adds
+  40 measured small-model GPU runs, LC2 preserves two protocol-stage failures,
+  and E001-LC3 adds an equal-canonical-work held-out result that isolates a
+  measured device-energy failure after its learning, work, and tick gates pass.
 
 Merge verification: focused research/docs pack `28 passed in 11.83s` and
 read-only full verifier `5/5` in `320.32s` with a 600-second gate ceiling.
@@ -87,15 +88,35 @@ retuning the target or the six held-out schedules. The result artifact,
 learning sidecar, and observatory projection preserve the measured curves,
 paired interval, falsifier outcomes, device-energy boundary, and provenance.
 
-## Next Research Milestone: Late-Stage Fixed-Target E001-LC2
+## E001-LC2 Protocol Sequence: Preserved, Not Rewritten
 
-E001-LC2 must warm-start near a frozen late-training quality target so stopping
-quality is held constant. Compare quality-constrained time to target, measured
-device energy, and attempted work for fixed-local restart and survivor
-continuation. Then bridge the observed learning curves to recovery-v2 modeled
-time, WAN traffic, and facility-energy mechanics without relabeling modeled
-quantities as measurements. Scale model, optimizer, data, outage, and
-accelerator panels only if the candidate survives LC2.
+LC2 v1 stopped before evaluation because its 2,048-tick checkpoint was not
+late-stage under the frozen gate. LC2 v2 established a valid 8,192-tick
+late-stage checkpoint and exact no-failure equivalence, then stopped because
+the calibration-only NLL target had already been crossed outside its frozen
+192-to-288-tick validity window. Neither LC2 artifact is candidate evidence.
+Together they exposed raw first crossing as an invalid late-stage endpoint and
+selected LC3's equal-canonical-work question without smoothing or retuning.
+
+## E001-LC3 Equal-Canonical-Work Result: Executed
+
+LC3 ran 12 held-out fixed/adaptive observations across six frozen schedules at
+the exact same 524,288-canonical-token frontier. Adaptive was learning-
+noninferior, saved a median 3.03 percent attempted work, and saved a median 40
+opportunity ticks. Those gates passed. Its sampled training-device-energy ratio
+had median 1.068 and paired 90 percent upper bound 1.134, above the frozen 1.05
+ceiling. The sole failed gate makes the conclusion
+`candidate_falsified_equal_canonical_work`. The compact observatory sidecar is
+`docs/data/e001-equal-work-v1.json`.
+
+## Next Research Milestone: E002 Checkpoint-Power Attribution
+
+Run one frozen 2x2 factorial that crosses checkpoint cadence with survivor
+continuation at equal canonical work. Attribute checkpoint, training, restore,
+and synchronization power waveforms so the continuation effect, cadence
+effect, and their interaction are separately identifiable. Scale the survivor-
+continuation candidate only if that experiment preserves LC3's learning, work,
+and opportunity-tick gains while passing the 1.05 device-energy gate.
 
 ## Latest Verified Wave
 
@@ -232,11 +253,10 @@ and preset export/discovery tests.
 
 | Priority | Work | Done when |
 |---|---|---|
-| P0 | Run late-stage fixed-target E001-LC2. | A warm-started held-out experiment compares quality-constrained time, measured device energy, and attempted work at one frozen late-training loss target. |
-| P0 | Bridge observed learning curves to datacenter mechanics. | Target-conditioned observations connect explicitly to recovery-v2 modeled time, WAN, facility energy, and work without crossing the measured/modeled evidence boundary. |
-| P0 | Preserve the LC1 falsification. | LC1 remains `candidate_falsified_small_model_calibration`; LC2 is a new frozen question, not a retune of LC1's target or six evaluation strata. |
-| P1 | Scale survivor continuation only after LC2 survives. | Model-family, optimizer, non-IID data, outage-duration, and accelerator panels follow only a positive held-out LC2 result. |
-| P1 | Build E002 only if power binds. | Rack/facility telemetry work starts when E001 evidence shows facility power, not communication or learning staleness, is the dominant constraint. |
+| P0 | Run E002 checkpoint-power waveform attribution. | One frozen 2x2 checkpoint-cadence x survivor-continuation experiment reports phase-attributed power and device energy at equal canonical work. |
+| P0 | Separate cadence from continuation. | Main effects and their interaction are identifiable while learning noninferiority, attempted-work saving, and opportunity-tick saving remain visible. |
+| P0 | Preserve the LC1-to-LC3 evidence sequence. | LC1 remains a finite-horizon candidate falsification, both LC2 protocol failures remain non-candidate evidence, and LC3 remains false solely on its energy gate. |
+| P1 | Scale survivor continuation only after the energy gate passes. | Model-family, optimizer, non-IID data, outage-duration, and accelerator panels follow only a positive factorial energy result. |
 | P1 | Keep the continuation compass scientific. | `next-work` ranks missing evidence, mechanism leverage, residuals, and uncertainty contribution; root debt remains a secondary diagnostic. |
 | P2 | Deepen physical ancestry selectively. | New lower-level physics closes a measured residual, reduces uncertainty, or enables an experiment. |
 

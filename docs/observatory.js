@@ -6,6 +6,8 @@
   const RECOVERY_ARTIFACT_URL = "data/e001-recovery-v2.json";
   const RECOVERY_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001-recovery.v2";
   const LEARNING_ARTIFACT_URL = "data/e001-learning-v1.json";
+  const EQUAL_WORK_ARTIFACT_URL = "data/e001-equal-work-v1.json";
+  const EQUAL_WORK_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001-equal-work.v1";
   const SVG_NS = "http://www.w3.org/2000/svg";
   const VALID_DEPTHS = new Set(["freshman", "researcher", "full_trace"]);
   const VALID_POLICIES = new Set(["synchronous", "fixed_local", "adaptive_cadence"]);
@@ -169,6 +171,8 @@
   let recoveryArtifactError = null;
   let learningArtifact = null;
   let learningArtifactError = null;
+  let equalWorkArtifact = null;
+  let equalWorkArtifactError = null;
   let state = readStateFromURL();
   let timelineScale = null;
   let transientInspector = false;
@@ -448,6 +452,29 @@
     return value;
   }
 
+  function validateEqualWorkArtifact(value) {
+    const record = (candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate);
+    if (!record(value)) throw new ArtifactContractError("equal-work artifact root is not an object");
+    if (value.schema !== EQUAL_WORK_ARTIFACT_SCHEMA) throw new ArtifactContractError(`unsupported equal-work schema: ${String(value.schema || "missing")}`);
+    if (value.experiment_id !== "E001-LC3") throw new ArtifactContractError("equal-work artifact experiment_id is not E001-LC3");
+    if (typeof value.artifact_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.artifact_sha256)) throw new ArtifactContractError("equal-work artifact sha256 is invalid");
+    ["canonical_target", "conclusion", "policy_comparison", "paired_effects", "falsifier_results", "falsifier_labels", "evidence_boundary", "mechanics_bridge", "source_result"].forEach((key) => {
+      if (!record(value[key])) throw new ArtifactContractError(`equal-work artifact ${key} is missing`);
+    });
+    ["fixed_interrupted", "adaptive_interrupted"].forEach((policyKey) => {
+      if (!record(value.policy_comparison[policyKey])) throw new ArtifactContractError(`equal-work artifact policy_comparison.${policyKey} is missing`);
+    });
+    ["adaptive_minus_fixed_nll", "attempted_flop_savings", "opportunity_tick_savings", "adaptive_to_fixed_device_energy_ratio"].forEach((effectKey) => {
+      const effect = value.paired_effects[effectKey];
+      if (!record(effect) || !Array.isArray(effect.values)) throw new ArtifactContractError(`equal-work artifact paired_effects.${effectKey} is missing`);
+    });
+    if (!finiteNumber(value.canonical_target.canonical_tokens) || !finiteNumber(value.noninferiority_margin_nll)) throw new ArtifactContractError("equal-work target or NLL margin is missing");
+    if (!Array.isArray(value.evaluation_pairs) || value.evaluation_pairs.length !== 6) throw new ArtifactContractError("equal-work artifact requires six evaluation pairs");
+    if (!Array.isArray(value.run_details) || value.run_details.length !== 16) throw new ArtifactContractError("equal-work artifact requires 16 run records");
+    if (!Array.isArray(value.source_lc2_protocol_results) || value.source_lc2_protocol_results.length !== 2) throw new ArtifactContractError("equal-work artifact requires two LC2 protocol predecessors");
+    return value;
+  }
+
   async function loadArtifact() {
     try {
       const response = await fetch(ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
@@ -493,6 +520,21 @@
     renderLearningV1();
   }
 
+  async function loadEqualWorkArtifact() {
+    try {
+      const response = await fetch(EQUAL_WORK_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error(`equal-work artifact request returned ${response.status}`);
+      equalWorkArtifact = validateEqualWorkArtifact(await response.json());
+      equalWorkArtifactError = null;
+      document.body.dataset.equalWorkState = "ready";
+    } catch (error) {
+      equalWorkArtifact = null;
+      equalWorkArtifactError = error;
+      document.body.dataset.equalWorkState = error instanceof ArtifactContractError ? "invalid" : "missing";
+    }
+    renderEqualWorkV1();
+  }
+
   function cacheDOM() {
     [
       "experiment-select", "share-state", "plain-answer", "artifact-state", "stage-boundary",
@@ -509,6 +551,11 @@
       "learning-depth-trace", "learning-policy-grid", "learning-curves-svg", "learning-curve-values",
       "learning-paired-svg", "learning-paired-summary", "learning-gate-strip", "learning-evidence-boundary",
       "learning-evaluation-pairs", "learning-run-details", "learning-provenance-json",
+      "equal-work-v1", "equal-work-v1-state", "equal-work-insight-title", "equal-work-plain-answer",
+      "equal-work-depth-trace", "equal-work-freshman-grid", "equal-work-policy-grid", "equal-work-effect-grid",
+      "equal-work-checkpoint-clue", "equal-work-gate-strip", "equal-work-evidence-boundary",
+      "equal-work-evaluation-pairs", "equal-work-run-details", "equal-work-predecessors",
+      "equal-work-bridge", "equal-work-provenance-json",
     ].forEach((id) => { dom[id.replaceAll("-", "")] = byId(id); });
     dom.researchBand = document.querySelector(".research-band");
     dom.depthButtons = [...document.querySelectorAll(".depth-control button")];
@@ -580,6 +627,7 @@
     loadArtifact();
     loadRecoveryArtifact();
     loadLearningArtifact();
+    loadEqualWorkArtifact();
   }
 
   document.addEventListener("DOMContentLoaded", init, { once: true });
@@ -601,6 +649,7 @@
     renderRawTrace();
     renderRecoveryV2();
     renderLearningV1();
+    renderEqualWorkV1();
   }
 
   function recoveryRuns() {
@@ -1300,6 +1349,280 @@
     renderLearningPairedEffect();
     renderLearningGates();
     renderLearningTrace();
+  }
+
+  function formatEqualWorkPercent(value, digits = 2) {
+    return finiteNumber(value) ? `${(value * 100).toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits })}%` : "not reported";
+  }
+
+  function formatEqualWorkRatio(value, digits = 3) {
+    return finiteNumber(value) ? `${value.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits })}×` : "not reported";
+  }
+
+  function equalWorkEnergyLimit() {
+    if (!equalWorkArtifact) return null;
+    const label = equalWorkArtifact.falsifier_labels.device_energy_ratio_bounded;
+    const match = typeof label === "string" ? label.match(/within\s+([0-9]+(?:\.[0-9]+)?)%/i) : null;
+    return match ? 1 + Number(match[1]) / 100 : null;
+  }
+
+  function equalWorkPolicyLabel(policyId) {
+    if (policyId === "fixed-local-checkpoint-restart") return "Fixed-local restart";
+    if (policyId === "adaptive-survivor-continuation") return "Adaptive survivor continuation";
+    return String(policyId || "unknown policy").replaceAll("-", " ");
+  }
+
+  function appendMetricDefinition(list, term, value, note) {
+    const metric = element("div", "equal-work-metric");
+    metric.append(element("dt", "", term), element("dd", "", value));
+    if (note) metric.append(element("small", "", note));
+    list.append(metric);
+  }
+
+  function renderEqualWorkFreshmanSummary() {
+    dom.equalworkfreshmangrid.replaceChildren();
+    const target = equalWorkArtifact.canonical_target.canonical_tokens;
+    const effects = equalWorkArtifact.paired_effects;
+    const cards = [
+      {
+        state: "pass",
+        kicker: "Fair endpoint",
+        value: formatLearningTokens(target),
+        title: "useful tokens each",
+        body: "Both policies delivered the exact same amount of training that the model actually kept.",
+      },
+      {
+        state: "pass",
+        kicker: "Redo avoided",
+        value: formatEqualWorkPercent(effects.attempted_flop_savings.median),
+        title: "less attempted work",
+        body: `${formatEqualWorkPercent(effects.attempted_flop_savings.lower_bound)} to ${formatEqualWorkPercent(effects.attempted_flop_savings.upper_bound)} across the paired 90% interval.`,
+      },
+      {
+        state: "pass",
+        kicker: "Schedule saved",
+        value: String(effects.opportunity_tick_savings.median),
+        title: "fewer opportunity ticks",
+        body: "Adaptive reached the equal-work frontier sooner on all six frozen failure schedules.",
+      },
+      {
+        state: "fail",
+        kicker: "Why LC3 failed",
+        value: formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.median),
+        title: "device-energy ratio",
+        body: `${formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.lower_bound)} to ${formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.upper_bound)}; the frozen limit was ${formatEqualWorkRatio(equalWorkEnergyLimit())}.`,
+      },
+    ];
+    cards.forEach((entry) => {
+      const card = element("article", "equal-work-plain-card");
+      card.dataset.state = entry.state;
+      card.append(
+        element("p", "equal-work-plain-kicker", entry.kicker),
+        element("strong", "equal-work-plain-value", entry.value),
+        element("h3", "", entry.title),
+        element("p", "equal-work-plain-body", entry.body),
+      );
+      dom.equalworkfreshmangrid.append(card);
+    });
+  }
+
+  function renderEqualWorkPolicyCards() {
+    dom.equalworkpolicygrid.replaceChildren();
+    ["fixed_interrupted", "adaptive_interrupted"].forEach((policyKey) => {
+      const policy = equalWorkArtifact.policy_comparison[policyKey];
+      const card = element("article", "equal-work-policy-card");
+      card.dataset.policy = policyKey.startsWith("adaptive") ? "adaptive" : "fixed";
+      const header = element("header");
+      header.append(
+        element("h4", "", policy.label || equalWorkPolicyLabel(policy.policy_id)),
+        element("span", "", `${policy.run_count}-run median`),
+      );
+      const metrics = element("dl", "equal-work-policy-metrics");
+      appendMetricDefinition(metrics, "Final held-out NLL", formatLearningNll(policy.final_held_out_nll), "lower is better");
+      appendMetricDefinition(metrics, "Attempted / useful tokens", `${formatLearningTokens(policy.attempted_tokens)} / ${formatLearningTokens(policy.canonical_tokens)}`, "physical / canonical work");
+      appendMetricDefinition(metrics, "Opportunity ticks", policy.opportunity_ticks.toLocaleString("en-US"), "schedule ruler");
+      appendMetricDefinition(metrics, "Training-device energy", formatLearningEnergy(policy.training_device_energy_j), "idle subtracted");
+      appendMetricDefinition(metrics, "Local active time", formatLearningSeconds(policy.local_active_seconds), "not datacenter elapsed time");
+      appendMetricDefinition(metrics, "Checkpoint writes", `${policy.checkpoint_count.toLocaleString("en-US")} · ${formatBytes(policy.checkpoint_bytes)}`, "count · bytes");
+      card.append(header, metrics);
+      dom.equalworkpolicygrid.append(card);
+    });
+  }
+
+  function renderEqualWorkEffects() {
+    dom.equalworkeffectgrid.replaceChildren();
+    const effects = equalWorkArtifact.paired_effects;
+    const margin = equalWorkArtifact.noninferiority_margin_nll;
+    const energyLimit = equalWorkEnergyLimit();
+    const definitions = [
+      {
+        id: "learning",
+        label: "Learning preserved",
+        value: `+${effects.adaptive_minus_fixed_nll.median.toFixed(5)} Δ NLL`,
+        interval: `90% interval +${effects.adaptive_minus_fixed_nll.lower_bound.toFixed(5)} to +${effects.adaptive_minus_fixed_nll.upper_bound.toFixed(5)}`,
+        bound: `frozen noninferiority margin ≤ ${margin.toFixed(5)}`,
+        passed: equalWorkArtifact.falsifier_results.learning_noninferior === true,
+      },
+      {
+        id: "work",
+        label: "Attempted work saved",
+        value: formatEqualWorkPercent(effects.attempted_flop_savings.median),
+        interval: `90% interval ${formatEqualWorkPercent(effects.attempted_flop_savings.lower_bound)} to ${formatEqualWorkPercent(effects.attempted_flop_savings.upper_bound)}`,
+        bound: "positive saving required",
+        passed: equalWorkArtifact.falsifier_results.attempted_flop_saving_positive === true,
+      },
+      {
+        id: "ticks",
+        label: "Schedule ticks saved",
+        value: `${effects.opportunity_tick_savings.median.toLocaleString("en-US")} ticks`,
+        interval: `90% interval ${effects.opportunity_tick_savings.lower_bound.toLocaleString("en-US")} to ${effects.opportunity_tick_savings.upper_bound.toLocaleString("en-US")}`,
+        bound: "all six schedules favored adaptive",
+        passed: equalWorkArtifact.falsifier_results.opportunity_tick_saving_material === true,
+      },
+      {
+        id: "energy",
+        label: "Device energy bounded",
+        value: formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.median),
+        interval: `90% interval ${formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.lower_bound)} to ${formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.upper_bound)}`,
+        bound: `frozen upper bound ≤ ${formatEqualWorkRatio(energyLimit)}`,
+        passed: equalWorkArtifact.falsifier_results.device_energy_ratio_bounded === true,
+      },
+    ];
+    definitions.forEach((definition) => {
+      const card = element("article", "equal-work-effect-card");
+      card.dataset.effect = definition.id;
+      card.dataset.passed = String(definition.passed);
+      const status = element("span", "equal-work-effect-status", definition.passed ? "PASS" : "FAIL");
+      const header = element("header");
+      header.append(element("h4", "", definition.label), status);
+      card.append(
+        header,
+        element("strong", "equal-work-effect-value", definition.value),
+        element("p", "equal-work-effect-interval", definition.interval),
+        element("p", "equal-work-effect-bound", definition.bound),
+      );
+      dom.equalworkeffectgrid.append(card);
+    });
+  }
+
+  function renderEqualWorkGates() {
+    dom.equalworkgatestrip.replaceChildren();
+    const entries = Object.entries(equalWorkArtifact.falsifier_results)
+      .sort((left, right) => Number(left[1] === true) - Number(right[1] === true));
+    entries.forEach(([gateId, passed]) => {
+      const label = equalWorkArtifact.falsifier_labels[gateId] || gateId.replaceAll("_", " ");
+      const gate = element("div", "equal-work-gate");
+      gate.dataset.passed = String(passed === true);
+      gate.setAttribute("aria-label", `${label}: ${passed === true ? "pass" : "fail"}`);
+      gate.append(
+        element("span", "equal-work-gate-state", passed === true ? "PASS" : "FAIL"),
+        element("span", "equal-work-gate-label", label),
+      );
+      dom.equalworkgatestrip.append(gate);
+    });
+  }
+
+  function renderEqualWorkTrace() {
+    dom.equalworkevaluationpairs.replaceChildren();
+    equalWorkArtifact.evaluation_pairs.forEach((pair) => {
+      const row = element("tr");
+      row.append(
+        element("td", "", pair.stratum_id),
+        element("td", "", formatLearningNll(pair.fixed_final_held_out_nll)),
+        element("td", "", formatLearningNll(pair.adaptive_final_held_out_nll)),
+        element("td", "", `${pair.adaptive_minus_fixed_final_nll >= 0 ? "+" : ""}${pair.adaptive_minus_fixed_final_nll.toFixed(6)}`),
+        element("td", "", formatEqualWorkPercent(pair.attempted_flop_saving_fraction)),
+        element("td", "", pair.opportunity_tick_saving.toLocaleString("en-US")),
+        element("td", "", formatEqualWorkRatio(pair.adaptive_to_fixed_device_energy_ratio)),
+      );
+      dom.equalworkevaluationpairs.append(row);
+    });
+
+    dom.equalworkrundetails.replaceChildren();
+    equalWorkArtifact.run_details.forEach((run) => {
+      const row = element("tr");
+      row.append(
+        element("td", "", run.run_id),
+        element("td", "", `${run.split} · ${run.stratum_id}`),
+        element("td", "", equalWorkPolicyLabel(run.policy_id)),
+        element("td", "", run.interrupted ? "yes" : "no"),
+        element("td", "", formatLearningNll(run.final_held_out_nll)),
+        element("td", "", `${formatLearningTokens(run.attempted_tokens)} / ${formatLearningTokens(run.canonical_tokens)}`),
+        element("td", "", run.opportunity_ticks.toLocaleString("en-US")),
+        element("td", "", formatLearningEnergy(run.training_device_energy_j)),
+        element("td", "", `${run.checkpoint_count.toLocaleString("en-US")} · ${formatBytes(run.checkpoint_bytes)}`),
+      );
+      dom.equalworkrundetails.append(row);
+    });
+
+    dom.equalworkpredecessors.replaceChildren();
+    equalWorkArtifact.source_lc2_protocol_results.forEach((predecessor) => {
+      const row = element("tr");
+      row.append(
+        element("td", "", predecessor.path),
+        element("td", "", predecessor.conclusion.replaceAll("_", " ")),
+        element("td", "equal-work-hash", predecessor.artifact_sha256),
+      );
+      dom.equalworkpredecessors.append(row);
+    });
+
+    const bridge = equalWorkArtifact.mechanics_bridge;
+    dom.equalworkbridge.replaceChildren();
+    dom.equalworkbridge.append(
+      element("p", "equal-work-bridge-boundary", bridge.plain_boundary),
+      element("p", "equal-work-bridge-class", `Evidence class: ${String(bridge.evidence_class).replaceAll("_", " ")}. Recovery source: ${bridge.source_recovery_artifact_sha256}.`),
+    );
+    const columns = element("div", "equal-work-bridge-columns");
+    [
+      ["Assumptions", bridge.assumptions],
+      ["Non-comparabilities", bridge.non_comparabilities],
+    ].forEach(([title, values]) => {
+      const section = element("section");
+      section.append(element("h4", "", title));
+      const list = element("ul");
+      values.forEach((value) => list.append(element("li", "", value)));
+      section.append(list);
+      columns.append(section);
+    });
+    dom.equalworkbridge.append(columns);
+
+    const provenance = {
+      schema: equalWorkArtifact.schema,
+      artifact_sha256: equalWorkArtifact.artifact_sha256,
+      source_result: equalWorkArtifact.source_result,
+      source_learning_result: equalWorkArtifact.source_learning_result,
+      source_recovery_result: equalWorkArtifact.source_recovery_result,
+      source_lc2_protocol_results: equalWorkArtifact.source_lc2_protocol_results,
+      dataset: equalWorkArtifact.dataset,
+      runtime: equalWorkArtifact.runtime,
+      warm_start_checkpoint_sha256: equalWorkArtifact.warm_start && equalWorkArtifact.warm_start.checkpoint_sha256,
+      mechanics_bridge: equalWorkArtifact.mechanics_bridge,
+    };
+    dom.equalworkprovenancejson.textContent = JSON.stringify(provenance, null, 2);
+    dom.equalworkdepthtrace.textContent = `${equalWorkArtifact.evaluation_pairs.length} paired evaluation rows · ${equalWorkArtifact.run_details.length} run records · ${equalWorkArtifact.source_lc2_protocol_results.length} LC2 protocol predecessors · source result ${equalWorkArtifact.source_result.artifact_sha256}.`;
+  }
+
+  function renderEqualWorkV1() {
+    if (!dom.equalworkv1) return;
+    if (!equalWorkArtifact) {
+      dom.equalworkv1.hidden = true;
+      return;
+    }
+    dom.equalworkv1.hidden = false;
+    const conclusion = equalWorkArtifact.conclusion;
+    dom.equalworkv1state.textContent = `${String(conclusion.status).replaceAll("_", " ")} · OBSERVED local learning · artifact ${equalWorkArtifact.artifact_sha256.slice(0, 12)}`;
+    dom.equalworkinsighttitle.textContent = "Adaptive kept the learning and saved work, but missed the energy bound";
+    dom.equalworkplainanswer.textContent = conclusion.plain_answer;
+    dom.equalworkevidenceboundary.textContent = learningBoundaryText(equalWorkArtifact.evidence_boundary);
+    const fixed = equalWorkArtifact.policy_comparison.fixed_interrupted;
+    const adaptive = equalWorkArtifact.policy_comparison.adaptive_interrupted;
+    const checkpointRatio = adaptive.checkpoint_bytes / fixed.checkpoint_bytes;
+    dom.equalworkcheckpointclue.textContent = `Adaptive wrote ${formatBytes(adaptive.checkpoint_bytes)} across ${adaptive.checkpoint_count} checkpoints versus fixed at ${formatBytes(fixed.checkpoint_bytes)} across ${fixed.checkpoint_count}. That is ${formatEqualWorkRatio(checkpointRatio)} the checkpoint bytes, alongside more local active time. The association motivates phase-level power attribution; it does not identify the energy cause.`;
+    renderEqualWorkFreshmanSummary();
+    renderEqualWorkPolicyCards();
+    renderEqualWorkEffects();
+    renderEqualWorkGates();
+    renderEqualWorkTrace();
   }
 
   function renderStatus() {

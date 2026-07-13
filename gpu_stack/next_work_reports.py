@@ -63,6 +63,70 @@ def _highest_impact(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
             )
             if name in evidence.production_symbol_names
         )
+        if evidence.e001_equal_work_result_present:
+            energy_median = evidence.e001_equal_work_energy_ratio_median
+            energy_upper = evidence.e001_equal_work_energy_ratio_upper_bound
+            energy_median_text = (
+                f"{energy_median:.3f}" if energy_median is not None else "missing"
+            )
+            energy_upper_text = (
+                f"{energy_upper:.3f}" if energy_upper is not None else "missing"
+            )
+            return (
+                NextWorkItem(
+                    title="Run E002 checkpoint-power waveform attribution",
+                    evidence=(
+                        "live LC3 result scan: schema="
+                        "gpu-stack.e001-equal-work-evidence.v1, conclusion="
+                        f"{evidence.e001_equal_work_conclusion}, candidate_survives="
+                        f"{evidence.e001_equal_work_candidate_survives}, held-out "
+                        "evaluation observations="
+                        f"{evidence.e001_equal_work_evaluation_observation_count}; "
+                        "LC3 is false solely on the measured device-energy gate: "
+                        f"median adaptive/fixed={energy_median_text}, 90% upper="
+                        f"{energy_upper_text} versus the frozen 1.05 ceiling, while "
+                        "learning noninferiority, attempted-work saving, and "
+                        "opportunity-tick saving all passed. E002 must attribute the "
+                        "checkpoint power waveform in a 2x2 checkpoint-cadence x "
+                        "survivor-continuation experiment"
+                    ),
+                    path="experiments/e002-power-waveform-shaping/experiment.md",
+                ),
+                NextWorkItem(
+                    title="Separate checkpoint cadence from survivor continuation",
+                    evidence=(
+                        "live LC3 gate scan: learning_noninferior="
+                        f"{evidence.e001_equal_work_learning_noninferior}, "
+                        "attempted_work_passed="
+                        f"{evidence.e001_equal_work_work_gate_passed}, "
+                        "opportunity_ticks_passed="
+                        f"{evidence.e001_equal_work_tick_gate_passed}, energy_passed="
+                        f"{evidence.e001_equal_work_energy_gate_passed}; LC3 coupled "
+                        "adaptive continuation to a shorter checkpoint cadence, so "
+                        "the next result must estimate cadence, continuation, and "
+                        "interaction effects at equal canonical work"
+                    ),
+                    path=(
+                        "experiments/e001-beyond-one-datacenter/"
+                        "equal-work-calibration-v1.md"
+                    ),
+                ),
+                NextWorkItem(
+                    title=(
+                        "Scale survivor continuation only after the energy gate passes"
+                    ),
+                    evidence=(
+                        "live artifact scan: LC3 observatory sidecar present="
+                        f"{evidence.e001_equal_work_observatory_present} at "
+                        "docs/data/e001-equal-work-v1.json. The candidate already "
+                        "passes learning, work, and tick gates but does not pass its "
+                        "energy ceiling; model-family, optimizer, non-IID, outage, and "
+                        "accelerator panels stay downstream of a positive factorial "
+                        "energy result"
+                    ),
+                    path="docs/data/e001-equal-work-v1.json",
+                ),
+            )
         if evidence.e001_learning_result_present:
             return (
                 NextWorkItem(

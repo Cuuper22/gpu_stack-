@@ -1,0 +1,1662 @@
+{
+  "artifact_sha256": "5ff07c4cf5b59be04d14f1b66961e679c2cec127b521c386d54ff9ebaadc1ae1",
+  "calibration_equivalence": [
+    {
+      "attempted_tokens_equal": true,
+      "curve_exactly_equal": true,
+      "stratum_id": "C1"
+    },
+    {
+      "attempted_tokens_equal": true,
+      "curve_exactly_equal": true,
+      "stratum_id": "C2"
+    }
+  ],
+  "canonical_target": {
+    "canonical_tokens": 524288,
+    "logical_ticks": 256
+  },
+  "conclusion": {
+    "candidate_survives_lc3": false,
+    "next_question": "Which checkpoint and recovery phases create the adaptive energy penalty, and can dependency-safe power scheduling remove it without losing the learning, work, or time gains?",
+    "plain_answer": "Adaptive continuation preserved late-stage learning and reached the same useful-work frontier with less attempted work and 40 fewer opportunity ticks at the median. It still failed LC3: measured training-device energy was too high under the frozen energy bound.",
+    "status": "candidate_falsified_equal_canonical_work",
+    "why_it_failed": "The adaptive/fixed device-energy ratio had median 1.068 and a 90% upper bound of 1.134, above the preregistered 1.05 limit."
+  },
+  "dataset": {
+    "config": "default",
+    "dataset_id": "roneneldan/TinyStories",
+    "encoding": "utf-8 bytes",
+    "loaded_train_bytes": 44669127,
+    "loaded_train_rows": 50000,
+    "loaded_validation_bytes": 1645617,
+    "loaded_validation_rows": 2000,
+    "local_path_not_persisted": true,
+    "separator_byte": 0,
+    "sha256": "77cf780cebe52b6e83e3a2ac84bc56d8059363113e41d17a023f1d8b2ed0fc0b",
+    "shard": "0000.parquet",
+    "split": "train",
+    "train_rows": 50000,
+    "uri": "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet",
+    "validation_rows": 2000,
+    "validation_start_row": 50000
+  },
+  "evaluation_pairs": [
+    {
+      "adaptive_attempted_tokens": 524288,
+      "adaptive_canonical_tokens": 524288,
+      "adaptive_discarded_tokens": 0,
+      "adaptive_final_held_out_nll": 1.017077624797821,
+      "adaptive_minus_fixed_final_nll": 0.0023927902802824974,
+      "adaptive_opportunity_ticks": 256,
+      "adaptive_replayed_tokens": 0,
+      "adaptive_to_fixed_device_energy_ratio": 1.1931249638074741,
+      "attempted_flop_saving_fraction": 0.058823529411764705,
+      "complete_equal_work_pair": true,
+      "fixed_attempted_tokens": 557056,
+      "fixed_canonical_tokens": 524288,
+      "fixed_discarded_tokens": 32768,
+      "fixed_final_held_out_nll": 1.0146848345175385,
+      "fixed_opportunity_ticks": 296,
+      "fixed_replayed_tokens": 32768,
+      "opportunity_tick_saving": 40.0,
+      "stratum_id": "E1"
+    },
+    {
+      "adaptive_attempted_tokens": 524288,
+      "adaptive_canonical_tokens": 524288,
+      "adaptive_discarded_tokens": 0,
+      "adaptive_final_held_out_nll": 1.025381457991898,
+      "adaptive_minus_fixed_final_nll": 0.0059975311160087585,
+      "adaptive_opportunity_ticks": 256,
+      "adaptive_replayed_tokens": 0,
+      "adaptive_to_fixed_device_energy_ratio": 1.134269402803286,
+      "attempted_flop_saving_fraction": 0.030303030303030304,
+      "complete_equal_work_pair": true,
+      "fixed_attempted_tokens": 540672,
+      "fixed_canonical_tokens": 524288,
+      "fixed_discarded_tokens": 16384,
+      "fixed_final_held_out_nll": 1.0193839268758893,
+      "fixed_opportunity_ticks": 288,
+      "fixed_replayed_tokens": 16384,
+      "opportunity_tick_saving": 32.0,
+      "stratum_id": "E2"
+    },
+    {
+      "adaptive_attempted_tokens": 524288,
+      "adaptive_canonical_tokens": 524288,
+      "adaptive_discarded_tokens": 0,
+      "adaptive_final_held_out_nll": 1.0177394188940525,
+      "adaptive_minus_fixed_final_nll": 0.0014075404033064842,
+      "adaptive_opportunity_ticks": 256,
+      "adaptive_replayed_tokens": 0,
+      "adaptive_to_fixed_device_energy_ratio": 1.0617390984323098,
+      "attempted_flop_saving_fraction": 0.030303030303030304,
+      "complete_equal_work_pair": true,
+      "fixed_attempted_tokens": 540672,
+      "fixed_canonical_tokens": 524288,
+      "fixed_discarded_tokens": 16384,
+      "fixed_final_held_out_nll": 1.016331878490746,
+      "fixed_opportunity_ticks": 296,
+      "fixed_replayed_tokens": 16384,
+      "opportunity_tick_saving": 40.0,
+      "stratum_id": "E3"
+    },
+    {
+      "adaptive_attempted_tokens": 524288,
+      "adaptive_canonical_tokens": 524288,
+      "adaptive_discarded_tokens": 0,
+      "adaptive_final_held_out_nll": 1.0244259517639875,
+      "adaptive_minus_fixed_final_nll": 0.003155895508825779,
+      "adaptive_opportunity_ticks": 256,
+      "adaptive_replayed_tokens": 0,
+      "adaptive_to_fixed_device_energy_ratio": 1.0750444608390157,
+      "attempted_flop_saving_fraction": 0.030303030303030304,
+      "complete_equal_work_pair": true,
+      "fixed_attempted_tokens": 540672,
+      "fixed_canonical_tokens": 524288,
+      "fixed_discarded_tokens": 16384,
+      "fixed_final_held_out_nll": 1.0212700562551618,
+      "fixed_opportunity_ticks": 296,
+      "fixed_replayed_tokens": 16384,
+      "opportunity_tick_saving": 40.0,
+      "stratum_id": "E4"
+    },
+    {
+      "adaptive_attempted_tokens": 524288,
+      "adaptive_canonical_tokens": 524288,
+      "adaptive_discarded_tokens": 0,
+      "adaptive_final_held_out_nll": 1.0332674141973257,
+      "adaptive_minus_fixed_final_nll": 0.013486192561686039,
+      "adaptive_opportunity_ticks": 256,
+      "adaptive_replayed_tokens": 0,
+      "adaptive_to_fixed_device_energy_ratio": 1.0017954332700434,
+      "attempted_flop_saving_fraction": 0.030303030303030304,
+      "complete_equal_work_pair": true,
+      "fixed_attempted_tokens": 540672,
+      "fixed_canonical_tokens": 524288,
+      "fixed_discarded_tokens": 16384,
+      "fixed_final_held_out_nll": 1.0197812216356397,
+      "fixed_opportunity_ticks": 296,
+      "fixed_replayed_tokens": 16384,
+      "opportunity_tick_saving": 40.0,
+      "stratum_id": "E5"
+    },
+    {
+      "adaptive_attempted_tokens": 524288,
+      "adaptive_canonical_tokens": 524288,
+      "adaptive_discarded_tokens": 0,
+      "adaptive_final_held_out_nll": 1.0252785505726933,
+      "adaptive_minus_fixed_final_nll": 0.003521135076880455,
+      "adaptive_opportunity_ticks": 256,
+      "adaptive_replayed_tokens": 0,
+      "adaptive_to_fixed_device_energy_ratio": 0.9617417357137984,
+      "attempted_flop_saving_fraction": 0.058823529411764705,
+      "complete_equal_work_pair": true,
+      "fixed_attempted_tokens": 557056,
+      "fixed_canonical_tokens": 524288,
+      "fixed_discarded_tokens": 32768,
+      "fixed_final_held_out_nll": 1.021757415495813,
+      "fixed_opportunity_ticks": 304,
+      "fixed_replayed_tokens": 32768,
+      "opportunity_tick_saving": 48.0,
+      "stratum_id": "E6"
+    }
+  ],
+  "evidence_boundary": {
+    "overall_e001_status": "candidate_falsified_or_redirect_required",
+    "supported": [
+      "paired late-stage held-out NLL at equal canonical work",
+      "paired attempted work and opportunity ticks across six frozen schedules",
+      "local RTX training-only time and sampled device energy"
+    ],
+    "unsupported": [
+      "frontier-scale convergence or capability",
+      "real simultaneous multi-site speedup, WAN, or storage performance",
+      "measured host, cooling, or facility energy",
+      "transfer beyond the frozen model, data, optimizer, and failures"
+    ]
+  },
+  "experiment_id": "E001-LC3",
+  "falsifier_labels": {
+    "adaptive_does_not_diverge": "Adaptive had zero held-out divergences",
+    "all_equal_work_pairs_complete": "All six pairs reached identical canonical work",
+    "attempted_flop_saving_material": "Median attempted-FLOP saving reached 3%",
+    "attempted_flop_saving_positive": "Attempted-FLOP saving interval stayed above zero",
+    "calibration_no_failure_exact_equivalence": "No-failure policy controls were exactly equivalent",
+    "device_energy_ratio_bounded": "Adaptive device energy stayed within 5% of fixed",
+    "learning_noninferior": "Adaptive final NLL stayed inside the 0.01 noninferiority margin",
+    "opportunity_tick_saving_material": "Adaptive saved at least 24 ticks and won all six schedules"
+  },
+  "falsifier_results": {
+    "adaptive_does_not_diverge": true,
+    "all_equal_work_pairs_complete": true,
+    "attempted_flop_saving_material": true,
+    "attempted_flop_saving_positive": true,
+    "calibration_no_failure_exact_equivalence": true,
+    "device_energy_ratio_bounded": false,
+    "learning_noninferior": true,
+    "opportunity_tick_saving_material": true
+  },
+  "interpretation": {
+    "energy": "Adaptive wrote about 2.76 times as many checkpoint bytes and used more local active time, making phase-level power attribution the next causal experiment rather than a scale-up.",
+    "learning": "Adaptive was slightly worse on final NLL in every stratum, but the paired 90% upper bound 0.00850 stayed below the frozen 0.01 margin.",
+    "work_and_time": "Adaptive removed replay/discard overhead: median attempted-work saving was 3.03% and opportunity-tick saving was 40."
+  },
+  "learning_curves": [
+    {
+      "label": "Fixed-local restart",
+      "points": [
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.02718645054847,
+          "median_nll": 1.02718645054847,
+          "minimum_nll": 1.02718645054847,
+          "wall_tick": 0
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0293415375053883,
+          "median_nll": 1.0253986907191575,
+          "minimum_nll": 1.0225059855729342,
+          "wall_tick": 8
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0261506857350469,
+          "median_nll": 1.0225756210274994,
+          "minimum_nll": 1.020180692896247,
+          "wall_tick": 16
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0260565401986241,
+          "median_nll": 1.0219185114838183,
+          "minimum_nll": 1.0191274266690016,
+          "wall_tick": 24
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.029707919806242,
+          "median_nll": 1.0239900685846806,
+          "minimum_nll": 1.021278539672494,
+          "wall_tick": 32
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0269018188118935,
+          "median_nll": 1.0213970206677914,
+          "minimum_nll": 1.0188579699024558,
+          "wall_tick": 40
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.029707919806242,
+          "median_nll": 1.0232347594574094,
+          "minimum_nll": 1.0211667865514755,
+          "wall_tick": 48
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0269018188118935,
+          "median_nll": 1.0251395679078996,
+          "minimum_nll": 1.0166131556034088,
+          "wall_tick": 56
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0295177632942796,
+          "median_nll": 1.024306167382747,
+          "minimum_nll": 1.0222801435738802,
+          "wall_tick": 64
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0290331365540624,
+          "median_nll": 1.0240317969582975,
+          "minimum_nll": 1.019450436346233,
+          "wall_tick": 72
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0295177632942796,
+          "median_nll": 1.0209389897063375,
+          "minimum_nll": 1.0176960080862045,
+          "wall_tick": 80
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0290331365540624,
+          "median_nll": 1.0233367653563619,
+          "minimum_nll": 1.0214313380420208,
+          "wall_tick": 88
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0248972894623876,
+          "median_nll": 1.02064609201625,
+          "minimum_nll": 1.0177581114694476,
+          "wall_tick": 96
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0274760825559497,
+          "median_nll": 1.0233110883273184,
+          "minimum_nll": 1.0202988674864173,
+          "wall_tick": 104
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0258948439732194,
+          "median_nll": 1.0221369792707264,
+          "minimum_nll": 1.0202988674864173,
+          "wall_tick": 112
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0254428386688232,
+          "median_nll": 1.022298266645521,
+          "minimum_nll": 1.0182157726958394,
+          "wall_tick": 120
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0247495723888278,
+          "median_nll": 1.0201783748343587,
+          "minimum_nll": 1.0176783660426736,
+          "wall_tick": 128
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.025496356189251,
+          "median_nll": 1.021450356580317,
+          "minimum_nll": 1.0199778163805604,
+          "wall_tick": 136
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0252095572650433,
+          "median_nll": 1.017890686634928,
+          "minimum_nll": 1.0171381393447518,
+          "wall_tick": 144
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0202756561338902,
+          "median_nll": 1.0188364167697728,
+          "minimum_nll": 1.0144284116104245,
+          "wall_tick": 152
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0248248502612114,
+          "median_nll": 1.0230762241408229,
+          "minimum_nll": 1.017246619798243,
+          "wall_tick": 160
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0263697924092412,
+          "median_nll": 1.0234200851991773,
+          "minimum_nll": 1.0210856050252914,
+          "wall_tick": 168
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.025126294232905,
+          "median_nll": 1.0216155112721026,
+          "minimum_nll": 1.0191889246925712,
+          "wall_tick": 176
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0259624300524592,
+          "median_nll": 1.0224351254291832,
+          "minimum_nll": 1.0174449207261205,
+          "wall_tick": 184
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0272317752242088,
+          "median_nll": 1.0184782114811242,
+          "minimum_nll": 1.0167525969445705,
+          "wall_tick": 192
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0259700566530228,
+          "median_nll": 1.0193056128919125,
+          "minimum_nll": 1.0158166894689202,
+          "wall_tick": 200
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0276914481073618,
+          "median_nll": 1.0213397010229528,
+          "minimum_nll": 1.0182805769145489,
+          "wall_tick": 208
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.028929553925991,
+          "median_nll": 1.0193758197128773,
+          "minimum_nll": 1.0154507402330637,
+          "wall_tick": 216
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0255024200305343,
+          "median_nll": 1.0233150329440832,
+          "minimum_nll": 1.0182805769145489,
+          "wall_tick": 224
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0234109703451395,
+          "median_nll": 1.018945770803839,
+          "minimum_nll": 1.0177495935931802,
+          "wall_tick": 232
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0249497452750802,
+          "median_nll": 1.021439447067678,
+          "minimum_nll": 1.018023069947958,
+          "wall_tick": 240
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.025588964112103,
+          "median_nll": 1.020635122898966,
+          "minimum_nll": 1.0144120045006275,
+          "wall_tick": 248
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0256609469652176,
+          "median_nll": 1.0228594182990491,
+          "minimum_nll": 1.020052400417626,
+          "wall_tick": 256
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0223220894113183,
+          "median_nll": 1.0200342489406466,
+          "minimum_nll": 1.0189599385485053,
+          "wall_tick": 264
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.024925204925239,
+          "median_nll": 1.0180737199261785,
+          "minimum_nll": 1.0137804495170712,
+          "wall_tick": 272
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.019953583367169,
+          "median_nll": 1.0175834870897233,
+          "minimum_nll": 1.0139061398804188,
+          "wall_tick": 280
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0193839268758893,
+          "median_nll": 1.0166677967645228,
+          "minimum_nll": 1.01448567584157,
+          "wall_tick": 288
+        },
+        {
+          "contributing_runs": 5,
+          "maximum_nll": 1.0212700562551618,
+          "median_nll": 1.019342520274222,
+          "minimum_nll": 1.0146848345175385,
+          "wall_tick": 296
+        },
+        {
+          "contributing_runs": 1,
+          "maximum_nll": 1.021757415495813,
+          "median_nll": 1.021757415495813,
+          "minimum_nll": 1.021757415495813,
+          "wall_tick": 304
+        }
+      ],
+      "policy_id": "fixed-local-checkpoint-restart"
+    },
+    {
+      "label": "Adaptive survivor continuation",
+      "points": [
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.02718645054847,
+          "median_nll": 1.02718645054847,
+          "minimum_nll": 1.02718645054847,
+          "wall_tick": 0
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0293415375053883,
+          "median_nll": 1.0253986907191575,
+          "minimum_nll": 1.0225059855729342,
+          "wall_tick": 8
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0261506857350469,
+          "median_nll": 1.0225756210274994,
+          "minimum_nll": 1.020180692896247,
+          "wall_tick": 16
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0260565401986241,
+          "median_nll": 1.0219185114838183,
+          "minimum_nll": 1.0191274266690016,
+          "wall_tick": 24
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.029707919806242,
+          "median_nll": 1.0239900685846806,
+          "minimum_nll": 1.021278539672494,
+          "wall_tick": 32
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0606103092432022,
+          "median_nll": 1.021856877952814,
+          "minimum_nll": 1.0188579699024558,
+          "wall_tick": 40
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0613178759813309,
+          "median_nll": 1.0232347594574094,
+          "minimum_nll": 1.0211667865514755,
+          "wall_tick": 48
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0436313841491938,
+          "median_nll": 1.0251395679078996,
+          "minimum_nll": 1.0166131556034088,
+          "wall_tick": 56
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0344248786568642,
+          "median_nll": 1.0271190088242292,
+          "minimum_nll": 1.0222801435738802,
+          "wall_tick": 64
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.063603799790144,
+          "median_nll": 1.026189574971795,
+          "minimum_nll": 1.019450436346233,
+          "wall_tick": 72
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0753340581431985,
+          "median_nll": 1.024734930600971,
+          "minimum_nll": 1.0176960080862045,
+          "wall_tick": 80
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0614249240607023,
+          "median_nll": 1.0264983396045864,
+          "minimum_nll": 1.0212235385552049,
+          "wall_tick": 88
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0598768927156925,
+          "median_nll": 1.0322591881267726,
+          "minimum_nll": 1.0206888755783439,
+          "wall_tick": 96
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0669567352160811,
+          "median_nll": 1.026271947659552,
+          "minimum_nll": 1.0211794944480062,
+          "wall_tick": 104
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0766889918595552,
+          "median_nll": 1.0477399048395455,
+          "minimum_nll": 1.020265694707632,
+          "wall_tick": 112
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0697887549176812,
+          "median_nll": 1.041742970701307,
+          "minimum_nll": 1.0256583075970411,
+          "wall_tick": 120
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0563796367496252,
+          "median_nll": 1.032501400448382,
+          "minimum_nll": 1.024597892537713,
+          "wall_tick": 128
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0678961779922247,
+          "median_nll": 1.0318831312470138,
+          "minimum_nll": 1.0246417541056871,
+          "wall_tick": 136
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0742250448092818,
+          "median_nll": 1.031760064419359,
+          "minimum_nll": 1.0245401356369257,
+          "wall_tick": 144
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0678942166268826,
+          "median_nll": 1.030850910115987,
+          "minimum_nll": 1.0230208598077297,
+          "wall_tick": 152
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0616440437734127,
+          "median_nll": 1.0257294136099517,
+          "minimum_nll": 1.023053115233779,
+          "wall_tick": 160
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0459565799683332,
+          "median_nll": 1.0296737989410758,
+          "minimum_nll": 1.0216793287545443,
+          "wall_tick": 168
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0599966933950782,
+          "median_nll": 1.0321822767145932,
+          "minimum_nll": 1.021661682985723,
+          "wall_tick": 176
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.053585959598422,
+          "median_nll": 1.030510498676449,
+          "minimum_nll": 1.0195881528779864,
+          "wall_tick": 184
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0629624463617802,
+          "median_nll": 1.029832283500582,
+          "minimum_nll": 1.02323198877275,
+          "wall_tick": 192
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0710286619141698,
+          "median_nll": 1.0299884574487805,
+          "minimum_nll": 1.0185254979878664,
+          "wall_tick": 200
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0628783348947763,
+          "median_nll": 1.028906908351928,
+          "minimum_nll": 1.0234689228236675,
+          "wall_tick": 208
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0465448908507824,
+          "median_nll": 1.0287978281266987,
+          "minimum_nll": 1.0259371921420097,
+          "wall_tick": 216
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0648805238306522,
+          "median_nll": 1.032597505953163,
+          "minimum_nll": 1.0249380972236395,
+          "wall_tick": 224
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0743067134171724,
+          "median_nll": 1.0268102074041963,
+          "minimum_nll": 1.0187547849491239,
+          "wall_tick": 232
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0552708068862557,
+          "median_nll": 1.0234536621719599,
+          "minimum_nll": 1.0150370132178068,
+          "wall_tick": 240
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0368065498769283,
+          "median_nll": 1.0240090014413,
+          "minimum_nll": 1.019352755509317,
+          "wall_tick": 248
+        },
+        {
+          "contributing_runs": 6,
+          "maximum_nll": 1.0332674141973257,
+          "median_nll": 1.0248522511683404,
+          "minimum_nll": 1.017077624797821,
+          "wall_tick": 256
+        }
+      ],
+      "policy_id": "adaptive-survivor-continuation"
+    }
+  ],
+  "mechanics_bridge": {
+    "assumptions": [
+      "one LC2 logical tick is treated as one recovery-v2 durable-frontier unit",
+      "the recovery-v2 two-failure trace is repeated linearly",
+      "adaptive-recovery is a mechanical proxy for adaptive-survivor-continuation"
+    ],
+    "conditioning": "observed_equal_canonical_work_frontier",
+    "densities": {
+      "adaptive-survivor-continuation": {
+        "durable_frontier_units": 8,
+        "learning_policy_id": "adaptive-survivor-continuation",
+        "modeled_elapsed_ns_per_frontier_unit": 192000000.0,
+        "modeled_energy_j_per_frontier_unit": 31816.921428571422,
+        "modeled_inter_site_link_bytes_per_frontier_unit": 1700000000.0,
+        "modeled_lost_compute_flops_per_frontier_unit": 6053571428571428.0,
+        "recovery_policy_proxy": "adaptive-recovery",
+        "traffic_by_class": {
+          "checkpoint": 7200000000,
+          "restore": 1600000000,
+          "sparse_collective": 4800000000
+        }
+      },
+      "fixed-local-checkpoint-restart": {
+        "durable_frontier_units": 8,
+        "learning_policy_id": "fixed-local-checkpoint-restart",
+        "modeled_elapsed_ns_per_frontier_unit": 189500000.0,
+        "modeled_energy_j_per_frontier_unit": 35419.4,
+        "modeled_inter_site_link_bytes_per_frontier_unit": 1300000000.0,
+        "modeled_lost_compute_flops_per_frontier_unit": 1.80625e+16,
+        "recovery_policy_proxy": "fixed-local-checkpoint-restart",
+        "traffic_by_class": {
+          "checkpoint": 4000000000,
+          "restore": 1600000000,
+          "sparse_collective": 4800000000
+        }
+      }
+    },
+    "evidence_class": "modeled_bridge_sensitivity",
+    "non_comparabilities": [
+      "recovery-v2 failures are absolute-time events, not the LC2 schedules",
+      "modeled energy is constant-coefficient compute plus network energy, not measured device or facility energy",
+      "modeled lost FLOP is not observed replayed or discarded LC2 tokens",
+      "simultaneous datacenter throughput remains unmeasured"
+    ],
+    "plain_boundary": "Modeled repeated-trace sensitivity conditioned on the observed LC3 equal-canonical-work endpoint. Not measured datacenter performance.",
+    "policy_mapping": {
+      "adaptive-survivor-continuation": "adaptive-recovery",
+      "fixed-local-checkpoint-restart": "fixed-local-checkpoint-restart"
+    },
+    "projections": [
+      {
+        "learning_policy_id": "fixed-local-checkpoint-restart",
+        "observed_attempted_compute_flops": 6254286077952.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 296,
+        "run_id": "e001-lc3:E1:fixed-local-checkpoint-restart:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 48512000000.0,
+          "modeled_energy_j": 9067366.4,
+          "modeled_inter_site_link_bytes": 332800000000.0,
+          "modeled_lost_compute_flops": 4.624e+18
+        },
+        "stratum_id": "E1"
+      },
+      {
+        "learning_policy_id": "adaptive-survivor-continuation",
+        "observed_attempted_compute_flops": 5886386896896.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 256,
+        "run_id": "e001-lc3:E1:adaptive-survivor-continuation:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 49152000000.0,
+          "modeled_energy_j": 8145131.885714284,
+          "modeled_inter_site_link_bytes": 435200000000.0,
+          "modeled_lost_compute_flops": 1.5497142857142856e+18
+        },
+        "stratum_id": "E1"
+      },
+      {
+        "learning_policy_id": "adaptive-survivor-continuation",
+        "observed_attempted_compute_flops": 5886386896896.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 256,
+        "run_id": "e001-lc3:E2:adaptive-survivor-continuation:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 49152000000.0,
+          "modeled_energy_j": 8145131.885714284,
+          "modeled_inter_site_link_bytes": 435200000000.0,
+          "modeled_lost_compute_flops": 1.5497142857142856e+18
+        },
+        "stratum_id": "E2"
+      },
+      {
+        "learning_policy_id": "fixed-local-checkpoint-restart",
+        "observed_attempted_compute_flops": 6070336487424.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 288,
+        "run_id": "e001-lc3:E2:fixed-local-checkpoint-restart:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 48512000000.0,
+          "modeled_energy_j": 9067366.4,
+          "modeled_inter_site_link_bytes": 332800000000.0,
+          "modeled_lost_compute_flops": 4.624e+18
+        },
+        "stratum_id": "E2"
+      },
+      {
+        "learning_policy_id": "fixed-local-checkpoint-restart",
+        "observed_attempted_compute_flops": 6070336487424.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 296,
+        "run_id": "e001-lc3:E3:fixed-local-checkpoint-restart:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 48512000000.0,
+          "modeled_energy_j": 9067366.4,
+          "modeled_inter_site_link_bytes": 332800000000.0,
+          "modeled_lost_compute_flops": 4.624e+18
+        },
+        "stratum_id": "E3"
+      },
+      {
+        "learning_policy_id": "adaptive-survivor-continuation",
+        "observed_attempted_compute_flops": 5886386896896.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 256,
+        "run_id": "e001-lc3:E3:adaptive-survivor-continuation:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 49152000000.0,
+          "modeled_energy_j": 8145131.885714284,
+          "modeled_inter_site_link_bytes": 435200000000.0,
+          "modeled_lost_compute_flops": 1.5497142857142856e+18
+        },
+        "stratum_id": "E3"
+      },
+      {
+        "learning_policy_id": "adaptive-survivor-continuation",
+        "observed_attempted_compute_flops": 5886386896896.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 256,
+        "run_id": "e001-lc3:E4:adaptive-survivor-continuation:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 49152000000.0,
+          "modeled_energy_j": 8145131.885714284,
+          "modeled_inter_site_link_bytes": 435200000000.0,
+          "modeled_lost_compute_flops": 1.5497142857142856e+18
+        },
+        "stratum_id": "E4"
+      },
+      {
+        "learning_policy_id": "fixed-local-checkpoint-restart",
+        "observed_attempted_compute_flops": 6070336487424.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 296,
+        "run_id": "e001-lc3:E4:fixed-local-checkpoint-restart:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 48512000000.0,
+          "modeled_energy_j": 9067366.4,
+          "modeled_inter_site_link_bytes": 332800000000.0,
+          "modeled_lost_compute_flops": 4.624e+18
+        },
+        "stratum_id": "E4"
+      },
+      {
+        "learning_policy_id": "fixed-local-checkpoint-restart",
+        "observed_attempted_compute_flops": 6070336487424.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 296,
+        "run_id": "e001-lc3:E5:fixed-local-checkpoint-restart:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 48512000000.0,
+          "modeled_energy_j": 9067366.4,
+          "modeled_inter_site_link_bytes": 332800000000.0,
+          "modeled_lost_compute_flops": 4.624e+18
+        },
+        "stratum_id": "E5"
+      },
+      {
+        "learning_policy_id": "adaptive-survivor-continuation",
+        "observed_attempted_compute_flops": 5886386896896.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 256,
+        "run_id": "e001-lc3:E5:adaptive-survivor-continuation:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 49152000000.0,
+          "modeled_energy_j": 8145131.885714284,
+          "modeled_inter_site_link_bytes": 435200000000.0,
+          "modeled_lost_compute_flops": 1.5497142857142856e+18
+        },
+        "stratum_id": "E5"
+      },
+      {
+        "learning_policy_id": "adaptive-survivor-continuation",
+        "observed_attempted_compute_flops": 5886386896896.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 256,
+        "run_id": "e001-lc3:E6:adaptive-survivor-continuation:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 49152000000.0,
+          "modeled_energy_j": 8145131.885714284,
+          "modeled_inter_site_link_bytes": 435200000000.0,
+          "modeled_lost_compute_flops": 1.5497142857142856e+18
+        },
+        "stratum_id": "E6"
+      },
+      {
+        "learning_policy_id": "fixed-local-checkpoint-restart",
+        "observed_attempted_compute_flops": 6254286077952.0,
+        "observed_canonical_compute_flops": 5886386896896.0,
+        "observed_logical_ticks_to_target": 256,
+        "observed_opportunity_ticks_to_target": 304,
+        "run_id": "e001-lc3:E6:fixed-local-checkpoint-restart:interrupted",
+        "sensitivity_projection": {
+          "modeled_elapsed_ns": 48512000000.0,
+          "modeled_energy_j": 9067366.4,
+          "modeled_inter_site_link_bytes": 332800000000.0,
+          "modeled_lost_compute_flops": 4.624e+18
+        },
+        "stratum_id": "E6"
+      }
+    ],
+    "source_recovery_artifact_sha256": "b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57"
+  },
+  "noninferiority_margin_nll": 0.01,
+  "paired_effects": {
+    "adaptive_minus_fixed_nll": {
+      "confidence_level": 0.9,
+      "draws": 10000,
+      "lower_bound": 0.0023927902802824974,
+      "median": 0.003338515292853117,
+      "method": "paired percentile bootstrap of the median",
+      "upper_bound": 0.008503663819283247,
+      "values": [
+        0.0023927902802824974,
+        0.0059975311160087585,
+        0.0014075404033064842,
+        0.003155895508825779,
+        0.013486192561686039,
+        0.003521135076880455
+      ]
+    },
+    "adaptive_to_fixed_device_energy_ratio": {
+      "confidence_level": 0.9,
+      "draws": 10000,
+      "lower_bound": 1.0017954332700434,
+      "median": 1.0683917796356628,
+      "method": "paired percentile bootstrap of the median",
+      "upper_bound": 1.134269402803286,
+      "values": [
+        1.1931249638074741,
+        1.134269402803286,
+        1.0617390984323098,
+        1.0750444608390157,
+        1.0017954332700434,
+        0.9617417357137984
+      ]
+    },
+    "attempted_flop_savings": {
+      "confidence_level": 0.9,
+      "draws": 10000,
+      "lower_bound": 0.030303030303030304,
+      "median": 0.030303030303030304,
+      "method": "paired percentile bootstrap of the median",
+      "upper_bound": 0.058823529411764705,
+      "values": [
+        0.058823529411764705,
+        0.030303030303030304,
+        0.030303030303030304,
+        0.030303030303030304,
+        0.030303030303030304,
+        0.058823529411764705
+      ]
+    },
+    "opportunity_tick_savings": {
+      "confidence_level": 0.9,
+      "draws": 10000,
+      "lower_bound": 36.0,
+      "median": 40.0,
+      "method": "paired percentile bootstrap of the median",
+      "upper_bound": 44.0,
+      "values": [
+        40.0,
+        32.0,
+        40.0,
+        40.0,
+        40.0,
+        48.0
+      ]
+    }
+  },
+  "policy_comparison": {
+    "adaptive_interrupted": {
+      "attempted_tokens": 524288.0,
+      "canonical_tokens": 524288.0,
+      "checkpoint_bytes": 1064622192.0,
+      "checkpoint_count": 47.0,
+      "discarded_tokens": 0.0,
+      "divergence_count": 0,
+      "final_held_out_nll": 1.0248522511683404,
+      "label": "Adaptive survivor continuation",
+      "local_active_seconds": 8.38376055000299,
+      "opportunity_ticks": 256.0,
+      "policy_id": "adaptive-survivor-continuation",
+      "replayed_tokens": 0.0,
+      "run_count": 6,
+      "survivor_redistributed_tokens": 32768.0,
+      "training_device_energy_j": 81.55594096841936
+    },
+    "derived": {
+      "adaptive_minus_fixed_median_final_nll": 0.00526967691257596,
+      "adaptive_to_fixed_checkpoint_byte_ratio": 2.764705882352941,
+      "adaptive_to_fixed_median_energy_ratio": 1.0831459702742647
+    },
+    "fixed_interrupted": {
+      "attempted_tokens": 540672.0,
+      "canonical_tokens": 524288.0,
+      "checkpoint_bytes": 385076112.0,
+      "checkpoint_count": 17.0,
+      "discarded_tokens": 16384.0,
+      "divergence_count": 0,
+      "final_held_out_nll": 1.0195825742557645,
+      "label": "Fixed-local restart",
+      "local_active_seconds": 7.4425987000049645,
+      "opportunity_ticks": 296.0,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "replayed_tokens": 16384.0,
+      "run_count": 6,
+      "survivor_redistributed_tokens": 0.0,
+      "training_device_energy_j": 75.29542943114905
+    }
+  },
+  "run_details": [
+    {
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 385076112,
+      "checkpoint_count": 17,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "failure_schedule": [],
+      "final_held_out_nll": 1.017894477583468,
+      "interrupted": false,
+      "local_active_seconds": 7.202898700012156,
+      "logical_ticks": 256,
+      "opportunity_ticks": 256,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "replayed_tokens": 0,
+      "run_id": "e001-lc3:C1:fixed-local-checkpoint-restart:no-failure",
+      "seed": 11,
+      "split": "calibration",
+      "stratum_id": "C1",
+      "survivor_redistributed_tokens": 0,
+      "target_reached": true,
+      "training_device_energy_j": 84.27821624510027
+    },
+    {
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 747500688,
+      "checkpoint_count": 33,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "failure_schedule": [],
+      "final_held_out_nll": 1.017894477583468,
+      "interrupted": false,
+      "local_active_seconds": 7.227758400000312,
+      "logical_ticks": 256,
+      "opportunity_ticks": 256,
+      "policy_id": "adaptive-survivor-continuation",
+      "replayed_tokens": 0,
+      "run_id": "e001-lc3:C1:adaptive-survivor-continuation:no-failure",
+      "seed": 11,
+      "split": "calibration",
+      "stratum_id": "C1",
+      "survivor_redistributed_tokens": 0,
+      "target_reached": true,
+      "training_device_energy_j": 73.52852465126361
+    },
+    {
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 747500688,
+      "checkpoint_count": 33,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "failure_schedule": [],
+      "final_held_out_nll": 1.022410818375647,
+      "interrupted": false,
+      "local_active_seconds": 7.5174358999865944,
+      "logical_ticks": 256,
+      "opportunity_ticks": 256,
+      "policy_id": "adaptive-survivor-continuation",
+      "replayed_tokens": 0,
+      "run_id": "e001-lc3:C2:adaptive-survivor-continuation:no-failure",
+      "seed": 29,
+      "split": "calibration",
+      "stratum_id": "C2",
+      "survivor_redistributed_tokens": 0,
+      "target_reached": true,
+      "training_device_energy_j": 70.37661037585035
+    },
+    {
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 385076112,
+      "checkpoint_count": 17,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "failure_schedule": [],
+      "final_held_out_nll": 1.022410818375647,
+      "interrupted": false,
+      "local_active_seconds": 7.041029000003618,
+      "logical_ticks": 256,
+      "opportunity_ticks": 256,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "replayed_tokens": 0,
+      "run_id": "e001-lc3:C2:fixed-local-checkpoint-restart:no-failure",
+      "seed": 29,
+      "split": "calibration",
+      "stratum_id": "C2",
+      "survivor_redistributed_tokens": 0,
+      "target_reached": true,
+      "training_device_energy_j": 78.20103715517124
+    },
+    {
+      "attempted_tokens": 557056,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 385076112,
+      "checkpoint_count": 17,
+      "discarded_tokens": 32768,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          40,
+          8
+        ],
+        [
+          136,
+          16
+        ]
+      ],
+      "final_held_out_nll": 1.0146848345175385,
+      "interrupted": true,
+      "local_active_seconds": 7.864365500015992,
+      "logical_ticks": 256,
+      "opportunity_ticks": 296,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "replayed_tokens": 32768,
+      "run_id": "e001-lc3:E1:fixed-local-checkpoint-restart:interrupted",
+      "seed": 101,
+      "split": "evaluation",
+      "stratum_id": "E1",
+      "survivor_redistributed_tokens": 0,
+      "target_reached": true,
+      "training_device_energy_j": 77.34787373154067
+    },
+    {
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 996667584,
+      "checkpoint_count": 44,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          40,
+          8
+        ],
+        [
+          136,
+          16
+        ]
+      ],
+      "final_held_out_nll": 1.017077624797821,
+      "interrupted": true,
+      "local_active_seconds": 8.42636190000485,
+      "logical_ticks": 256,
+      "opportunity_ticks": 256,
+      "policy_id": "adaptive-survivor-continuation",
+      "replayed_tokens": 0,
+      "run_id": "e001-lc3:E1:adaptive-survivor-continuation:interrupted",
+      "seed": 101,
+      "split": "evaluation",
+      "stratum_id": "E1",
+      "survivor_redistributed_tokens": 24576,
+      "target_reached": true,
+      "training_device_energy_j": 92.28567904652955
+    },
+    {
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 996667584,
+      "checkpoint_count": 44,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          64,
+          16
+        ],
+        [
+          200,
+          8
+        ]
+      ],
+      "final_held_out_nll": 1.025381457991898,
+      "interrupted": true,
+      "local_active_seconds": 8.352663900011976,
+      "logical_ticks": 256,
+      "opportunity_ticks": 256,
+      "policy_id": "adaptive-survivor-continuation",
+      "replayed_tokens": 0,
+      "run_id": "e001-lc3:E2:adaptive-survivor-continuation:interrupted",
+      "seed": 131,
+      "split": "evaluation",
+      "stratum_id": "E2",
+      "survivor_redistributed_tokens": 24576,
+      "target_reached": true,
+      "training_device_energy_j": 83.07727700379415
+    },
+    {
+      "attempted_tokens": 540672,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 385076112,
+      "checkpoint_count": 17,
+      "discarded_tokens": 16384,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          64,
+          16
+        ],
+        [
+          200,
+          8
+        ]
+      ],
+      "final_held_out_nll": 1.0193839268758893,
+      "interrupted": true,
+      "local_active_seconds": 7.239345599984517,
+      "logical_ticks": 256,
+      "opportunity_ticks": 288,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "replayed_tokens": 16384,
+      "run_id": "e001-lc3:E2:fixed-local-checkpoint-restart:interrupted",
+      "seed": 131,
+      "split": "evaluation",
+      "stratum_id": "E2",
+      "survivor_redistributed_tokens": 0,
+      "target_reached": true,
+      "training_device_energy_j": 73.2429851307574
+    },
+    {
+      "attempted_tokens": 540672,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 385076112,
+      "checkpoint_count": 17,
+      "discarded_tokens": 16384,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          72,
+          8
+        ],
+        [
+          128,
+          24
+        ]
+      ],
+      "final_held_out_nll": 1.016331878490746,
+      "interrupted": true,
+      "local_active_seconds": 7.374813900019944,
+      "logical_ticks": 256,
+      "opportunity_ticks": 296,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "replayed_tokens": 16384,
+      "run_id": "e001-lc3:E3:fixed-local-checkpoint-restart:interrupted",
+      "seed": 151,
+      "split": "evaluation",
+      "stratum_id": "E3",
+      "survivor_redistributed_tokens": 0,
+      "target_reached": true,
+      "training_device_energy_j": 70.73723962824427
+    },
+    {
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 1064622192,
+      "checkpoint_count": 47,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          72,
+          8
+        ],
+        [
+          128,
+          24
+        ]
+      ],
+      "final_held_out_nll": 1.0177394188940525,
+      "interrupted": true,
+      "local_active_seconds": 8.397101600010501,
+      "logical_ticks": 256,
+      "opportunity_ticks": 256,
+      "policy_id": "adaptive-survivor-continuation",
+      "replayed_tokens": 0,
+      "run_id": "e001-lc3:E3:adaptive-survivor-continuation:interrupted",
+      "seed": 151,
+      "split": "evaluation",
+      "stratum_id": "E3",
+      "survivor_redistributed_tokens": 32768,
+      "target_reached": true,
+      "training_device_energy_j": 75.10449302848232
+    },
+    {
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 1064622192,
+      "checkpoint_count": 47,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          104,
+          16
+        ],
+        [
+          184,
+          16
+        ]
+      ],
+      "final_held_out_nll": 1.0244259517639875,
+      "interrupted": true,
+      "local_active_seconds": 8.315131899988046,
+      "logical_ticks": 256,
+      "opportunity_ticks": 256,
+      "policy_id": "adaptive-survivor-continuation",
+      "replayed_tokens": 0,
+      "run_id": "e001-lc3:E4:adaptive-survivor-continuation:interrupted",
+      "seed": 181,
+      "split": "evaluation",
+      "stratum_id": "E4",
+      "survivor_redistributed_tokens": 32768,
+      "target_reached": true,
+      "training_device_energy_j": 76.70107734772347
+    },
+    {
+      "attempted_tokens": 540672,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 385076112,
+      "checkpoint_count": 17,
+      "discarded_tokens": 16384,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          104,
+          16
+        ],
+        [
+          184,
+          16
+        ]
+      ],
+      "final_held_out_nll": 1.0212700562551618,
+      "interrupted": true,
+      "local_active_seconds": 7.3209009999991395,
+      "logical_ticks": 256,
+      "opportunity_ticks": 296,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "replayed_tokens": 16384,
+      "run_id": "e001-lc3:E4:fixed-local-checkpoint-restart:interrupted",
+      "seed": 181,
+      "split": "evaluation",
+      "stratum_id": "E4",
+      "survivor_redistributed_tokens": 0,
+      "target_reached": true,
+      "training_device_energy_j": 71.34688856297376
+    },
+    {
+      "attempted_tokens": 540672,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 385076112,
+      "checkpoint_count": 17,
+      "discarded_tokens": 16384,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          32,
+          8
+        ],
+        [
+          104,
+          8
+        ],
+        [
+          216,
+          16
+        ]
+      ],
+      "final_held_out_nll": 1.0197812216356397,
+      "interrupted": true,
+      "local_active_seconds": 7.510383499989985,
+      "logical_ticks": 256,
+      "opportunity_ticks": 296,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "replayed_tokens": 16384,
+      "run_id": "e001-lc3:E5:fixed-local-checkpoint-restart:interrupted",
+      "seed": 211,
+      "split": "evaluation",
+      "stratum_id": "E5",
+      "survivor_redistributed_tokens": 0,
+      "target_reached": true,
+      "training_device_energy_j": 80.83898151570418
+    },
+    {
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 1087273728,
+      "checkpoint_count": 48,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          32,
+          8
+        ],
+        [
+          104,
+          8
+        ],
+        [
+          216,
+          16
+        ]
+      ],
+      "final_held_out_nll": 1.0332674141973257,
+      "interrupted": true,
+      "local_active_seconds": 8.920425799988152,
+      "logical_ticks": 256,
+      "opportunity_ticks": 256,
+      "policy_id": "adaptive-survivor-continuation",
+      "replayed_tokens": 0,
+      "run_id": "e001-lc3:E5:adaptive-survivor-continuation:interrupted",
+      "seed": 211,
+      "split": "evaluation",
+      "stratum_id": "E5",
+      "survivor_redistributed_tokens": 32768,
+      "target_reached": true,
+      "training_device_energy_j": 80.9841225126339
+    },
+    {
+      "attempted_tokens": 524288,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 1064622192,
+      "checkpoint_count": 47,
+      "discarded_tokens": 0,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          88,
+          24
+        ],
+        [
+          168,
+          8
+        ]
+      ],
+      "final_held_out_nll": 1.0252785505726933,
+      "interrupted": true,
+      "local_active_seconds": 8.370419499995478,
+      "logical_ticks": 256,
+      "opportunity_ticks": 256,
+      "policy_id": "adaptive-survivor-continuation",
+      "replayed_tokens": 0,
+      "run_id": "e001-lc3:E6:adaptive-survivor-continuation:interrupted",
+      "seed": 241,
+      "split": "evaluation",
+      "stratum_id": "E6",
+      "survivor_redistributed_tokens": 32768,
+      "target_reached": true,
+      "training_device_energy_j": 82.12775942420483
+    },
+    {
+      "attempted_tokens": 557056,
+      "canonical_tokens": 524288,
+      "checkpoint_bytes": 385076112,
+      "checkpoint_count": 17,
+      "discarded_tokens": 32768,
+      "diverged": false,
+      "failure_schedule": [
+        [
+          88,
+          24
+        ],
+        [
+          168,
+          8
+        ]
+      ],
+      "final_held_out_nll": 1.021757415495813,
+      "interrupted": true,
+      "local_active_seconds": 8.15693280000778,
+      "logical_ticks": 256,
+      "opportunity_ticks": 304,
+      "policy_id": "fixed-local-checkpoint-restart",
+      "replayed_tokens": 32768,
+      "run_id": "e001-lc3:E6:fixed-local-checkpoint-restart:interrupted",
+      "seed": 241,
+      "split": "evaluation",
+      "stratum_id": "E6",
+      "survivor_redistributed_tokens": 0,
+      "target_reached": true,
+      "training_device_energy_j": 85.39481689775077
+    }
+  ],
+  "runtime": {
+    "cuda_version": "13.0",
+    "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU",
+    "gpu_compute_capability": [
+      8,
+      6
+    ],
+    "idle_power_w": 29.41675,
+    "nvml_power_available": true,
+    "torch_version": "2.12.1+cu130"
+  },
+  "scenario_id": "e001-late-equal-work-survivor-continuation-v1",
+  "schema": "gpu-stack.causal-observatory.e001-equal-work.v1",
+  "source_lc2_protocol_results": [
+    {
+      "artifact_sha256": "4781781857ae638f6e64868ed3fa156d9459f5f64e62f82aad3db6cde3bfd0c6",
+      "conclusion": "protocol_failed_warm_start_not_late_stage",
+      "path": "experiments/e001-beyond-one-datacenter/results/quality-target-v1.json"
+    },
+    {
+      "artifact_sha256": "a3bb91b74a99708a08b5196ffc8d16bb27bca697f7f54fb63e60564851f97517",
+      "conclusion": "protocol_failed_calibration_validity",
+      "path": "experiments/e001-beyond-one-datacenter/results/quality-target-v2.json"
+    }
+  ],
+  "source_learning_result": {
+    "artifact_sha256": "0597ca6deeeb34ae97d57d72b49187c687af921d3eec7b804ceb48b0d3994826",
+    "path": "experiments/e001-beyond-one-datacenter/results/learning-calibration-v1.json",
+    "schema": "gpu-stack.e001-recovery-learning-evidence.v1"
+  },
+  "source_recovery_result": {
+    "artifact_sha256": "b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57",
+    "path": "experiments/e001-beyond-one-datacenter/results/recovery-mechanics-v2.json",
+    "protocol_hash": "5182a8e518706252fb24a9812351eb19d2bc9070fd3190e4095c1b0106a4a5a2",
+    "scenario_hash": "e5840301e4fa2902ee31071943f7d13d7d2d3cc158b1b9220b46f514f29f65ab",
+    "schema": "gpu-stack.e001-recovery-comparison.v2"
+  },
+  "source_result": {
+    "artifact_sha256": "f7548b68d4791978260f0bd557bf92041d0f769b796b1e684bbcab99e88f639f",
+    "engine_bundle_sha256": "b574609b19eeca593dc932ec09943a779b50a28b4d9e336afa07b5a18fa52249",
+    "engine_source_sha256": "893b2d25eed53122c59ee26ac95a10c2e9f2e360c0c9b6c39c14bf1d32d25fbd",
+    "scenario_sha256": "f5212c19e701f183c7ab9aaf7620bf43c03a234eee92dd7e9d98c73c5c22a9ed",
+    "schema": "gpu-stack.e001-equal-work-evidence.v1",
+    "uri": "experiments/e001-beyond-one-datacenter/results/equal-work-v1.json"
+  },
+  "split": {
+    "calibration": {
+      "metadata": {},
+      "name": "calibration",
+      "observation_ids": [
+        "e001-lc3:C1:fixed-local-checkpoint-restart:no-failure",
+        "e001-lc3:C1:adaptive-survivor-continuation:no-failure",
+        "e001-lc3:C2:adaptive-survivor-continuation:no-failure",
+        "e001-lc3:C2:fixed-local-checkpoint-restart:no-failure"
+      ]
+    },
+    "evaluation": {
+      "metadata": {},
+      "name": "evaluation",
+      "observation_ids": [
+        "e001-lc3:E1:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc3:E1:adaptive-survivor-continuation:interrupted",
+        "e001-lc3:E2:adaptive-survivor-continuation:interrupted",
+        "e001-lc3:E2:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc3:E3:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc3:E3:adaptive-survivor-continuation:interrupted",
+        "e001-lc3:E4:adaptive-survivor-continuation:interrupted",
+        "e001-lc3:E4:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc3:E5:fixed-local-checkpoint-restart:interrupted",
+        "e001-lc3:E5:adaptive-survivor-continuation:interrupted",
+        "e001-lc3:E6:adaptive-survivor-continuation:interrupted",
+        "e001-lc3:E6:fixed-local-checkpoint-restart:interrupted"
+      ]
+    },
+    "metadata": {
+      "equal_canonical_work_target": true,
+      "evaluation_schedules_reused_unchanged_from_lc1": true,
+      "shared_warm_checkpoint": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+    },
+    "split_id": "e001-lc3-calibration-evaluation-v1"
+  },
+  "warm_start": {
+    "attempted_compute_flops": 188364380700672.0,
+    "attempted_tokens": 16777216,
+    "checkpoint_bytes": 22651536,
+    "checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5",
+    "cooldown_before_seconds": 0.000347400000464404,
+    "end_temperature_c": 73,
+    "energy": {
+      "idle_power_w": 29.41675,
+      "idle_subtracted_energy_j": 5556.420565098825,
+      "raw_energy_j": 11343.455892528444,
+      "sample_count": 1835
+    },
+    "late_window": {
+      "end_held_out_nll": 1.02718645054847,
+      "end_tick": 8192,
+      "late_stage_gate_passed": true,
+      "maximum_nll_improvement": 0.03,
+      "nll_improvement": 0.004534989595413208,
+      "start_held_out_nll": 1.0317214401438832,
+      "start_tick": 7936
+    },
+    "local_active_seconds": 196.85091739999916,
+    "parameter_count": 1871232,
+    "physical_seconds": 197.2830088999981,
+    "seed": 7,
+    "start_temperature_c": 64,
+    "thermal_pause_seconds": 0.0,
+    "ticks": 8192
+  }
+}

@@ -111,6 +111,17 @@ class _Evidence:
     e001_learning_conclusion: str | None
     e001_learning_candidate_survives: bool | None
     e001_learning_observatory_present: bool
+    e001_equal_work_result_present: bool
+    e001_equal_work_evaluation_observation_count: int
+    e001_equal_work_conclusion: str | None
+    e001_equal_work_candidate_survives: bool | None
+    e001_equal_work_learning_noninferior: bool | None
+    e001_equal_work_work_gate_passed: bool | None
+    e001_equal_work_tick_gate_passed: bool | None
+    e001_equal_work_energy_gate_passed: bool | None
+    e001_equal_work_energy_ratio_median: float | None
+    e001_equal_work_energy_ratio_upper_bound: float | None
+    e001_equal_work_observatory_present: bool
     e002_result_artifact_count: int
     observation_artifact_count: int
     evaluation_observation_reference_count: int
@@ -291,6 +302,7 @@ def _collect_evidence_uncached(resolved_repo_root: Path) -> _Evidence:
     )
     e001_v1_identity = _e001_v1_identity(resolved_repo_root)
     e001_learning = _e001_learning_result(resolved_repo_root)
+    e001_equal_work = _e001_equal_work_result(resolved_repo_root)
 
     return _Evidence(
         stats=stats,
@@ -347,6 +359,53 @@ def _collect_evidence_uncached(resolved_repo_root: Path) -> _Evidence:
         ),
         e001_learning_observatory_present=(
             resolved_repo_root / "docs" / "data" / "e001-learning-v1.json"
+        ).is_file(),
+        e001_equal_work_result_present=bool(e001_equal_work["present"]),
+        e001_equal_work_evaluation_observation_count=int(
+            e001_equal_work["evaluation_observation_count"]
+        ),
+        e001_equal_work_conclusion=(
+            str(e001_equal_work["conclusion"])
+            if e001_equal_work["conclusion"] is not None
+            else None
+        ),
+        e001_equal_work_candidate_survives=(
+            bool(e001_equal_work["candidate_survives"])
+            if e001_equal_work["candidate_survives"] is not None
+            else None
+        ),
+        e001_equal_work_learning_noninferior=(
+            bool(e001_equal_work["learning_noninferior"])
+            if e001_equal_work["learning_noninferior"] is not None
+            else None
+        ),
+        e001_equal_work_work_gate_passed=(
+            bool(e001_equal_work["work_gate_passed"])
+            if e001_equal_work["work_gate_passed"] is not None
+            else None
+        ),
+        e001_equal_work_tick_gate_passed=(
+            bool(e001_equal_work["tick_gate_passed"])
+            if e001_equal_work["tick_gate_passed"] is not None
+            else None
+        ),
+        e001_equal_work_energy_gate_passed=(
+            bool(e001_equal_work["energy_gate_passed"])
+            if e001_equal_work["energy_gate_passed"] is not None
+            else None
+        ),
+        e001_equal_work_energy_ratio_median=(
+            float(e001_equal_work["energy_ratio_median"])
+            if e001_equal_work["energy_ratio_median"] is not None
+            else None
+        ),
+        e001_equal_work_energy_ratio_upper_bound=(
+            float(e001_equal_work["energy_ratio_upper_bound"])
+            if e001_equal_work["energy_ratio_upper_bound"] is not None
+            else None
+        ),
+        e001_equal_work_observatory_present=(
+            resolved_repo_root / "docs" / "data" / "e001-equal-work-v1.json"
         ).is_file(),
         e002_result_artifact_count=research_counts["e002_results"],
         observation_artifact_count=research_counts["observations"],
@@ -434,6 +493,84 @@ def _e001_learning_result(repo_root: Path) -> dict[str, object]:
         "conclusion": conclusion,
         "candidate_survives": candidate_survives,
     }
+
+
+def _e001_equal_work_result(repo_root: Path) -> dict[str, object]:
+    """Read the compact LC3 decision evidence used by the live compass."""
+
+    path = (
+        repo_root
+        / "experiments"
+        / "e001-beyond-one-datacenter"
+        / "results"
+        / "equal-work-v1.json"
+    )
+    empty = {
+        "present": False,
+        "evaluation_observation_count": 0,
+        "conclusion": None,
+        "candidate_survives": None,
+        "learning_noninferior": None,
+        "work_gate_passed": None,
+        "tick_gate_passed": None,
+        "energy_gate_passed": None,
+        "energy_ratio_median": None,
+        "energy_ratio_upper_bound": None,
+    }
+    if not path.is_file():
+        return empty
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return empty
+    if not isinstance(payload, dict) or payload.get("schema") != (
+        "gpu-stack.e001-equal-work-evidence.v1"
+    ):
+        return empty
+
+    evaluation_count = 0
+    split = payload.get("split")
+    if isinstance(split, dict):
+        evaluation = split.get("evaluation")
+        if isinstance(evaluation, dict):
+            ids = evaluation.get("observation_ids")
+            if isinstance(ids, list):
+                evaluation_count = sum(
+                    isinstance(item, str) and bool(item) for item in ids
+                )
+
+    result = dict(empty)
+    result["present"] = True
+    result["evaluation_observation_count"] = evaluation_count
+    summary = payload.get("summary")
+    if not isinstance(summary, dict):
+        return result
+    if isinstance(summary.get("conclusion"), str):
+        result["conclusion"] = summary["conclusion"]
+    if isinstance(summary.get("candidate_survives_lc3"), bool):
+        result["candidate_survives"] = summary["candidate_survives_lc3"]
+
+    falsifiers = summary.get("falsifier_results")
+    if isinstance(falsifiers, dict):
+        for source, target in (
+            ("learning_noninferior", "learning_noninferior"),
+            ("attempted_flop_saving_material", "work_gate_passed"),
+            ("opportunity_tick_saving_material", "tick_gate_passed"),
+            ("device_energy_ratio_bounded", "energy_gate_passed"),
+        ):
+            if isinstance(falsifiers.get(source), bool):
+                result[target] = falsifiers[source]
+
+    energy_ratio = summary.get("adaptive_to_fixed_device_energy_ratio")
+    if isinstance(energy_ratio, dict):
+        for source, target in (
+            ("median", "energy_ratio_median"),
+            ("upper_bound", "energy_ratio_upper_bound"),
+        ):
+            value = energy_ratio.get(source)
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                result[target] = float(value)
+    return result
 
 
 def _e001_v1_identity(repo_root: Path) -> dict[str, str | bool | None]:

@@ -50,7 +50,7 @@
 
     <div class="desktop-logo">
       <span class="logo-text">CuperOS</span>
-      <span class="logo-version">GPUSTACK RESEARCH V0.26</span>
+      <span class="logo-version">GPUSTACK RESEARCH V0.27</span>
     </div>
 
     <main class="window app-window" id="top" aria-label="gpu_stack project window">
@@ -97,8 +97,8 @@
             <aside class="status-panel" aria-label="Project status lights">
               <div class="status-light"><span class="led"></span><span>registry import graph coherent</span></div>
               <div class="status-light"><span class="led"></span><span>E001 recovery mechanics published</span></div>
-              <div class="status-light"><span class="led"></span><span>40-run LC1 learning calibration recorded</span></div>
-              <div class="status-light"><span class="led warn"></span><span>LC1 candidate falsified by its frozen efficiency rule</span></div>
+              <div class="status-light"><span class="led"></span><span>LC1-LC3 measured learning loop recorded</span></div>
+              <div class="status-light"><span class="led warn"></span><span>LC3 preserved learning and saved work/time but failed energy</span></div>
               <div class="status-light"><span class="led red"></span><span>frontier-scale multi-site learning evidence absent</span></div>
             </aside>
           </section>
@@ -351,7 +351,7 @@ python -m gpu_stack.cli experiment-run E001 --scenario experiments/e001-beyond-o
             </article>
             <article class="dialog-body">
               <h3>Not finished yet</h3>
-              <p>E001 now has explicit recovery mechanics and a measured local small-model learning calibration. LC1 falsified its survivor-continuation candidate because a finite-horizon progress-per-FLOP ratio rewarded the fixed policy for stopping with less work and worse loss. This is not evidence that a frontier-scale multi-site run converges, and local GPU energy is not facility energy.</p>
+              <p>E001 now has explicit recovery mechanics and three measured learning stages. LC3 held canonical work equal: adaptive continuation preserved learning and saved attempted work and opportunity ticks, but failed its frozen device-energy bound. This is not evidence that a frontier-scale multi-site run converges, and local GPU energy is not facility energy.</p>
             </article>
           </section>
 
@@ -360,8 +360,8 @@ python -m gpu_stack.cli experiment-run E001 --scenario experiments/e001-beyond-o
               <p class="eyebrow">next_work.exe</p>
               <h2 id="next-heading">The frontier program is six falsifiable questions.</h2>
             </div>
-            <div class="timeline-row"><b>1. Beyond One Datacenter · LC2 next</b><span>Warm-start near a frozen late-training quality target, then test whether survivor continuation reduces time, device energy, and total work to that target. Only after it survives should the mechanism scale across models, optimizers, outages, and real sites.</span></div>
-            <div class="timeline-row"><b>2. Shape the Power Waveform</b><span>Test whether dependency-safe phase control can suppress grid-danger-band energy without changing optimizer semantics.</span></div>
+            <div class="timeline-row"><b>1. Beyond One Datacenter · energy gate failed</b><span>At equal canonical work, adaptive continuation was learning-noninferior and saved work and scheduled time, but its measured RTX energy interval exceeded the frozen bound. Scale remains blocked.</span></div>
+            <div class="timeline-row"><b>2. Shape the Power Waveform · next</b><span>Factor checkpoint cadence from survivor continuation, attribute phase-level power, and test whether dependency-safe scheduling removes the energy penalty without losing the measured learning, work, or time gains.</span></div>
             <div class="timeline-row"><b>3. Semantic Fault Tolerance</b><span>Allocate canaries, replay, and redundancy by counterfactual learning harm instead of fault label.</span></div>
             <div class="timeline-row"><b>4. Fluid Inference Topology</b><span>Measure interaction gains and regime crossings when serving topology changes per request.</span></div>
             <div class="timeline-row"><b>5. Architecture as a Datacenter Variable</b><span>Co-design model modules and heterogeneous hardware under one facility power and time envelope.</span></div>

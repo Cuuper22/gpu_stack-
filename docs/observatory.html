@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/90-observatory.css?v=20260712.9">
-  <script src="observatory.js?v=20260712.5" defer></script>
+  <link rel="stylesheet" href="styles/90-observatory.css?v=20260712.10">
+  <script src="observatory.js?v=20260712.6" defer></script>
 </head>
 <body data-depth="freshman" data-data-state="loading">
   <a class="skip-link" href="#observatory-main">Skip to experiment</a>
@@ -344,6 +344,121 @@
         <details>
           <summary>Dataset, runtime, and source identity</summary>
           <pre id="learning-provenance-json" tabindex="0">not loaded</pre>
+        </details>
+      </div>
+    </section>
+
+    <section class="equal-work-v1-band" id="equal-work-v1" aria-labelledby="equal-work-v1-title" hidden>
+      <header class="band-header equal-work-v1-header">
+        <div>
+          <p class="control-label">LC3 · measured equal-work endpoint</p>
+          <h2 id="equal-work-v1-title">What survives when useful work is held equal?</h2>
+        </div>
+        <output id="equal-work-v1-state" role="status" aria-live="polite">Reading equal-work artifact…</output>
+      </header>
+
+      <article class="equal-work-insight" aria-labelledby="equal-work-insight-title">
+        <div>
+          <p class="equal-work-eyebrow">Same 524,288 useful tokens · six held-out pairs</p>
+          <h3 id="equal-work-insight-title">Equal-work result loading</h3>
+        </div>
+        <p id="equal-work-plain-answer">The observatory will state the result after loading the persisted LC3 artifact.</p>
+      </article>
+
+      <div class="equal-work-depth-copy">
+        <p class="depth-freshman"><strong>Useful work is the fair ruler here.</strong> Both policies finish with the same 524,288 tokens actually kept by the model. Adaptive avoided redo work and finished the schedule sooner without a meaningful learning loss, but its GPU consumed too much energy to pass.</p>
+        <p class="depth-researcher"><strong>LC3 removes LC1’s stopping-early denominator trap.</strong> Six paired evaluation strata share an equal canonical-work endpoint. Read learning as paired NLL noninferiority, physical work as attempted-FLOP savings, schedule time as opportunity ticks, and energy as a paired device-energy ratio.</p>
+        <p class="depth-full_trace" id="equal-work-depth-trace">Exact pairs, run records, protocol predecessors, hashes, and the modeled-mechanics boundary remain attached below.</p>
+      </div>
+
+      <div class="equal-work-freshman-grid depth-freshman" id="equal-work-freshman-grid" aria-label="Plain-language equal-work result"></div>
+
+      <div class="equal-work-research depth-researcher">
+        <section class="equal-work-policy-section" aria-labelledby="equal-work-policy-title">
+          <header class="equal-work-section-header">
+            <div>
+              <p class="control-label">Observed policy medians</p>
+              <h3 id="equal-work-policy-title">Same useful frontier, different path</h3>
+            </div>
+            <span>six interrupted evaluation runs per policy</span>
+          </header>
+          <div class="equal-work-policy-grid" id="equal-work-policy-grid"></div>
+        </section>
+
+        <section class="equal-work-effects" aria-labelledby="equal-work-effects-title">
+          <header class="equal-work-section-header">
+            <div>
+              <p class="control-label">Paired 90% intervals</p>
+              <h3 id="equal-work-effects-title">Three wins and one hard stop</h3>
+            </div>
+            <span>direct labels · frozen bounds</span>
+          </header>
+          <div class="equal-work-effect-grid" id="equal-work-effect-grid"></div>
+        </section>
+
+        <aside class="equal-work-clue" aria-labelledby="equal-work-clue-title">
+          <span aria-hidden="true">?</span>
+          <div>
+            <h3 id="equal-work-clue-title">Likely causal clue, not proof</h3>
+            <p id="equal-work-checkpoint-clue">Checkpoint evidence loading.</p>
+          </div>
+        </aside>
+
+        <section class="equal-work-gates" aria-labelledby="equal-work-gates-title">
+          <header class="equal-work-section-header">
+            <div>
+              <p class="control-label">Frozen LC3 decision</p>
+              <h3 id="equal-work-gates-title">Seven gates passed; energy failed</h3>
+            </div>
+            <span>the failed gate remains visually dominant</span>
+          </header>
+          <div class="equal-work-gate-strip" id="equal-work-gate-strip"></div>
+        </section>
+
+        <aside class="equal-work-boundary" aria-labelledby="equal-work-boundary-title">
+          <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
+          <div>
+            <h3 id="equal-work-boundary-title">Observed learning, local device boundary</h3>
+            <p id="equal-work-evidence-boundary">Evidence boundary loading.</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="equal-work-trace depth-full_trace">
+        <details open>
+          <summary>Six paired evaluation rows</summary>
+          <div class="equal-work-table-scroll">
+            <table class="equal-work-trace-table">
+              <thead><tr><th scope="col">Stratum</th><th scope="col">Fixed NLL</th><th scope="col">Adaptive NLL</th><th scope="col">Adaptive − fixed NLL</th><th scope="col">Attempted-FLOP saved</th><th scope="col">Ticks saved</th><th scope="col">Energy ratio</th></tr></thead>
+              <tbody id="equal-work-evaluation-pairs"></tbody>
+            </table>
+          </div>
+        </details>
+        <details>
+          <summary>All 16 run records</summary>
+          <div class="equal-work-table-scroll">
+            <table class="equal-work-trace-table">
+              <thead><tr><th scope="col">Run</th><th scope="col">Split</th><th scope="col">Policy</th><th scope="col">Interrupted</th><th scope="col">Final NLL</th><th scope="col">Attempted / canonical tokens</th><th scope="col">Opportunity ticks</th><th scope="col">Device energy</th><th scope="col">Checkpoints</th></tr></thead>
+              <tbody id="equal-work-run-details"></tbody>
+            </table>
+          </div>
+        </details>
+        <details>
+          <summary>Two LC2 protocol predecessors</summary>
+          <div class="equal-work-table-scroll">
+            <table class="equal-work-trace-table">
+              <thead><tr><th scope="col">Artifact path</th><th scope="col">Conclusion</th><th scope="col">SHA-256</th></tr></thead>
+              <tbody id="equal-work-predecessors"></tbody>
+            </table>
+          </div>
+        </details>
+        <details>
+          <summary>Modeled mechanics bridge boundary</summary>
+          <div class="equal-work-bridge" id="equal-work-bridge"></div>
+        </details>
+        <details>
+          <summary>Source hashes and complete provenance</summary>
+          <pre id="equal-work-provenance-json" tabindex="0">not loaded</pre>
         </details>
       </div>
     </section>

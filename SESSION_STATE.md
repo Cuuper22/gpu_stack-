@@ -30,30 +30,33 @@ loop. Read `RESEARCH.md`, then
   with a 600-second gate ceiling after the default 300-second ceiling stopped
   a still-green pytest stream at 97 percent.
 
-## Active Wave: E001-LC1 Measured Learning Result
+## Active Wave: E001-LC3 Equal-Canonical-Work Result
 
-Status: completed on `research/e001-learning-calibration`. The persisted LC1
-result contains 40 real GPU runs and observations: 10 calibration and 30
-held-out evaluation observations across six frozen evaluation strata.
+Status: executed on `research/e001-lc2-quality-target`; end-of-feature
+verification, merge, and push remain pending. Package metadata is 0.27.0.
 
-- Conclusion: `candidate_falsified_small_model_calibration` and
-  `candidate_survives_lc1=False`.
-- Adaptive interrupted reached better median final held-out NLL, 2.31465 versus
-  fixed-local restart's 2.34115. Fixed restart attempted 458,752 tokens versus
-  adaptive's 524,288, exactly 12.5 percent less work, so the frozen
-  finite-horizon progress-per-FLOP objective favored fixed despite its worse
-  final loss.
-- Every policy crossed the 3.13759 calibration target at the first 32-tick
-  observation. The paired-positive-effect and faster-target gates failed; the
-  retained-progress, no-divergence, no-failure-equivalence, and synchronous-
-  reference gates passed. The target and held-out schedules were not retuned.
-- The result artifact, compact learning sidecar, and learning observatory are
-  present. They keep measured loss, local wall time, NVML device energy, and
-  attempted work separate from recovery-v2 modeled datacenter time, WAN, and
-  facility-energy quantities.
-- Current `next-work` top three are `Run late-stage fixed-target E001-LC2`,
-  `Bridge observed learning curves to datacenter mechanics`, and
-  `Scale survivor continuation only after LC2 survives`.
+- LC1 remains `candidate_falsified_small_model_calibration` after 10
+  calibration and 30 held-out observations. Its finite-horizon denominator
+  rewarded fixed restart for stopping with less work at worse quality.
+- LC2 v1 persisted `protocol_failed_warm_start_not_late_stage` before held-out
+  evaluation. LC2 v2 established the 8,192-tick late-stage checkpoint and exact
+  no-failure equivalence, then persisted
+  `protocol_failed_calibration_validity` because first crossing fell outside
+  the frozen target window. Neither LC2 artifact is candidate evidence.
+- LC3 removed the invalid first-crossing endpoint. All 12 held-out observations
+  reached the same 524,288-canonical-token frontier. Learning noninferiority,
+  attempted-work saving, and opportunity-tick saving passed; adaptive saved a
+  median 3.03 percent attempted work and 40 opportunity ticks.
+- The sole failed gate is measured training-device energy: adaptive/fixed
+  median 1.068, paired 90 percent upper bound 1.134, versus the frozen 1.05
+  ceiling. Conclusion: `candidate_falsified_equal_canonical_work` and
+  `candidate_survives_lc3=False`.
+- The result and `docs/data/e001-equal-work-v1.json` observatory sidecar are
+  present. Modeled recovery-v2 datacenter quantities remain explicitly
+  separate from measured RTX learning and device-energy evidence.
+- Current `next-work` top three are `Run E002 checkpoint-power waveform
+  attribution`, `Separate checkpoint cadence from survivor continuation`, and
+  `Scale survivor continuation only after the energy gate passes`.
 
 ## Prior Completed Wave: Recovery-Backed E001 Mechanics
 
@@ -201,15 +204,15 @@ Status: implemented, verified, read-only verified, and source-clean.
 
 ## Current Aim
 
-1. Run E001-LC2 from a late-training warm start against one frozen quality
-   target, comparing quality-constrained time, measured device energy, and
-   attempted work.
-2. Bridge the observed target-conditioned learning curves to recovery-v2
-   modeled time, WAN, facility energy, and work while preserving the evidence
-   boundary.
-3. Scale survivor continuation across model, optimizer, non-IID data, outage,
-   and accelerator panels only if LC2 survives; otherwise redirect E001.
-4. Do not add new verification infrastructure or retune LC1's frozen result.
+1. Run E002 as a frozen 2x2 factorial: checkpoint cadence by survivor
+   continuation, at equal canonical work.
+2. Attribute checkpoint, training, restore, and synchronization power waveforms
+   so cadence, continuation, and their interaction are separately identified.
+3. Require the factorial result to preserve LC3's learning, attempted-work, and
+   opportunity-tick gates while passing the 1.05 device-energy ceiling.
+4. Scale across model, optimizer, non-IID data, outage, and accelerator panels
+   only after the energy gate passes. Preserve LC1, both LC2 protocol results,
+   and LC3 without retuning.
 
 ## Previous Verified Wave: Physical Root-Debt Boundary Hardening
 

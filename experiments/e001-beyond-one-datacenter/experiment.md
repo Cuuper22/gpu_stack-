@@ -1,6 +1,6 @@
 # E001: Beyond One Datacenter
 
-Status: recovery mechanics executed; LC1 small-model candidate falsified
+Status: recovery mechanics executed; LC1 and LC3 candidates falsified
 
 ## Question
 
@@ -226,11 +226,87 @@ This is measured small-model learning and device-only energy on one local GPU.
 The datacenter recovery timeline, concurrent-site throughput, WAN, storage,
 host, cooling, and facility-energy quantities remain modeled or unmeasured.
 
-## Next Experiment: LC2
+## Quality-To-Target Protocol Results
 
-Warm-start fixed-local and adaptive recovery from the same late-training
-checkpoint, freeze a quality target before evaluation, and compare wall-clock
-time, device energy, attempted work, and canonical work to that target under
-matched interruptions. Then bridge the observed learning curves to the modeled
-datacenter mechanics with an explicit observation-to-model boundary; do not
-relabel modeled datacenter behavior as measured evidence.
+LC2 tested whether the recovery policies could be compared from a shared
+late-training checkpoint by work, time, and device energy to one frozen quality
+target. Both protocol attempts stopped before held-out evaluation rather than
+pretending that their named regime was valid.
+
+[LC2 v1](quality-target-calibration-v1.md) trained the shared checkpoint for
+2,048 ticks. Held-out NLL improved from `1.52376570366323` to
+`1.43749829754233` over the final 256 ticks, an improvement of
+`0.08626740612089634` against a frozen maximum of `0.03`. Its conclusion was
+`protocol_failed_warm_start_not_late_stage`; no held-out runs were opened.
+The result artifact is `results/quality-target-v1.json`
+(`4781781857ae638f6e64868ed3fa156d9459f5f64e62f82aad3db6cde3bfd0c6`).
+
+[LC2 v2](quality-target-calibration-v2.md) made the precommitted fourfold jump
+to an 8,192-tick checkpoint. The final-window improvement was
+`0.004534989595413208`, so the warm-stage and exact no-failure-equivalence
+gates passed. The calibration target was `1.01961656101048`, but C1 and C2
+first crossed it at ticks 40 and 96, outside the frozen 192 to 288 window. The
+late-stage NLL curve was non-monotonic around that threshold. V2 therefore
+persisted `protocol_failed_calibration_validity` before held-out evaluation.
+Its artifact is `results/quality-target-v2.json`
+(`a3bb91b74a99708a08b5196ffc8d16bb27bca697f7f54fb63e60564851f97517`).
+
+Neither LC2 result ranks the recovery candidates. Together they establish that
+an equal-quality first-crossing objective is not stable for this late-stage
+workload without post-hoc smoothing or target changes. LC3 preserved the valid
+8,192-tick state and replaced first crossing with an exact canonical-work
+frontier.
+
+## Equal-Canonical-Work LC3 Result
+
+[E001-LC3](equal-work-calibration-v1.md) completed two calibration pairs and
+six untouched held-out fixed/adaptive pairs. Every held-out arm reached exactly
+524,288 canonical tokens. Adaptive was learning-noninferior, saved attempted
+work, and reached that frontier earlier, but failed the frozen device-energy
+bound.
+
+| Held-out paired result | Estimate | 90% paired interval | Gate |
+|---|---:|---:|---|
+| Adaptive minus fixed final NLL | median 0.0033385 | [0.00239279, 0.00850366] | pass: upper <= 0.01 |
+| Attempted-work saving | median 3.0303% | [3.0303%, 5.88235%] | pass |
+| Opportunity-tick saving | median 40 | [36, 44] | pass; adaptive earlier 6/6 |
+| Adaptive/fixed sampled device energy | median 1.06839 | [1.001795, 1.134269] | **fail: upper > 1.05** |
+
+Fixed-local medians were NLL `1.0195826`, 296 opportunity ticks, 540,672
+attempted tokens, 524,288 canonical tokens, 16,384 replayed and discarded
+tokens, `75.295 J`, `7.443 s` active time, 385,076,112 checkpoint bytes, and
+17 checkpoints. Adaptive medians were NLL `1.0248523`, 256 ticks, 524,288
+attempted and canonical tokens, no replay or discard, 32,768 redistributed
+tokens, `81.556 J`, `8.384 s`, 1,064,622,192 checkpoint bytes, and 47
+checkpoints.
+
+The conclusion is `candidate_falsified_equal_canonical_work`, solely because
+the energy gate failed. The result does not erase the passed learning, work,
+or schedule gates.
+
+Artifacts:
+
+- result: `results/equal-work-v1.json`
+  (`f7548b68d4791978260f0bd557bf92041d0f769b796b1e684bbcab99e88f639f`);
+- engine source:
+  `893b2d25eed53122c59ee26ac95a10c2e9f2e360c0c9b6c39c14bf1d32d25fbd`;
+- engine bundle:
+  `b574609b19eeca593dc932ec09943a779b50a28b4d9e336afa07b5a18fa52249`;
+- scenario:
+  `f5212c19e701f183c7ab9aaf7620bf43c03a234eee92dd7e9d98c73c5c22a9ed`;
+- observatory projection: `../../docs/data/e001-equal-work-v1.json`
+  (`5ff07c4cf5b59be04d14f1b66961e679c2cec127b521c386d54ff9ebaadc1ae1`).
+
+## Next Experiment: E002 Energy Attribution
+
+Do not scale survivor continuation yet. The next experiment is an E002
+operation-to-facility power-waveform attribution study with a frozen 2x2
+design: checkpoint cadence by survivor continuation. It must isolate which
+checkpoint and recovery phases caused LC3's adaptive energy penalty, then test
+whether dependency-safe phase scheduling removes that penalty without giving
+back the held-out learning, attempted-work, or opportunity-tick gains.
+
+Observed local learning, tokens, active time, and sampled RTX board energy must
+remain separate from modeled WAN, storage, host, cooling, and facility
+quantities. Scale becomes justified only if the energy mechanism survives this
+attribution experiment.
