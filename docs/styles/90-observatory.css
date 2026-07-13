@@ -3659,6 +3659,13 @@ body[data-depth="full_trace"] .recovery-depth-copy .depth-researcher {
   border-top: 0;
 }
 
+/* The fallback table's min-content beats a phone viewport; scroll it inside
+   its own container instead of clipping at the right edge. */
+.recovery-timeline-fallback > div {
+  min-width: 0;
+  overflow-x: auto;
+}
+
 .recovery-timeline-table {
   width: 100%;
   margin-top: 8px;

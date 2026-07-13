@@ -51,6 +51,9 @@
   background: oklch(0.98 0.002 90);
   padding: 9px;
   display: grid;
+  /* Explicit minmax(0) column: an implicit auto column sizes to the widest
+     unbroken token and lets labels paint over the neighbouring node. */
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 6px;
   position: relative;
@@ -76,6 +79,7 @@
   color: var(--text-dark);
   font: 700 11px/1.2 "IBM Plex Mono", monospace;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .primer-node b {
@@ -88,6 +92,7 @@
 .primer-status span {
   color: var(--text-soft);
   font: 13px/1.42 "IBM Plex Sans", system-ui, sans-serif;
+  overflow-wrap: anywhere;
 }
 
 .primer-status {
@@ -157,6 +162,9 @@ h2 {
   color: var(--title-bar);
   font-size: 30px;
   font-size: clamp(30px, 4vw, 50px);
+  /* At 50px a single word can exceed the fixed-width copy column; break it
+     rather than let it clip under the neighbouring pane. */
+  overflow-wrap: anywhere;
 }
 
 h3 {
@@ -266,6 +274,9 @@ h3 {
   background: oklch(0.98 0.002 90);
   padding: 8px;
   display: grid;
+  /* Explicit minmax(0) column: an implicit auto column sizes to the widest
+     unbroken token and lets labels paint over the neighbouring node. */
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: 5px;
   position: relative;
@@ -286,12 +297,15 @@ h3 {
 .trace-node span {
   color: var(--text-soft);
   font: 12px/1.35 "IBM Plex Sans", system-ui, sans-serif;
+  /* Fixture values are long unbroken numbers; wrap them inside the node. */
+  overflow-wrap: anywhere;
 }
 
 .trace-node small {
   color: var(--text-dark);
   font: 700 11px/1.2 "IBM Plex Mono", monospace;
   text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .trace-connector {
@@ -378,6 +392,7 @@ h3 {
   font: 13px "IBM Plex Mono", monospace;
   color: var(--text-soft);
   min-height: 30px;
+  overflow-wrap: anywhere;
 }
 
 .cone-tree-pane {
@@ -389,10 +404,12 @@ h3 {
   overflow-y: auto;
 }
 
-/* Each tree row is a full-width button so keyboard works natively. */
+/* Each tree row is a full-width button so keyboard works natively.
+   The name column keeps a readable floor; the meta column yields (wraps)
+   first when a deeply indented row runs out of width. */
 .cone-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(min(9ch, 100%), 1fr) auto;
   align-items: center;
   gap: 6px;
   width: 100%;
@@ -426,10 +443,12 @@ h3 {
   background: oklch(0.94 0.004 250);
 }
 
-/* Depth indentation: each level adds 18px via inline style --depth. */
+/* Depth indentation: each level adds 18px via inline style --depth.
+   Capped so a 20-deep cone cannot push rows past the pane's right edge
+   (nested .cone-children grids stretch every row to the widest one). */
 .cone-row-indent {
   display: inline-block;
-  width: calc(var(--depth, 0) * 18px);
+  width: min(calc(var(--depth, 0) * 18px), 120px);
   flex-shrink: 0;
 }
 
@@ -443,7 +462,9 @@ h3 {
   color: var(--text-soft);
   font-size: 12px;
   text-align: right;
-  white-space: nowrap;
+  /* Stays on one line when the row has room; wraps instead of widening
+     the whole tree when it does not. */
+  overflow-wrap: anywhere;
 }
 
 /* Gold badge for root inputs */

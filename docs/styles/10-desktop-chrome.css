@@ -20,6 +20,9 @@
   width: 86px;
   min-height: 78px;
   display: grid;
+  /* Explicit minmax(0) column so long labels wrap inside the fixed icon
+     width instead of spilling past its right edge. */
+  grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   align-content: start;
   gap: 6px;
@@ -45,6 +48,8 @@
 .icon-label {
   padding: 1px 4px;
   background: oklch(0.28 0.08 195 / 0.62);
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .desktop-logo {

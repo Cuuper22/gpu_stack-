@@ -177,6 +177,12 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  /* Cone browser: a shallower, tighter-capped indent keeps deep rows
+     readable inside a phone-width tree pane. */
+  .cone-row-indent {
+    width: min(calc(var(--depth, 0) * 12px), 96px);
+  }
+
   .timeline-row {
     grid-template-columns: 1fr;
   }
