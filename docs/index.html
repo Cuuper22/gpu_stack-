@@ -86,7 +86,7 @@
               <p class="file-path">gpu_stack/readme/frontdoor.txt</p>
               <h1 id="page-title">gpu_stack</h1>
               <p class="tagline">
-                A causal virtual datacenter that connects learning dynamics, execution, failures, facility power, economics, and evidence, then makes the same result understandable from freshman intuition through raw research trace.
+                A virtual AI datacenter you can interrogate. It predicts what a training run does to time, power, and money, says how sure it is, and can show you what every one of its numbers is made of.
               </p>
               <div class="action-row">
                 <a class="retro-btn primary" href="observatory.html"><span class="px-icon px-graph"></span> Open observatory</a>
@@ -159,6 +159,51 @@
             <div class="stat"><b>950</b><span>equations connecting them</span></div>
             <div class="stat"><b>619</b><span>root inputs, named instead of hidden</span></div>
             <div class="stat"><b>884</b><span>equations with unit checks</span></div>
+          </section>
+
+          <section class="journey-strip" id="journey" aria-label="One token's journey down the stack">
+            <div class="journey-head">
+              <p class="eyebrow">token_journey.exe</p>
+              <h2>Follow one token from math to money.</h2>
+              <p class="caption">Every station is a layer of the model. The lamp lights as the token passes through, and the trip always ends at an invoice.</p>
+            </div>
+            <div class="journey-track">
+              <div class="journey-station" style="--i:0;">
+                <span class="journey-lamp" aria-hidden="true"></span>
+                <b>Model math</b>
+                <span>attention, FFN, parameters</span>
+              </div>
+              <div class="journey-hop" style="--i:0;" aria-hidden="true"></div>
+              <div class="journey-station" style="--i:1;">
+                <span class="journey-lamp" aria-hidden="true"></span>
+                <b>Kernels</b>
+                <span>instructions, tiling, occupancy</span>
+              </div>
+              <div class="journey-hop" style="--i:1;" aria-hidden="true"></div>
+              <div class="journey-station" style="--i:2;">
+                <span class="journey-lamp" aria-hidden="true"></span>
+                <b>Memory</b>
+                <span>HBM traffic, caches, bandwidth</span>
+              </div>
+              <div class="journey-hop" style="--i:2;" aria-hidden="true"></div>
+              <div class="journey-station" style="--i:3;">
+                <span class="journey-lamp" aria-hidden="true"></span>
+                <b>Silicon</b>
+                <span>transistors, lithography, atoms</span>
+              </div>
+              <div class="journey-hop" style="--i:3;" aria-hidden="true"></div>
+              <div class="journey-station" style="--i:4;">
+                <span class="journey-lamp" aria-hidden="true"></span>
+                <b>Power</b>
+                <span>board, rack, cooling, PUE</span>
+              </div>
+              <div class="journey-hop" style="--i:4;" aria-hidden="true"></div>
+              <div class="journey-invoice">
+                <span class="journey-lamp" aria-hidden="true"></span>
+                <b>Invoice: ~$3 per million tokens</b>
+                <span>synthetic fixture value, not a market price</span>
+              </div>
+            </div>
           </section>
 
           <section class="section-window" aria-labelledby="model-heading">

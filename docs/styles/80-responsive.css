@@ -56,6 +56,16 @@
   .glossary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  /* Token journey: drop the hop wells and reflow the stations as cards.
+     The sequential lamp animation still tells the order. */
+  .journey-track {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .journey-hop {
+    display: none;
+  }
 }
 
 @media (max-width: 620px) {
@@ -185,6 +195,15 @@
 
   .timeline-row {
     grid-template-columns: 1fr;
+  }
+
+  .journey-track {
+    grid-template-columns: 1fr;
+  }
+
+  .journey-station,
+  .journey-invoice {
+    min-height: 0;
   }
 
   .task-button {

@@ -229,6 +229,8 @@
       var shown = Math.min(parents.length, MAX_CHILDREN);
       for (var i = 0; i < shown; i++) {
         var childBtn = makeNodeButton(depth + 1, parents[i], false);
+        // Stagger slot for the cascade-in animation (capped in CSS).
+        childBtn.style.setProperty("--i", String(i));
         container.appendChild(childBtn);
       }
       if (parents.length > MAX_CHILDREN) {

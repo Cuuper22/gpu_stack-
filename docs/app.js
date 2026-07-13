@@ -103,7 +103,7 @@ const traces = {
     note: "This path is why the project keeps economics attached to physics. A price can inherit assumptions from power, cooling, utilization, kernels, and lower physical boundaries.",
     meterLabel: "scenario-report resolves 4 of 4 targets",
     meterFoot: "status: ok, issue_count: 0",
-    meterWidth: "100%",
+    meterScale: "1",
     path: [
       ["econ.cost.per_token", "target", "What does one token cost?"],
       ["econ.run.power_cost", "equation", "Power has to be paid for."],
@@ -122,7 +122,7 @@ const traces = {
     note: "The trace view keeps the easy phrase, faster training, connected to the things that actually move it: tensors, kernels, collectives, memory, topology, and utilization.",
     meterLabel: "representative fixture: 6666666.66666667 tokens/s",
     meterFoot: "synthetic anchor, not vendor truth",
-    meterWidth: "82%",
+    meterScale: "0.82",
     path: [
       ["training.tokens_per_sec", "target", "How fast do tokens move?"],
       ["training.step_time", "equation", "Compute plus comms plus bubbles."],
@@ -141,7 +141,7 @@ const traces = {
     note: "This is the layer where non-experts can see why cooling and facility assumptions are part of model training, not an external footnote.",
     meterLabel: "representative fixture: econ.job.dc_power = 5200.0",
     meterFoot: "explicit fixture assignment path",
-    meterWidth: "68%",
+    meterScale: "0.68",
     path: [
       ["econ.job.dc_power", "target", "What power does the job imply?"],
       ["cluster.site.power_it", "equation", "GPU and infrastructure load."],
@@ -206,6 +206,7 @@ function renderLayer(key) {
   stack.replaceChildren(...layer.stack.map((item, index) => {
     const row = document.createElement("div");
     row.className = `dependency-row${index === layer.stack.length - 1 ? " active" : ""}`;
+    row.style.setProperty("--i", String(index));
     const label = document.createElement("span");
     label.textContent = item;
     const depth = document.createElement("span");
@@ -229,6 +230,7 @@ function renderTrace(key) {
   tracePath.replaceChildren(...trace.path.map(([labelText, role, detail], index) => {
     const node = document.createElement("div");
     node.className = `trace-node${index === trace.path.length - 1 ? " active" : ""}`;
+    node.style.setProperty("--i", String(index));
     const roleLabel = document.createElement("small");
     roleLabel.textContent = role;
     const label = document.createElement("b");
@@ -241,7 +243,7 @@ function renderTrace(key) {
   traceNote.textContent = trace.note;
   traceMeterLabel.textContent = trace.meterLabel;
   traceMeterFoot.textContent = trace.meterFoot;
-  traceMeter.style.setProperty("--meter-width", trace.meterWidth);
+  traceMeter.style.setProperty("--meter-scale", trace.meterScale);
   targetTabs.forEach((tab) => {
     tab.setAttribute("aria-selected", String(tab.dataset.target === key));
   });
@@ -281,3 +283,35 @@ if (clock) {
   updateClock();
   setInterval(updateClock, 1000);
 }
+
+// Scroll reveals. The hidden pre-reveal state only exists once html.js-anim
+// is set, so readers without JS, without IntersectionObserver, or with
+// reduced motion requested always get the fully visible page.
+(function initReveals() {
+  const motionOk = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!("IntersectionObserver" in window) || !motionOk) {
+    return;
+  }
+  const targets = document.querySelectorAll(
+    ".primer-panel, .journey-strip, .section-window, .stat-grid .stat, " +
+    ".glossary-grid .glossary-term, .dialog-grid .dialog-body, .timeline-row"
+  );
+  if (!targets.length) {
+    return;
+  }
+  targets.forEach((el, index) => {
+    el.classList.add("reveal");
+    // Stagger siblings that arrive in the same viewport batch.
+    el.style.setProperty("--reveal-i", String(index % 4));
+  });
+  document.documentElement.classList.add("js-anim");
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("in-view");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
+  targets.forEach((el) => observer.observe(el));
+})();
