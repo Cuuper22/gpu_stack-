@@ -18,8 +18,8 @@ Simulation-only results never advance beyond `virtual`.
 
 | ID | Experiment | Current state | Primary causal test |
 |---|---|---|---|
-| E001 | [Beyond One Datacenter](e001-beyond-one-datacenter/experiment.md) | LC3 executed; survivor-continuation candidate falsified only on held-out device energy | Can a joint controller preserve learning efficiency while cutting cross-site communication under interruption? |
-| E002 | [Shape the Power Waveform](e002-power-waveform-shaping/experiment.md) | PW1 measurement failure preserved; PW2 valid local mechanism and salvage result; PW3 multi-GPU/rack transfer next | Can dependency-safe phase control suppress grid-danger-band power without changing optimizer semantics? |
+| E001 | [Beyond One Datacenter](e001-beyond-one-datacenter/experiment.md) | SC1 executed; adaptive consistency controller rejected against `periodic_local`; 104 explicit abstention ticks | Can a transferable risk model predict when semantic slack helps before changing training consistency? |
+| E002 | [Shape the Power Waveform](e002-power-waveform-shaping/experiment.md) | PW1 measurement failure preserved; PW2 valid local mechanism and salvage result; PW3 remains optional physical calibration | Can dependency-safe phase control suppress grid-danger-band power without changing optimizer semantics? |
 | E003 | [Semantic Fault Tolerance](e003-semantic-fault-tolerance/experiment.md) | designed | Can protection be allocated by counterfactual learning harm rather than fault label? |
 | E004 | [Fluid Inference Topology](e004-fluid-inference-topology/experiment.md) | designed | Do jointly controlled serving mechanisms create interaction gains and repeated topology-regime crossings? |
 | E005 | [Heterogeneous Architecture Co-design](e005-heterogeneous-architecture-codesign/experiment.md) | designed | Does hardware-aware architecture search beat heterogeneous placement of a frozen architecture? |
@@ -164,8 +164,9 @@ Artifacts:
 - observatory projection: `../docs/data/e001-equal-work-v1.json`
   (`5ff07c4cf5b59be04d14f1b66961e679c2cec127b521c386d54ff9ebaadc1ae1`).
 
-The result redirected the next frontier question to E002 rather than larger
-E001 runs.
+That result historically redirected the next experiment to E002. The later
+E001-SC1 loop reopened the multi-datacenter question with a different,
+software-first consistency controller and now determines the active roadmap.
 
 ## Persisted E002-PW1 measurement failure
 
@@ -214,11 +215,43 @@ upper `1.00319`. The conclusion is
 Result: `e002-power-waveform-shaping/results/checkpoint-energy-v2.json`,
 artifact
 `cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`.
-Individual rare restore/rejoin estimates remain exploratory. PW3 must test
-dependency-safe dephasing with simultaneous per-GPU cumulative, rack-PDU,
-storage, and cooling telemetry; PW2 does not establish facility transfer.
+Individual rare restore/rejoin estimates remain exploratory. Any later PW3
+claim must test dependency-safe dephasing with simultaneous per-GPU
+cumulative, rack-PDU, storage, and cooling telemetry; PW2 does not establish
+facility transfer.
 
-## Active E002-PW3 physical rack mechanism
+## Persisted E001-SC1 semantic-consistency result
+
+E001-SC1 completed 20 calibration runs, 30 executable held-out runs across six
+stress families, and six non-executable hindsight whole-policy-envelope
+records. Calibration selected `periodic_local`. Adaptive switching had a
+held-out NLL difference of `+0.016659 [+0.001785, +0.042213]`, WAN-payload
+ratio `2.128x [1.556x, 2.552x]`, modeled-completion ratio
+`1.072x [0.986x, 1.099x]`, and envelope regret
+`0.07155 [0.03349, 0.10056]`. All four frozen gates failed.
+
+Every executable evaluation arm completed equal canonical work with zero
+divergence, sample-identity mismatch, optimizer-lineage violation, or
+work-contract violation. E2, E4, and E6 produced 104 explicit
+out-of-distribution abstention ticks. The persisted conclusion is
+`abstain_without_policy_claim`; the result rejects this controller but does not
+claim universal periodic-local optimality.
+
+Artifacts:
+
+- result: `e001-beyond-one-datacenter/results/semantic-consistency-v1.json`
+  (`e4bb8023145bdb21e97b9a5d295dc778f58adccc452d2bd9d3e4a599bf53bbc7`);
+- compact observatory: `../docs/data/e001-semantic-consistency-v1.json`
+  (`369bc4e9b32d6e1fcdd8dadc98c830e5ac5179f4a7204a9f5194e22913fdefdf`);
+- lazy raw trace: `../docs/data/e001-semantic-consistency-raw-v1.json`
+  (`d6321d6fc4c0f71c4f14c2f799eff252348073b3fe5508783f9f078e7f5e9d76`).
+
+The next question is E001-SC2: whether a calibration-trained predictor can
+forecast policy-specific learning penalty and modeled time/WAN consequence
+before switching across a wholly held-out model or optimizer family. SC1's
+six evaluation families remain evaluation data.
+
+## Optional E002-PW3 physical rack mechanism
 
 PW3 is frozen as a real `torchrun` experiment over at least eight GPUs and four
 independent two-rank jobs. It compares synchronized release, seeded legal
@@ -235,6 +268,6 @@ direct sensor binding is
 `e002-power-waveform-shaping/checkpoint-rack-telemetry-v3.example.json`; and the
 complete launch path is documented in
 `e002-power-waveform-shaping/checkpoint-rack-dephasing-v3.md`. No PW3 result
-exists yet. The current blocker is a named instrumented rack with the required
-PDU, storage-power, cooling, and clock feeds, not another local audit or
-single-GPU run.
+exists yet. A named instrumented rack with the required power-distribution-unit
+(PDU), storage-power, cooling, and clock feeds would calibrate or falsify the
+rack boundary, but it does not block the software research program.

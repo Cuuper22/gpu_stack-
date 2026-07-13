@@ -375,11 +375,13 @@ The conclusion is
 SHA-256:
 `cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`.
 
-## Next Experiment: E002-PW3
+## Optional Transfer Experiment: E002-PW3
 
 PW3 must test dependency-safe dephasing across multiple simultaneous GPUs and
 rack-visible checkpoint activity. It needs aligned per-GPU cumulative energy,
 rack-PDU power, storage traffic and power, and cooling telemetry. PW2 supports
 a local GPU-board cadence mechanism and sparse-continuation candidate. It does
 not establish multi-GPU synchronization effects, rack transfer, cooling
-response, facility energy, grid safety, or admission-capacity gains.
+response, facility energy, grid safety, or admission-capacity gains. This
+external calibration path does not block the active E001-SC2 software
+experiment.

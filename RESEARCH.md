@@ -254,7 +254,8 @@ The idle-subtracted sensitivity was
 show that its local attribution is insensitive to estimated idle-baseline
 treatment.
 
-PW3 turns the next question into an executable physical experiment. At least
+PW3 packages the rack-transfer question as an optional executable physical
+calibration. At least
 four independent two-rank jobs execute the same useful work and failure
 windows under synchronized release, seeded legal jitter, storage-only pacing,
 static cohorts, and visible-telemetry feedback. Only dependency-safe timing of
@@ -263,19 +264,26 @@ may move. UUID-bound GPU telemetry is aligned with direct rack-PDU, storage
 activity, measured storage power, and cooling channels; missing boundaries
 produce `measurement_invalid` instead of a modeled substitute. The current
 machine cannot execute the claim because it has one GPU and no tenant-visible
-rack meters.
+rack meters. That boundary does not block the software research program.
 
-The next research order is:
+E001-SC1 has since completed the software-first semantic-consistency loop.
+Calibration selected `periodic_local`; adaptive switching failed its learning,
+WAN-payload, modeled-completion, and hindsight-envelope-regret gates. All
+executable arms preserved equal work and optimizer lineage, while E2, E4, and
+E6 produced 104 explicit out-of-distribution abstention ticks. The conclusion
+is `abstain_without_policy_claim`, not a transferable winner.
 
-1. Bind the frozen telemetry config to one named instrumented rack with at
-   least eight GPUs and execute the complete PW3 calibration/evaluation order.
-2. Publish the physical result even if it is invalid or falsifies electrical
-   phase slack. Do not replace a missing rack, storage-power, cooling, or clock
-   channel with a virtual estimate.
-3. Advance to multi-PDU correlated-failure PW4 only if feedback clears every
-   ramp, spectral, energy, throughput, recovery, semantics, and learning gate.
-   If a simpler policy matches it or the hypothesis fails, keep that result and
-   redirect.
+The current research order is:
+
+1. Preserve SC1's six evaluation families as evaluation data and retain
+   `periodic_local` as the default baseline.
+2. Run E001-SC2: train a policy-risk predictor on calibration only, then test
+   whether it forecasts learning penalty and modeled time/WAN consequence
+   before switching on a wholly held-out model or optimizer family.
+3. Make predicted risk, actual outcome, uncertainty, and abstention legible at
+   freshman, researcher, and full-trace depth.
+4. Use PW3 only when external rack access is available to calibrate or falsify
+   the rack-power boundary. Publish an invalid or negative result as such.
 4. Keep point-of-common-coupling safety, facility admission, and model-scale
    transfer outside the rack claim until separately measured.
 

@@ -18,8 +18,13 @@
   const CHECKPOINT_ENERGY_RAW_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-checkpoint-energy.raw.v2";
   const RACK_DEPHASING_ARTIFACT_URL = "data/e002-rack-dephasing-v3.json";
   const RACK_DEPHASING_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-rack-dephasing.v3";
+  const SEMANTIC_CONSISTENCY_ARTIFACT_URL = "data/e001-semantic-consistency-v1.json";
+  const SEMANTIC_CONSISTENCY_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001-semantic-consistency.v1";
+  const SEMANTIC_CONSISTENCY_RAW_ARTIFACT_URL = "data/e001-semantic-consistency-raw-v1.json";
+  const SEMANTIC_CONSISTENCY_RAW_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001-semantic-consistency.raw.v1";
   const SVG_NS = "http://www.w3.org/2000/svg";
   const VALID_DEPTHS = new Set(["freshman", "researcher", "full_trace"]);
+  const VALID_EXPERIMENTS = new Set(["E001-SC1", "E001"]);
   const VALID_POLICIES = new Set(["synchronous", "fixed_local", "adaptive_cadence"]);
   const VALID_UNCERTAINTY = new Set(["intervals", "point"]);
   const VALID_RACK_COMPARATORS = new Set(["synchronized", "random_jitter"]);
@@ -196,6 +201,11 @@
   let checkpointEnergyRawLoad = null;
   let rackDephasingArtifact = null;
   let rackDephasingArtifactError = null;
+  let semanticConsistencyArtifact = null;
+  let semanticConsistencyArtifactError = null;
+  let semanticConsistencyRawArtifact = null;
+  let semanticConsistencyRawArtifactError = null;
+  let semanticConsistencyRawLoad = null;
   let state = readStateFromURL();
   let timelineScale = null;
   let transientInspector = false;
@@ -326,7 +336,7 @@
   function sanitizeState(candidate) {
     const timeCandidate = Number(candidate.time);
     return {
-      experiment: candidate.experiment === "E001" ? "E001" : "E001",
+      experiment: VALID_EXPERIMENTS.has(candidate.experiment) ? candidate.experiment : "E001-SC1",
       policy: VALID_POLICIES.has(candidate.policy) ? candidate.policy : "synchronous",
       node: typeof candidate.node === "string" && candidate.node.trim() && candidate.node.length <= 300 ? candidate.node : "event:central-curtailment-1",
       event: typeof candidate.event === "string" && candidate.event.trim() && candidate.event.length <= 300 ? candidate.event : "central-curtailment-1",
@@ -335,6 +345,8 @@
       uncertainty: VALID_UNCERTAINTY.has(candidate.uncertainty) ? candidate.uncertainty : "intervals",
       rackBlock: typeof candidate.rackBlock === "string" && candidate.rackBlock.length <= 80 ? candidate.rackBlock : "",
       rackComparator: VALID_RACK_COMPARATORS.has(candidate.rackComparator) ? candidate.rackComparator : "synchronized",
+      semanticFamily: typeof candidate.semanticFamily === "string" && candidate.semanticFamily.length <= 120 ? candidate.semanticFamily : "",
+      semanticRun: typeof candidate.semanticRun === "string" && candidate.semanticRun.length <= 180 ? candidate.semanticRun : "",
     };
   }
 
@@ -355,6 +367,10 @@
     if (state.rackBlock) url.searchParams.set("rackBlock", state.rackBlock);
     else url.searchParams.delete("rackBlock");
     url.searchParams.set("rackComparator", state.rackComparator);
+    if (state.semanticFamily) url.searchParams.set("semanticFamily", state.semanticFamily);
+    else url.searchParams.delete("semanticFamily");
+    if (state.semanticRun) url.searchParams.set("semanticRun", state.semanticRun);
+    else url.searchParams.delete("semanticRun");
     const method = replace ? "replaceState" : "pushState";
     window.history[method]({ ...state }, "", url);
   }
@@ -598,6 +614,43 @@
     return value;
   }
 
+  function validateSemanticConsistencyArtifact(value) {
+    const record = (candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate);
+    if (!record(value)) throw new ArtifactContractError("semantic-consistency artifact root is not an object");
+    if (value.schema !== SEMANTIC_CONSISTENCY_ARTIFACT_SCHEMA) throw new ArtifactContractError(`unsupported semantic-consistency schema: ${String(value.schema || "missing")}`);
+    if (value.experiment_id !== "E001-SC1") throw new ArtifactContractError("semantic-consistency experiment_id is not E001-SC1");
+    if (typeof value.artifact_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.artifact_sha256)) throw new ArtifactContractError("semantic-consistency artifact sha256 is invalid");
+    ["source_result", "status", "comparison", "freshman", "researcher", "full_trace", "evidence_boundary"].forEach((key) => {
+      if (!record(value[key])) throw new ArtifactContractError(`semantic-consistency artifact ${key} is missing`);
+    });
+    if (!Array.isArray(value.semantic_depths) || value.semantic_depths.join("|") !== "freshman|researcher|full_trace") throw new ArtifactContractError("semantic-consistency semantic_depths are invalid");
+    if (!Array.isArray(value.freshman.cards) || value.freshman.cards.length < 4) throw new ArtifactContractError("semantic-consistency freshman cards are incomplete");
+    if (!Array.isArray(value.researcher.paired_effects) || !value.researcher.paired_effects.length) throw new ArtifactContractError("semantic-consistency paired effects are missing");
+    if (!Array.isArray(value.researcher.family_results) || !value.researcher.family_results.length) throw new ArtifactContractError("semantic-consistency family results are missing");
+    if (!record(value.researcher.ranking_map) || !Array.isArray(value.researcher.ranking_map.families)) throw new ArtifactContractError("semantic-consistency ranking map is missing");
+    if (!Array.isArray(value.full_trace.run_ledger) || !value.full_trace.run_ledger.length) throw new ArtifactContractError("semantic-consistency run ledger is missing");
+    if (!record(value.full_trace.raw_trace_artifact)) throw new ArtifactContractError("semantic-consistency raw trace binding is missing");
+    ["assumptions", "missing_evidence"].forEach((key) => {
+      if (!Array.isArray(value.full_trace[key])) throw new ArtifactContractError(`semantic-consistency ${key} ledger is missing`);
+    });
+    return value;
+  }
+
+  function validateSemanticConsistencyRawArtifact(value) {
+    const record = (candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate);
+    if (!record(value)) throw new ArtifactContractError("semantic-consistency raw artifact root is not an object");
+    if (value.schema !== SEMANTIC_CONSISTENCY_RAW_ARTIFACT_SCHEMA) throw new ArtifactContractError(`unsupported semantic-consistency raw schema: ${String(value.schema || "missing")}`);
+    if (value.experiment_id !== "E001-SC1") throw new ArtifactContractError("semantic-consistency raw experiment_id is not E001-SC1");
+    if (typeof value.artifact_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.artifact_sha256)) throw new ArtifactContractError("semantic-consistency raw artifact sha256 is invalid");
+    const binding = semanticConsistencyArtifact && semanticConsistencyArtifact.full_trace.raw_trace_artifact;
+    if (binding && typeof binding.artifact_sha256 === "string" && binding.artifact_sha256 && value.artifact_sha256 !== binding.artifact_sha256) throw new ArtifactContractError("semantic-consistency raw artifact hash does not match the compact binding");
+    if (!Array.isArray(value.runs) || !value.runs.length) throw new ArtifactContractError("semantic-consistency raw artifact has no runs");
+    value.runs.forEach((run) => {
+      if (!record(run) || typeof run.run_id !== "string" || !Array.isArray(run.epoch_trace)) throw new ArtifactContractError("semantic-consistency raw artifact contains an invalid run");
+    });
+    return value;
+  }
+
   async function loadArtifact() {
     try {
       const response = await fetch(ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
@@ -755,6 +808,49 @@
     renderRackDephasingV3();
   }
 
+  async function loadSemanticConsistencyArtifact() {
+    try {
+      const response = await fetch(SEMANTIC_CONSISTENCY_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error(`semantic-consistency artifact request returned ${response.status}`);
+      semanticConsistencyArtifact = validateSemanticConsistencyArtifact(await response.json());
+      semanticConsistencyArtifactError = null;
+      document.body.dataset.semanticConsistencyState = "ready";
+    } catch (error) {
+      semanticConsistencyArtifact = null;
+      semanticConsistencyArtifactError = error;
+      document.body.dataset.semanticConsistencyState = error instanceof ArtifactContractError ? "invalid" : "missing";
+    }
+    renderAll();
+  }
+
+  async function loadSemanticConsistencyRawArtifact() {
+    if (semanticConsistencyRawArtifact) return semanticConsistencyRawArtifact;
+    if (semanticConsistencyRawLoad) return semanticConsistencyRawLoad;
+    dom.semanticconsistencyrawstate.textContent = "Loading the separately bound optimizer-commit trace…";
+    semanticConsistencyRawLoad = (async () => {
+      try {
+        const binding = semanticConsistencyArtifact && semanticConsistencyArtifact.full_trace.raw_trace_artifact;
+        const uri = binding && typeof binding.uri === "string" && binding.uri ? binding.uri : SEMANTIC_CONSISTENCY_RAW_ARTIFACT_URL;
+        const response = await fetch(uri.startsWith("data/") ? uri : `data/${uri}`, { cache: "no-store", headers: { Accept: "application/json" } });
+        if (!response.ok) throw new Error(`semantic-consistency raw artifact request returned ${response.status}`);
+        semanticConsistencyRawArtifact = validateSemanticConsistencyRawArtifact(await response.json());
+        semanticConsistencyRawArtifactError = null;
+        document.body.dataset.semanticConsistencyRawState = "ready";
+        renderSemanticConsistencyTrace();
+        return semanticConsistencyRawArtifact;
+      } catch (error) {
+        semanticConsistencyRawArtifact = null;
+        semanticConsistencyRawArtifactError = error;
+        document.body.dataset.semanticConsistencyRawState = error instanceof ArtifactContractError ? "invalid" : "missing";
+        dom.semanticconsistencyrawstate.textContent = `Raw epoch trace unavailable: ${error.message}`;
+        throw error;
+      } finally {
+        semanticConsistencyRawLoad = null;
+      }
+    })();
+    return semanticConsistencyRawLoad;
+  }
+
   function cacheDOM() {
     [
       "experiment-select", "share-state", "plain-answer", "artifact-state", "stage-boundary",
@@ -803,8 +899,22 @@
       "rack-dephasing-event-body", "rack-dephasing-trace-summary", "rack-dephasing-raw-manifest",
       "rack-dephasing-provenance-json",
     ].forEach((id) => { dom[id.replaceAll("-", "")] = byId(id); });
+    [
+      "experiment-kicker-code", "experiment-kicker-name", "experiment-question",
+      "semantic-consistency-v1", "semantic-consistency-v1-state", "semantic-consistency-eyebrow",
+      "semantic-consistency-insight-title", "semantic-consistency-plain-answer", "semantic-consistency-boundary-short",
+      "semantic-consistency-freshman-copy", "semantic-consistency-researcher-copy", "semantic-consistency-depth-trace",
+      "semantic-consistency-freshman-grid", "semantic-consistency-effects-note", "semantic-consistency-effect-grid",
+      "semantic-consistency-ranking-svg", "semantic-consistency-ranking-fallback", "semantic-consistency-family-select",
+      "semantic-consistency-timeline-svg", "semantic-consistency-timeline-fallback", "semantic-consistency-family-body",
+      "semantic-consistency-evidence-boundary", "semantic-consistency-missing-short", "semantic-consistency-run-select",
+      "semantic-consistency-epoch-body", "semantic-consistency-assumptions", "semantic-consistency-uncertainty",
+      "semantic-consistency-missing-evidence", "semantic-consistency-provenance-json", "semantic-consistency-raw-details",
+      "semantic-consistency-raw-state", "semantic-consistency-raw-meta",
+    ].forEach((id) => { dom[id.replaceAll("-", "")] = byId(id); });
     dom.researchBand = document.querySelector(".research-band");
     dom.depthButtons = [...document.querySelectorAll(".depth-control button")];
+    dom.experimentViews = [...document.querySelectorAll("[data-experiment-view]")];
   }
 
   function bindStaticInteractions() {
@@ -857,6 +967,16 @@
     dom.rackdephasingcomparatorselect.addEventListener("change", () => {
       commitState({ rackComparator: dom.rackdephasingcomparatorselect.value });
     });
+    dom.semanticconsistencyfamilyselect.addEventListener("change", () => {
+      commitState({ semanticFamily: dom.semanticconsistencyfamilyselect.value, semanticRun: "" });
+    });
+    dom.semanticconsistencyrunselect.addEventListener("change", () => {
+      commitState({ semanticRun: dom.semanticconsistencyrunselect.value });
+    });
+    dom.semanticconsistencyrawdetails.addEventListener("toggle", () => {
+      if (!dom.semanticconsistencyrawdetails.open || state.depth !== "full_trace") return;
+      loadSemanticConsistencyRawArtifact().catch(() => {});
+    });
     dom.timelineviewport.addEventListener("keydown", (event) => {
       if (event.target !== dom.timelineviewport) return;
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -884,6 +1004,8 @@
         renderCausalGraph();
         renderTimeline();
         renderRackDephasingWaveform();
+        renderSemanticConsistencyRanking();
+        renderSemanticConsistencyTimeline();
       });
     }, { passive: true });
   }
@@ -900,12 +1022,14 @@
     loadCheckpointPowerArtifact();
     loadCheckpointEnergyArtifact();
     loadRackDephasingArtifact();
+    loadSemanticConsistencyArtifact();
   }
 
   document.addEventListener("DOMContentLoaded", init, { once: true });
 
   function renderAll() {
     document.body.dataset.depth = state.depth;
+    document.body.dataset.experiment = state.experiment;
     dom.depthButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.depth === state.depth)));
     dom.experimentselect.value = state.experiment;
     dom.uncertaintyselect.value = state.uncertainty;
@@ -925,6 +1049,17 @@
     renderCheckpointPowerV1();
     renderCheckpointEnergyV2();
     renderRackDephasingV3();
+    renderSemanticConsistencyV1();
+    renderExperimentView();
+    if (state.experiment === "E001-SC1" && state.depth === "full_trace" && semanticConsistencyArtifact && !semanticConsistencyRawArtifact && !semanticConsistencyRawLoad && !semanticConsistencyRawArtifactError) {
+      loadSemanticConsistencyRawArtifact().catch(() => {});
+    }
+  }
+
+  function renderExperimentView() {
+    dom.experimentViews.forEach((view) => {
+      view.hidden = view.dataset.experimentView !== state.experiment;
+    });
   }
 
   function recoveryRuns() {
@@ -2483,6 +2618,488 @@
     renderCheckpointEnergyTrace();
   }
 
+  function semanticHumanLabel(value) {
+    return String(value || "not reported")
+      .replaceAll("_", " ")
+      .replaceAll("-", " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  function semanticPolicyLabel(policyId) {
+    const labels = {
+      synchronous_restart: "Synchronous restart",
+      exact_forward_recovery: "Exact forward recovery",
+      delayed_one_step: "One-step delayed",
+      periodic_local: "Periodic local",
+      observable_adaptive: "Observable adaptive",
+      future_trace_oracle: "Hindsight policy envelope",
+    };
+    return labels[policyId] || semanticHumanLabel(policyId);
+  }
+
+  function semanticFamilyResults() {
+    return semanticConsistencyArtifact && semanticConsistencyArtifact.researcher && Array.isArray(semanticConsistencyArtifact.researcher.family_results)
+      ? semanticConsistencyArtifact.researcher.family_results
+      : [];
+  }
+
+  function semanticSelectedFamily() {
+    const families = semanticFamilyResults();
+    if (!families.length) return null;
+    const selected = families.find((family) => family.family_id === state.semanticFamily);
+    return selected || families.find((family) => family.family_id === semanticConsistencyArtifact.full_trace.narrative_family_id) || families[0];
+  }
+
+  function renderSemanticConsistencyFreshman() {
+    dom.semanticconsistencyfreshmangrid.replaceChildren();
+    semanticConsistencyArtifact.freshman.cards.forEach((entry) => {
+      const card = element("article", "checkpoint-energy-plain-card");
+      card.dataset.state = entry.state || "unresolved";
+      card.append(
+        element("p", "checkpoint-energy-plain-label", entry.label),
+        element("strong", "checkpoint-energy-plain-value", entry.value),
+        element("p", "checkpoint-energy-plain-detail", entry.detail),
+        evidenceTag(entry.evidence_class || "unmeasured"),
+      );
+      dom.semanticconsistencyfreshmangrid.append(card);
+    });
+  }
+
+  function renderSemanticConsistencyEffects() {
+    dom.semanticconsistencyeffectgrid.replaceChildren();
+    semanticConsistencyArtifact.researcher.paired_effects.forEach((effect) => {
+      const passed = effect.passed;
+      const stateLabel = passed === true ? "PASS" : passed === false ? "FAIL" : "UNRESOLVED";
+      const card = element("article", "equal-work-effect-card");
+      card.dataset.passed = passed === null || passed === undefined ? "unresolved" : String(passed);
+      const header = element("header");
+      header.append(element("h4", "", effect.label), element("span", "equal-work-effect-status", stateLabel));
+      card.append(
+        header,
+        element("strong", "equal-work-effect-value", effect.display_value),
+        element("p", "equal-work-effect-interval", effect.interval_display),
+        element("p", "equal-work-effect-bound", effect.boundary),
+        element("p", "equal-work-effect-bound", effect.meaning),
+        evidenceTag(effect.evidence_class || "unmeasured"),
+      );
+      dom.semanticconsistencyeffectgrid.append(card);
+    });
+  }
+
+  function semanticRankingStateLabel(stateValue) {
+    const labels = {
+      adaptive_wins: "ADAPTIVE",
+      adaptive_invariant: "ADAPTIVE",
+      fixed_wins: "FIXED",
+      fixed_invariant: "FIXED",
+      rank_reverses: "REVERSAL",
+      uncertain: "REVERSAL",
+      abstain: "ABSTAIN",
+      unsupported: "ABSTAIN",
+      unmeasured: "UNMEASURED",
+    };
+    return labels[stateValue] || semanticHumanLabel(stateValue).toUpperCase();
+  }
+
+  function renderSemanticConsistencyRanking() {
+    if (!dom.semanticconsistencyrankingsvg) return;
+    const svg = dom.semanticconsistencyrankingsvg;
+    const body = dom.semanticconsistencyrankingfallback;
+    svg.replaceChildren();
+    body.replaceChildren();
+    if (!semanticConsistencyArtifact) return;
+
+    const map = semanticConsistencyArtifact.researcher.ranking_map;
+    const families = map.families;
+    const domain = map.domain || {};
+    const lower = finiteNumber(domain.lower) ? domain.lower : 0;
+    const upper = finiteNumber(domain.upper) && domain.upper > lower ? domain.upper : lower + 1;
+    const width = 1000;
+    const left = 210;
+    const right = 980;
+    const top = 58;
+    const rowHeight = 58;
+    const height = top + families.length * rowHeight + 42;
+    const x = (value) => left + (value - lower) / (upper - lower) * (right - left);
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.setAttribute("height", String(height));
+
+    const title = svgElement("title");
+    title.textContent = "Policy ranking across infrastructure uncertainty";
+    const description = svgElement("desc");
+    description.textContent = "Directly labeled regions show where adaptive or fixed policies win, where their ranking reverses, and where the controller abstains for each held-out family.";
+    svg.append(title, description);
+
+    for (let tickIndex = 0; tickIndex <= 4; tickIndex += 1) {
+      const fraction = tickIndex / 4;
+      const value = lower + fraction * (upper - lower);
+      const tickX = left + fraction * (right - left);
+      svg.append(svgElement("line", { x1: tickX, x2: tickX, y1: top - 18, y2: height - 28, class: "semantic-ranking-gridline" }));
+      const label = svgElement("text", { x: tickX, y: top - 26, "text-anchor": tickIndex === 0 ? "start" : tickIndex === 4 ? "end" : "middle", class: "semantic-ranking-tick" });
+      label.textContent = finiteNumber(value) ? value.toLocaleString("en-US", { maximumFractionDigits: 3 }) : "?";
+      svg.append(label);
+    }
+    const axisLabel = svgElement("text", { x: (left + right) / 2, y: 18, "text-anchor": "middle", class: "semantic-ranking-family" });
+    axisLabel.textContent = String(domain.label || "Infrastructure realization multiplier").toUpperCase();
+    svg.append(axisLabel);
+
+    families.forEach((family, familyIndex) => {
+      const y = top + familyIndex * rowHeight;
+      const familyLabel = svgElement("text", { x: 10, y: y + 24, class: "semantic-ranking-family" });
+      familyLabel.textContent = family.family_id;
+      svg.append(familyLabel);
+      const regions = Array.isArray(family.regions) ? family.regions : [];
+      regions.forEach((region) => {
+        const start = finiteNumber(region.lower) ? Math.max(lower, region.lower) : lower;
+        const end = finiteNumber(region.upper) ? Math.min(upper, region.upper) : upper;
+        const startX = x(start);
+        const endX = Math.max(startX + 2, x(end));
+        const stateValue = String(region.state || "unmeasured");
+        const rect = svgElement("rect", { x: startX, y, width: endX - startX, height: 34, rx: 3, class: "semantic-ranking-segment", "data-state": stateValue });
+        const rectTitle = svgElement("title");
+        rectTitle.textContent = `${family.family_id} · ${region.region_label || `${start}–${end}`}: ${semanticRankingStateLabel(stateValue)}. ${region.reason || "No reason reported."}`;
+        rect.append(rectTitle);
+        const label = svgElement("text", { x: (startX + endX) / 2, y: y + 22, "text-anchor": "middle", class: "semantic-ranking-label" });
+        label.textContent = semanticRankingStateLabel(stateValue);
+        svg.append(rect, label);
+
+        const row = element("tr");
+        row.append(
+          element("td", "", family.family_id),
+          element("td", "", region.region_label || `${start.toLocaleString("en-US", { maximumFractionDigits: 3 })}–${end.toLocaleString("en-US", { maximumFractionDigits: 3 })} ${domain.unit || ""}`.trim()),
+          element("td", "", semanticRankingStateLabel(stateValue)),
+          element("td", "", semanticPolicyLabel(region.comparator_policy_id || semanticConsistencyArtifact.comparison.selected_fixed_policy_id)),
+          element("td", "", region.reason || "No reason reported."),
+        );
+        body.append(row);
+      });
+    });
+  }
+
+  function semanticTimelineRuns(family) {
+    return family && Array.isArray(family.timeline_runs) ? family.timeline_runs : [];
+  }
+
+  function renderSemanticConsistencyTimelineFallback(runs) {
+    dom.semanticconsistencytimelinefallback.replaceChildren();
+    runs.forEach((run) => {
+      dom.semanticconsistencytimelinefallback.append(element("h4", "", `${semanticPolicyLabel(run.policy_id)} · ${semanticHumanLabel(run.policy_role)}`));
+      const table = element("table", "recovery-timeline-table");
+      const head = element("thead");
+      const headRow = element("tr");
+      ["Start", "End", "Mode", "Visible reason", "Evidence"].forEach((label) => headRow.append(element("th", "", label)));
+      head.append(headRow);
+      const tableBody = element("tbody");
+      (run.mode_intervals || []).forEach((interval) => {
+        const row = element("tr");
+        row.append(
+          element("td", "", String(interval.start_tick)),
+          element("td", "", String(interval.end_tick)),
+          element("td", "", semanticPolicyLabel(interval.mode)),
+          element("td", "", interval.reason || "No visible-state reason reported."),
+          element("td", "", EVIDENCE_LABELS[normalizedEvidence(interval.evidence_class)]),
+        );
+        tableBody.append(row);
+      });
+      table.append(head, tableBody);
+      dom.semanticconsistencytimelinefallback.append(table);
+    });
+  }
+
+  function renderSemanticConsistencyTimeline() {
+    if (!dom.semanticconsistencytimelinesvg) return;
+    const svg = dom.semanticconsistencytimelinesvg;
+    svg.replaceChildren();
+    if (!semanticConsistencyArtifact) return;
+    const family = semanticSelectedFamily();
+    const runs = semanticTimelineRuns(family);
+    const title = svgElement("title");
+    title.textContent = family ? `${family.family_id} controller timeline` : "Controller timeline unavailable";
+    const description = svgElement("desc");
+    svg.append(title, description);
+    if (!family || !runs.length) {
+      svg.setAttribute("viewBox", "0 0 1000 160");
+      description.textContent = "No compact controller timeline is attached for the selected family.";
+      const empty = svgElement("text", { x: 500, y: 82, "text-anchor": "middle", class: "recovery-policy-label" });
+      empty.textContent = "CONTROLLER TIMELINE UNAVAILABLE";
+      svg.append(empty);
+      renderSemanticConsistencyTimelineFallback([]);
+      return;
+    }
+
+    const allIntervals = runs.flatMap((run) => run.mode_intervals || []);
+    const maxTick = Math.max(1, ...allIntervals.map((interval) => Number(interval.end_tick) || 0), ...runs.flatMap((run) => (run.events || []).map((event) => Number(event.tick) || 0)));
+    const left = 220;
+    const right = 975;
+    const axisY = 34;
+    const rowHeight = 74;
+    const height = 60 + runs.length * rowHeight;
+    const scaleX = (tick) => left + Math.max(0, Math.min(maxTick, Number(tick) || 0)) / maxTick * (right - left);
+    svg.setAttribute("viewBox", `0 0 1000 ${height}`);
+    svg.setAttribute("height", String(height));
+    description.textContent = "Adaptive, fixed-comparator, and hindsight whole-policy-envelope rows share one wall-tick axis. Colored intervals are selected consistency modes; diamonds mark abstention, membership, merge, and rejoin events.";
+    for (let tickIndex = 0; tickIndex <= 4; tickIndex += 1) {
+      const tick = Math.round(maxTick * tickIndex / 4);
+      const tickX = scaleX(tick);
+      svg.append(svgElement("line", { x1: tickX, x2: tickX, y1: axisY, y2: height - 14, class: "recovery-gridline" }));
+      const tickLabel = svgElement("text", { x: tickX, y: axisY - 9, "text-anchor": tickIndex === 0 ? "start" : tickIndex === 4 ? "end" : "middle", class: "recovery-tick" });
+      tickLabel.textContent = `tick ${tick}`;
+      svg.append(tickLabel);
+    }
+    runs.forEach((run, runIndex) => {
+      const y = 54 + runIndex * rowHeight;
+      const policy = svgElement("text", { x: 10, y: y + 15, class: "recovery-policy-label" });
+      policy.textContent = semanticPolicyLabel(run.policy_id);
+      const role = svgElement("text", { x: 10, y: y + 33, class: "recovery-event-id" });
+      role.textContent = semanticHumanLabel(run.policy_role).toUpperCase();
+      svg.append(policy, role, svgElement("line", { x1: left, x2: right, y1: y + 26, y2: y + 26, class: "recovery-track" }));
+      (run.mode_intervals || []).forEach((interval) => {
+        const startX = scaleX(interval.start_tick);
+        const endX = Math.max(startX + 3, scaleX(interval.end_tick));
+        const mode = String(interval.mode || "unmeasured");
+        const rect = svgElement("rect", { x: startX, y: y + 9, width: endX - startX, height: 34, rx: 3, class: "semantic-mode-interval", "data-mode": mode });
+        const rectTitle = svgElement("title");
+        rectTitle.textContent = `${semanticPolicyLabel(mode)}: ticks ${interval.start_tick}–${interval.end_tick}. ${interval.reason || "No reason reported."}`;
+        rect.append(rectTitle);
+        svg.append(rect);
+        if (endX - startX > 62) {
+          const label = svgElement("text", { x: (startX + endX) / 2, y: y + 30, "text-anchor": "middle", class: "semantic-mode-label" });
+          label.textContent = semanticPolicyLabel(mode).toUpperCase();
+          svg.append(label);
+        }
+      });
+      (run.events || []).forEach((event, eventIndex) => {
+        const eventX = scaleX(event.tick);
+        const eventY = y + 47 + eventIndex % 2 * 13;
+        const mark = svgElement("rect", { x: eventX - 4, y: eventY - 4, width: 8, height: 8, transform: `rotate(45 ${eventX} ${eventY})`, class: "recovery-event", "data-role": event.event_kind || "failure" });
+        const markTitle = svgElement("title");
+        markTitle.textContent = `${semanticHumanLabel(event.event_kind)} at tick ${event.tick}: ${event.reason || "No reason reported."}`;
+        mark.append(markTitle);
+        svg.append(mark);
+      });
+    });
+    renderSemanticConsistencyTimelineFallback(runs);
+  }
+
+  function renderSemanticConsistencyFamilySelector() {
+    const families = semanticFamilyResults();
+    const selected = semanticSelectedFamily();
+    dom.semanticconsistencyfamilyselect.replaceChildren();
+    families.forEach((family) => {
+      const option = element("option", "", `${family.family_id} · ${semanticRankingStateLabel(family.ranking_state)}`);
+      option.value = family.family_id;
+      dom.semanticconsistencyfamilyselect.append(option);
+    });
+    if (selected) {
+      dom.semanticconsistencyfamilyselect.value = selected.family_id;
+      if (state.semanticFamily !== selected.family_id) {
+        state = sanitizeState({ ...state, semanticFamily: selected.family_id });
+        writeStateToURL(true);
+      }
+    }
+  }
+
+  function renderSemanticConsistencyFamilyTable() {
+    dom.semanticconsistencyfamilybody.replaceChildren();
+    semanticFamilyResults().forEach((family) => {
+      const row = element("tr");
+      const stateCell = element("td", "", `${semanticRankingStateLabel(family.ranking_state)}${family.abstention_reason ? ` · ${family.abstention_reason}` : ""}`);
+      stateCell.dataset.state = family.ranking_state || "unmeasured";
+      row.append(
+        element("td", "", family.family_id),
+        element("td", "", family.learning_delta_display),
+        element("td", "", family.completion_ratio_display),
+        element("td", "", family.wan_ratio_display),
+        element("td", "", family.replayed_work_display),
+        element("td", "", family.energy_display),
+        stateCell,
+      );
+      dom.semanticconsistencyfamilybody.append(row);
+    });
+  }
+
+  function renderSemanticLedger(container, values) {
+    container.replaceChildren();
+    if (!Array.isArray(values) || !values.length) {
+      container.append(element("p", "", "No entries reported."));
+      return;
+    }
+    const list = element("ul");
+    values.forEach((value) => {
+      const item = element("li");
+      if (value && typeof value === "object") {
+        const lead = value.label || value.assumption_id || value.evidence_id || value.id || value.statement || value.claim || "Entry";
+        const detail = value.detail || value.boundary || value.reason || value.statement || value.claim || value.status || "";
+        item.append(element("strong", "", lead));
+        if (detail && detail !== lead) item.append(document.createTextNode(`: ${detail}`));
+        if (value.evidence_class) item.append(document.createTextNode(" "), evidenceTag(value.evidence_class));
+      } else {
+        item.textContent = String(value);
+      }
+      list.append(item);
+    });
+    container.append(list);
+  }
+
+  function renderSemanticUncertainty() {
+    dom.semanticconsistencyuncertainty.replaceChildren();
+    const uncertainty = semanticConsistencyArtifact.full_trace.uncertainty;
+    const list = element("dl");
+    Object.entries(uncertainty || {}).forEach(([key, value]) => {
+      list.append(
+        element("dt", "", semanticHumanLabel(key)),
+        element("dd", "", typeof value === "string" ? value : JSON.stringify(value)),
+      );
+    });
+    if (!list.children.length) list.append(element("dt", "", "Uncertainty"), element("dd", "", "Not reported."));
+    dom.semanticconsistencyuncertainty.append(list);
+  }
+
+  function semanticSelectedRunLedger() {
+    if (!semanticConsistencyArtifact) return null;
+    const ledger = semanticConsistencyArtifact.full_trace.run_ledger;
+    const family = semanticSelectedFamily();
+    const requested = ledger.find((run) => run.run_id === state.semanticRun);
+    if (requested) return requested;
+    if (family) {
+      const adaptive = ledger.find((run) => run.family_or_stratum_id === family.family_id && run.policy_id === "observable_adaptive");
+      if (adaptive) return adaptive;
+    }
+    return ledger[0] || null;
+  }
+
+  function renderSemanticRunSelector() {
+    const ledger = semanticConsistencyArtifact.full_trace.run_ledger;
+    const selected = semanticSelectedRunLedger();
+    dom.semanticconsistencyrunselect.replaceChildren();
+    ledger.forEach((run) => {
+      const option = element("option", "", `${run.family_or_stratum_id} · ${semanticPolicyLabel(run.policy_id)} · ${run.run_id}`);
+      option.value = run.run_id;
+      dom.semanticconsistencyrunselect.append(option);
+    });
+    if (selected) {
+      dom.semanticconsistencyrunselect.value = selected.run_id;
+      if (state.semanticRun !== selected.run_id) {
+        state = sanitizeState({ ...state, semanticRun: selected.run_id });
+        writeStateToURL(true);
+      }
+    }
+  }
+
+  function semanticCompact(value, maxLength = 72) {
+    const textValue = value && typeof value === "object" ? JSON.stringify(value) : String(value === undefined || value === null ? "not reported" : value);
+    return textValue.length > maxLength ? `${textValue.slice(0, maxLength - 1)}…` : textValue;
+  }
+
+  function renderSemanticEpochLedger() {
+    dom.semanticconsistencyepochbody.replaceChildren();
+    const selected = semanticSelectedRunLedger();
+    const rawRun = selected && semanticConsistencyRawArtifact && semanticConsistencyRawArtifact.runs.find((run) => run.run_id === selected.run_id);
+    if (!rawRun) {
+      const row = element("tr");
+      const cell = element("td", "", semanticConsistencyRawArtifactError ? `Raw trace unavailable: ${semanticConsistencyRawArtifactError.message}` : "Exact epochs load on demand in Full trace.");
+      cell.colSpan = 9;
+      row.append(cell);
+      dom.semanticconsistencyepochbody.append(row);
+      return;
+    }
+    rawRun.epoch_trace.forEach((epoch) => {
+      const row = element("tr");
+      const abstentionState = epoch.abstention_state || epoch.abstention || {};
+      const oodState = epoch.ood_state || epoch.ood || {};
+      const abstention = abstentionState.abstained || epoch.abstained || oodState.is_out_of_distribution;
+      row.dataset.abstained = String(Boolean(abstention));
+      const wall = epoch.wall_tick ?? epoch.wall_epoch;
+      const logical = epoch.logical_tick ?? epoch.logical_epoch;
+      const mode = epoch.mode || epoch.action || epoch.selected_mode;
+      const stress = epoch.stress || epoch.observable_state || epoch.stress_state;
+      const membership = epoch.membership_events || epoch.membership || epoch.active_membership || (stress && stress.active_sites) || epoch.sites;
+      const lineage = epoch.replica_lineages || epoch.lineage || epoch.state_lineage || { model: epoch.model_lineage, optimizer: epoch.optimizer_lineage };
+      const disagreement = epoch.disagreement || { before: epoch.replica_disagreement_before, after: epoch.replica_disagreement_after, model: epoch.model_disagreement, optimizer: epoch.optimizer_disagreement };
+      const work = epoch.exact_accounting || epoch.work || epoch.accounting || {
+        useful: epoch.useful_tokens,
+        attempted: epoch.attempted_tokens,
+        replayed: epoch.replayed_tokens,
+      };
+      const wan = epoch.wan || { events: epoch.wan_events, modeled_seconds: epoch.modeled_wan_seconds, payload_bytes: epoch.wan_payload_bytes, time_seconds: epoch.wan_time_seconds };
+      const nll = epoch.held_out_measurement && typeof epoch.held_out_measurement === "object"
+        ? { value: epoch.held_out_measurement.held_out_nll, standard_deviation: epoch.held_out_measurement.held_out_nll_standard_deviation, last: epoch.last_measured_held_out_nll }
+        : epoch.held_out_nll && typeof epoch.held_out_nll === "object" ? epoch.held_out_nll : { value: epoch.held_out_nll, last: epoch.last_measured_held_out_nll };
+      const evidence = epoch.evidence_class || (nll.value !== null && nll.value !== undefined ? "observed" : "modeled");
+      row.append(
+        element("td", "", `${wall ?? "?"} / ${logical ?? "?"}`),
+        element("td", "", `${semanticPolicyLabel(mode)}${epoch.mode_transition || epoch.transition ? ` · ${semanticCompact(epoch.mode_transition || epoch.transition)}` : ""}`),
+        element("td", "", `${semanticCompact(stress)} · members ${semanticCompact(membership)}`),
+        element("td", "", semanticCompact(lineage, 96)),
+        element("td", "", `age ${semanticCompact(epoch.update_age_ticks ?? epoch.update_age)} · disagreement ${semanticCompact(disagreement)}`),
+        element("td", "", semanticCompact(work, 96)),
+        element("td", "", semanticCompact(wan, 96)),
+        element("td", "", nll.value !== null && nll.value !== undefined ? semanticCompact(nll.value) : `not evaluated · last ${semanticCompact(nll.last)}`),
+        element("td", "", `${EVIDENCE_LABELS[normalizedEvidence(evidence)]}${abstention ? ` · ABSTAIN ${semanticCompact(abstentionState.reasons || epoch.abstention_reason || oodState)}` : ""}`),
+      );
+      dom.semanticconsistencyepochbody.append(row);
+    });
+    dom.semanticconsistencyrawstate.textContent = `Raw optimizer-commit artifact loaded · ${semanticConsistencyRawArtifact.artifact_sha256}.`;
+    dom.semanticconsistencyrawmeta.textContent = `${rawRun.run_id} · ${rawRun.epoch_trace.length.toLocaleString("en-US")} exact epoch records.`;
+  }
+
+  function renderSemanticConsistencyTrace() {
+    if (!semanticConsistencyArtifact) return;
+    renderSemanticRunSelector();
+    renderSemanticEpochLedger();
+    renderSemanticLedger(dom.semanticconsistencyassumptions, semanticConsistencyArtifact.full_trace.assumptions);
+    renderSemanticUncertainty();
+    renderSemanticLedger(dom.semanticconsistencymissingevidence, semanticConsistencyArtifact.full_trace.missing_evidence);
+    const trace = semanticConsistencyArtifact.full_trace;
+    const provenance = {
+      schema: semanticConsistencyArtifact.schema,
+      artifact_sha256: semanticConsistencyArtifact.artifact_sha256,
+      source_result: semanticConsistencyArtifact.source_result,
+      comparison: semanticConsistencyArtifact.comparison,
+      work_contract: semanticConsistencyArtifact.work_contract,
+      bindings: trace.bindings,
+      evidence_boundary: semanticConsistencyArtifact.evidence_boundary,
+      raw_trace_artifact: trace.raw_trace_artifact,
+    };
+    dom.semanticconsistencyprovenancejson.textContent = JSON.stringify(provenance, null, 2);
+    dom.semanticconsistencydepthtrace.textContent = `${trace.run_ledger.length.toLocaleString("en-US")} run records · ${trace.raw_trace_artifact.epoch_count.toLocaleString("en-US")} exact optimizer-commit records available on demand · compact artifact ${semanticConsistencyArtifact.artifact_sha256}${trace.raw_trace_artifact.artifact_sha256 ? ` · raw artifact ${trace.raw_trace_artifact.artifact_sha256}` : ""}.`;
+  }
+
+  function renderSemanticConsistencyV1() {
+    if (!dom.semanticconsistencyv1) return;
+    dom.semanticconsistencyv1.hidden = state.experiment !== "E001-SC1";
+    if (!semanticConsistencyArtifact) {
+      dom.semanticconsistencyv1state.textContent = semanticConsistencyArtifactError instanceof ArtifactContractError
+        ? `Artifact rejected · ${semanticConsistencyArtifactError.message}`
+        : semanticConsistencyArtifactError
+          ? "No result artifact yet · experiment not run"
+          : "Reading semantic-consistency artifact…";
+      return;
+    }
+    const status = semanticConsistencyArtifact.status;
+    const freshman = semanticConsistencyArtifact.freshman;
+    const familyCount = semanticConsistencyArtifact.researcher.family_results.length;
+    dom.semanticconsistencyv1state.textContent = `${String(status.conclusion).replaceAll("_", " ")} · ${familyCount} held-out families · comparator ${semanticPolicyLabel(semanticConsistencyArtifact.comparison.selected_fixed_policy_id)} · artifact ${semanticConsistencyArtifact.artifact_sha256.slice(0, 12)}`;
+    dom.semanticconsistencyeyebrow.textContent = `${semanticConsistencyArtifact.work_contract.canonical_tokens.toLocaleString("en-US")} canonical tokens · ${familyCount} untouched families`;
+    dom.semanticconsistencyinsighttitle.textContent = freshman.headline;
+    dom.semanticconsistencyplainanswer.textContent = freshman.plain_answer;
+    dom.semanticconsistencyboundaryshort.textContent = freshman.boundary;
+    dom.semanticconsistencyfreshmancopy.textContent = freshman.explanation;
+    dom.semanticconsistencyresearchercopy.textContent = semanticConsistencyArtifact.researcher.explanation;
+    dom.semanticconsistencyeffectsnote.textContent = `${familyCount} evaluation families · ${semanticConsistencyArtifact.researcher.interval_label}`;
+    dom.semanticconsistencyevidenceboundary.textContent = semanticConsistencyArtifact.evidence_boundary.plain_boundary;
+    dom.semanticconsistencymissingshort.textContent = semanticConsistencyArtifact.full_trace.missing_evidence.length
+      ? `Still missing: ${semanticConsistencyArtifact.full_trace.missing_evidence.map((entry) => entry.label || entry.claim || entry.id || entry).join("; ")}.`
+      : "No missing-evidence entries were reported.";
+    renderSemanticConsistencyFreshman();
+    renderSemanticConsistencyEffects();
+    renderSemanticConsistencyFamilySelector();
+    renderSemanticConsistencyRanking();
+    renderSemanticConsistencyTimeline();
+    renderSemanticConsistencyFamilyTable();
+    renderSemanticConsistencyTrace();
+  }
+
   const RACK_POLICY_ORDER = ["synchronized", "random_jitter", "throughput_pacing", "static_cohorts", "telemetry_feedback"];
   const RACK_POLICY_LABELS = {
     synchronized: "Synchronized",
@@ -3078,6 +3695,41 @@
     const mark = element("span", "stage-mark");
     mark.setAttribute("aria-hidden", "true");
     dom.stageboundary.append(mark);
+
+    if (state.experiment === "E001-SC1") {
+      dom.experimentkickercode.textContent = "E001-SC1";
+      dom.experimentkickername.textContent = "Observable Semantic Slack";
+      dom.experimentquestion.textContent = semanticConsistencyArtifact
+        ? semanticConsistencyArtifact.question
+        : "Can one observable controller safely spend semantic slack?";
+      if (semanticConsistencyArtifact) {
+        const status = semanticConsistencyArtifact.status;
+        dom.stageboundary.append(
+          element("strong", "", String(status.stage || "software experiment").replaceAll("_", " ")),
+          document.createTextNode("·"),
+          document.createTextNode(String(status.validation || "held-out family evaluation").replaceAll("_", " ")),
+        );
+        dom.plainanswer.textContent = String(status.plain_answer || semanticConsistencyArtifact.freshman.plain_answer || "The artifact does not report a plain answer.");
+        dom.artifactstate.textContent = `Artifact loaded · ${String(status.conclusion || "inconclusive").replaceAll("_", " ")} · ${semanticConsistencyArtifact.schema} · ${semanticConsistencyArtifact.artifact_sha256.slice(0, 12)}`;
+        dom.footerevidencestate.lastChild.textContent = " Evidence state: measured learning + exact accounting + modeled infrastructure";
+      } else {
+        dom.stageboundary.append(element("strong", "", "Software experiment"), document.createTextNode("·"), document.createTextNode("result not loaded"));
+        dom.plainanswer.textContent = "No semantic-consistency result is loaded. No controller ranking, interval, or learning conclusion is shown.";
+        if (semanticConsistencyArtifactError instanceof ArtifactContractError) {
+          dom.artifactstate.textContent = `Artifact rejected: ${semanticConsistencyArtifactError.message}.`;
+        } else if (semanticConsistencyArtifactError) {
+          dom.artifactstate.textContent = `${SEMANTIC_CONSISTENCY_ARTIFACT_URL} is absent or unreadable. The experiment has not produced a browser result yet.`;
+        } else {
+          dom.artifactstate.textContent = `Reading ${SEMANTIC_CONSISTENCY_ARTIFACT_URL}…`;
+        }
+        dom.footerevidencestate.lastChild.textContent = " Evidence state: awaiting semantic-consistency artifact";
+      }
+      return;
+    }
+
+    dom.experimentkickercode.textContent = "E001";
+    dom.experimentkickername.textContent = "Beyond One Datacenter · Prior Evidence Chain";
+    dom.experimentquestion.textContent = "Can one training run survive across three datacenters?";
 
     if (artifact) {
       const stage = String(artifact.status.stage || "virtual_mechanics_screen").replaceAll("_", " ");

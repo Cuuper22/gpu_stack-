@@ -48,12 +48,12 @@ def test_next_work_plan_evidence_is_live_and_high_signal():
     plan = build_next_work_plan()
     evidence = _all_evidence(plan)
 
-    assert "No physical PW3 result artifact exists" in evidence
-    assert "named rack with at least eight GPUs" in evidence
-    assert "Summed GPU power, inferred storage power, or static PUE" in evidence
-    assert "two calibration and six evaluation blocks" in evidence
-    assert "one stable NVML UUID per torchrun rank" in evidence
-    assert "No physical artifact means no PW3 visual claim" in "\n".join(
+    assert "adaptive switching failed all four claim gates" in evidence
+    assert "104 decisions fell outside calibrated support" in evidence
+    assert "software-selectable model and optimizer families" in evidence
+    assert "cannot inspect future loss" in evidence
+    assert "zero sample-hash, optimizer-lineage, and work violations" in evidence
+    assert "Physical PW3 is optional calibration, not an execution gate" in "\n".join(
         item.title for item in plan.bug_risks
     )
 
@@ -62,9 +62,9 @@ def test_highest_impact_is_research_first_and_legacy_diagnostics_stay_secondary(
     plan = build_next_work_plan()
 
     assert [item.title for item in plan.highest_impact] == [
-        "Bind E002-PW3 to a named instrumented rack and execute it",
-        "Keep the first rack result at the direct measurement boundary",
-        "Let the paired physical result choose PW4 or kill the mechanism",
+        "Preserve E001-SC1's rejected controller as the baseline result",
+        "Run E001-SC2 on a held-out model or optimizer family",
+        "Use physical collaboration only as optional calibration",
     ]
     highest_titles = "\n".join(item.title.lower() for item in plan.highest_impact)
     assert "pythia" not in highest_titles
@@ -83,18 +83,20 @@ def test_highest_impact_is_research_first_and_legacy_diagnostics_stay_secondary(
 
 def test_research_priorities_are_backed_by_live_executable_artifact_evidence():
     plan = build_next_work_plan()
-    rendered = "\n".join(item.evidence for item in plan.highest_impact)
+    priorities = "\n".join(item.evidence for item in plan.highest_impact)
+    implementations = "\n".join(item.evidence for item in plan.best_implementations)
 
-    assert "dependency-safe scheduler" in rendered
-    assert "torchrun runtime" in rendered
-    assert "UUID-bound GPU telemetry" in rendered
-    assert "No physical PW3 result artifact exists" in rendered
-    assert "direct rack-PDU power" in rendered
-    assert "independent storage power and cooling" in rendered
-    assert "measurement_invalid" in rendered
-    assert "synchronized, random-jitter, storage-only" in rendered
-    assert "two calibration and six evaluation blocks" in rendered
-    assert "otherwise publish the failed or simpler mechanism" in rendered
+    assert "conclusion=abstain_without_policy_claim" in priorities
+    assert "failed learning, communication, modeled-time" in priorities
+    assert "Do not retune on its six evaluation families" in priorities
+    assert "wholly withheld model or optimizer family" in priorities
+    assert "optional calibration" in "\n".join(
+        item.title.lower() + " " + item.evidence.lower()
+        for item in plan.highest_impact
+    )
+    assert "predictor target, family split, comparator, and falsifiers" in implementations
+    assert "pre-action learning-penalty, WAN, and virtual-time prediction" in implementations
+    assert "realized held-out learning and infrastructure consequences" in implementations
 
 
 def test_experiment_result_scan_does_not_count_scenario_inputs(tmp_path):

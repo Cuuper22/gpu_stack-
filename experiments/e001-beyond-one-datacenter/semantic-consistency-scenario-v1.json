@@ -1,0 +1,384 @@
+{
+  "schema": "gpu-stack.e001-semantic-consistency-scenario.v1",
+  "experiment_id": "E001-SC1",
+  "scenario_id": "observable-semantic-slack-controller-v1",
+  "frozen_at": "2026-07-13",
+  "research_question": "Can a controller that sees only current and past training-system state switch among exact synchronization, exact forward recovery, one-step-delayed updates, and periodic local updates while preserving held-out learning, reducing inter-site communication, and finishing equal canonical work sooner under changing bandwidth, power availability, and failures?",
+  "hypothesis": "A compact observable state exposes usable semantic slack: on untouched stress families, observable_adaptive will remain learning-noninferior to the calibration-selected best fixed policy while using at most one fifth of its inter-site payload bytes and at most nine tenths of its modeled completion time.",
+  "novelty_boundary": "The reviewed recent sources study individual delay, local-update, recovery, reconfiguration, or simulation mechanisms. None of them evaluates a transferable online boundary among exact recovery, delayed updates, and local updates under joint network, power, and failure variation. This is evidence of an open intersection, not proof of universal priority.",
+  "claim_boundary": {
+    "stage": "measured_small_model_plus_virtual_datacenter",
+    "can_resolve": [
+      "small-model held-out NLL under actual consistency-mode transitions",
+      "exact token, sample, update-age, lineage, replay, and inter-site payload accounting",
+      "modeled completion-time ranking within the frozen bandwidth, compute-rate, and failure schedules",
+      "whether the observable controller beats the calibration-selected fixed policy on untouched stress families",
+      "where the controller abstains because its calibrated state support is exceeded"
+    ],
+    "cannot_resolve": [
+      "frontier-model convergence transfer",
+      "real multi-datacenter WAN tails or correlated regional failures",
+      "facility or grid energy",
+      "Muon, GASLoC, PipeDream-2BW, ReCoVer, or DynaTrain implementation equivalence",
+      "a universal optimal consistency controller"
+    ]
+  },
+  "source_bindings": {
+    "e001_equal_work_result": {
+      "path": "experiments/e001-beyond-one-datacenter/results/equal-work-v1.json",
+      "artifact_sha256": "f7548b68d4791978260f0bd557bf92041d0f769b796b1e684bbcab99e88f639f"
+    },
+    "e001_recovery_result": {
+      "path": "experiments/e001-beyond-one-datacenter/results/recovery-mechanics-v2.json",
+      "artifact_sha256": "b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57"
+    },
+    "one_step_delay_observations": {
+      "path": "gpu_stack/data/observations/literature/e001-one-step-delay",
+      "role": "literature context only; never substituted for this experiment's measured loss"
+    }
+  },
+  "literature": [
+    {
+      "id": "one-step-delay-2606.30634",
+      "date": "2026-06-29",
+      "url": "https://arxiv.org/abs/2606.30634",
+      "establishes": "one-step gradient delay can be compatible with large-scale pretraining for suitable optimizers and error feedback",
+      "leaves_open": "changing delay, local-update count, failures, WAN state, power variation, and online switching"
+    },
+    {
+      "id": "gasloc-2606.11081",
+      "date": "2026-06-09",
+      "url": "https://arxiv.org/abs/2606.11081",
+      "establishes": "local optimizer steps and sparse peer communication can improve LLM pretraining under heterogeneous bandwidth",
+      "leaves_open": "hard failures, exact recovery choices, power variation, and switching to exact or delayed modes"
+    },
+    {
+      "id": "pipedream-theory-2606.03498",
+      "date": "2026-06-02",
+      "url": "https://arxiv.org/abs/2606.03498",
+      "establishes": "the relative value of stale pipeline updates and LocalSGD depends on the objective and delay grows with pipeline depth",
+      "leaves_open": "a deployable observable phase boundary across system stress and model families"
+    },
+    {
+      "id": "ringmaster-lmo-2605.18174",
+      "date": "2026-05-18",
+      "url": "https://arxiv.org/abs/2605.18174",
+      "establishes": "adaptive delay thresholds can improve asynchronous optimization under heterogeneous worker speed",
+      "leaves_open": "multi-site topology, local-update transitions, hard recovery, and joint power/network stress"
+    },
+    {
+      "id": "recover-2605.11215",
+      "date": "2026-05-11",
+      "url": "https://arxiv.org/abs/2605.11215",
+      "establishes": "exact stochastic-trajectory preservation through failures can scale to 512 GPUs",
+      "leaves_open": "whether bounded temporary model disagreement can outperform exact preservation under scarce communication or capacity"
+    },
+    {
+      "id": "dynatrain-2605.18815",
+      "date": "2026-05-12",
+      "url": "https://arxiv.org/abs/2605.18815",
+      "establishes": "parallelism and device-set reconfiguration can occur in seconds without correctness loss",
+      "leaves_open": "when a learning-aware controller should choose a reconfiguration or consistency regime"
+    },
+    {
+      "id": "openg2g-2605.05519",
+      "date": "2026-05-06",
+      "url": "https://arxiv.org/abs/2605.05519",
+      "establishes": "measurement-backed software simulation can answer datacenter-grid coordination questions",
+      "leaves_open": "training as an evolving learning process whose consistency and recovery semantics are controllable"
+    }
+  ],
+  "dataset": {
+    "dataset_id": "roneneldan/TinyStories",
+    "config": "default",
+    "split": "train",
+    "shard": "0000.parquet",
+    "uri": "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet",
+    "sha256": "77cf780cebe52b6e83e3a2ac84bc56d8059363113e41d17a023f1d8b2ed0fc0b",
+    "train_rows": 50000,
+    "validation_start_row": 50000,
+    "validation_rows": 2000,
+    "encoding": "utf-8 bytes",
+    "separator_byte": 0
+  },
+  "model": {
+    "family": "byte_decoder_transformer",
+    "vocab_size": 256,
+    "context_length": 256,
+    "layers": 4,
+    "width": 192,
+    "heads": 4,
+    "mlp_width": 768,
+    "dropout": 0.0,
+    "tie_embeddings": true,
+    "frontier_scale_transfer_claimed": false
+  },
+  "optimization": {
+    "optimizer": "AdamW",
+    "learning_rate": 0.0003,
+    "weight_decay": 0.1,
+    "beta1": 0.9,
+    "beta2": 0.95,
+    "gradient_clip_norm": 1.0,
+    "autocast": "bfloat16",
+    "deterministic_cuda_algorithms": false,
+    "batch_size_per_site": 4,
+    "warm_start_ticks": 8192,
+    "warm_start_seed": 7,
+    "evaluation_ticks": 256,
+    "validation_batches": 64,
+    "validation_seed": 20260713,
+    "evaluation_interval_ticks": 8,
+    "local_period_ticks": 8,
+    "checkpoint_interval_ticks": 16,
+    "flop_model": "6 * parameter_count * attempted_tokens"
+  },
+  "work_contract": {
+    "site_ids": ["site-a", "site-b"],
+    "deterministic_site_quota_ids_per_tick": 2,
+    "tokens_per_site_quota": 1024,
+    "canonical_ticks": 256,
+    "canonical_tokens": 524288,
+    "equal_canonical_work_required": true,
+    "token_order_frozen_across_policies": true,
+    "optimizer_state_lineage_required": true,
+    "rejoin_requires_explicit_merge": true,
+    "future_gradient_or_loss_visibility_forbidden": true
+  },
+  "policy_panel": [
+    {
+      "policy_id": "synchronous_restart",
+      "fixed": true,
+      "consistency_action": "exact_sync",
+      "failure_action": "rollback_to_last_durable_merge_and_replay"
+    },
+    {
+      "policy_id": "exact_forward_recovery",
+      "fixed": true,
+      "consistency_action": "exact_sync",
+      "failure_action": "redistribute_failed_site_quota_without_changing_iteration_sample"
+    },
+    {
+      "policy_id": "delayed_one_step",
+      "fixed": true,
+      "consistency_action": "apply_one_step_old_aggregate_update",
+      "failure_action": "exact_forward_recovery",
+      "paper_equivalence_claimed": false
+    },
+    {
+      "policy_id": "periodic_local",
+      "fixed": true,
+      "consistency_action": "independent_site_updates_then_exact_average_every_8_ticks",
+      "failure_action": "continue_survivor_then_explicit_rejoin_merge",
+      "gasloc_or_gossip_equivalence_claimed": false
+    },
+    {
+      "policy_id": "observable_adaptive",
+      "fixed": false,
+      "consistency_action": "choose_from_the_four_fixed_action_semantics_using_visible_state_only",
+      "failure_action": "observable_choice",
+      "future_trace_visible": false
+    },
+    {
+      "policy_id": "future_trace_oracle",
+      "fixed": false,
+      "consistency_action": "select_one_complete_executable_policy_schedule_from_the_five_measured_schedules_using_future_stress_cost_only",
+      "failure_action": "inherited_from_selected_whole_policy_schedule",
+      "future_gradient_or_loss_visible": false,
+      "comparison_role": "hindsight_whole_policy_envelope_only"
+    }
+  ],
+  "visible_state": [
+    "current_bandwidth_bytes_per_second",
+    "recent_bandwidth_ema_bytes_per_second",
+    "site_compute_rate_factors",
+    "active_membership",
+    "failure_age_ticks",
+    "checkpoint_age_ticks",
+    "update_age_ticks",
+    "replica_parameter_rms_disagreement",
+    "recent_gradient_norm",
+    "recent_held_out_nll_slope"
+  ],
+  "controller": {
+    "selection_split": "calibration_only",
+    "bandwidth_low_bytes_per_second_lte": 250000000,
+    "bandwidth_medium_bytes_per_second_lte": 2000000000,
+    "compute_imbalance_ratio_gte": 1.5,
+    "replica_disagreement_abstain_rms_gte": 0.05,
+    "uncalibrated_state_action": "abstain_to_exact_forward_recovery",
+    "single_site_action": "exact_forward_recovery",
+    "low_bandwidth_action": "periodic_local",
+    "medium_bandwidth_or_imbalance_action": "delayed_one_step",
+    "healthy_action": "exact_sync"
+  },
+  "timing_model": {
+    "wan_round_trip_seconds": 0.005,
+    "gradient_payload_bytes_per_parameter": 4,
+    "state_transfer_bytes_per_parameter": 12,
+    "collective_payload_definition": "logical payload-link bytes before transport framing or retries",
+    "compute_time_source": "one frozen post-warm local gradient and AdamW-apply microbenchmark, reused for every arm and scaled only by the frozen per-site compute-rate factor; per-arm wall time is descriptive and cannot affect policy ranking",
+    "delayed_one_step_pipeline": {
+      "overlap_rule": "the transfer of aggregate gradient t overlaps gradient computation for tick t+1; each steady-state stage costs max(current compute seconds, prior transfer seconds)",
+      "initial_fill": "tick 0 gradient computation is exposed before any transfer can overlap",
+      "terminal_drain": "the final queued gradient transfer and AdamW application are exposed after the final gradient computation"
+    },
+    "facility_energy_claimed": false
+  },
+  "calibration_strata": [
+    {
+      "stratum_id": "C1-healthy-high-bandwidth",
+      "seed": 11,
+      "segments": [
+        {"start_tick": 0, "end_tick": 256, "bandwidth_bytes_per_second": 12500000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]}
+      ]
+    },
+    {
+      "stratum_id": "C2-sustained-low-bandwidth",
+      "seed": 29,
+      "segments": [
+        {"start_tick": 0, "end_tick": 256, "bandwidth_bytes_per_second": 90000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]}
+      ]
+    },
+    {
+      "stratum_id": "C3-compute-imbalance",
+      "seed": 47,
+      "segments": [
+        {"start_tick": 0, "end_tick": 256, "bandwidth_bytes_per_second": 12500000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 0.35, "active_sites": ["site-a", "site-b"]}
+      ]
+    },
+    {
+      "stratum_id": "C4-single-failure",
+      "seed": 71,
+      "segments": [
+        {"start_tick": 0, "end_tick": 96, "bandwidth_bytes_per_second": 2000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 96, "end_tick": 128, "bandwidth_bytes_per_second": 2000000000, "site_a_compute_rate": 0.8, "site_b_compute_rate": 0.0, "active_sites": ["site-a"]},
+        {"start_tick": 128, "end_tick": 256, "bandwidth_bytes_per_second": 2000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]}
+      ]
+    }
+  ],
+  "evaluation_families": [
+    {
+      "family_id": "E1-bursty-wan",
+      "seed": 101,
+      "segments": [
+        {"start_tick": 0, "end_tick": 64, "bandwidth_bytes_per_second": 8000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 64, "end_tick": 128, "bandwidth_bytes_per_second": 100000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 128, "end_tick": 192, "bandwidth_bytes_per_second": 8000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 192, "end_tick": 256, "bandwidth_bytes_per_second": 100000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]}
+      ]
+    },
+    {
+      "family_id": "E2-low-wan-then-failure",
+      "seed": 131,
+      "segments": [
+        {"start_tick": 0, "end_tick": 80, "bandwidth_bytes_per_second": 180000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 0.9, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 80, "end_tick": 112, "bandwidth_bytes_per_second": 180000000, "site_a_compute_rate": 0.75, "site_b_compute_rate": 0.0, "active_sites": ["site-a"]},
+        {"start_tick": 112, "end_tick": 256, "bandwidth_bytes_per_second": 180000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 0.9, "active_sites": ["site-a", "site-b"]}
+      ]
+    },
+    {
+      "family_id": "E3-power-throttle-with-fast-wan",
+      "seed": 151,
+      "segments": [
+        {"start_tick": 0, "end_tick": 72, "bandwidth_bytes_per_second": 10000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 72, "end_tick": 168, "bandwidth_bytes_per_second": 10000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 0.35, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 168, "end_tick": 256, "bandwidth_bytes_per_second": 10000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]}
+      ]
+    },
+    {
+      "family_id": "E4-failure-inside-wan-collapse",
+      "seed": 181,
+      "segments": [
+        {"start_tick": 0, "end_tick": 96, "bandwidth_bytes_per_second": 3000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 96, "end_tick": 144, "bandwidth_bytes_per_second": 90000000, "site_a_compute_rate": 0.65, "site_b_compute_rate": 0.0, "active_sites": ["site-a"]},
+        {"start_tick": 144, "end_tick": 208, "bandwidth_bytes_per_second": 90000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 0.75, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 208, "end_tick": 256, "bandwidth_bytes_per_second": 3000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]}
+      ]
+    },
+    {
+      "family_id": "E5-short-alternating-stress",
+      "seed": 211,
+      "segments": [
+        {"start_tick": 0, "end_tick": 48, "bandwidth_bytes_per_second": 5000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 48, "end_tick": 88, "bandwidth_bytes_per_second": 120000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 0.6, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 88, "end_tick": 136, "bandwidth_bytes_per_second": 5000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 136, "end_tick": 176, "bandwidth_bytes_per_second": 120000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 0.6, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 176, "end_tick": 256, "bandwidth_bytes_per_second": 5000000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 1.0, "active_sites": ["site-a", "site-b"]}
+      ]
+    },
+    {
+      "family_id": "E6-repeated-membership-loss",
+      "seed": 241,
+      "segments": [
+        {"start_tick": 0, "end_tick": 56, "bandwidth_bytes_per_second": 1500000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 0.8, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 56, "end_tick": 72, "bandwidth_bytes_per_second": 1500000000, "site_a_compute_rate": 0.8, "site_b_compute_rate": 0.0, "active_sites": ["site-a"]},
+        {"start_tick": 72, "end_tick": 160, "bandwidth_bytes_per_second": 1500000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 0.8, "active_sites": ["site-a", "site-b"]},
+        {"start_tick": 160, "end_tick": 184, "bandwidth_bytes_per_second": 1500000000, "site_a_compute_rate": 0.7, "site_b_compute_rate": 0.0, "active_sites": ["site-a"]},
+        {"start_tick": 184, "end_tick": 256, "bandwidth_bytes_per_second": 1500000000, "site_a_compute_rate": 1.0, "site_b_compute_rate": 0.8, "active_sites": ["site-a", "site-b"]}
+      ]
+    }
+  ],
+  "comparator_selection": {
+    "candidate_policy_ids": [
+      "synchronous_restart",
+      "exact_forward_recovery",
+      "delayed_one_step",
+      "periodic_local"
+    ],
+    "uses_evaluation_data": false,
+    "eligibility": "median final held-out NLL no worse than synchronous_restart plus 0.01 and zero divergence",
+    "primary_order": "lowest median modeled completion time across calibration strata",
+    "tie_breakers": [
+      "lowest median inter-site payload bytes",
+      "frozen candidate_policy_ids order"
+    ]
+  },
+  "oracle_objective": {
+    "action_space": [
+      "synchronous_restart",
+      "exact_forward_recovery",
+      "delayed_one_step",
+      "periodic_local",
+      "observable_adaptive"
+    ],
+    "horizon": "all 256 canonical ticks",
+    "information": "complete future stress schedule and the frozen timing model, but no future minibatch, gradient, parameter, or loss values",
+    "constraint": "final held-out NLL within 0.01 of synchronous_restart and zero divergence",
+    "objective": "minimum modeled completion seconds among the five complete measured policy schedules; no per-tick action mixing",
+    "tie_breaker": "minimum inter-site payload bytes",
+    "normalized_regret": "(adaptive completion seconds - hindsight whole-policy envelope completion seconds) / envelope completion seconds when the selected schedule passes the post-selection learning gate"
+  },
+  "uncertainty": {
+    "paired_interval": {
+      "confidence_level": 0.9,
+      "draws": 10000,
+      "seed": 2026071301,
+      "unit_of_resampling": "held-out stress family"
+    },
+    "epistemic_infrastructure_envelope": {
+      "bandwidth_realization_multiplier": [0.8, 1.2],
+      "compute_rate_realization_multiplier": [0.9, 1.1],
+      "wan_round_trip_seconds": [0.002, 0.02]
+    },
+    "learning_transfer": "unresolved outside the measured byte model and AdamW configuration"
+  },
+  "falsifiers": {
+    "paired_evaluation_family_count_eq": 6,
+    "adaptive_minus_best_fixed_final_nll_upper_bound_lte": 0.01,
+    "adaptive_to_best_fixed_inter_site_payload_ratio_upper_bound_lte": 0.2,
+    "adaptive_to_best_fixed_modeled_completion_time_ratio_upper_bound_lte": 0.9,
+    "adaptive_normalized_oracle_regret_upper_bound_lte": 0.1,
+    "adaptive_divergence_count_eq": 0,
+    "adaptive_sample_or_lineage_violation_count_eq": 0,
+    "calibration_selected_comparator_frozen_before_evaluation": true
+  },
+  "decision": {
+    "all_falsifiers_pass": "small_model_observable_semantic_slack_survives",
+    "learning_passes_but_system_gates_fail": "semantic_slack_exists_but_controller_has_no_system_advantage",
+    "system_gates_pass_but_learning_fails": "communication_savings_change_learning_semantics",
+    "fixed_policy_matches_adaptive": "reject_joint_control_novelty",
+    "oracle_gap_high": "observable_state_is_insufficient_or_controller_is_misspecified",
+    "out_of_distribution": "abstain_without_policy_claim"
+  }
+}

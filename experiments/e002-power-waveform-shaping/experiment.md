@@ -1,7 +1,8 @@
 # E002: Shape the Power Waveform
 
 Status: E002-PW1 preserved as `measurement_invalid`; E002-PW2 completed with
-valid local attribution; E002-PW3 is the active multi-GPU/rack slice
+valid local attribution; E002-PW3 is a frozen optional multi-GPU/rack
+calibration slice, while the active software roadmap is E001-SC2
 
 Protocol date: July 12, 2026
 
@@ -67,7 +68,7 @@ raw-cumulative primary passes but the attribution is not baseline-insensitive.
 The result is [results/checkpoint-energy-v2.json](results/checkpoint-energy-v2.json),
 artifact `cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`.
 
-## Active Causal Slice: E002-PW3
+## Optional External Calibration Slice: E002-PW3
 
 PW3 moves the supported local mechanism to simultaneous multi-GPU and rack
 observation. It must execute dependency-safe dephasing with aligned per-GPU
@@ -85,7 +86,8 @@ It tests whether dependency-safe recovery slack can reduce both rack-PDU
 `p99.9 |dP/dt|` and 0.1–10 Hz spectral energy by at least 30% versus
 synchronized execution and 15% versus random legal jitter while preserving
 throughput, rack energy, recovery time, semantics, durable cuts, rollback, and
-held-out learning. No physical PW3 result exists yet.
+held-out learning. No physical PW3 result exists yet, and PW3 does not gate
+GPUSTACK's software-first research loop.
 
 ## Question
 

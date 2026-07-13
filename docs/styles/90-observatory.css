@@ -1089,6 +1089,7 @@ body[data-depth="freshman"] .causal-reading > ol small {
 }
 
 .timeline-band,
+.semantic-consistency-v1-band,
 .recovery-v2-band,
 .learning-v1-band,
 .equal-work-v1-band,
@@ -4322,6 +4323,274 @@ body:not([data-depth="full_trace"]) .raw-trace pre {
   max-height: 320px;
 }
 
+.semantic-consistency-v1-band {
+  border-top: 3px solid var(--obs-teal);
+  background: rgba(248, 245, 237, 0.98);
+}
+
+.semantic-consistency-v1-header output {
+  max-width: min(58ch, 52vw);
+  color: var(--obs-ink-soft);
+  font: 0.69rem/1.4 var(--font-value);
+  text-align: right;
+}
+
+.semantic-consistency-insight {
+  border-left-color: var(--obs-teal);
+}
+
+.semantic-consistency-insight > div:last-child {
+  display: grid;
+  gap: 8px;
+}
+
+.semantic-consistency-insight > div:last-child p,
+.semantic-consistency-insight > div:last-child strong {
+  margin: 0;
+  color: #dce3df;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.semantic-consistency-insight > div:last-child strong {
+  color: #afd7d3;
+  font: 600 0.75rem/1.5 var(--font-value);
+}
+
+.semantic-consistency-depth-copy {
+  max-width: 92ch;
+  padding: 15px 0 17px;
+  color: var(--obs-ink-soft);
+  font-size: 0.88rem;
+  line-height: 1.58;
+}
+
+.semantic-consistency-depth-copy p {
+  margin: 0;
+}
+
+body[data-depth="researcher"] .semantic-consistency-depth-copy .depth-freshman,
+body[data-depth="full_trace"] .semantic-consistency-depth-copy .depth-freshman,
+body[data-depth="full_trace"] .semantic-consistency-depth-copy .depth-researcher {
+  display: none;
+}
+
+.semantic-consistency-research {
+  display: grid;
+  gap: 20px;
+  margin-top: 18px;
+}
+
+.semantic-consistency-ranking,
+.semantic-consistency-timeline,
+.semantic-consistency-family-results {
+  min-width: 0;
+  padding: clamp(16px, 2.4vw, 26px);
+  border: 1px solid var(--obs-rule);
+  background: var(--obs-paper-raised);
+}
+
+.semantic-consistency-ranking-frame {
+  min-width: 0;
+  overflow-x: auto;
+  border: 1px solid var(--obs-rule-soft);
+  background:
+    linear-gradient(var(--obs-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--obs-grid) 1px, transparent 1px),
+    var(--obs-paper);
+  background-size: 24px 24px;
+  scrollbar-color: var(--obs-teal) var(--obs-paper-deep);
+}
+
+#semantic-consistency-ranking-svg {
+  display: block;
+  width: 100%;
+  min-width: 820px;
+  height: auto;
+  font-family: var(--font-value);
+}
+
+.semantic-ranking-axis,
+.semantic-ranking-gridline {
+  stroke: var(--obs-rule);
+  stroke-width: 1;
+}
+
+.semantic-ranking-gridline {
+  stroke: var(--obs-rule-soft);
+}
+
+.semantic-ranking-family,
+.semantic-ranking-tick {
+  fill: var(--obs-ink);
+}
+
+.semantic-ranking-family {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.semantic-ranking-tick {
+  fill: var(--obs-ink-soft);
+  font-size: 10px;
+}
+
+.semantic-ranking-label {
+  fill: var(--obs-paper-raised);
+  font-size: 10px;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.semantic-ranking-segment {
+  stroke: var(--obs-paper-raised);
+  stroke-width: 2;
+}
+
+.semantic-ranking-segment[data-state="adaptive_wins"],
+.semantic-ranking-segment[data-state="adaptive_invariant"] {
+  fill: rgba(8, 117, 128, 0.78);
+}
+
+.semantic-ranking-segment[data-state="fixed_wins"],
+.semantic-ranking-segment[data-state="fixed_invariant"] {
+  fill: rgba(36, 86, 196, 0.72);
+}
+
+.semantic-ranking-segment[data-state="rank_reverses"],
+.semantic-ranking-segment[data-state="uncertain"] {
+  fill: rgba(205, 126, 36, 0.76);
+}
+
+.semantic-ranking-segment[data-state="abstain"],
+.semantic-ranking-segment[data-state="unsupported"] {
+  fill: rgba(166, 49, 45, 0.72);
+}
+
+.semantic-ranking-segment[data-state="unmeasured"] {
+  fill: var(--obs-paper-deep);
+  stroke: var(--obs-red);
+  stroke-dasharray: 5 4;
+}
+
+.semantic-ranking-segment[data-state="unmeasured"] + .semantic-ranking-label {
+  fill: var(--obs-ink);
+}
+
+.semantic-consistency-family-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--obs-ink-soft);
+  font: 600 0.68rem var(--font-value);
+  text-transform: uppercase;
+}
+
+.semantic-consistency-family-control select {
+  min-height: 34px;
+  max-width: 300px;
+  font: 500 0.72rem var(--font-value);
+}
+
+.semantic-consistency-timeline-well {
+  margin-top: 14px;
+}
+
+.semantic-mode-interval {
+  stroke: var(--obs-paper-raised);
+  stroke-width: 1;
+}
+
+.semantic-mode-interval[data-mode="synchronous_restart"],
+.semantic-mode-interval[data-mode="exact_sync"] {
+  fill: var(--obs-cobalt);
+}
+
+.semantic-mode-interval[data-mode="exact_forward_recovery"] {
+  fill: var(--obs-teal);
+}
+
+.semantic-mode-interval[data-mode="delayed_one_step"] {
+  fill: var(--obs-orange);
+}
+
+.semantic-mode-interval[data-mode="periodic_local"] {
+  fill: #8c74bd;
+}
+
+.semantic-mode-interval[data-mode="abstain"] {
+  fill: var(--obs-red);
+}
+
+.semantic-mode-label,
+.semantic-mode-event {
+  fill: var(--obs-ink);
+  font: 700 10px var(--font-value);
+}
+
+.semantic-mode-event {
+  fill: var(--obs-red);
+}
+
+.semantic-consistency-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--obs-rule-soft);
+}
+
+.semantic-consistency-evidence-grid > section {
+  min-width: 0;
+  padding: 16px;
+}
+
+.semantic-consistency-evidence-grid > section + section {
+  border-left: 1px solid var(--obs-rule-soft);
+}
+
+.semantic-consistency-evidence-grid h4 {
+  margin: 0 0 10px;
+  font: 700 0.72rem var(--font-value);
+  text-transform: uppercase;
+}
+
+.semantic-consistency-evidence-grid dl,
+.semantic-consistency-evidence-grid ul {
+  margin: 0;
+}
+
+.semantic-consistency-evidence-grid dl {
+  display: grid;
+  gap: 8px;
+}
+
+.semantic-consistency-evidence-grid dt {
+  color: var(--obs-ink-soft);
+  font: 600 0.64rem var(--font-value);
+  text-transform: uppercase;
+}
+
+.semantic-consistency-evidence-grid dd,
+.semantic-consistency-evidence-grid li {
+  margin: 2px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 0.75rem;
+  line-height: 1.48;
+}
+
+.semantic-consistency-family-table td:last-child[data-state="abstain"],
+.semantic-consistency-family-table td:last-child[data-state="rank_reverses"] {
+  color: var(--obs-red);
+  font-weight: 700;
+}
+
+.semantic-consistency-epoch-table td {
+  vertical-align: top;
+}
+
+.semantic-consistency-epoch-table tr[data-abstained="true"] {
+  background: rgba(166, 49, 45, 0.08);
+}
+
 .rack-dephasing-v3-band {
   border-top: 3px solid #6652a3;
   background: rgba(248, 245, 237, 0.99);
@@ -5038,16 +5307,17 @@ body[data-depth="full_trace"] .rack-dephasing-depth-copy .depth-researcher {
   }
 
   .question-band { order: 1; }
-  .research-band { order: 2; }
-  .comparison-band { order: 3; }
-  .recovery-v2-band { order: 4; }
-  .learning-v1-band { order: 5; }
-  .equal-work-v1-band { order: 6; }
-  .checkpoint-power-v1-band { order: 7; }
-  .checkpoint-energy-v2-band { order: 8; }
-  .rack-dephasing-v3-band { order: 9; }
-  .timeline-band { order: 10; }
-  .evidence-lab { order: 11; }
+  .semantic-consistency-v1-band { order: 2; }
+  .research-band { order: 3; }
+  .comparison-band { order: 4; }
+  .recovery-v2-band { order: 5; }
+  .learning-v1-band { order: 6; }
+  .equal-work-v1-band { order: 7; }
+  .checkpoint-power-v1-band { order: 8; }
+  .checkpoint-energy-v2-band { order: 9; }
+  .rack-dephasing-v3-band { order: 10; }
+  .timeline-band { order: 11; }
+  .evidence-lab { order: 12; }
 
   .question-band {
     display: flex;
@@ -5256,6 +5526,7 @@ body[data-depth="full_trace"] .rack-dephasing-depth-copy .depth-researcher {
   }
 
   .timeline-band,
+  .semantic-consistency-v1-band,
   .recovery-v2-band,
   .learning-v1-band,
   .equal-work-v1-band,
@@ -5301,6 +5572,7 @@ body[data-depth="full_trace"] .rack-dephasing-depth-copy .depth-researcher {
   }
 
   .recovery-v2-header output,
+  .semantic-consistency-v1-header output,
   .learning-v1-header output,
   .equal-work-v1-header output,
   .checkpoint-power-v1-header output,
@@ -5309,6 +5581,27 @@ body[data-depth="full_trace"] .rack-dephasing-depth-copy .depth-researcher {
     max-width: none;
     margin-top: 6px;
     text-align: left;
+  }
+
+  .semantic-consistency-insight,
+  .semantic-consistency-evidence-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .semantic-consistency-evidence-grid > section + section {
+    border-top: 1px solid var(--obs-rule-soft);
+    border-left: 0;
+  }
+
+  .semantic-consistency-family-control {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .semantic-consistency-family-control select {
+    width: 100%;
+    max-width: none;
   }
 
   .learning-v1-header,

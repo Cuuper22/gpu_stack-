@@ -297,14 +297,26 @@ Artifacts:
 - observatory projection: `../../docs/data/e001-equal-work-v1.json`
   (`5ff07c4cf5b59be04d14f1b66961e679c2cec127b521c386d54ff9ebaadc1ae1`).
 
-## Next Experiment: E002 Energy Attribution
+## Latest Research Loop: E001-SC1 Observable Semantic Slack
 
-Do not scale survivor continuation yet. The next experiment is an E002
-operation-to-facility power-waveform attribution study with a frozen 2x2
-design: checkpoint cadence by survivor continuation. It must isolate which
-checkpoint and recovery phases caused LC3's adaptive energy penalty, then test
-whether dependency-safe phase scheduling removes that penalty without giving
-back the held-out learning, attempted-work, or opportunity-tick gains.
+E002-PW1 and PW2 subsequently resolved the local device-energy attribution
+question. GPUSTACK then returned to the software-first multi-datacenter claim
+with E001-SC1, documented in
+[`semantic-consistency-v1.md`](semantic-consistency-v1.md).
+
+SC1 completed 20 calibration runs, 30 executable held-out runs across six
+stress families, and six non-executable hindsight-envelope records.
+Calibration selected `periodic_local`. The adaptive controller failed its
+learning, WAN-payload, modeled-completion, and hindsight-envelope-regret gates,
+while every executable arm completed equal work with zero divergence, sample,
+or optimizer-lineage violations. Three families produced 104 explicit
+out-of-distribution abstention ticks. The persisted conclusion is
+`abstain_without_policy_claim`.
+
+The next question is E001-SC2: can a calibration-trained predictor estimate a
+policy's learning penalty and modeled time/WAN consequence before switching on
+a wholly held-out model or optimizer family? The six SC1 evaluation families
+remain evaluation data and cannot be used to tune the next controller.
 
 Observed local learning, tokens, active time, and sampled RTX board energy must
 remain separate from modeled WAN, storage, host, cooling, and facility

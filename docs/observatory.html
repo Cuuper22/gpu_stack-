@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@500;600&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/90-observatory.css?v=20260712.12">
-  <script src="observatory.js?v=20260712.8" defer></script>
+  <script src="observatory.js?v=20260712.10" defer></script>
 </head>
 <body data-depth="freshman" data-data-state="loading">
   <a class="skip-link" href="#observatory-main">Skip to experiment</a>
@@ -30,7 +30,8 @@
     <label class="experiment-picker">
       <span class="visually-hidden">Experiment</span>
       <select id="experiment-select" aria-label="Experiment">
-        <option value="E001">E001 · Beyond One Datacenter</option>
+        <option value="E001-SC1">E001-SC1 · Observable Semantic Slack</option>
+        <option value="E001">E001 · Prior Evidence Chain</option>
       </select>
       <svg aria-hidden="true" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg>
     </label>
@@ -56,20 +57,169 @@
       </div>
 
       <div class="question-copy">
-        <p class="experiment-kicker"><span>E001</span> Beyond One Datacenter</p>
-        <h1 id="experiment-question">Can one training run survive across three datacenters?</h1>
+        <p class="experiment-kicker"><span id="experiment-kicker-code">E001-SC1</span> <span id="experiment-kicker-name">Observable Semantic Slack</span></p>
+        <h1 id="experiment-question">Can one observable controller safely spend semantic slack?</h1>
         <div class="stage-boundary" id="stage-boundary">
           <span class="stage-mark" aria-hidden="true"></span>
-          <strong>Virtual screening</strong>
+          <strong>Software experiment</strong>
           <span aria-hidden="true">·</span>
-          <span>held-out validation absent</span>
+          <span>small-model learning + virtual datacenter</span>
         </div>
-        <p class="plain-answer" id="plain-answer">Loading the generated experiment artifact. No conclusion is shown until its evidence boundary is known.</p>
-        <p class="artifact-state" id="artifact-state" role="status" aria-live="polite">Reading data/e001-screening-v1.json…</p>
+        <p class="plain-answer" id="plain-answer">Loading the held-out semantic-consistency result. No conclusion is shown until its evidence boundary is known.</p>
+        <p class="artifact-state" id="artifact-state" role="status" aria-live="polite">Reading data/e001-semantic-consistency-v1.json…</p>
       </div>
     </section>
 
-    <section class="research-band" aria-label="Causal field and evidence inspector">
+    <section class="semantic-consistency-v1-band" id="semantic-consistency-v1" aria-labelledby="semantic-consistency-v1-title" data-experiment-view="E001-SC1" hidden>
+      <header class="band-header semantic-consistency-v1-header">
+        <div>
+          <p class="control-label">E001-SC1 · held-out software experiment</p>
+          <h2 id="semantic-consistency-v1-title">One controller, six unseen stress families</h2>
+        </div>
+        <output id="semantic-consistency-v1-state" role="status" aria-live="polite">Reading semantic-consistency artifact…</output>
+      </header>
+
+      <article class="equal-work-insight semantic-consistency-insight" aria-labelledby="semantic-consistency-insight-title">
+        <div>
+          <p class="equal-work-eyebrow" id="semantic-consistency-eyebrow">Same useful work · result loading</p>
+          <h3 id="semantic-consistency-insight-title">Result loading</h3>
+        </div>
+        <div>
+          <p id="semantic-consistency-plain-answer">The observatory will state whether adaptive switching preserved held-out learning and beat the frozen fixed comparator.</p>
+          <strong id="semantic-consistency-boundary-short">Infrastructure remains modeled unless the artifact says otherwise.</strong>
+        </div>
+      </article>
+
+      <div class="semantic-consistency-depth-copy">
+        <p class="depth-freshman" id="semantic-consistency-freshman-copy">Every policy receives the same training examples and must reach the same useful-work target. The result will show whether changing consistency mode helped, what it saved, and where the controller refused to guess.</p>
+        <p class="depth-researcher" id="semantic-consistency-researcher-copy">The fixed comparator is selected on calibration only. Six untouched stress families pair adaptive and fixed policies against a hindsight whole-policy envelope; sampling intervals and infrastructure uncertainty remain separate.</p>
+        <p class="depth-full_trace" id="semantic-consistency-depth-trace">Exact optimizer commits, mode transitions, membership, lineage, work, WAN accounting, assumptions, uncertainty, and missing evidence appear below.</p>
+      </div>
+
+      <div class="checkpoint-energy-freshman-grid semantic-consistency-freshman-grid depth-freshman" id="semantic-consistency-freshman-grid" aria-label="Plain-language semantic-consistency result"></div>
+
+      <div class="semantic-consistency-research depth-researcher">
+        <section class="equal-work-effects" aria-labelledby="semantic-consistency-effects-title">
+          <header class="equal-work-section-header">
+            <div>
+              <p class="control-label">Paired held-out effects</p>
+              <h3 id="semantic-consistency-effects-title">Learning, time, communication, work, and energy stay adjacent</h3>
+            </div>
+            <span id="semantic-consistency-effects-note">six evaluation families · 90% paired intervals</span>
+          </header>
+          <div class="equal-work-effect-grid semantic-consistency-effect-grid" id="semantic-consistency-effect-grid"></div>
+        </section>
+
+        <section class="semantic-consistency-ranking" aria-labelledby="semantic-consistency-ranking-title">
+          <header class="equal-work-section-header">
+            <div>
+              <p class="control-label">Epistemic ranking regions</p>
+              <h3 id="semantic-consistency-ranking-title">Where the result survives uncertainty, and where it abstains</h3>
+            </div>
+            <span>direct labels · no hover required</span>
+          </header>
+          <div class="semantic-consistency-ranking-frame">
+            <svg id="semantic-consistency-ranking-svg" role="img" aria-labelledby="semantic-consistency-ranking-title semantic-consistency-ranking-desc"></svg>
+            <p id="semantic-consistency-ranking-desc" class="visually-hidden">Each held-out stress family is divided into labeled infrastructure-uncertainty regions where adaptive wins, a fixed policy wins, ranking reverses, or the controller abstains.</p>
+          </div>
+          <details class="structured-fallback">
+            <summary>Accessible ranking-region table</summary>
+            <div class="checkpoint-energy-table-scroll">
+              <table class="checkpoint-energy-trace-table">
+                <thead><tr><th scope="col">Family</th><th scope="col">Uncertainty region</th><th scope="col">Ranking</th><th scope="col">Comparator</th><th scope="col">Reason</th></tr></thead>
+                <tbody id="semantic-consistency-ranking-fallback"></tbody>
+              </table>
+            </div>
+          </details>
+        </section>
+
+        <section class="semantic-consistency-timeline" aria-labelledby="semantic-consistency-timeline-title">
+          <header class="equal-work-section-header">
+            <div>
+              <p class="control-label">Selected held-out family</p>
+              <h3 id="semantic-consistency-timeline-title">What the controller saw, chose, and preserved</h3>
+            </div>
+            <label class="semantic-consistency-family-control" for="semantic-consistency-family-select">Family
+              <select id="semantic-consistency-family-select" aria-label="Selected semantic-consistency evaluation family"></select>
+            </label>
+          </header>
+          <div class="recovery-timeline-well semantic-consistency-timeline-well">
+            <svg id="semantic-consistency-timeline-svg" class="recovery-timeline-svg" role="img" aria-labelledby="semantic-consistency-timeline-title semantic-consistency-timeline-desc"></svg>
+            <p id="semantic-consistency-timeline-desc" class="visually-hidden">Aligned adaptive and comparator mode intervals with membership, WAN, abstention, merge, and rejoin events.</p>
+          </div>
+          <details class="structured-fallback">
+            <summary>Accessible controller-decision timeline</summary>
+            <div id="semantic-consistency-timeline-fallback"></div>
+          </details>
+        </section>
+
+        <section class="semantic-consistency-family-results" aria-labelledby="semantic-consistency-family-results-title">
+          <header class="equal-work-section-header">
+            <div>
+              <p class="control-label">Untouched family ledger</p>
+              <h3 id="semantic-consistency-family-results-title">No family disappears inside the median</h3>
+            </div>
+            <span>adaptive versus calibration-selected fixed policy</span>
+          </header>
+          <div class="checkpoint-energy-table-scroll">
+            <table class="checkpoint-energy-trace-table semantic-consistency-family-table">
+              <thead><tr><th scope="col">Family</th><th scope="col">Learning delta</th><th scope="col">Completion ratio</th><th scope="col">WAN ratio</th><th scope="col">Work replayed</th><th scope="col">Energy</th><th scope="col">Ranking / abstention</th></tr></thead>
+              <tbody id="semantic-consistency-family-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <aside class="equal-work-boundary semantic-consistency-boundary" aria-labelledby="semantic-consistency-boundary-title">
+          <span class="evidence-glyph evidence-glyph--modeled" aria-hidden="true"></span>
+          <div>
+            <h3 id="semantic-consistency-boundary-title">Measured learning, exact accounting, modeled infrastructure</h3>
+            <p id="semantic-consistency-evidence-boundary">Evidence boundary loading.</p>
+            <p id="semantic-consistency-missing-short"></p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="checkpoint-energy-trace semantic-consistency-trace depth-full_trace">
+        <div class="checkpoint-energy-run-selector">
+          <label for="semantic-consistency-run-select">Selected run for exact optimizer-commit trace</label>
+          <select id="semantic-consistency-run-select" aria-label="Selected semantic-consistency run"></select>
+        </div>
+
+        <details open>
+          <summary>Exact optimizer-commit ledger</summary>
+          <div class="checkpoint-energy-table-scroll">
+            <table class="checkpoint-energy-trace-table semantic-consistency-epoch-table">
+              <thead><tr><th scope="col">Wall / logical tick</th><th scope="col">Mode / action</th><th scope="col">Stress / membership</th><th scope="col">Lineage</th><th scope="col">Update age / disagreement</th><th scope="col">Useful / attempted / replayed</th><th scope="col">WAN payload / time</th><th scope="col">Held-out NLL</th><th scope="col">Evidence / abstention</th></tr></thead>
+              <tbody id="semantic-consistency-epoch-body"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <details open>
+          <summary>Assumptions, uncertainty, and missing evidence</summary>
+          <div class="semantic-consistency-evidence-grid">
+            <section><h4>Assumptions</h4><div id="semantic-consistency-assumptions"></div></section>
+            <section><h4>Uncertainty</h4><div id="semantic-consistency-uncertainty"></div></section>
+            <section><h4>Missing evidence</h4><div id="semantic-consistency-missing-evidence"></div></section>
+          </div>
+        </details>
+
+        <details>
+          <summary>Hashes and complete compact provenance</summary>
+          <pre id="semantic-consistency-provenance-json" tabindex="0">not loaded</pre>
+        </details>
+
+        <details id="semantic-consistency-raw-details">
+          <summary>Load on-demand exact epoch trace</summary>
+          <div class="checkpoint-energy-raw-panel">
+            <p id="semantic-consistency-raw-state" role="status" aria-live="polite">Raw optimizer-commit trace has not been loaded. Opening this disclosure in Full trace fetches the separately bound artifact.</p>
+            <p id="semantic-consistency-raw-meta"></p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="research-band" aria-label="Causal field and evidence inspector" data-experiment-view="E001">
       <aside class="causal-reading" aria-labelledby="causal-reading-title">
         <h2 id="causal-reading-title">Causal reading</h2>
         <ol>
@@ -137,7 +287,7 @@
       </aside>
     </section>
 
-    <section class="timeline-band" id="timeline" aria-labelledby="timeline-title">
+    <section class="timeline-band" id="timeline" aria-labelledby="timeline-title" data-experiment-view="E001">
       <header class="band-header">
         <div>
           <p class="control-label">Aligned experiment time</p>
@@ -181,7 +331,7 @@
       </details>
     </section>
 
-    <section class="recovery-v2-band" id="recovery-v2" aria-labelledby="recovery-v2-title" hidden>
+    <section class="recovery-v2-band" id="recovery-v2" aria-labelledby="recovery-v2-title" data-experiment-view="E001" hidden>
       <header class="band-header recovery-v2-header">
         <div>
           <p class="control-label">Matched recovery trace</p>
@@ -248,7 +398,7 @@
       </div>
     </section>
 
-    <section class="learning-v1-band" id="learning-v1" aria-labelledby="learning-v1-title" hidden>
+    <section class="learning-v1-band" id="learning-v1" aria-labelledby="learning-v1-title" data-experiment-view="E001" hidden>
       <header class="band-header learning-v1-header">
         <div>
           <p class="control-label">Measured small-model learning</p>
@@ -348,7 +498,7 @@
       </div>
     </section>
 
-    <section class="equal-work-v1-band" id="equal-work-v1" aria-labelledby="equal-work-v1-title" hidden>
+    <section class="equal-work-v1-band" id="equal-work-v1" aria-labelledby="equal-work-v1-title" data-experiment-view="E001" hidden>
       <header class="band-header equal-work-v1-header">
         <div>
           <p class="control-label">LC3 · measured equal-work endpoint</p>
@@ -463,7 +613,7 @@
       </div>
     </section>
 
-    <section class="checkpoint-power-v1-band" id="checkpoint-power-v1" aria-labelledby="checkpoint-power-v1-title" hidden>
+    <section class="checkpoint-power-v1-band" id="checkpoint-power-v1" aria-labelledby="checkpoint-power-v1-title" data-experiment-view="E001" hidden>
       <header class="band-header checkpoint-power-v1-header">
         <div>
           <p class="control-label">E002-PW1 · measured local power</p>
@@ -610,7 +760,7 @@
       </div>
     </section>
 
-    <section class="checkpoint-energy-v2-band" id="checkpoint-energy-v2" aria-labelledby="checkpoint-energy-v2-title" hidden>
+    <section class="checkpoint-energy-v2-band" id="checkpoint-energy-v2" aria-labelledby="checkpoint-energy-v2-title" data-experiment-view="E001" hidden>
       <header class="band-header checkpoint-energy-v2-header">
         <div>
           <p class="control-label">E002-PW2 · valid cumulative energy</p>
@@ -745,7 +895,7 @@
       </div>
     </section>
 
-    <section class="rack-dephasing-v3-band" id="rack-dephasing-v3" aria-labelledby="rack-dephasing-v3-title" hidden>
+    <section class="rack-dephasing-v3-band" id="rack-dephasing-v3" aria-labelledby="rack-dephasing-v3-title" data-experiment-view="E001" hidden>
       <header class="band-header rack-dephasing-v3-header">
         <div>
           <p class="control-label">E002-PW3 · physical rack mechanism</p>
@@ -872,7 +1022,7 @@
       </div>
     </section>
 
-    <section class="comparison-band" id="comparison" aria-labelledby="comparison-title">
+    <section class="comparison-band" id="comparison" aria-labelledby="comparison-title" data-experiment-view="E001">
       <header class="band-header">
         <div>
           <p class="control-label">E001 v1 screening artifact</p>
@@ -907,7 +1057,7 @@
       <p class="comparison-boundary" id="comparison-boundary">Waiting for a generated artifact. Result cells remain not run.</p>
     </section>
 
-    <section class="evidence-lab" id="evidence" aria-labelledby="evidence-title">
+    <section class="evidence-lab" id="evidence" aria-labelledby="evidence-title" data-experiment-view="E001">
       <header class="band-header">
         <div>
           <p class="control-label">E001 v1 screening evidence chain</p>

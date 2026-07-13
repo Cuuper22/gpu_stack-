@@ -71,6 +71,11 @@ from .e001_lc3_equal_work import (
     SCHEMA as E001_LC3_SCHEMA,
     run_e001_lc3_equal_work,
 )
+from .e001_semantic_consistency import (
+    ENGINE_ID as E001_SC1_ENGINE_ID,
+    SCHEMA as E001_SC1_SCHEMA,
+    run_e001_semantic_consistency,
+)
 
 from .evaluation import (
     DecisionRegret,
@@ -129,6 +134,12 @@ from .observatory_equal_work import (
     SCHEMA as E001_EQUAL_WORK_OBSERVATORY_SCHEMA,
     build_e001_equal_work_observatory_artifact,
     project_e001_equal_work_result_file,
+)
+from .observatory_semantic_consistency import (
+    RAW_SCHEMA as E001_SC1_RAW_OBSERVATORY_SCHEMA,
+    SCHEMA as E001_SC1_OBSERVATORY_SCHEMA,
+    build_e001_semantic_consistency_observatory_artifact,
+    build_e001_semantic_consistency_raw_artifact,
 )
 from .e002_checkpoint_power import (
     ENGINE_ID as E002_CHECKPOINT_POWER_ENGINE_ID,
@@ -377,6 +388,9 @@ __all__ = [
     "E001_LC3_ENGINE_ID",
     "E001_LC3_SCHEMA",
     "run_e001_lc3_equal_work",
+    "E001_SC1_ENGINE_ID",
+    "E001_SC1_SCHEMA",
+    "run_e001_semantic_consistency",
     "LearningProgressCalibration",
     "LearningProgressPrior",
     "SiteOutage",
@@ -392,6 +406,10 @@ __all__ = [
     "project_e001_learning_result_file",
     "E001_EQUAL_WORK_OBSERVATORY_SCHEMA",
     "build_e001_equal_work_observatory_artifact",
+    "E001_SC1_OBSERVATORY_SCHEMA",
+    "E001_SC1_RAW_OBSERVATORY_SCHEMA",
+    "build_e001_semantic_consistency_observatory_artifact",
+    "build_e001_semantic_consistency_raw_artifact",
     "E002_CHECKPOINT_POWER_ENGINE_ID",
     "E002_CHECKPOINT_POWER_SCHEMA",
     "run_e002_checkpoint_power",

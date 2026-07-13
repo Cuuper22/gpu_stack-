@@ -37,9 +37,9 @@ def test_next_work_text_prints_live_compass_sections():
     assert "Top 3 highest impact:" in out
     assert "4 best implementations:" in out
     assert "10 active experiment risks:" in out
-    assert "Bind E002-PW3 to a named instrumented rack and execute it" in out
-    assert "Keep the first rack result at the direct measurement boundary" in out
-    assert "Let the paired physical result choose PW4 or kill the mechanism" in out
+    assert "Preserve E001-SC1's rejected controller as the baseline result" in out
+    assert "Run E001-SC2 on a held-out model or optimizer family" in out
+    assert "Use physical collaboration only as optional calibration" in out
     assert "Legacy diagnostics (not scientific priorities):" in out
     assert "Close the sourced Pythia cost frontier" in out
     assert "cost_per_token has" in out
@@ -57,5 +57,5 @@ def test_next_work_json_shape_matches_public_compass_contract():
     assert len(payload["best_implementations"]) == 4
     assert len(payload["bug_risks"]) == 10
     assert payload["highest_impact"][0]["title"] == (
-        "Bind E002-PW3 to a named instrumented rack and execute it"
+        "Preserve E001-SC1's rejected controller as the baseline result"
     )

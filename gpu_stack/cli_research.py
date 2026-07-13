@@ -22,8 +22,21 @@ from .research.observatory_recovery import (
 from .research.programs import protocol_for
 
 
-def _write_json_artifact(payload: dict[str, Any], output: str) -> None:
-    text = json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n"
+def _write_json_artifact(
+    payload: dict[str, Any],
+    output: str,
+    *,
+    pretty: bool = True,
+) -> None:
+    dump_options: dict[str, Any] = {
+        "sort_keys": True,
+        "allow_nan": False,
+    }
+    if pretty:
+        dump_options["indent"] = 2
+    else:
+        dump_options["separators"] = (",", ":")
+    text = json.dumps(payload, **dump_options) + "\n"
     if output == "-":
         print(text, end="")
         return
@@ -92,6 +105,40 @@ def cmd_experiment_protocol(args) -> int:
 
 
 def cmd_experiment_run(args) -> int:
+    if args.experiment == "E001-SC1":
+        if not args.dataset:
+            raise ValueError("E001-SC1 requires --dataset")
+        from .research.e001_semantic_consistency import (
+            run_e001_semantic_consistency,
+        )
+        from .research.observatory_semantic_consistency import (
+            build_e001_semantic_consistency_observatory_artifact,
+            build_e001_semantic_consistency_raw_artifact,
+        )
+
+        result_payload = run_e001_semantic_consistency(
+            args.scenario,
+            args.dataset,
+        )
+        _write_json_artifact(result_payload, args.output, pretty=False)
+        if args.observatory_output:
+            raw_payload = build_e001_semantic_consistency_raw_artifact(
+                result_payload
+            )
+            raw_path = Path(args.observatory_output).with_name(
+                "e001-semantic-consistency-raw-v1.json"
+            )
+            _write_json_artifact(raw_payload, str(raw_path), pretty=False)
+            _write_json_artifact(
+                build_e001_semantic_consistency_observatory_artifact(
+                    result_payload,
+                    source_uri=None if args.output == "-" else args.output,
+                    raw_trace_uri=raw_path.name,
+                    raw_trace_sha256=raw_payload["artifact_sha256"],
+                ),
+                args.observatory_output,
+            )
+        return 0
     if args.experiment == "E002-PW3":
         if not args.dataset:
             raise ValueError("E002-PW3 requires --dataset")

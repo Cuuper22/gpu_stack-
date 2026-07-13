@@ -7,6 +7,8 @@ observations, held-out evaluation, or an experiment-enabling runtime.
 
 from __future__ import annotations
 
+import json
+
 from .next_work_evidence import _Evidence
 from .next_work_models import NextWorkItem
 from .next_work_rendering import (
@@ -31,6 +33,25 @@ def _e002_pw3_vertical_slice_ready(evidence: _Evidence) -> bool:
         "gpu_stack/research/observatory_rack_dephasing.py",
     )
     return all((evidence.repo_root / path).is_file() for path in required)
+
+
+def _semantic_consistency_result(evidence: _Evidence) -> dict[str, object] | None:
+    """Load the active software-first result without turning it into a gate."""
+
+    path = (
+        evidence.repo_root
+        / "experiments"
+        / "e001-beyond-one-datacenter"
+        / "results"
+        / "semantic-consistency-v1.json"
+    )
+    if not path.is_file():
+        return None
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return value if isinstance(value, dict) else None
 
 
 def _highest_impact(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
@@ -77,6 +98,175 @@ def _highest_impact(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
             )
             if name in evidence.production_symbol_names
         )
+        semantic_scenario = (
+            evidence.repo_root
+            / "experiments"
+            / "e001-beyond-one-datacenter"
+            / "semantic-consistency-scenario-v1.json"
+        )
+        if semantic_scenario.is_file():
+            semantic_engine = (
+                evidence.repo_root
+                / "gpu_stack"
+                / "research"
+                / "e001_semantic_consistency.py"
+            )
+            semantic_projection = (
+                evidence.repo_root
+                / "docs"
+                / "data"
+                / "e001-semantic-consistency-v1.json"
+            )
+            semantic_result = _semantic_consistency_result(evidence)
+            if not semantic_engine.is_file():
+                return (
+                    NextWorkItem(
+                        title="Implement the E001-SC1 semantic transition engine",
+                        evidence=(
+                            "the frozen software-first question, policy panel, held-out "
+                            "stress families, exact work contract, comparator rule, and "
+                            "falsifiers exist. The missing research capability is genuine "
+                            "per-site model and optimizer divergence across exact, delayed, "
+                            "local, recovery, and adaptive mode transitions"
+                        ),
+                        path="gpu_stack/research/e001_semantic_consistency.py",
+                    ),
+                    NextWorkItem(
+                        title="Run the measured small-model plus virtual-datacenter comparison",
+                        evidence=(
+                            "E001-SC1 must execute the four frozen policies, observable "
+                            "controller, and hindsight whole-policy envelope on identical token quotas. "
+                            "Timing, WAN, and power schedules stay modeled while held-out "
+                            "learning is measured on the local byte model"
+                        ),
+                        path=(
+                            "experiments/e001-beyond-one-datacenter/"
+                            "semantic-consistency-scenario-v1.json"
+                        ),
+                    ),
+                    NextWorkItem(
+                        title="Make the observatory explain the joint result",
+                        evidence=(
+                            "one artifact must connect learning, communication, recovery, "
+                            "mode choice, uncertainty, abstention, and exact lineage at "
+                            "freshman, researcher, and full-trace depth"
+                        ),
+                        path="docs/observatory.html",
+                    ),
+                )
+            if semantic_result is None:
+                return (
+                    NextWorkItem(
+                        title="Execute E001-SC1 now",
+                        evidence=(
+                            "the semantic-consistency engine and frozen scenario exist, but "
+                            "no measured result artifact does. The next evidence is one real "
+                            "run, not another audit, recovery-schema expansion, or physical "
+                            "rack dependency"
+                        ),
+                        path=(
+                            "experiments/e001-beyond-one-datacenter/"
+                            "semantic-consistency-v1.md"
+                        ),
+                    ),
+                    NextWorkItem(
+                        title="Hold the best-fixed comparator to calibration only",
+                        evidence=(
+                            "four calibration strata must select the fixed comparator before "
+                            "the six untouched bandwidth, compute-rate, and membership "
+                            "families are evaluated; evaluation cannot tune the controller"
+                        ),
+                        path=(
+                            "experiments/e001-beyond-one-datacenter/"
+                            "semantic-consistency-scenario-v1.json"
+                        ),
+                    ),
+                    NextWorkItem(
+                        title="Project the result without upgrading its evidence class",
+                        evidence=(
+                            "measured small-model learning, exact accounting, modeled "
+                            "infrastructure, and unresolved frontier-scale transfer must "
+                            "remain visually distinct"
+                        ),
+                        path="docs/observatory.html",
+                    ),
+                )
+            summary = semantic_result.get("summary", {})
+            conclusion = (
+                summary.get("conclusion")
+                if isinstance(summary, dict)
+                else semantic_result.get("conclusion")
+            )
+            if not semantic_projection.is_file():
+                return (
+                    NextWorkItem(
+                        title="Publish the completed E001-SC1 result in the observatory",
+                        evidence=(
+                            "a measured joint result exists with conclusion="
+                            f"{conclusion or 'unreported'}, but its compact three-depth "
+                            "projection is absent"
+                        ),
+                        path="docs/data/e001-semantic-consistency-v1.json",
+                    ),
+                    NextWorkItem(
+                        title="Lead with the policy-ranking and abstention regions",
+                        evidence=(
+                            "the central visual question is where observable state supports "
+                            "one action, where rankings reverse, and where evidence requires "
+                            "abstention; individual traces are drill-down evidence"
+                        ),
+                        path="docs/observatory.html",
+                    ),
+                    NextWorkItem(
+                        title="Keep frontier transfer blocked in the visual claim",
+                        evidence=(
+                            "E001-SC1 measures one byte model and models the infrastructure. "
+                            "It cannot establish 70B-model or real multi-datacenter transfer"
+                        ),
+                        path=(
+                            "experiments/e001-beyond-one-datacenter/"
+                            "semantic-consistency-v1.md"
+                        ),
+                    ),
+                )
+            return (
+                NextWorkItem(
+                    title="Preserve E001-SC1's rejected controller as the baseline result",
+                    evidence=(
+                        "the complete software research loop reports conclusion="
+                        f"{conclusion or 'unreported'}. Calibration selected periodic_local; "
+                        "adaptive switching failed learning, communication, modeled-time, "
+                        "and hindsight-envelope gates. Do not retune on its six evaluation "
+                        "families"
+                    ),
+                    path=(
+                        "experiments/e001-beyond-one-datacenter/results/"
+                        "semantic-consistency-v1.json"
+                    ),
+                ),
+                NextWorkItem(
+                    title="Run E001-SC2 on a held-out model or optimizer family",
+                    evidence=(
+                        "train a policy-risk predictor on calibration only, then ask whether "
+                        "it forecasts learning penalty and modeled time/WAN consequence before "
+                        "switching on a wholly withheld model or optimizer family. Failure to "
+                        "transfer or a calibrated abstention is a publishable result"
+                    ),
+                    path=(
+                        "experiments/e001-beyond-one-datacenter/"
+                        "semantic-consistency-v1.md"
+                    ),
+                ),
+                NextWorkItem(
+                    title="Use physical collaboration only as optional calibration",
+                    evidence=(
+                        "external hardware may tighten WAN, power, failure, or facility "
+                        "uncertainty, but it no longer blocks GPUSTACK from asking or "
+                        "answering software-grounded counterfactual questions"
+                    ),
+                    path="docs/research/frontier-scan-2026-07-12.md",
+                ),
+            )
         if evidence.e002_checkpoint_energy_result_present:
             def fixed(value: float | None, digits: int = 3) -> str:
                 return f"{value:.{digits}f}" if value is not None else "missing"
@@ -589,6 +779,55 @@ def _highest_impact(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
 def _best_implementations(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
     """Report the concrete implementation surfaces for the active research wave."""
 
+    semantic_result = _semantic_consistency_result(evidence)
+    if semantic_result is not None:
+        return (
+            NextWorkItem(
+                title="Freeze E001-SC2's transfer contract",
+                evidence=(
+                    "SC1 is a scored negative result: periodic_local won calibration, "
+                    "adaptive switching failed all four claim gates, and 104 decisions "
+                    "fell outside calibrated support. Freeze the SC2 predictor target, "
+                    "family split, comparator, and falsifiers before opening a withheld "
+                    "model or optimizer family"
+                ),
+                path=(
+                    "experiments/e001-beyond-one-datacenter/"
+                    "semantic-consistency-v1.md"
+                ),
+            ),
+            NextWorkItem(
+                title="Expose model and optimizer family as held-out axes",
+                evidence=(
+                    "The current engine executes one byte model and one AdamW setup. "
+                    "SC2 needs software-selectable model and optimizer families while "
+                    "preserving the same canonical token quotas, stress split, policy "
+                    "semantics, and exact accounting"
+                ),
+                path="gpu_stack/research/e001_semantic_consistency.py",
+            ),
+            NextWorkItem(
+                title="Predict policy-specific risk before every switch",
+                evidence=(
+                    "The next controller must emit a pre-action learning-penalty, WAN, "
+                    "and virtual-time prediction with uncertainty for every policy. It "
+                    "must abstain outside calibration support and cannot inspect future "
+                    "loss, gradients, failures, or stress"
+                ),
+                path="gpu_stack/research/e001_semantic_consistency.py",
+            ),
+            NextWorkItem(
+                title="Render predicted risk against the realized outcome",
+                evidence=(
+                    "The observatory should connect each visible state to the predicted "
+                    "policy ranking, uncertainty, chosen action or abstention, and the "
+                    "realized held-out learning and infrastructure consequences at "
+                    "freshman, researcher, and full-trace depth"
+                ),
+                path="docs/observatory.html",
+            ),
+        )
+
     if evidence.e002_checkpoint_energy_result_present:
         total_interaction = evidence.e002_checkpoint_energy_total_interaction_median
         checkpoint_interaction = (
@@ -766,6 +1005,115 @@ def _best_implementations(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
 
 def _bug_risks(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
     """Return ten active risks tied to the current research wave."""
+
+    if _semantic_consistency_result(evidence) is not None:
+        protocol = (
+            "experiments/e001-beyond-one-datacenter/"
+            "semantic-consistency-v1.md"
+        )
+        scenario = (
+            "experiments/e001-beyond-one-datacenter/"
+            "semantic-consistency-scenario-v1.json"
+        )
+        engine = "gpu_stack/research/e001_semantic_consistency.py"
+        result = (
+            "experiments/e001-beyond-one-datacenter/results/"
+            "semantic-consistency-v1.json"
+        )
+        return (
+            NextWorkItem(
+                title="SC1 evaluation families cannot become SC2 calibration data",
+                evidence=(
+                    "The six untouched SC1 families produced the rejected-controller "
+                    "result. Retuning thresholds or a predictor on them would turn held-"
+                    "out evidence into training data and erase the result"
+                ),
+                path=result,
+            ),
+            NextWorkItem(
+                title="One byte model cannot establish learning transfer",
+                evidence=(
+                    "SC1 measured held-out TinyStories byte NLL for one small model. "
+                    "Its result cannot support a claim about another architecture, "
+                    "optimizer family, or frontier-scale training until SC2 withholds "
+                    "that whole family"
+                ),
+                path=protocol,
+            ),
+            NextWorkItem(
+                title="A parameter rescale is not a held-out family",
+                evidence=(
+                    "Changing width, learning rate, or one AdamW coefficient inside the "
+                    "same implementation is a sensitivity region, not the model- or "
+                    "optimizer-family transfer question selected after SC1"
+                ),
+                path=scenario,
+            ),
+            NextWorkItem(
+                title="The predictor cannot inspect future loss or stress",
+                evidence=(
+                    "Every policy-risk estimate and switch must use only state visible at "
+                    "the decision boundary. Future gradients, losses, bandwidth, power, "
+                    "or membership events would collapse prediction into hindsight"
+                ),
+                path=engine,
+            ),
+            NextWorkItem(
+                title="Policy-risk comparisons require the exact work contract",
+                evidence=(
+                    "SC1 had zero sample-hash, optimizer-lineage, and work violations. "
+                    "SC2 remains admissible only if every arm keeps identical ordered "
+                    "token quotas and reports attempted, useful, replayed, and discarded "
+                    "work"
+                ),
+                path=result,
+            ),
+            NextWorkItem(
+                title="Infrastructure timing remains a modeled consequence",
+                evidence=(
+                    "Virtual completion time uses one frozen local microbenchmark plus "
+                    "scenario compute-rate and bandwidth factors. A model-family result "
+                    "must not relabel this as measured datacenter wall time"
+                ),
+                path=result,
+            ),
+            NextWorkItem(
+                title="Device and facility energy remain unresolved",
+                evidence=(
+                    "SC1 had no complete paired local-device energy comparison and did "
+                    "not measure host, network, storage, cooling, or facility power. SC2 "
+                    "cannot make an energy claim from virtual time or WAN bytes"
+                ),
+                path=result,
+            ),
+            NextWorkItem(
+                title="Abstention cannot be scored as a hidden success",
+                evidence=(
+                    "The controller recorded 104 out-of-distribution abstention ticks in "
+                    "E2, E4, and E6. SC2 must score coverage and fallback behavior "
+                    "explicitly rather than counting abstention as a correct policy choice"
+                ),
+                path=result,
+            ),
+            NextWorkItem(
+                title="The hindsight envelope is not a dynamic oracle",
+                evidence=(
+                    "SC1's envelope selects one whole executable policy using future "
+                    "stress and timing cost, then checks learning feasibility. It cannot "
+                    "be described as per-tick optimal action selection or a dynamic oracle"
+                ),
+                path=protocol,
+            ),
+            NextWorkItem(
+                title="Physical PW3 is optional calibration, not an execution gate",
+                evidence=(
+                    "External rack measurements may tighten power, WAN, failure, or "
+                    "facility assumptions, but missing hardware cannot block SC2's "
+                    "software-grounded transfer experiment or upgrade its evidence class"
+                ),
+                path="docs/research/frontier-scan-2026-07-12.md",
+            ),
+        )
 
     if _e002_pw3_vertical_slice_ready(evidence):
         pw3_result = (

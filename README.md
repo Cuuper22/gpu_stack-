@@ -339,11 +339,20 @@ meter at
 `experiments/e002-power-waveform-shaping/results/checkpoint-energy-v2.json`
 (`cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`).
 
-E002-PW3 is now an executable physical rack experiment: a dependency-safe
-phase scheduler, distributed four-job/eight-GPU runtime, UUID-bound GPU plus
-rack/storage/cooling telemetry, hash-chained raw evidence, and a three-depth
-observatory projection. No PW3 result exists yet because this machine has one
-GPU and no direct rack boundary meters.
+E001-SC1 then completed the software-first semantic-consistency loop: 20
+calibration runs, 30 executable held-out runs, and six hindsight-envelope
+records. Calibration selected `periodic_local`. Adaptive switching failed the
+held-out learning, WAN-payload, modeled-completion, and envelope-regret gates,
+while every run preserved exact work and optimizer lineage. The result is
+`experiments/e001-beyond-one-datacenter/results/semantic-consistency-v1.json`
+(`e4bb8023145bdb21e97b9a5d295dc778f58adccc452d2bd9d3e4a599bf53bbc7`).
+
+E002-PW3 remains an executable optional physical rack experiment: a
+dependency-safe phase scheduler, distributed four-job/eight-GPU runtime,
+UUID-bound GPU plus rack/storage/cooling telemetry, hash-chained raw evidence,
+and a three-depth observatory projection. No PW3 result exists yet because
+this machine has one GPU and no direct rack boundary meters. It does not gate
+GPUSTACK's software research loop.
 
 ## The Next-Work Compass
 
@@ -354,16 +363,14 @@ persisted results, the deployable observatory, and the symbolic graph:
 python -m gpu_stack.cli next-work
 ```
 
-PW1's invalid measurement remains preserved, but PW2 completed the same 32-run
-factorial with exact warm binding, no invalidators, and a valid 91.667 ms
-cumulative-energy signal. All three mechanism and eight salvage gates passed.
-The highest-impact section now points at the remaining research action: bind
-E002-PW3 to one named instrumented rack and execute the frozen paired blocks.
-It no longer lists scheduler, telemetry, or observatory construction as future
-work once those files are present, and it does not promote facility claims
-from one laptop GPU. Pythia closure and root-debt ranking remain visible under
-`Legacy diagnostics (not scientific priorities)` so useful maintenance does
-not quietly become the roadmap again.
+The highest-impact section now follows the E001-SC1 result. The next research
+action is E001-SC2: freeze a policy-risk predictor on calibration, then test
+whether it predicts learning penalty and modeled time/WAN consequences across
+a wholly held-out model or optimizer family. `periodic_local` stays the
+default baseline, and SC1's six evaluation families do not become tuning data.
+E002-PW3 is shown only as optional boundary calibration. Pythia closure and
+root-debt ranking remain under `Legacy diagnostics (not scientific
+priorities)` so maintenance does not quietly become the roadmap again.
 
 `next-work --json` preserves the established three-key wire shape.
 
@@ -395,9 +402,9 @@ These rules keep the package honest:
   frontier recovery with exact work conservation.
 - Applying observable-only membership, cadence, parallelism, configuration, migration, and power-cap interventions at explicit decision epochs.
 - Producing content-addressed E001 v1, recovery-v2, LC1, LC2 protocol, LC3
-  equal-work, E002-PW1 measurement-invalid, and E002-PW2 valid local artifacts while keeping
-  measured, modeled, assumed, prior, inadmissible, and unmeasured quantities
-  distinct.
+  equal-work, E001-SC1 semantic-consistency, E002-PW1 measurement-invalid,
+  and E002-PW2 valid local artifacts while keeping measured, modeled, assumed,
+  prior, inadmissible, and unmeasured quantities distinct.
 - Reporting site base plus accelerator-compute energy while explicitly excluding unmodeled network, checkpoint, storage, host, and cooling energy.
 - Inspecting symbolic dependencies across hardware, software, thermal, and economic layers.
 - Writing and checking new equations in a single registry.
@@ -483,13 +490,28 @@ Sparse continuation passed all eight salvage gates: NLL delta median
 opportunity ticks saved, and energy ratio `0.96099` with upper `1.00319`. The
 conclusion is `checkpoint_cadence_attributed_sparse_continuation_survives`.
 
-The next work is no longer another local engine pass. Bind the frozen PW3
-telemetry config to a named rack with at least eight GPUs, direct rack-PDU,
-storage activity and measured power, cooling, and a sub-25 ms aligned clock;
-then execute the complete paired order. Publish `measurement_invalid` or a
-falsified mechanism if that is what the physical result says. Rare
-restore/rejoin phase estimates remain exploratory, and neither PW2 nor PW3 can
-establish facility or grid transfer without the later measurement stages.
+E001-SC1 then ran 20 calibration arms, 30 executable held-out arms across six
+stress families, and six non-executable hindsight-envelope records.
+Calibration selected `periodic_local`. Adaptive switching had held-out NLL
+difference `+0.016659 [+0.001785, +0.042213]`, WAN-payload ratio
+`2.128x [1.556x, 2.552x]`, modeled-completion ratio
+`1.072x [0.986x, 1.099x]`, and hindsight-envelope regret
+`0.07155 [0.03349, 0.10056]`. Every frozen gate failed. The engine still
+completed equal work with zero divergence, sample-identity mismatch,
+optimizer-lineage violation, or work-contract violation.
+
+Three families produced 104 out-of-distribution abstention ticks, so the
+persisted conclusion is `abstain_without_policy_claim`. This is a valid
+negative controller result on one byte-level AdamW model, not evidence that
+`periodic_local` is universally optimal. Device-energy comparison was not
+available, and WAN plus completion time remain modeled.
+
+The next work is E001-SC2. Freeze a policy-risk predictor on calibration, keep
+`periodic_local` as the default baseline, and test its predicted learning
+penalty and modeled time/WAN consequence on a wholly held-out model or
+optimizer family. Do not retune it on SC1's six evaluation families. E002-PW3
+remains available as optional physical calibration for rack-power claims; it
+does not gate the software research loop.
 
 The symbolic resolver remains intentionally conservative. By default it does
 not solve simultaneous systems or switch relations when an approximation

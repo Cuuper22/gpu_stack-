@@ -53,7 +53,12 @@ The first research substrate is no longer roadmap prose:
   update rate could not support the frozen attribution;
 - E002-PW2 repeated the frozen design with cumulative energy, passed validity,
   attributed the local checkpoint-cadence effect, and recovered sparse
-  continuation across all eight frozen gates.
+  continuation across all eight frozen gates;
+- E001-SC1 completed a 56-record semantic-consistency loop, selected
+  `periodic_local` on calibration, rejected the observable switching
+  controller on learning, WAN traffic, modeled time, and hindsight-envelope
+  regret, and exposed 104 out-of-distribution abstention ticks without a
+  divergence or equal-work violation.
 
 Merge verification: focused research/docs pack `28 passed in 11.83s` and
 read-only full verifier `5/5` in `320.32s` with a 600-second gate ceiling.
@@ -147,12 +152,35 @@ The sensitivity-only idle-subtracted interaction crossed zero at
 `3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token`; the frozen raw-cumulative primary
 passes, but the attribution is not baseline-insensitive.
 
-## Next Research Milestone: E002-PW3 Multi-GPU/Rack Dephasing
+## E001-SC1 Observable Semantic Slack: Controller Rejected
 
-Test dependency-safe dephasing across simultaneous GPUs with aligned per-GPU
-cumulative energy, rack-PDU, storage, and cooling telemetry. Rare restore and
-rejoin phases remain exploratory. PW2 is a valid local GPU-board mechanism; it
-does not establish rack or facility transfer.
+E001-SC1 executed 20 calibration runs and 30 executable held-out runs across
+six stress families, plus six non-executable hindsight whole-policy-envelope
+records. Calibration selected `periodic_local`. Adaptive switching then had a
+held-out NLL difference of `+0.016659 [+0.001785, +0.042213]`, WAN-payload
+ratio `2.128x [1.556x, 2.552x]`, and modeled-completion ratio
+`1.072x [0.986x, 1.099x]`. All three gates failed. The envelope-regret upper
+bound was `0.10056`, narrowly above its `0.10` limit.
+
+Every evaluation arm completed the same 524,288 canonical tokens with zero
+divergence, sample-identity mismatch, optimizer-lineage violation, or
+work-contract violation. The result is a valid negative result, not an engine
+failure. It also includes 104 explicit out-of-distribution abstention ticks in
+E2, E4, and E6, so the persisted conclusion is
+`abstain_without_policy_claim`.
+
+## Next Research Milestone: E001-SC2 Transferable Risk Prediction
+
+Test whether a predictor trained only on calibration runs can estimate each
+policy's learning penalty and modeled time/WAN consequence before switching
+across a wholly held-out model or optimizer family. Keep `periodic_local` as
+the default baseline and do not retune on SC1's six evaluation families. The
+research result is transfer accuracy, calibrated abstention, or a documented
+failure, not the existence of a more elaborate controller.
+
+E002-PW3 remains an optional physical calibration and falsification adapter
+for rack-level power claims. It does not gate E001-SC2 or the software research
+loop, and PW2 still does not establish rack or facility transfer.
 
 ## Latest Verified Wave
 
@@ -289,10 +317,11 @@ and preset export/discovery tests.
 
 | Priority | Work | Done when |
 |---|---|---|
-| P0 | Run E002-PW3 multi-GPU/rack dependency-safe dephasing. | Simultaneous GPUs execute controlled phase offsets with exact learning/work semantics and paired undephased baselines. |
-| P0 | Instrument the transfer boundary. | Aligned per-GPU cumulative energy, rack-PDU power, storage activity/power, and cooling telemetry support causal attribution. |
-| P0 | Preserve PW1 and PW2 distinctly. | PW1 remains measurement-invalid; PW2 remains a valid local GPU-board mechanism with rare phases labeled exploratory. |
-| P1 | Withhold facility transfer. | Rack, cooling, grid-safety, and admission-capacity claims wait for direct PW3 evidence. |
+| P0 | Run E001-SC2 across held-out model or optimizer families. | The predictor and `periodic_local` baseline are frozen before the withheld family is opened, and learning, WAN, modeled time, regret, and abstention are reported together. |
+| P0 | Explain policy risk before action. | The observatory connects visible state to predicted learning penalty, modeled infrastructure consequence, actual outcome, uncertainty, and abstention at all three depths. |
+| P0 | Preserve SC1 as a negative result. | Its six evaluation families are not converted into controller-tuning data; all four failed gates and 104 abstentions remain visible. |
+| P1 | Keep E002-PW3 optional. | Physical rack access calibrates or falsifies rack-power boundaries without blocking software experiments. |
+| P1 | Withhold facility transfer. | Rack, cooling, grid-safety, and admission-capacity claims remain explicitly unresolved without direct evidence. |
 | P1 | Keep the continuation compass scientific. | `next-work` ranks missing evidence, mechanism leverage, residuals, and uncertainty contribution; root debt remains a secondary diagnostic. |
 | P2 | Deepen physical ancestry selectively. | New lower-level physics closes a measured residual, reduces uncertainty, or enables an experiment. |
 
@@ -302,4 +331,5 @@ Build the research programs in `RESEARCH.md`: adaptive multi-datacenter
 training, power-waveform shaping, semantic fault tolerance, fluid inference
 topology, heterogeneous architecture co-design, and firm grid-responsive
 inference. Every program must move through virtual screening, held-out
-calibration, shadow-mode comparison, and real-cluster validation.
+calibration, and counterfactual comparison. External physical validation is a
+later adapter only for claims whose measurement boundary requires it.
