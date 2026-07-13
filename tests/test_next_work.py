@@ -48,23 +48,23 @@ def test_next_work_plan_evidence_is_live_and_high_signal():
     plan = build_next_work_plan()
     evidence = _all_evidence(plan)
 
-    assert "artifact_sha256=cfbca215" in evidence
-    assert "completed runs=32/32" in evidence
-    assert "measurement_valid=True" in evidence
-    assert "all 8/8 gates" in evidence
-    assert "idle-subtracted interaction" in evidence
-    assert "crossed zero" in evidence
-    assert "simultaneous per-GPU cumulative energy" in evidence
-    assert "rack PDU, storage, and cooling telemetry" in evidence
+    assert "No physical PW3 result artifact exists" in evidence
+    assert "named rack with at least eight GPUs" in evidence
+    assert "Summed GPU power, inferred storage power, or static PUE" in evidence
+    assert "two calibration and six evaluation blocks" in evidence
+    assert "one stable NVML UUID per torchrun rank" in evidence
+    assert "No physical artifact means no PW3 visual claim" in "\n".join(
+        item.title for item in plan.bug_risks
+    )
 
 
 def test_highest_impact_is_research_first_and_legacy_diagnostics_stay_secondary():
     plan = build_next_work_plan()
 
     assert [item.title for item in plan.highest_impact] == [
-        "Run E002-PW3 multi-GPU/rack dependency-safe dephasing",
-        "Measure simultaneous GPU, rack, storage, and cooling power",
-        "Keep facility transfer outside the PW2 claim",
+        "Bind E002-PW3 to a named instrumented rack and execute it",
+        "Keep the first rack result at the direct measurement boundary",
+        "Let the paired physical result choose PW4 or kill the mechanism",
     ]
     highest_titles = "\n".join(item.title.lower() for item in plan.highest_impact)
     assert "pythia" not in highest_titles
@@ -85,32 +85,16 @@ def test_research_priorities_are_backed_by_live_executable_artifact_evidence():
     plan = build_next_work_plan()
     rendered = "\n".join(item.evidence for item in plan.highest_impact)
 
-    assert (
-        "artifact_sha256="
-        "cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee"
-    ) in rendered
-    assert "completed runs=32/32" in rendered
-    assert "exact warm binding=True" in rendered
-    assert "measurement_valid=True" in rendered
-    assert "active invalidators=none" in rendered
-    assert "cumulative update period=91.667 ms" in rendered
-    assert "evaluation updates=83-109" in rendered
-    assert (
-        "conclusion=checkpoint_cadence_attributed_sparse_continuation_survives"
-        in rendered
-    )
-    assert "total interaction median=2.2416e-05 J/token" in rendered
-    assert "checkpoint group=5.8845e-06" in rendered
-    assert "snapshot=4.9917e-06" in rendered
-    assert "Snapshot support sparse/dense=59.30/110.06" in rendered
-    assert "group support=124.56/176.94" in rendered
-    assert "mechanism gates=3/3" in rendered
-    assert "survived all 8/8 gates" in rendered
-    assert "NLL delta median=0.0033385 upper=0.0085037" in rendered
-    assert "attempted-work saving=3.03%" in rendered
-    assert "opportunity ticks saved=40" in rendered
-    assert "energy ratio median=0.96099 upper=1.00319" in rendered
-    assert "Rare restore/rejoin phase estimates remain exploratory" in rendered
+    assert "dependency-safe scheduler" in rendered
+    assert "torchrun runtime" in rendered
+    assert "UUID-bound GPU telemetry" in rendered
+    assert "No physical PW3 result artifact exists" in rendered
+    assert "direct rack-PDU power" in rendered
+    assert "independent storage power and cooling" in rendered
+    assert "measurement_invalid" in rendered
+    assert "synchronized, random-jitter, storage-only" in rendered
+    assert "two calibration and six evaluation blocks" in rendered
+    assert "otherwise publish the failed or simpler mechanism" in rendered
 
 
 def test_experiment_result_scan_does_not_count_scenario_inputs(tmp_path):

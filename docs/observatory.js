@@ -16,10 +16,13 @@
   const CHECKPOINT_ENERGY_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-checkpoint-energy.v2";
   const CHECKPOINT_ENERGY_RAW_ARTIFACT_URL = "data/e002-checkpoint-energy-raw-v2.json";
   const CHECKPOINT_ENERGY_RAW_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-checkpoint-energy.raw.v2";
+  const RACK_DEPHASING_ARTIFACT_URL = "data/e002-rack-dephasing-v3.json";
+  const RACK_DEPHASING_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-rack-dephasing.v3";
   const SVG_NS = "http://www.w3.org/2000/svg";
   const VALID_DEPTHS = new Set(["freshman", "researcher", "full_trace"]);
   const VALID_POLICIES = new Set(["synchronous", "fixed_local", "adaptive_cadence"]);
   const VALID_UNCERTAINTY = new Set(["intervals", "point"]);
+  const VALID_RACK_COMPARATORS = new Set(["synchronized", "random_jitter"]);
   const POLICY_ORDER = ["synchronous", "fixed_local", "adaptive_cadence"];
   const POLICY_LABELS = {
     synchronous: "Synchronous",
@@ -191,6 +194,8 @@
   let checkpointEnergyRawArtifact = null;
   let checkpointEnergyRawArtifactError = null;
   let checkpointEnergyRawLoad = null;
+  let rackDephasingArtifact = null;
+  let rackDephasingArtifactError = null;
   let state = readStateFromURL();
   let timelineScale = null;
   let transientInspector = false;
@@ -328,6 +333,8 @@
       time: Number.isFinite(timeCandidate) && timeCandidate >= 0 ? timeCandidate : 100,
       depth: VALID_DEPTHS.has(candidate.depth) ? candidate.depth : "freshman",
       uncertainty: VALID_UNCERTAINTY.has(candidate.uncertainty) ? candidate.uncertainty : "intervals",
+      rackBlock: typeof candidate.rackBlock === "string" && candidate.rackBlock.length <= 80 ? candidate.rackBlock : "",
+      rackComparator: VALID_RACK_COMPARATORS.has(candidate.rackComparator) ? candidate.rackComparator : "synchronized",
     };
   }
 
@@ -345,6 +352,9 @@
     url.searchParams.set("time", String(Math.round(state.time * 1000000) / 1000000));
     url.searchParams.set("depth", state.depth);
     url.searchParams.set("uncertainty", state.uncertainty);
+    if (state.rackBlock) url.searchParams.set("rackBlock", state.rackBlock);
+    else url.searchParams.delete("rackBlock");
+    url.searchParams.set("rackComparator", state.rackComparator);
     const method = replace ? "replaceState" : "pushState";
     window.history[method]({ ...state }, "", url);
   }
@@ -567,6 +577,27 @@
     return value;
   }
 
+  function validateRackDephasingArtifact(value) {
+    const record = (candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate);
+    if (!record(value)) throw new ArtifactContractError("rack-dephasing artifact root is not an object");
+    if (value.schema !== RACK_DEPHASING_ARTIFACT_SCHEMA) throw new ArtifactContractError(`unsupported rack-dephasing schema: ${String(value.schema || "missing")}`);
+    if (value.experiment_id !== "E002-PW3") throw new ArtifactContractError("rack-dephasing artifact experiment_id is not E002-PW3");
+    if (typeof value.artifact_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.artifact_sha256)) throw new ArtifactContractError("rack-dephasing artifact sha256 is invalid");
+    ["freshman", "researcher", "full_trace", "source_result", "evidence_boundary", "next_experiment"].forEach((key) => {
+      if (!record(value[key])) throw new ArtifactContractError(`rack-dephasing artifact ${key} is missing`);
+    });
+    if (!Array.isArray(value.freshman.cards) || value.freshman.cards.length !== 4) throw new ArtifactContractError("rack-dephasing freshman cards are incomplete");
+    if (!Array.isArray(value.researcher.active_invalidators) || !Array.isArray(value.researcher.waveform_blocks)) throw new ArtifactContractError("rack-dephasing researcher evidence is incomplete");
+    if (!Array.isArray(value.full_trace.blocks) || !finiteNumber(value.full_trace.block_count) || !finiteNumber(value.full_trace.arm_count)) throw new ArtifactContractError("rack-dephasing full trace is incomplete");
+    value.researcher.waveform_blocks.forEach((block) => {
+      if (!record(block) || typeof block.block_id !== "string" || !Array.isArray(block.arms)) throw new ArtifactContractError("rack-dephasing waveform block is invalid");
+      block.arms.forEach((arm) => {
+        if (!record(arm) || typeof arm.policy_id !== "string" || !record(arm.event_summary) || !Array.isArray(arm.event_summary.display_events)) throw new ArtifactContractError("rack-dephasing waveform arm is invalid");
+      });
+    });
+    return value;
+  }
+
   async function loadArtifact() {
     try {
       const response = await fetch(ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
@@ -709,6 +740,21 @@
     return checkpointEnergyRawLoad;
   }
 
+  async function loadRackDephasingArtifact() {
+    try {
+      const response = await fetch(RACK_DEPHASING_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error(`rack-dephasing artifact request returned ${response.status}`);
+      rackDephasingArtifact = validateRackDephasingArtifact(await response.json());
+      rackDephasingArtifactError = null;
+      document.body.dataset.rackDephasingState = "ready";
+    } catch (error) {
+      rackDephasingArtifact = null;
+      rackDephasingArtifactError = error;
+      document.body.dataset.rackDephasingState = error instanceof ArtifactContractError ? "invalid" : "missing";
+    }
+    renderRackDephasingV3();
+  }
+
   function cacheDOM() {
     [
       "experiment-select", "share-state", "plain-answer", "artifact-state", "stage-boundary",
@@ -747,6 +793,15 @@
       "checkpoint-energy-run-select", "checkpoint-energy-run-ledger", "checkpoint-energy-counter-summary",
       "checkpoint-energy-phase-metrics", "checkpoint-energy-provenance-json", "checkpoint-energy-raw-details",
       "checkpoint-energy-raw-state", "checkpoint-energy-raw-meta", "checkpoint-energy-raw-points",
+      "rack-dephasing-v3", "rack-dephasing-v3-state", "rack-dephasing-eyebrow",
+      "rack-dephasing-insight-title", "rack-dephasing-plain-answer", "rack-dephasing-boundary-short",
+      "rack-dephasing-freshman-copy", "rack-dephasing-researcher-copy", "rack-dephasing-depth-trace",
+      "rack-dephasing-freshman-grid", "rack-dephasing-block-select", "rack-dephasing-comparator-select",
+      "rack-dephasing-waveform-svg", "rack-dephasing-waveform-desc", "rack-dephasing-waveform-fallback",
+      "rack-dephasing-effect-grid", "rack-dephasing-policy-body", "rack-dephasing-gate-summary",
+      "rack-dephasing-gate-strip", "rack-dephasing-evidence-boundary", "rack-dephasing-next-question",
+      "rack-dephasing-event-body", "rack-dephasing-trace-summary", "rack-dephasing-raw-manifest",
+      "rack-dephasing-provenance-json",
     ].forEach((id) => { dom[id.replaceAll("-", "")] = byId(id); });
     dom.researchBand = document.querySelector(".research-band");
     dom.depthButtons = [...document.querySelectorAll(".depth-control button")];
@@ -796,6 +851,12 @@
       if (!dom.checkpointenergyrawdetails.open || state.depth !== "full_trace") return;
       loadCheckpointEnergyRawArtifact().catch(() => {});
     });
+    dom.rackdephasingblockselect.addEventListener("change", () => {
+      commitState({ rackBlock: dom.rackdephasingblockselect.value });
+    });
+    dom.rackdephasingcomparatorselect.addEventListener("change", () => {
+      commitState({ rackComparator: dom.rackdephasingcomparatorselect.value });
+    });
     dom.timelineviewport.addEventListener("keydown", (event) => {
       if (event.target !== dom.timelineviewport) return;
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -822,6 +883,7 @@
         resizeFrame = 0;
         renderCausalGraph();
         renderTimeline();
+        renderRackDephasingWaveform();
       });
     }, { passive: true });
   }
@@ -837,6 +899,7 @@
     loadEqualWorkArtifact();
     loadCheckpointPowerArtifact();
     loadCheckpointEnergyArtifact();
+    loadRackDephasingArtifact();
   }
 
   document.addEventListener("DOMContentLoaded", init, { once: true });
@@ -861,6 +924,7 @@
     renderEqualWorkV1();
     renderCheckpointPowerV1();
     renderCheckpointEnergyV2();
+    renderRackDephasingV3();
   }
 
   function recoveryRuns() {
@@ -2417,6 +2481,596 @@
     renderCheckpointEnergyPhaseSupport();
     renderCheckpointEnergyGates();
     renderCheckpointEnergyTrace();
+  }
+
+  const RACK_POLICY_ORDER = ["synchronized", "random_jitter", "throughput_pacing", "static_cohorts", "telemetry_feedback"];
+  const RACK_POLICY_LABELS = {
+    synchronized: "Synchronized",
+    random_jitter: "Random legal jitter",
+    throughput_pacing: "Storage-only pacing",
+    static_cohorts: "Static cohorts",
+    telemetry_feedback: "Telemetry feedback",
+  };
+
+  function rackHumanLabel(value) {
+    return String(value || "not reported")
+      .replaceAll("_", " ")
+      .replaceAll("-", " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  function rackRecord(value) {
+    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  }
+
+  function rackMetricValue(metric) {
+    if (finiteNumber(metric)) return metric;
+    const record = rackRecord(metric);
+    for (const key of ["median", "value", "point_estimate", "estimate", "observed_value"]) {
+      if (finiteNumber(record[key])) return record[key];
+    }
+    return null;
+  }
+
+  function rackInterval(metric) {
+    const record = rackRecord(metric);
+    const interval = record.confidence_interval_90 || record.interval_90 || record.confidence_interval;
+    if (Array.isArray(interval) && interval.length === 2 && interval.every(finiteNumber)) return [interval[0], interval[1]];
+    if (rackRecord(interval) && finiteNumber(interval.lower) && finiteNumber(interval.upper)) return [interval.lower, interval.upper];
+    if (finiteNumber(record.lower_bound) && finiteNumber(record.upper_bound)) return [record.lower_bound, record.upper_bound];
+    return null;
+  }
+
+  function rackEffectDisplay(metric) {
+    const record = rackRecord(metric);
+    const value = finiteNumber(record.median_effect) ? record.median_effect : rackMetricValue(record);
+    const kind = String(record.effect_kind || "absolute_difference");
+    const unit = String(record.unit || "");
+    if (!finiteNumber(value)) return { value: "unresolved", interval: "No admissible paired estimate" };
+    let valueText;
+    if (kind === "relative_reduction") valueText = `${(100 * value).toLocaleString("en-US", { maximumFractionDigits: 1 })}% lower`;
+    else if (["relative_increase", "relative_change", "relative_regression"].includes(kind)) valueText = `${(100 * value).toLocaleString("en-US", { maximumFractionDigits: 1, signDisplay: "always" })}%`;
+    else valueText = `${value.toLocaleString("en-US", { maximumSignificantDigits: 5, signDisplay: "always" })}${unit ? ` ${unit}` : ""}`;
+    const interval = rackInterval(record);
+    if (!interval) return { value: valueText, interval: "90% paired interval unavailable" };
+    const intervalText = ["relative_reduction", "relative_increase", "relative_change", "relative_regression"].includes(kind)
+      ? `${(100 * interval[0]).toLocaleString("en-US", { maximumFractionDigits: 1 })}% to ${(100 * interval[1]).toLocaleString("en-US", { maximumFractionDigits: 1 })}%`
+      : `${interval[0].toLocaleString("en-US", { maximumSignificantDigits: 5 })} to ${interval[1].toLocaleString("en-US", { maximumSignificantDigits: 5 })}${unit ? ` ${unit}` : ""}`;
+    return { value: valueText, interval: `90% interval ${intervalText}` };
+  }
+
+  function rackComparison(comparator = state.rackComparator) {
+    if (!rackDephasingArtifact) return {};
+    const comparisons = rackRecord(rackDephasingArtifact.researcher.comparisons);
+    return rackRecord(comparisons[`telemetry_feedback_vs_${comparator}`]);
+  }
+
+  function rackComparisonMetrics(comparator = state.rackComparator) {
+    const comparison = rackComparison(comparator);
+    return Object.keys(rackRecord(comparison.metrics)).length ? rackRecord(comparison.metrics) : comparison;
+  }
+
+  function rackMetric(metrics, ids) {
+    for (const id of ids) {
+      if (rackRecord(metrics[id]) && Object.keys(metrics[id]).length) return metrics[id];
+      if (finiteNumber(metrics[id])) return { median_effect: metrics[id] };
+    }
+    return {};
+  }
+
+  function rackSelectedBlock() {
+    if (!rackDephasingArtifact) return null;
+    const blocks = rackDephasingArtifact.researcher.waveform_blocks;
+    return blocks.find((block) => block.block_id === state.rackBlock) || blocks[0] || null;
+  }
+
+  function rackSelectedArms() {
+    const block = rackSelectedBlock();
+    if (!block) return { block: null, baseline: null, feedback: null };
+    const baseline = block.arms.find((arm) => arm.policy_id === state.rackComparator) || null;
+    const feedback = block.arms.find((arm) => arm.policy_id === "telemetry_feedback") || null;
+    return { block, baseline, feedback };
+  }
+
+  function renderRackBlockControls() {
+    const blocks = rackDephasingArtifact.researcher.waveform_blocks;
+    dom.rackdephasingblockselect.replaceChildren();
+    blocks.forEach((block) => {
+      const option = element("option", "", `${block.block_id} · ${rackHumanLabel(block.split)}`);
+      option.value = block.block_id;
+      dom.rackdephasingblockselect.append(option);
+    });
+    const selected = blocks.some((block) => block.block_id === state.rackBlock) ? state.rackBlock : blocks[0]?.block_id;
+    if (selected) dom.rackdephasingblockselect.value = selected;
+    dom.rackdephasingcomparatorselect.value = state.rackComparator;
+  }
+
+  function rackTracePointArrays(displayTrace) {
+    if (Array.isArray(displayTrace)) return displayTrace;
+    const trace = rackRecord(displayTrace);
+    for (const key of ["rack_pdu_points", "rack_pdu_power_points", "rack_power_points", "points", "samples"]) {
+      if (Array.isArray(trace[key])) return trace[key];
+      if (Array.isArray(rackRecord(trace[key]).points)) return trace[key].points;
+    }
+    if (Array.isArray(rackRecord(trace.rack_pdu).points)) return trace.rack_pdu.points;
+    const channels = rackRecord(trace.channels);
+    for (const key of ["rack_pdu_power", "rack_power_w", "rack-pdu.power-w"]) {
+      if (Array.isArray(channels[key])) return channels[key];
+      if (Array.isArray(rackRecord(channels[key]).points)) return channels[key].points;
+    }
+    return [];
+  }
+
+  function rackTraceSeries(arm) {
+    const rawPoints = rackTracePointArrays(arm && arm.display_trace);
+    const normalized = [];
+    rawPoints.forEach((point) => {
+      if (Array.isArray(point) && point.length >= 2 && finiteNumber(point[0]) && finiteNumber(point[1])) {
+        normalized.push({ rawTime: point[0], isNs: Math.abs(point[0]) > 1e11, powerW: point[1] });
+        return;
+      }
+      const record = rackRecord(point);
+      const nsKeys = ["utc_ns", "reference_interval_end_ns", "reference_time_ns", "timestamp_ns", "time_ns", "monotonic_ns", "t_ns"];
+      const secondKeys = ["relative_seconds", "time_seconds", "time_s", "seconds", "timestamp"];
+      let rawTime = null;
+      let isNs = false;
+      for (const key of nsKeys) {
+        if (finiteNumber(record[key])) { rawTime = record[key]; isNs = true; break; }
+      }
+      if (rawTime === null) {
+        for (const key of secondKeys) {
+          if (finiteNumber(record[key])) { rawTime = record[key]; break; }
+        }
+      }
+      let powerW = null;
+      for (const key of ["rack_pdu_power_w", "rack_power_w", "power_w", "value"]) {
+        if (finiteNumber(record[key])) { powerW = record[key]; break; }
+      }
+      if (rawTime !== null && powerW !== null) normalized.push({ rawTime, isNs, powerW });
+    });
+    normalized.sort((left, right) => left.rawTime - right.rawTime);
+    if (!normalized.length) return { points: [], originNs: null, duration: 0 };
+    const origin = normalized[0].rawTime;
+    const usesNs = normalized[0].isNs;
+    const points = normalized.map((point) => ({
+      seconds: usesNs ? (point.rawTime - origin) / 1e9 : point.rawTime - origin,
+      powerW: point.powerW,
+    })).filter((point) => finiteNumber(point.seconds) && finiteNumber(point.powerW));
+    return {
+      points,
+      originNs: usesNs ? origin : null,
+      duration: points.length ? points[points.length - 1].seconds : 0,
+    };
+  }
+
+  function rackEventStart(event) {
+    for (const key of ["actual_start_ns", "start_ns", "scheduled_release_ns", "earliest_start_ns"]) {
+      if (finiteNumber(event[key])) return event[key];
+    }
+    return null;
+  }
+
+  function rackEventEnd(event, start) {
+    for (const key of ["actual_end_ns", "end_ns", "completed_at_ns"]) {
+      if (finiteNumber(event[key])) return Math.max(start, event[key]);
+    }
+    return start;
+  }
+
+  function rackDisplayEvents(arm) {
+    return arm && arm.event_summary && Array.isArray(arm.event_summary.display_events) ? arm.event_summary.display_events : [];
+  }
+
+  function rackChartEvents(arm) {
+    const intervals = rackRecord(arm && arm.display_trace).state_flow_intervals;
+    return Array.isArray(intervals) ? intervals : rackDisplayEvents(arm);
+  }
+
+  function rackSeriesPath(points, xScale, yScale) {
+    return points.map((point, index) => `${index ? "L" : "M"}${xScale(point.seconds).toFixed(2)},${yScale(point.powerW).toFixed(2)}`).join(" ");
+  }
+
+  function renderRackPanel(svg, arm, series, layout, shared) {
+    const { left, right, top, waveformHeight, railTop, railHeight, width, label } = layout;
+    const x = (seconds) => left + (Math.max(0, Math.min(shared.duration, seconds)) / Math.max(shared.duration, 1e-9)) * (width - left - right);
+    const y = (power) => top + waveformHeight - ((power - shared.minPower) / Math.max(shared.maxPower - shared.minPower, 1e-9)) * waveformHeight;
+    svg.append(svgElement("text", { x: left, y: top - 9, class: "rack-dephasing-direct-label" })).textContent = label;
+    for (let index = 0; index <= 4; index += 1) {
+      const power = shared.minPower + (shared.maxPower - shared.minPower) * index / 4;
+      const yPosition = y(power);
+      svg.append(
+        svgElement("line", { x1: left, x2: width - right, y1: yPosition, y2: yPosition, class: "rack-dephasing-grid-line" }),
+        svgElement("text", { x: left - 8, y: yPosition + 4, "text-anchor": "end", class: "rack-dephasing-axis-label" }),
+      );
+      svg.lastChild.textContent = formatPower(power);
+    }
+    if (series.points.length) {
+      const path = svgElement("path", {
+        d: rackSeriesPath(series.points, x, y),
+        class: `rack-dephasing-wave-line rack-dephasing-wave-line--${arm.policy_id === "telemetry_feedback" ? "feedback" : "baseline"}`,
+      });
+      svg.append(path);
+      const last = series.points[series.points.length - 1];
+      const direct = svgElement("text", { x: Math.min(width - right + 7, width - 8), y: y(last.powerW) + 4, class: "rack-dephasing-direct-label" });
+      direct.textContent = arm.policy_id === "telemetry_feedback" ? "feedback" : RACK_POLICY_LABELS[arm.policy_id] || arm.policy_id;
+      svg.append(direct);
+    }
+
+    const events = rackChartEvents(arm).filter((event) => rackEventStart(event) !== null);
+    const jobs = [...new Set(events.map((event) => String(event.job_id ?? "rack")))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).slice(0, 8);
+    const rowHeight = Math.max(8, Math.min(15, railHeight / Math.max(jobs.length, 1)));
+    const eventOrigin = series.originNs !== null ? series.originNs : Math.min(...events.map(rackEventStart));
+    jobs.forEach((job, jobIndex) => {
+      const yPosition = railTop + jobIndex * rowHeight;
+      const jobLabel = svgElement("text", { x: left - 8, y: yPosition + rowHeight * 0.72, "text-anchor": "end", class: "rack-dephasing-rail-label" });
+      jobLabel.textContent = `job ${job}`;
+      svg.append(jobLabel, svgElement("line", { x1: left, x2: width - right, y1: yPosition + rowHeight, y2: yPosition + rowHeight, class: "rack-dephasing-grid-line" }));
+      events.filter((event) => String(event.job_id ?? "rack") === job).forEach((event) => {
+        const startNs = rackEventStart(event);
+        const endNs = rackEventEnd(event, startNs);
+        const startSeconds = (startNs - eventOrigin) / 1e9;
+        const endSeconds = (endNs - eventOrigin) / 1e9;
+        if (endSeconds < 0 || startSeconds > shared.duration) return;
+        const rect = svgElement("rect", {
+          x: x(Math.max(0, startSeconds)),
+          y: yPosition + 1,
+          width: Math.max(1.5, x(Math.min(shared.duration, endSeconds)) - x(Math.max(0, startSeconds))),
+          height: Math.max(5, rowHeight - 2),
+          rx: 1,
+          class: "rack-dephasing-event-mark",
+          "data-kind": String(event.kind || "event"),
+        });
+        svg.append(rect);
+      });
+    });
+  }
+
+  function renderRackWaveformFallback(baseline, feedback, baselineSeries, feedbackSeries) {
+    dom.rackdephasingwaveformfallback.replaceChildren();
+    const table = element("table", "rack-dephasing-table");
+    table.style.minWidth = "0";
+    const caption = element("caption", "visually-hidden", "Selected block waveform values and event counts");
+    const head = element("thead");
+    const headRow = element("tr");
+    ["Arm", "Rack samples", "Power range", "State-flow events", "Rack ramp", "Spectral energy"].forEach((label) => headRow.append(element("th", "", label)));
+    head.append(headRow);
+    const body = element("tbody");
+    [[baseline, baselineSeries], [feedback, feedbackSeries]].forEach(([arm, series]) => {
+      if (!arm) return;
+      const powers = series.points.map((point) => point.powerW);
+      const range = powers.length ? `${formatPower(Math.min(...powers))} to ${formatPower(Math.max(...powers))}` : "trace unavailable";
+      const row = element("tr");
+      row.append(
+        element("td", "", RACK_POLICY_LABELS[arm.policy_id] || rackHumanLabel(arm.policy_id)),
+        element("td", "", series.points.length.toLocaleString("en-US")),
+        element("td", "", range),
+        element("td", "", rackChartEvents(arm).length.toLocaleString("en-US")),
+        element("td", "", finiteNumber(arm.p99_9_rack_ramp_w_per_s) ? `${arm.p99_9_rack_ramp_w_per_s.toLocaleString("en-US", { maximumSignificantDigits: 5 })} W/s` : "unmeasured"),
+        element("td", "", finiteNumber(arm.rack_spectral_energy_0_1_10_hz) ? arm.rack_spectral_energy_0_1_10_hz.toLocaleString("en-US", { maximumSignificantDigits: 5 }) : "unmeasured"),
+      );
+      body.append(row);
+    });
+    table.append(caption, head, body);
+    dom.rackdephasingwaveformfallback.append(element("p", "", "Solid violet is telemetry feedback; dashed orange is the selected comparator. Rectangles encode checkpoint, transfer, rebuild, rejoin, compute, and merge intervals; the table keeps all essential values available without color or hover."), table);
+  }
+
+  function renderRackDephasingWaveform() {
+    if (!rackDephasingArtifact || !dom.rackdephasingwaveformsvg) return;
+    const { block, baseline, feedback } = rackSelectedArms();
+    const svg = dom.rackdephasingwaveformsvg;
+    svg.replaceChildren();
+    if (!block || !baseline || !feedback) {
+      dom.rackdephasingwaveformfallback.textContent = "The selected block does not contain both the comparator and telemetry-feedback arms.";
+      return;
+    }
+    const baselineSeries = rackTraceSeries(baseline);
+    const feedbackSeries = rackTraceSeries(feedback);
+    renderRackWaveformFallback(baseline, feedback, baselineSeries, feedbackSeries);
+    const allPoints = [...baselineSeries.points, ...feedbackSeries.points];
+    if (!allPoints.length) {
+      dom.rackdephasingwaveformdesc.textContent = `${block.block_id} has no compact rack-PDU display trace. The metric table and raw chunk manifest remain available.`;
+      return;
+    }
+    const width = Math.max(320, Math.round(svg.getBoundingClientRect().width || 960));
+    const mobile = width < 620;
+    const height = mobile ? 680 : 540;
+    const left = mobile ? 58 : 84;
+    const right = mobile ? 18 : 118;
+    const minObserved = Math.min(...allPoints.map((point) => point.powerW));
+    const maxObserved = Math.max(...allPoints.map((point) => point.powerW));
+    const padding = Math.max((maxObserved - minObserved) * 0.08, Math.abs(maxObserved) * 0.015, 1);
+    const shared = {
+      duration: Math.max(baselineSeries.duration, feedbackSeries.duration, 1),
+      minPower: minObserved - padding,
+      maxPower: maxObserved + padding,
+    };
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+    const panelGap = mobile ? 34 : 28;
+    const panelHeight = (height - 48 - panelGap) / 2;
+    const waveformHeight = Math.max(105, panelHeight * 0.58);
+    const railTopOffset = waveformHeight + 19;
+    const railHeight = Math.max(46, panelHeight - railTopOffset - 5);
+    const baselineTop = 30;
+    const feedbackTop = baselineTop + panelHeight + panelGap;
+    const baselineLabel = `${block.block_id} · ${RACK_POLICY_LABELS[baseline.policy_id] || baseline.policy_id}`;
+    const feedbackLabel = `${block.block_id} · Telemetry feedback`;
+    const timeLabels = [];
+    for (let index = 0; index <= 4; index += 1) {
+      const seconds = shared.duration * index / 4;
+      const x = left + (seconds / shared.duration) * (width - left - right);
+      svg.append(svgElement("line", { x1: x, x2: x, y1: 24, y2: height - 22, class: "rack-dephasing-grid-line" }));
+      const label = svgElement("text", { x, y: height - 7, "text-anchor": index === 0 ? "start" : index === 4 ? "end" : "middle", class: "rack-dephasing-axis-label" });
+      label.textContent = `${seconds.toLocaleString("en-US", { maximumFractionDigits: 1 })} s`;
+      timeLabels.push(label);
+    }
+    renderRackPanel(svg, baseline, baselineSeries, { left, right, top: baselineTop, waveformHeight, railTop: baselineTop + railTopOffset, railHeight, width, label: baselineLabel }, shared);
+    renderRackPanel(svg, feedback, feedbackSeries, { left, right, top: feedbackTop, waveformHeight, railTop: feedbackTop + railTopOffset, railHeight, width, label: feedbackLabel }, shared);
+    timeLabels.forEach((label) => svg.append(label));
+    dom.rackdephasingwaveformdesc.textContent = `${block.block_id} compares ${RACK_POLICY_LABELS[baseline.policy_id]} with telemetry feedback on a shared relative time axis. The comparator has ${baselineSeries.points.length} rack-PDU samples and ${rackChartEvents(baseline).length} displayed state-flow events; feedback has ${feedbackSeries.points.length} samples and ${rackChartEvents(feedback).length} events.`;
+  }
+
+  function renderRackFreshman() {
+    dom.rackdephasingfreshmangrid.replaceChildren();
+    rackDephasingArtifact.freshman.cards.forEach((entry) => {
+      const card = element("article", "rack-dephasing-plain-card");
+      card.append(element("span", "", entry.label), element("strong", "", entry.value), element("small", "", entry.detail));
+      dom.rackdephasingfreshmangrid.append(card);
+    });
+  }
+
+  function renderRackEffects() {
+    dom.rackdephasingeffectgrid.replaceChildren();
+    const metrics = rackComparisonMetrics();
+    const definitions = [
+      ["Rack ramp", ["rack_ramp", "rack_ramp_reduction", "p99_9_rack_ramp_w_per_s"], "p99.9 absolute rack-PDU ramp"],
+      ["0.1–10 Hz energy", ["rack_spectral_energy", "rack_spectral_reduction", "rack_spectral_energy_0_1_10_hz"], "detrended rack-PDU spectral energy"],
+      ["Useful-token rate", ["useful_token_throughput", "useful_token_throughput_regression"], "throughput constraint"],
+      ["Rack J / token", ["rack_energy_per_useful_token", "rack_energy_per_useful_token_increase"], "whole-rack energy constraint"],
+      ["p95 recovery", ["p95_recovery_time_s", "p95_recovery_time_regression", "recovery_time"], "failure-to-rejoin constraint"],
+      ["Held-out NLL", ["final_held_out_nll", "held_out_nll", "held_out_nll_absolute_difference"], "learning-equivalence constraint"],
+    ];
+    definitions.forEach(([label, ids, meaning]) => {
+      const metric = rackMetric(metrics, ids);
+      const display = rackEffectDisplay(metric);
+      const passed = rackRecord(metric).passed;
+      const card = element("article", "rack-dephasing-effect-card");
+      card.dataset.state = rackDephasingArtifact.researcher.measurement_valid !== true ? "invalid" : passed === false ? "fail" : passed === true ? "pass" : "unresolved";
+      card.append(element("span", "", `${rackHumanLabel(state.rackComparator)} comparison`), element("strong", "", display.value), element("small", "", `${display.interval} · ${meaning}`));
+      dom.rackdephasingeffectgrid.append(card);
+    });
+  }
+
+  function rackPolicyMetric(policy, ids) {
+    const policyMetrics = rackDephasingArtifact.researcher.policy_metrics;
+    const metrics = Array.isArray(policyMetrics)
+      ? rackRecord(policyMetrics.find((entry) => entry.policy_id === policy))
+      : rackRecord(rackRecord(policyMetrics)[policy]);
+    return rackMetric(metrics, ids);
+  }
+
+  function rackFormatMetric(metric, unit, formatter) {
+    const value = rackMetricValue(metric);
+    if (!finiteNumber(value)) return "unmeasured";
+    if (formatter) return formatter(value);
+    return `${value.toLocaleString("en-US", { maximumSignificantDigits: 5 })}${unit ? ` ${unit}` : ""}`;
+  }
+
+  function renderRackPolicyTable() {
+    dom.rackdephasingpolicybody.replaceChildren();
+    RACK_POLICY_ORDER.forEach((policy) => {
+      const row = element("tr");
+      row.append(
+        element("td", "", RACK_POLICY_LABELS[policy]),
+        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["rack_ramp", "p99_9_rack_ramp_w_per_s"]), "W/s")),
+        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["rack_spectral_energy", "rack_spectral_energy_0_1_10_hz"]), "")),
+        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["useful_token_throughput"]), "token/s")),
+        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["rack_energy_per_useful_token"]), "J/token")),
+        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["p95_recovery_time_s", "recovery_time"]), "", (value) => formatSeconds(value, 2))),
+        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["final_held_out_nll", "held_out_nll"]), "")),
+      );
+      dom.rackdephasingpolicybody.append(row);
+    });
+  }
+
+  function rackGateEntries(value, prefix = "") {
+    const entries = [];
+    Object.entries(rackRecord(value)).forEach(([key, candidate]) => {
+      const id = prefix ? `${prefix}.${key}` : key;
+      if (typeof candidate === "boolean") {
+        entries.push({ id, state: candidate ? "pass" : "fail", detail: candidate ? "passed" : "failed" });
+        return;
+      }
+      const record = rackRecord(candidate);
+      const status = String(record.status || "").toLowerCase();
+      if (typeof record.passed === "boolean" || ["pass", "passed", "fail", "failed", "unresolved", "invalid"].includes(status)) {
+        const stateValue = typeof record.passed === "boolean" ? (record.passed ? "pass" : "fail") : status.startsWith("pass") ? "pass" : status.startsWith("fail") ? "fail" : "unresolved";
+        const observedValue = finiteNumber(record.observed) ? record.observed : record.observed_value;
+        const observed = finiteNumber(observedValue) ? ` · observed ${observedValue.toLocaleString("en-US", { maximumSignificantDigits: 5 })}` : "";
+        entries.push({ id, state: stateValue, detail: `${record.description || record.reason || record.status || stateValue}${observed}` });
+        return;
+      }
+      entries.push(...rackGateEntries(record, id));
+    });
+    return entries;
+  }
+
+  function renderRackGates() {
+    dom.rackdephasinggatestrip.replaceChildren();
+    const gates = rackGateEntries(rackDephasingArtifact.researcher.gates);
+    gates.forEach((entry) => {
+      const gate = element("div", "rack-dephasing-gate");
+      gate.dataset.state = entry.state;
+      gate.append(element("strong", "", `${entry.state.toUpperCase()} · ${rackHumanLabel(entry.id)}`), element("span", "", entry.detail));
+      dom.rackdephasinggatestrip.append(gate);
+    });
+    if (!gates.length) {
+      const gate = element("div", "rack-dephasing-gate");
+      gate.dataset.state = "unresolved";
+      gate.append(element("strong", "", "UNRESOLVED"), element("span", "", "No gate records were emitted."));
+      dom.rackdephasinggatestrip.append(gate);
+    }
+    const passed = gates.filter((gate) => gate.state === "pass").length;
+    const failed = gates.filter((gate) => gate.state === "fail").length;
+    dom.rackdephasinggatesummary.textContent = `${passed}/${gates.length} pass · ${failed} fail`;
+  }
+
+  function rackBoundaryText(boundary) {
+    if (typeof boundary === "string") return boundary;
+    const record = rackRecord(boundary);
+    const parts = [];
+    for (const key of ["plain_boundary", "summary", "scope", "observed_boundary"]) {
+      if (typeof record[key] === "string" && record[key]) parts.push(record[key]);
+    }
+    if (Array.isArray(record.observed) && record.observed.length) parts.push(`Observed: ${record.observed.join(", ")}.`);
+    if (Array.isArray(record.can_resolve) && record.can_resolve.length) parts.push(`Can resolve: ${record.can_resolve.join(", ")}.`);
+    if (Array.isArray(record.cannot_resolve) && record.cannot_resolve.length) parts.push(`Cannot resolve: ${record.cannot_resolve.join(", ")}.`);
+    if (Array.isArray(record.unmeasured) && record.unmeasured.length) parts.push(`Unmeasured: ${record.unmeasured.join(", ")}.`);
+    if (Array.isArray(record.not_claimed) && record.not_claimed.length) parts.push(`Not claimed: ${record.not_claimed.join(", ")}.`);
+    return parts.join(" ") || JSON.stringify(record);
+  }
+
+  function renderRackEventLedger() {
+    dom.rackdephasingeventbody.replaceChildren();
+    const { baseline, feedback } = rackSelectedArms();
+    const arms = [baseline, feedback].filter(Boolean);
+    const records = arms.flatMap((arm) => rackDisplayEvents(arm).map((event) => ({ arm, event })));
+    const displayLimit = 1000;
+    records.slice(0, displayLimit).forEach(({ arm, event }) => {
+      const ready = event.earliest_start_ns;
+      const release = event.scheduled_release_ns;
+      const start = rackEventStart(event);
+      const end = start === null ? null : rackEventEnd(event, start);
+      const row = element("tr");
+      row.append(
+        element("td", "", `${RACK_POLICY_LABELS[arm.policy_id] || arm.policy_id} / ${event.job_id ?? "rack"}`),
+        element("td", "", String(event.kind || "not reported")),
+        element("td", "", String(event.state_generation || "not reported")),
+        element("td", "", finiteNumber(ready) && finiteNumber(release) ? `${ready.toLocaleString("en-US")} → ${release.toLocaleString("en-US")} ns` : "not reported"),
+        element("td", "", finiteNumber(start) && finiteNumber(end) ? `${start.toLocaleString("en-US")} → ${end.toLocaleString("en-US")} ns` : "not reported"),
+        element("td", "", finiteNumber(event.bytes) ? formatBytes(event.bytes) : "not reported"),
+        element("td", "", String(event.outcome || "not reported")),
+      );
+      dom.rackdephasingeventbody.append(row);
+    });
+    if (!records.length) {
+      const row = element("tr");
+      const cell = element("td", "", "No display-event records are present for the selected pair. Exact raw chunk bindings remain below.");
+      cell.colSpan = 7;
+      row.append(cell);
+      dom.rackdephasingeventbody.append(row);
+    } else if (records.length > displayLimit) {
+      const row = element("tr");
+      const cell = element("td", "", `${(records.length - displayLimit).toLocaleString("en-US")} additional compact events are omitted from the DOM; the complete hash-chained event stream is in the raw manifest.`);
+      cell.colSpan = 7;
+      row.append(cell);
+      dom.rackdephasingeventbody.append(row);
+    }
+  }
+
+  function rackFact(label, value) {
+    const fact = element("div", "rack-dephasing-trace-fact");
+    fact.append(element("strong", "", label), element("span", "", value));
+    return fact;
+  }
+
+  function rackManifestRefs(value, path = "raw", output = []) {
+    if (Array.isArray(value)) {
+      value.forEach((item, index) => rackManifestRefs(item, `${path}[${index}]`, output));
+      return output;
+    }
+    const record = rackRecord(value);
+    if (!Object.keys(record).length) return output;
+    const uri = record.uri || record.path || record.relative_path || record.chunk_path;
+    if (typeof uri === "string" && uri) {
+      output.push({ path, uri, sha256: record.sha256 || record.content_sha256 || record.artifact_sha256 || record.chunk_sha256 || null, recordCount: record.record_count || record.sample_count || null });
+    }
+    Object.entries(record).forEach(([key, item]) => {
+      if (["uri", "path", "relative_path", "chunk_path"].includes(key)) return;
+      if (item && typeof item === "object") rackManifestRefs(item, `${path}.${key}`, output);
+    });
+    return output;
+  }
+
+  function renderRackTrace() {
+    const trace = rackDephasingArtifact.full_trace;
+    const researcher = rackDephasingArtifact.researcher;
+    const { block, baseline, feedback } = rackSelectedArms();
+    dom.rackdephasingtracesummary.replaceChildren(
+      rackFact("Selected block", block ? `${block.block_id} · ${block.split}` : "unavailable"),
+      rackFact("Result volume", `${trace.block_count.toLocaleString("en-US")} blocks · ${trace.arm_count.toLocaleString("en-US")} arms`),
+      rackFact("Measurement", researcher.measurement_valid ? "VALID" : `INVALID · ${researcher.active_invalidators.join(", ") || "reason not reported"}`),
+      rackFact("Comparator semantics", JSON.stringify(baseline ? baseline.semantics : null)),
+      rackFact("Feedback semantics", JSON.stringify(feedback ? feedback.semantics : null)),
+      rackFact("Clock alignment", JSON.stringify(researcher.clock_alignment)),
+      rackFact("Sensor manifest", JSON.stringify(researcher.sensor_manifest)),
+      rackFact("Source artifact", rackDephasingArtifact.source_result.artifact_sha256),
+    );
+
+    dom.rackdephasingrawmanifest.replaceChildren();
+    const refs = rackManifestRefs(trace.raw_trace_manifest);
+    refs.slice(0, 200).forEach((entry) => {
+      const fact = element("div", "rack-dephasing-trace-fact");
+      fact.append(element("strong", "", entry.path));
+      const isLocalAbsolute = /^[A-Za-z]:[\\/]/.test(entry.uri) || entry.uri.startsWith("/") || entry.uri.startsWith("\\\\");
+      if (isLocalAbsolute) {
+        fact.append(element("span", "", `${entry.uri} · local execution path`));
+      } else {
+        const link = element("a", "", entry.uri);
+        link.href = entry.uri;
+        link.rel = "noreferrer";
+        fact.append(link);
+      }
+      fact.append(element("span", "", `${entry.sha256 ? `SHA-256 ${entry.sha256}` : "hash not reported"}${finiteNumber(entry.recordCount) ? ` · ${entry.recordCount.toLocaleString("en-US")} records` : ""}`));
+      dom.rackdephasingrawmanifest.append(fact);
+    });
+    if (!refs.length) dom.rackdephasingrawmanifest.append(rackFact("Raw trace", "No chunk URI was emitted."));
+    if (refs.length > 200) dom.rackdephasingrawmanifest.append(rackFact("Additional chunks", `${(refs.length - 200).toLocaleString("en-US")} bindings remain in compact provenance below.`));
+    dom.rackdephasingprovenancejson.textContent = JSON.stringify({
+      schema: rackDephasingArtifact.schema,
+      artifact_sha256: rackDephasingArtifact.artifact_sha256,
+      artifact_state: rackDephasingArtifact.artifact_state,
+      source_result: rackDephasingArtifact.source_result,
+      scenario_sha256: trace.scenario_sha256,
+      source_bindings: trace.source_bindings,
+      engine: trace.engine,
+      runtime: trace.runtime,
+      sensor_manifest: researcher.sensor_manifest,
+      clock_alignment: researcher.clock_alignment,
+      raw_trace_manifest: trace.raw_trace_manifest,
+      evidence_boundary: rackDephasingArtifact.evidence_boundary,
+    }, null, 2);
+    dom.rackdephasingdepthtrace.textContent = `${trace.block_count.toLocaleString("en-US")} paired blocks · ${trace.arm_count.toLocaleString("en-US")} physical arms · exact raw streams are hash-chained and bound by the manifest · compact artifact ${rackDephasingArtifact.artifact_sha256}.`;
+    renderRackEventLedger();
+  }
+
+  function renderRackDephasingV3() {
+    if (!dom.rackdephasingv3) return;
+    if (!rackDephasingArtifact) {
+      dom.rackdephasingv3.hidden = true;
+      return;
+    }
+    dom.rackdephasingv3.hidden = false;
+    const freshman = rackDephasingArtifact.freshman;
+    const researcher = rackDephasingArtifact.researcher;
+    const decision = typeof researcher.decision === "string" ? researcher.decision : rackRecord(researcher.decision).conclusion || rackRecord(researcher.decision).status || rackDephasingArtifact.artifact_state;
+    dom.rackdephasingv3state.textContent = `${researcher.measurement_valid ? "measurement valid" : "measurement invalid"} · ${rackHumanLabel(decision)} · artifact ${rackDephasingArtifact.artifact_sha256.slice(0, 12)}`;
+    dom.rackdephasingeyebrow.textContent = researcher.measurement_valid ? `${rackDephasingArtifact.full_trace.evaluation_block_count} physical evaluation blocks` : "Physical measurement invalid";
+    dom.rackdephasinginsighttitle.textContent = freshman.headline;
+    dom.rackdephasingplainanswer.textContent = freshman.plain_answer;
+    dom.rackdephasingboundaryshort.textContent = freshman.boundary;
+    dom.rackdephasingfreshmancopy.textContent = freshman.plain_answer;
+    dom.rackdephasingresearchercopy.textContent = `Only legal release timing changed. ${RACK_POLICY_LABELS.telemetry_feedback} is compared with synchronized, random jitter, storage-only pacing, and static cohorts under the same useful work, failures, state generations, and held-out learning batches.`;
+    dom.rackdephasingevidenceboundary.textContent = rackBoundaryText(rackDephasingArtifact.evidence_boundary);
+    const next = rackDephasingArtifact.next_experiment;
+    dom.rackdephasingnextquestion.textContent = `${next.id}: ${next.question} Do not claim yet: ${next.do_not_claim_yet.join(", ")}.`;
+    renderRackBlockControls();
+    renderRackFreshman();
+    renderRackDephasingWaveform();
+    renderRackEffects();
+    renderRackPolicyTable();
+    renderRackGates();
+    renderRackTrace();
   }
 
   function renderStatus() {

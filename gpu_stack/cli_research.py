@@ -92,6 +92,41 @@ def cmd_experiment_protocol(args) -> int:
 
 
 def cmd_experiment_run(args) -> int:
+    if args.experiment == "E002-PW3":
+        if not args.dataset:
+            raise ValueError("E002-PW3 requires --dataset")
+        if not args.telemetry_config:
+            raise ValueError("E002-PW3 requires --telemetry-config")
+        if args.output == "-":
+            raise ValueError(
+                "E002-PW3 requires a shared filesystem --output path under torchrun"
+            )
+        from .research.e002_rack_dephasing import run_e002_rack_dephasing
+        from .research.observatory_rack_dephasing import (
+            build_e002_rack_dephasing_observatory_artifact,
+        )
+
+        output_path = Path(args.output)
+        result_payload = run_e002_rack_dephasing(
+            Path(args.scenario),
+            Path(args.dataset),
+            output_path,
+            telemetry_config_path=Path(args.telemetry_config),
+            raw_output_dir=(
+                Path(args.raw_output_dir) if args.raw_output_dir else None
+            ),
+        )
+        if result_payload is None:
+            return 0
+        if args.observatory_output:
+            _write_json_artifact(
+                build_e002_rack_dephasing_observatory_artifact(
+                    result_payload,
+                    source_uri=args.output,
+                ),
+                args.observatory_output,
+            )
+        return 0
     if args.experiment == "E002-PW2":
         if not args.dataset:
             raise ValueError("E002-PW2 requires --dataset")

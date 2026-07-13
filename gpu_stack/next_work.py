@@ -34,7 +34,8 @@ def build_next_work_plan(repo_root: Path | None = None) -> NextWorkPlan:
 
     The stable JSON shape retains exactly three top-level lists:
     ``highest_impact`` with 3 research priorities, ``best_implementations``
-    with 4 current foundations, and ``bug_risks`` with 10 active risks.
+    with 4 current foundations, and ``bug_risks`` with 10 risks tied to the
+    active research wave.
     Legacy root-debt and Pythia closure items remain available on the Python
     plan and in text output without competing for scientific priority.
     """

@@ -1,0 +1,436 @@
+{
+  "schema": "gpu-stack.e002-rack-dephasing-scenario.v3",
+  "experiment_id": "E002-PW3",
+  "scenario_id": "recovery-graph-rack-dephasing-v3",
+  "frozen_at": "2026-07-12",
+  "research_question": "Does a distributed-training recovery graph contain controllable electrical phase slack that can reduce rack power ramps and 0.1-10 Hz spectral energy without changing globally recoverable state or learning commitments?",
+  "claim_boundary": {
+    "stage": "physical_multi_gpu_rack_mechanism",
+    "can_resolve": [
+      "rack-PDU recovery-flow ramp",
+      "rack-PDU 0.1-10 Hz spectral energy",
+      "state-flow coincidence",
+      "learning and recovery constraints on the frozen physical rack"
+    ],
+    "cannot_resolve": [
+      "point-of-common-coupling response",
+      "grid modal safety",
+      "facility admission capacity",
+      "cross-facility transfer",
+      "PW2 model-scale transfer"
+    ]
+  },
+  "source_bindings": {
+    "pw2_result": {
+      "path": "experiments/e002-power-waveform-shaping/results/checkpoint-energy-v2.json",
+      "artifact_sha256": "cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee"
+    },
+    "pw2_scenario": {
+      "path": "experiments/e002-power-waveform-shaping/checkpoint-energy-scenario-v2.json",
+      "content_sha256": "f7e2cdd42eb9fce43f7008e06c769f975c0d0c22b14572430ec70c2003bc85fc"
+    }
+  },
+  "literature": [
+    {
+      "id": "easyrider-2604.15522",
+      "url": "https://arxiv.org/abs/2604.15522",
+      "boundary": "rack hardware transient attenuation; no optimizer-aware recovery graph"
+    },
+    {
+      "id": "power-flexible-aidc-2606.25098",
+      "url": "https://arxiv.org/abs/2606.25098",
+      "boundary": "96 Blackwell GPUs and 130 kW flexibility; telemetry/control too slow for checkpoint transients"
+    },
+    {
+      "id": "tiercheck-2605.17821",
+      "url": "https://arxiv.org/abs/2605.17821",
+      "boundary": "checkpoint microchunk pacing for I/O interference; no electrical outcome"
+    },
+    {
+      "id": "phoenix-2607.01646",
+      "url": "https://arxiv.org/abs/2607.01646",
+      "boundary": "recovery through 512 A100 GPUs; no rack power outcome"
+    },
+    {
+      "id": "b200-operations-2605.09370",
+      "url": "https://arxiv.org/abs/2605.09370",
+      "boundary": "504-B200 checkpoint concurrency and queueing; 30-second power sampling"
+    },
+    {
+      "id": "grace-hopper-energy-2605.01938",
+      "url": "https://arxiv.org/abs/2605.01938",
+      "boundary": "100-ms GPU/node energy through 128 GPUs; no failure/rejoin rack-PDU intervention"
+    },
+    {
+      "id": "resihp-2605.06374",
+      "url": "https://arxiv.org/abs/2605.06374",
+      "boundary": "256-A100 degradation-aware parallelism; throughput objective without electrical control"
+    }
+  ],
+  "hypothesis": {
+    "policy": "telemetry_feedback",
+    "primary_comparators": [
+      "synchronized",
+      "random_jitter"
+    ],
+    "rack_ramp_reduction_vs_synchronized_gte": 0.30,
+    "rack_spectral_reduction_vs_synchronized_gte": 0.30,
+    "rack_ramp_reduction_vs_random_jitter_gte": 0.15,
+    "rack_spectral_reduction_vs_random_jitter_gte": 0.15,
+    "useful_token_throughput_regression_lte": 0.01,
+    "rack_energy_per_useful_token_increase_lte": 0.02,
+    "p95_recovery_time_regression_lte": 0.05,
+    "semantic_invariant_violations_eq": 0,
+    "durable_cut_violations_eq": 0,
+    "rollback_bound_violations_eq": 0,
+    "held_out_nll_absolute_difference_lte": 0.01
+  },
+  "runtime": {
+    "launcher": "torchrun",
+    "minimum_world_size": 8,
+    "world_size_must_be_even": true,
+    "ranks_per_job": 2,
+    "minimum_job_count": 4,
+    "one_process_per_gpu": true,
+    "distributed_backend": "nccl",
+    "control_backend": "gloo",
+    "shared_storage_required": true,
+    "shared_output_directory_required": true
+  },
+  "dataset": {
+    "dataset_id": "roneneldan/TinyStories",
+    "config": "default",
+    "split": "train",
+    "shard": "0000.parquet",
+    "uri": "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet",
+    "sha256": "77cf780cebe52b6e83e3a2ac84bc56d8059363113e41d17a023f1d8b2ed0fc0b",
+    "train_rows": 50000,
+    "validation_start_row": 50000,
+    "validation_rows": 2000,
+    "encoding": "utf-8 bytes",
+    "separator_byte": 0
+  },
+  "model": {
+    "family": "byte_decoder_transformer",
+    "vocab_size": 256,
+    "context_length": 256,
+    "layers": 12,
+    "width": 768,
+    "heads": 12,
+    "mlp_width": 3072,
+    "dropout": 0.0,
+    "tie_embeddings": true,
+    "model_scale_transfer_from_pw2_claimed": false
+  },
+  "optimization": {
+    "optimizer": "AdamW",
+    "learning_rate": 0.0003,
+    "weight_decay": 0.1,
+    "beta1": 0.9,
+    "beta2": 0.95,
+    "gradient_clip_norm": 1.0,
+    "autocast": "bfloat16",
+    "batch_size_per_rank": 4,
+    "healthy_merge_ticks": 8,
+    "reduced_membership_merge_ticks": 2,
+    "post_rejoin_sync_ticks": 2,
+    "validation_batches": 64,
+    "validation_seed": 20260712,
+    "warmup_ticks": 32
+  },
+  "canonical_work": {
+    "logical_ticks": 256,
+    "tokens_per_rank_quota": 1024,
+    "site_quota_count_per_tick": 2,
+    "useful_tokens_per_job": 524288,
+    "completion_rule": "both deterministic site quota identities committed for every logical tick",
+    "equal_work_required_across_policies": true
+  },
+  "continuation": {
+    "policy": "sparse_survivor_continuation",
+    "failed_rank_stays_alive_for_measurement": true,
+    "failed_rank_contributes_no_training_quota": true,
+    "survivor_executes_both_deterministic_quota_ids": true,
+    "rejoin_requires_survivor_state_transfer": true,
+    "failure_windows": [
+      {
+        "failure_id": "F1",
+        "start_tick": 96,
+        "rejoin_tick": 128,
+        "failed_rank_within_job": 1
+      },
+      {
+        "failure_id": "F2",
+        "start_tick": 192,
+        "rejoin_tick": 208,
+        "failed_rank_within_job": 1
+      }
+    ]
+  },
+  "checkpointing": {
+    "initial_durable_checkpoint": true,
+    "healthy_checkpoint_every_ticks": 16,
+    "reduced_membership_checkpoint_every_ticks": 4,
+    "capture_and_persist_are_distinct_events": true,
+    "persist_requires_flush_and_fsync": true,
+    "globally_recoverable_only_after_complete_generation_commit": true,
+    "maximum_checkpoint_release_slack_ms": 2000,
+    "maximum_rejoin_release_slack_ms": 1000,
+    "cohort_slot_ms": 250,
+    "checkpoint_deadline_margin_ms": 100
+  },
+  "operation_dag": {
+    "movable_kinds": [
+      "checkpoint-capture",
+      "checkpoint-persist",
+      "state-transfer",
+      "communicator-rebuild",
+      "rejoin-commit"
+    ],
+    "fixed_kinds": [
+      "healthy-compute",
+      "survivor-compute",
+      "optimizer-merge"
+    ],
+    "checkpoint_precedence": [
+      "checkpoint-capture",
+      "checkpoint-persist",
+      "durable-cut-commit"
+    ],
+    "rejoin_precedence": [
+      "state-transfer",
+      "communicator-rebuild",
+      "rejoin-commit"
+    ],
+    "future_trace_visible": false,
+    "illegal_move_outcome": "failed_arm"
+  },
+  "policies": [
+    {
+      "policy_id": "synchronized",
+      "kind": "earliest_ready",
+      "uses_telemetry": false
+    },
+    {
+      "policy_id": "random_jitter",
+      "kind": "seeded_uniform_legal_jitter",
+      "seed": 2026071201,
+      "uses_telemetry": false
+    },
+    {
+      "policy_id": "throughput_pacing",
+      "kind": "storage_queue_only_slotting",
+      "uses_telemetry": true,
+      "visible_channels": [
+        "storage_activity"
+      ]
+    },
+    {
+      "policy_id": "static_cohorts",
+      "kind": "rotating_fixed_cohorts",
+      "uses_telemetry": false
+    },
+    {
+      "policy_id": "telemetry_feedback",
+      "kind": "rack_ramp_and_storage_slotting",
+      "uses_telemetry": true,
+      "visible_channels": [
+        "rack_pdu_power",
+        "storage_activity"
+      ]
+    }
+  ],
+  "paired_design": {
+    "calibration_blocks": [
+      "C1",
+      "C2"
+    ],
+    "evaluation_blocks": [
+      "E1",
+      "E2",
+      "E3",
+      "E4",
+      "E5",
+      "E6"
+    ],
+    "orders": {
+      "C1": [
+        "synchronized",
+        "random_jitter",
+        "throughput_pacing",
+        "static_cohorts",
+        "telemetry_feedback"
+      ],
+      "C2": [
+        "telemetry_feedback",
+        "static_cohorts",
+        "throughput_pacing",
+        "random_jitter",
+        "synchronized"
+      ],
+      "E1": [
+        "synchronized",
+        "random_jitter",
+        "throughput_pacing",
+        "static_cohorts",
+        "telemetry_feedback"
+      ],
+      "E2": [
+        "random_jitter",
+        "throughput_pacing",
+        "static_cohorts",
+        "telemetry_feedback",
+        "synchronized"
+      ],
+      "E3": [
+        "throughput_pacing",
+        "static_cohorts",
+        "telemetry_feedback",
+        "synchronized",
+        "random_jitter"
+      ],
+      "E4": [
+        "static_cohorts",
+        "telemetry_feedback",
+        "synchronized",
+        "random_jitter",
+        "throughput_pacing"
+      ],
+      "E5": [
+        "telemetry_feedback",
+        "synchronized",
+        "random_jitter",
+        "throughput_pacing",
+        "static_cohorts"
+      ],
+      "E6": [
+        "telemetry_feedback",
+        "static_cohorts",
+        "throughput_pacing",
+        "random_jitter",
+        "synchronized"
+      ]
+    },
+    "interim_reordering_forbidden": true,
+    "calibration_excluded_from_claims": true,
+    "paired_bootstrap": {
+      "confidence_level": 0.9,
+      "draws": 10000,
+      "seed": 2026071203,
+      "statistic": "median"
+    }
+  },
+  "telemetry": {
+    "reference_clock": "utc_ptp_or_bound_facility_clock",
+    "maximum_event_clock_uncertainty_ms": 25,
+    "gpu": {
+      "required": true,
+      "binding": "stable_nvml_uuid",
+      "signals": [
+        "cumulative_energy_mj",
+        "power_w",
+        "utilization_percent",
+        "temperature_c",
+        "sm_clock_mhz",
+        "memory_clock_mhz"
+      ],
+      "maximum_effective_period_ms": 100
+    },
+    "rack_pdu_power": {
+      "required_for_primary_claim": true,
+      "sample_kind": "interval_average",
+      "unit": "W",
+      "maximum_effective_period_ms": 50
+    },
+    "storage_activity": {
+      "required": true,
+      "signals": [
+        "read_bytes",
+        "write_bytes",
+        "read_requests",
+        "write_requests",
+        "queue_depth"
+      ],
+      "maximum_effective_period_ms": 100
+    },
+    "storage_power": {
+      "required": true,
+      "unit": "W",
+      "maximum_effective_period_ms": 100,
+      "inference_from_bytes_forbidden": true
+    },
+    "cooling": {
+      "required": true,
+      "signals": [
+        "cooling_power_w",
+        "rack_inlet_temperature_c",
+        "rack_outlet_temperature_c"
+      ],
+      "maximum_effective_period_ms": 1000
+    }
+  },
+  "primary_metrics": {
+    "rack_ramp": "p99.9(abs(diff(rack_pdu_power_w)) / reference_interval_seconds)",
+    "rack_spectral_energy": "integral of detrended windowed rack-PDU power spectral density from 0.1 through 10 Hz",
+    "state_flow_coincidence": "maximum simultaneous active state-flow fraction and overlap-weighted bytes",
+    "useful_token_throughput": "completed useful tokens / active arm wall seconds",
+    "rack_energy_per_useful_token": "integrated rack-PDU joules / useful tokens",
+    "recovery_time": "failure observation through rejoin commitment",
+    "learning": "final held-out NLL on frozen batches",
+    "semantics": "state/sample/optimizer/durable-cut invariant violations"
+  },
+  "measurement_invalidators": {
+    "world_size_below_minimum": true,
+    "odd_world_size": true,
+    "missing_primary_rack_pdu_samples": true,
+    "missing_required_storage_activity": true,
+    "missing_required_storage_power": true,
+    "missing_required_cooling_channels": true,
+    "clock_uncertainty_above_limit": true,
+    "nonmonotone_gpu_energy_counter": true,
+    "incomplete_state_flow_event_window": true,
+    "incomplete_required_channel_window": true,
+    "insufficient_paired_evaluation_blocks": true,
+    "unequal_useful_work": true,
+    "semantic_invariant_violation": true,
+    "incomplete_durable_cut": true
+  },
+  "event_record_fields": [
+    "event_id",
+    "job_id",
+    "rank_ids",
+    "kind",
+    "checkpoint_epoch",
+    "predecessor_ids",
+    "state_generation",
+    "earliest_start_ns",
+    "scheduled_release_ns",
+    "actual_start_ns",
+    "actual_end_ns",
+    "deadline_ns",
+    "bytes",
+    "outcome"
+  ],
+  "result_required_fields": [
+    "schema",
+    "experiment_id",
+    "scenario_sha256",
+    "source_bindings",
+    "runtime",
+    "sensor_manifest",
+    "clock_alignment",
+    "paired_blocks",
+    "measurement_validity",
+    "summary",
+    "evidence_boundary",
+    "raw_trace_manifest",
+    "artifact_sha256"
+  ],
+  "decision": {
+    "all_primary_and_constraint_gates_required": true,
+    "static_or_throughput_matches_feedback": "reject_closed_loop_novelty",
+    "rack_improves_but_energy_recovery_or_learning_fails": "publish_tradeoff_and_redirect",
+    "exact_dephasing_has_no_electrical_effect": "reject_semantic_slack_as_rack_control_resource",
+    "measurement_invalid": "publish_invalid_measurement_without_modeled_substitution"
+  }
+}

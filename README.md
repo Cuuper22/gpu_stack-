@@ -339,6 +339,12 @@ meter at
 `experiments/e002-power-waveform-shaping/results/checkpoint-energy-v2.json`
 (`cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`).
 
+E002-PW3 is now an executable physical rack experiment: a dependency-safe
+phase scheduler, distributed four-job/eight-GPU runtime, UUID-bound GPU plus
+rack/storage/cooling telemetry, hash-chained raw evidence, and a three-depth
+observatory projection. No PW3 result exists yet because this machine has one
+GPU and no direct rack boundary meters.
+
 ## The Next-Work Compass
 
 The continuation compass now scans executable research artifacts, experiments,
@@ -351,10 +357,11 @@ python -m gpu_stack.cli next-work
 PW1's invalid measurement remains preserved, but PW2 completed the same 32-run
 factorial with exact warm binding, no invalidators, and a valid 91.667 ms
 cumulative-energy signal. All three mechanism and eight salvage gates passed.
-The highest-impact section now promotes E002-PW3: multi-GPU/rack dependency-
-safe dephasing with simultaneous per-GPU cumulative energy, rack-PDU, storage,
-and cooling telemetry. It does not promote facility claims from one laptop
-GPU. Pythia closure and root-debt ranking remain visible under
+The highest-impact section now points at the remaining research action: bind
+E002-PW3 to one named instrumented rack and execute the frozen paired blocks.
+It no longer lists scheduler, telemetry, or observatory construction as future
+work once those files are present, and it does not promote facility claims
+from one laptop GPU. Pythia closure and root-debt ranking remain visible under
 `Legacy diagnostics (not scientific priorities)` so useful maintenance does
 not quietly become the roadmap again.
 
@@ -476,10 +483,13 @@ Sparse continuation passed all eight salvage gates: NLL delta median
 opportunity ticks saved, and energy ratio `0.96099` with upper `1.00319`. The
 conclusion is `checkpoint_cadence_attributed_sparse_continuation_survives`.
 
-The next work is E002-PW3: test dependency-safe dephasing on simultaneous GPUs
-with aligned per-GPU cumulative, rack-PDU, storage, and cooling telemetry. Rare
-restore/rejoin phase estimates remain exploratory. PW2 does not establish rack
-or facility transfer.
+The next work is no longer another local engine pass. Bind the frozen PW3
+telemetry config to a named rack with at least eight GPUs, direct rack-PDU,
+storage activity and measured power, cooling, and a sub-25 ms aligned clock;
+then execute the complete paired order. Publish `measurement_invalid` or a
+falsified mechanism if that is what the physical result says. Rare
+restore/rejoin phase estimates remain exploratory, and neither PW2 nor PW3 can
+establish facility or grid transfer without the later measurement stages.
 
 The symbolic resolver remains intentionally conservative. By default it does
 not solve simultaneous systems or switch relations when an approximation

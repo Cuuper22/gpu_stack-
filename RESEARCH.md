@@ -193,7 +193,11 @@ multi-site mechanics, observable-only interventions, six scalar-plus-structured
 protocols, E001 recovery mechanics, the artifact-driven causal observatory,
 three successive measured learning questions through E001-LC3, the completed
 E002-PW1 factorial preserved as measurement-invalid evidence, and E002-PW2's
-valid cumulative-energy mechanism and salvage result.
+valid cumulative-energy mechanism and salvage result. E002-PW3 now has a
+frozen physical rack question, dependency-safe phase scheduler, distributed
+two-rank-job runtime, direct multi-boundary telemetry, compact-plus-chunked
+evidence artifact, and three-depth observatory projection. It does not yet have
+a physical result.
 
 LC2 preserved two protocol failures without opening held-out evaluation. V1's
 2,048-tick checkpoint was not late-stage: NLL improved `0.0862674` over its
@@ -250,16 +254,30 @@ The idle-subtracted sensitivity was
 show that its local attribution is insensitive to estimated idle-baseline
 treatment.
 
+PW3 turns the next question into an executable physical experiment. At least
+four independent two-rank jobs execute the same useful work and failure
+windows under synchronized release, seeded legal jitter, storage-only pacing,
+static cohorts, and visible-telemetry feedback. Only dependency-safe timing of
+checkpoint capture/persist, state transfer, communicator rebuild, and rejoin
+may move. UUID-bound GPU telemetry is aligned with direct rack-PDU, storage
+activity, measured storage power, and cooling channels; missing boundaries
+produce `measurement_invalid` instead of a modeled substitute. The current
+machine cannot execute the claim because it has one GPU and no tenant-visible
+rack meters.
+
 The next research order is:
 
-1. Execute E002-PW3 across simultaneous GPUs and rack-visible checkpoint work,
-   testing dependency-safe dephasing rather than another isolated cadence run.
-2. Align per-GPU cumulative energy with rack-PDU power, storage activity and
-   power, and cooling telemetry.
-3. Preserve PW1 as failed measurement evidence and PW2 as a local GPU-board
-   mechanism result. Rare restore/rejoin phases remain exploratory.
-4. Test multi-GPU and rack transfer explicitly. Do not call the PW2 effect a
-   facility-energy, grid-safety, or admission-capacity result.
+1. Bind the frozen telemetry config to one named instrumented rack with at
+   least eight GPUs and execute the complete PW3 calibration/evaluation order.
+2. Publish the physical result even if it is invalid or falsifies electrical
+   phase slack. Do not replace a missing rack, storage-power, cooling, or clock
+   channel with a virtual estimate.
+3. Advance to multi-PDU correlated-failure PW4 only if feedback clears every
+   ramp, spectral, energy, throughput, recovery, semantics, and learning gate.
+   If a simpler policy matches it or the hypothesis fails, keep that result and
+   redirect.
+4. Keep point-of-common-coupling safety, facility admission, and model-scale
+   transfer outside the rack claim until separately measured.
 
 No controller is trusted with live actions before shadow comparison and a
 separate controlled protocol.

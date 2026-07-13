@@ -1,0 +1,275 @@
+{
+  "schema": "gpu-stack.e002-pw3-telemetry-config.v1",
+  "poll_period_ns": 50000000,
+  "clock_recalibration_period_ns": 10000000000,
+  "chunking": {
+    "max_records_per_chunk": 100000,
+    "max_content_bytes_per_chunk": 67108864
+  },
+  "required_channels": [
+    "rack-pdu.power-w",
+    "storage.read-bytes-total",
+    "storage.write-bytes-total",
+    "storage.read-requests-total",
+    "storage.write-requests-total",
+    "storage.queue-depth",
+    "storage.power-w",
+    "cooling.power-w",
+    "rack.inlet-temperature-c",
+    "rack.outlet-temperature-c"
+  ],
+  "rack_state_channels": {
+    "rack_power_w": "rack-pdu.power-w",
+    "storage_read_bytes_total": "storage.read-bytes-total",
+    "storage_write_bytes_total": "storage.write-bytes-total",
+    "storage_read_requests_total": "storage.read-requests-total",
+    "storage_write_requests_total": "storage.write-requests-total",
+    "storage_queue_depth": "storage.queue-depth",
+    "storage_power_w": "storage.power-w",
+    "cooling_power_w": "cooling.power-w",
+    "rack_inlet_temperature_c": "rack.inlet-temperature-c",
+    "rack_outlet_temperature_c": "rack.outlet-temperature-c"
+  },
+  "sources": [
+    {
+      "kind": "prometheus",
+      "source_id": "pw3-rack-prometheus",
+      "endpoint": {
+        "url": "https://rack-metrics.example.invalid/api/v1/query",
+        "timeout_seconds": 2.0,
+        "max_response_bytes": 8388608,
+        "ca_file": null,
+        "auth_env": {
+          "bearer_token_env": "GPUSTACK_RACK_PROMETHEUS_TOKEN",
+          "basic_username_env": null,
+          "basic_password_env": null,
+          "header_value_env": {}
+        }
+      },
+      "channels": [
+        {
+          "channel_id": "rack-pdu.power-w",
+          "boundary": "rack-ac-input",
+          "metric": "active_power",
+          "unit": "W",
+          "sample_kind": "interval_average",
+          "clock_id": "utc",
+          "nominal_period_ns": 50000000,
+          "integration_window_ns": 50000000,
+          "uncertainty_ns": 20000000,
+          "required": true,
+          "metadata": {
+            "instrument_role": "primary_rack_pdu",
+            "example_not_a_measurement_binding": true
+          },
+          "query": "rack_pdu_input_active_power_watts{rack=\"PW3_RACK\"}",
+          "expected_labels": {
+            "rack": "PW3_RACK"
+          },
+          "value_scale": 1.0,
+          "max_staleness_ns": 50000000
+        },
+        {
+          "channel_id": "storage.read-bytes-total",
+          "boundary": "storage-activity",
+          "metric": "read_bytes",
+          "unit": "B",
+          "sample_kind": "cumulative_counter",
+          "clock_id": "utc",
+          "nominal_period_ns": 100000000,
+          "integration_window_ns": 0,
+          "uncertainty_ns": 20000000,
+          "required": true,
+          "metadata": {
+            "instrument_role": "shared_storage_activity",
+            "example_not_a_measurement_binding": true
+          },
+          "query": "storage_read_bytes_total{cluster=\"PW3_STORAGE\"}",
+          "expected_labels": {
+            "cluster": "PW3_STORAGE"
+          },
+          "value_scale": 1.0,
+          "max_staleness_ns": 100000000
+        },
+        {
+          "channel_id": "storage.write-bytes-total",
+          "boundary": "storage-activity",
+          "metric": "write_bytes",
+          "unit": "B",
+          "sample_kind": "cumulative_counter",
+          "clock_id": "utc",
+          "nominal_period_ns": 100000000,
+          "integration_window_ns": 0,
+          "uncertainty_ns": 20000000,
+          "required": true,
+          "metadata": {
+            "instrument_role": "shared_storage_activity",
+            "example_not_a_measurement_binding": true
+          },
+          "query": "storage_written_bytes_total{cluster=\"PW3_STORAGE\"}",
+          "expected_labels": {
+            "cluster": "PW3_STORAGE"
+          },
+          "value_scale": 1.0,
+          "max_staleness_ns": 100000000
+        },
+        {
+          "channel_id": "storage.read-requests-total",
+          "boundary": "storage-activity",
+          "metric": "read_requests",
+          "unit": "1",
+          "sample_kind": "cumulative_counter",
+          "clock_id": "utc",
+          "nominal_period_ns": 100000000,
+          "integration_window_ns": 0,
+          "uncertainty_ns": 20000000,
+          "required": true,
+          "metadata": {
+            "instrument_role": "shared_storage_activity",
+            "example_not_a_measurement_binding": true
+          },
+          "query": "storage_read_requests_total{cluster=\"PW3_STORAGE\"}",
+          "expected_labels": {
+            "cluster": "PW3_STORAGE"
+          },
+          "value_scale": 1.0,
+          "max_staleness_ns": 100000000
+        },
+        {
+          "channel_id": "storage.write-requests-total",
+          "boundary": "storage-activity",
+          "metric": "write_requests",
+          "unit": "1",
+          "sample_kind": "cumulative_counter",
+          "clock_id": "utc",
+          "nominal_period_ns": 100000000,
+          "integration_window_ns": 0,
+          "uncertainty_ns": 20000000,
+          "required": true,
+          "metadata": {
+            "instrument_role": "shared_storage_activity",
+            "example_not_a_measurement_binding": true
+          },
+          "query": "storage_write_requests_total{cluster=\"PW3_STORAGE\"}",
+          "expected_labels": {
+            "cluster": "PW3_STORAGE"
+          },
+          "value_scale": 1.0,
+          "max_staleness_ns": 100000000
+        },
+        {
+          "channel_id": "storage.queue-depth",
+          "boundary": "storage-activity",
+          "metric": "queue_depth",
+          "unit": "1",
+          "sample_kind": "gauge",
+          "clock_id": "utc",
+          "nominal_period_ns": 100000000,
+          "integration_window_ns": 100000000,
+          "uncertainty_ns": 20000000,
+          "required": true,
+          "metadata": {
+            "instrument_role": "shared_storage_activity",
+            "example_not_a_measurement_binding": true
+          },
+          "query": "storage_io_queue_depth{cluster=\"PW3_STORAGE\"}",
+          "expected_labels": {
+            "cluster": "PW3_STORAGE"
+          },
+          "value_scale": 1.0,
+          "max_staleness_ns": 100000000
+        },
+        {
+          "channel_id": "storage.power-w",
+          "boundary": "storage-power",
+          "metric": "active_power",
+          "unit": "W",
+          "sample_kind": "gauge",
+          "clock_id": "utc",
+          "nominal_period_ns": 100000000,
+          "integration_window_ns": 100000000,
+          "uncertainty_ns": 20000000,
+          "required": true,
+          "metadata": {
+            "instrument_role": "physical_storage_power_meter",
+            "inference_from_bytes_forbidden": true,
+            "example_not_a_measurement_binding": true
+          },
+          "query": "storage_input_active_power_watts{cluster=\"PW3_STORAGE\"}",
+          "expected_labels": {
+            "cluster": "PW3_STORAGE"
+          },
+          "value_scale": 1.0,
+          "max_staleness_ns": 100000000
+        },
+        {
+          "channel_id": "cooling.power-w",
+          "boundary": "cooling",
+          "metric": "cooling_power_w",
+          "unit": "W",
+          "sample_kind": "gauge",
+          "clock_id": "utc",
+          "nominal_period_ns": 1000000000,
+          "integration_window_ns": 1000000000,
+          "uncertainty_ns": 20000000,
+          "required": true,
+          "metadata": {
+            "instrument_role": "rack_cooling_power_meter",
+            "static_pue_substitution_forbidden": true,
+            "example_not_a_measurement_binding": true
+          },
+          "query": "rack_cooling_active_power_watts{rack=\"PW3_RACK\"}",
+          "expected_labels": {
+            "rack": "PW3_RACK"
+          },
+          "value_scale": 1.0,
+          "max_staleness_ns": 1000000000
+        },
+        {
+          "channel_id": "rack.inlet-temperature-c",
+          "boundary": "cooling",
+          "metric": "rack_inlet_temperature_c",
+          "unit": "Cel",
+          "sample_kind": "gauge",
+          "clock_id": "utc",
+          "nominal_period_ns": 1000000000,
+          "integration_window_ns": 1000000000,
+          "uncertainty_ns": 20000000,
+          "required": true,
+          "metadata": {
+            "instrument_role": "rack_inlet_sensor",
+            "example_not_a_measurement_binding": true
+          },
+          "query": "rack_inlet_temperature_celsius{rack=\"PW3_RACK\"}",
+          "expected_labels": {
+            "rack": "PW3_RACK"
+          },
+          "value_scale": 1.0,
+          "max_staleness_ns": 1000000000
+        },
+        {
+          "channel_id": "rack.outlet-temperature-c",
+          "boundary": "cooling",
+          "metric": "rack_outlet_temperature_c",
+          "unit": "Cel",
+          "sample_kind": "gauge",
+          "clock_id": "utc",
+          "nominal_period_ns": 1000000000,
+          "integration_window_ns": 1000000000,
+          "uncertainty_ns": 20000000,
+          "required": true,
+          "metadata": {
+            "instrument_role": "rack_outlet_sensor",
+            "example_not_a_measurement_binding": true
+          },
+          "query": "rack_outlet_temperature_celsius{rack=\"PW3_RACK\"}",
+          "expected_labels": {
+            "rack": "PW3_RACK"
+          },
+          "value_scale": 1.0,
+          "max_staleness_ns": 1000000000
+        }
+      ]
+    }
+  ]
+}

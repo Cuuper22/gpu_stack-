@@ -19,6 +19,20 @@ from .next_work_rendering import (
 )
 
 
+def _e002_pw3_vertical_slice_ready(evidence: _Evidence) -> bool:
+    """Return whether the executable PW3 path exists, independent of a result."""
+
+    required = (
+        "experiments/e002-power-waveform-shaping/checkpoint-rack-dephasing-scenario-v3.json",
+        "experiments/e002-power-waveform-shaping/checkpoint-rack-telemetry-v3.example.json",
+        "gpu_stack/research/e002_rack_scheduler.py",
+        "gpu_stack/research/e002_rack_telemetry.py",
+        "gpu_stack/research/e002_rack_dephasing.py",
+        "gpu_stack/research/observatory_rack_dephasing.py",
+    )
+    return all((evidence.repo_root / path).is_file() for path in required)
+
+
 def _highest_impact(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
     """Return the three highest-leverage scientific priorities."""
 
@@ -77,6 +91,62 @@ def _highest_impact(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
             work_saving_text = (
                 f"{work_saving * 100:.2f}" if work_saving is not None else "missing"
             )
+            if _e002_pw3_vertical_slice_ready(evidence):
+                pw3_result = (
+                    evidence.repo_root
+                    / "experiments"
+                    / "e002-power-waveform-shaping"
+                    / "results"
+                    / "checkpoint-rack-dephasing-v3.json"
+                )
+                if not pw3_result.is_file():
+                    return (
+                        NextWorkItem(
+                            title="Bind E002-PW3 to a named instrumented rack and execute it",
+                            evidence=(
+                                "live PW3 path: frozen scenario, dependency-safe scheduler, "
+                                "torchrun runtime, UUID-bound GPU telemetry, rack PDU, "
+                                "storage activity and measured power, cooling channels, "
+                                "chunked raw traces, CLI, and three-depth projection are "
+                                "present. No physical PW3 result artifact exists. The "
+                                "remaining research dependency is a named rack with at "
+                                "least eight GPUs and the frozen sensor rates"
+                            ),
+                            path=(
+                                "experiments/e002-power-waveform-shaping/"
+                                "checkpoint-rack-dephasing-v3.md"
+                            ),
+                        ),
+                        NextWorkItem(
+                            title="Keep the first rack result at the direct measurement boundary",
+                            evidence=(
+                                "PW2's idle-subtracted sensitivity crossed zero, so PW3 "
+                                "requires direct rack-PDU power plus independent storage "
+                                "power and cooling. Summed GPU power, inferred storage "
+                                "power, or static PUE would answer a different question and "
+                                "must produce measurement_invalid rather than a modeled substitute"
+                            ),
+                            path=(
+                                "experiments/e002-power-waveform-shaping/"
+                                "checkpoint-rack-telemetry-v3.example.json"
+                            ),
+                        ),
+                        NextWorkItem(
+                            title="Let the paired physical result choose PW4 or kill the mechanism",
+                            evidence=(
+                                "PW3 has frozen synchronized, random-jitter, storage-only, "
+                                "static-cohort, and telemetry-feedback policies across two "
+                                "calibration and six evaluation blocks. The run must decide: "
+                                "advance only if rack ramp, 0.1-10 Hz energy, throughput, "
+                                "rack joules, recovery, semantics, and learning all clear "
+                                "their gates; otherwise publish the failed or simpler mechanism"
+                            ),
+                            path=(
+                                "experiments/e002-power-waveform-shaping/"
+                                "checkpoint-rack-dephasing-scenario-v3.json"
+                            ),
+                        ),
+                    )
             return (
                 NextWorkItem(
                     title="Run E002-PW3 multi-GPU/rack dependency-safe dephasing",
@@ -524,6 +594,56 @@ def _best_implementations(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
         checkpoint_interaction = (
             evidence.e002_checkpoint_energy_group_interaction_median
         )
+        if _e002_pw3_vertical_slice_ready(evidence):
+            return (
+                NextWorkItem(
+                    title="Deploy the rack-specific telemetry binding",
+                    evidence=(
+                        "The checked-in PW3 telemetry contract names every required "
+                        "boundary, rate, clock, and credential environment variable. "
+                        "Replace the example endpoint and labels with one named physical "
+                        "rack; do not change the experiment scenario"
+                    ),
+                    path=(
+                        "experiments/e002-power-waveform-shaping/"
+                        "checkpoint-rack-telemetry-v3.example.json"
+                    ),
+                ),
+                NextWorkItem(
+                    title="Run the complete torchrun paired block sequence",
+                    evidence=(
+                        "The executable path uses an even world size of at least eight, "
+                        "four independent two-rank jobs, real durable writes, survivor "
+                        "continuation, state transfer, communicator rebuild, and five "
+                        "frozen release policies. Rank zero emits the compact result while "
+                        "all ranks bind raw streams by GPU UUID"
+                    ),
+                    path="gpu_stack/research/e002_rack_dephasing.py",
+                ),
+                NextWorkItem(
+                    title="Publish the generated three-depth physical result",
+                    evidence=(
+                        "The E002-PW3 CLI already projects the completed result into a "
+                        "freshman explanation, paired researcher effects, shared-clock "
+                        "rack waveform and event rails, and exact chunk manifests. The "
+                        "observatory must consume the physical output, never example data"
+                    ),
+                    path="docs/observatory.html",
+                ),
+                NextWorkItem(
+                    title="Route directly from the frozen decision",
+                    evidence=(
+                        "Advance to multi-PDU correlated failures only if telemetry feedback "
+                        "clears every electrical and semantic constraint. If a simpler "
+                        "policy matches it, keep the simpler policy; if the rack effect or "
+                        "learning constraint fails, publish that failure and redirect"
+                    ),
+                    path=(
+                        "experiments/e002-power-waveform-shaping/"
+                        "checkpoint-rack-dephasing-v3.md"
+                    ),
+                ),
+            )
         return (
             NextWorkItem(
                 title="Implement dependency-safe phase offsets across workers",
@@ -645,7 +765,112 @@ def _best_implementations(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
 
 
 def _bug_risks(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
-    """Return ten active risks, omitting metadata categories whose gap is zero."""
+    """Return ten active risks tied to the current research wave."""
+
+    if _e002_pw3_vertical_slice_ready(evidence):
+        pw3_result = (
+            evidence.repo_root
+            / "experiments"
+            / "e002-power-waveform-shaping"
+            / "results"
+            / "checkpoint-rack-dephasing-v3.json"
+        )
+        if not pw3_result.is_file():
+            protocol = (
+                "experiments/e002-power-waveform-shaping/"
+                "checkpoint-rack-dephasing-v3.md"
+            )
+            scenario = (
+                "experiments/e002-power-waveform-shaping/"
+                "checkpoint-rack-dephasing-scenario-v3.json"
+            )
+            telemetry = (
+                "experiments/e002-power-waveform-shaping/"
+                "checkpoint-rack-telemetry-v3.example.json"
+            )
+            return (
+                NextWorkItem(
+                    title="Example telemetry cannot become evidence",
+                    evidence=(
+                        "The checked-in endpoint, labels, and example-only metadata are "
+                        "deliberately rejected. A named physical binding is the first "
+                        "execution dependency, not a result substitute"
+                    ),
+                    path=telemetry,
+                ),
+                NextWorkItem(
+                    title="Rack-PDU gaps erase the transient estimand",
+                    evidence=(
+                        "The primary claim requires direct rack-ac-input interval-average "
+                        "power with no effective gap above 50 ms across each arm"
+                    ),
+                    path=scenario,
+                ),
+                NextWorkItem(
+                    title="Storage bytes cannot stand in for storage power",
+                    evidence=(
+                        "PW3 requires storage request and byte activity plus a separately "
+                        "metered W channel inside the same arm window"
+                    ),
+                    path=telemetry,
+                ),
+                NextWorkItem(
+                    title="Cooling must remain a measured adjacent boundary",
+                    evidence=(
+                        "Cooling power and rack inlet/outlet temperature must cover every "
+                        "state-flow event at one-second maximum gaps; static PUE is forbidden"
+                    ),
+                    path=telemetry,
+                ),
+                NextWorkItem(
+                    title="Clock uncertainty can invalidate causal alignment",
+                    evidence=(
+                        "GPU, PDU, storage, cooling, and event records must stay below the "
+                        "frozen 25 ms uncertainty boundary without future-trace access"
+                    ),
+                    path=scenario,
+                ),
+                NextWorkItem(
+                    title="Fewer than eight unique GPUs answers a different question",
+                    evidence=(
+                        "The mechanism needs at least four simultaneous disjoint two-rank "
+                        "jobs, with one stable NVML UUID per torchrun rank"
+                    ),
+                    path=protocol,
+                ),
+                NextWorkItem(
+                    title="Durability requires one actually shared filesystem",
+                    evidence=(
+                        "Checkpoint capture is not globally recoverable until the generation "
+                        "is flushed, fsynced, atomically persisted, and visible to every rank"
+                    ),
+                    path="gpu_stack/research/e002_rack_dephasing.py",
+                ),
+                NextWorkItem(
+                    title="A partial paired order cannot choose the next hypothesis",
+                    evidence=(
+                        "Two calibration and six evaluation blocks must each contain all "
+                        "five frozen policies; calibration never enters the claim interval"
+                    ),
+                    path=scenario,
+                ),
+                NextWorkItem(
+                    title="Electrical gain is void if learning semantics move",
+                    evidence=(
+                        "Useful work, quota order, optimizer state, durable cuts, rollback, "
+                        "recovery, and held-out NLL remain hard constraints in every arm"
+                    ),
+                    path=scenario,
+                ),
+                NextWorkItem(
+                    title="No physical artifact means no PW3 visual claim",
+                    evidence=(
+                        "The observatory band stays hidden until a hash-valid physical result "
+                        "exists; no synthetic or summed-GPU fallback is implemented"
+                    ),
+                    path="docs/observatory.html",
+                ),
+            )
 
     candidates: list[NextWorkItem] = []
 

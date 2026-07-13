@@ -217,3 +217,24 @@ artifact
 Individual rare restore/rejoin estimates remain exploratory. PW3 must test
 dependency-safe dephasing with simultaneous per-GPU cumulative, rack-PDU,
 storage, and cooling telemetry; PW2 does not establish facility transfer.
+
+## Active E002-PW3 physical rack mechanism
+
+PW3 is frozen as a real `torchrun` experiment over at least eight GPUs and four
+independent two-rank jobs. It compares synchronized release, seeded legal
+jitter, storage-only pacing, static cohorts, and online rack-telemetry feedback
+while holding useful tokens, failures, state generations, durable cuts, and
+held-out learning fixed. The primary physical claims are paired rack-PDU
+`p99.9 |dP/dt|` and 0.1–10 Hz spectral energy; throughput, rack joules per
+token, recovery time, semantic obligations, and learning are simultaneous
+constraints.
+
+The executable scenario is
+`e002-power-waveform-shaping/checkpoint-rack-dephasing-scenario-v3.json`; the
+direct sensor binding is
+`e002-power-waveform-shaping/checkpoint-rack-telemetry-v3.example.json`; and the
+complete launch path is documented in
+`e002-power-waveform-shaping/checkpoint-rack-dephasing-v3.md`. No PW3 result
+exists yet. The current blocker is a named instrumented rack with the required
+PDU, storage-power, cooling, and clock feeds, not another local audit or
+single-GPU run.

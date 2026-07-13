@@ -115,7 +115,7 @@ def cmd_next_work(args: argparse.Namespace) -> int:
     sections = (
         ("Top 3 highest impact", plan.highest_impact),
         ("4 best implementations", plan.best_implementations),
-        ("10 bugs/risks", plan.bug_risks),
+        ("10 active experiment risks", plan.bug_risks),
     )
     print("Next work:")
     print(
@@ -236,7 +236,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_experiment_run = subparsers.add_parser(
         "experiment-run",
-        help="execute a virtual experiment from an explicit scenario artifact",
+        help="execute a virtual or measured experiment from an explicit scenario artifact",
     )
     p_experiment_run.add_argument(
         "experiment",
@@ -248,6 +248,7 @@ def build_parser() -> argparse.ArgumentParser:
             "E001-LC3",
             "E002-PW1",
             "E002-PW2",
+            "E002-PW3",
         ),
         help="experiment identifier",
     )
@@ -274,8 +275,25 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help=(
             "local source dataset shard for a measured experiment; required by "
-            "E001-LC1, E001-LC2, E001-LC3, E002-PW1, and E002-PW2 and is never "
+            "E001-LC1, E001-LC2, E001-LC3, E002-PW1, E002-PW2, and E002-PW3 "
+            "and is never "
             "copied into the repository"
+        ),
+    )
+    p_experiment_run.add_argument(
+        "--telemetry-config",
+        metavar="PATH",
+        help=(
+            "physical sensor bindings for E002-PW3; contains endpoint and "
+            "environment-variable names but no credentials"
+        ),
+    )
+    p_experiment_run.add_argument(
+        "--raw-output-dir",
+        metavar="PATH",
+        help=(
+            "directory for chunked E002-PW3 GPU, rack, storage, cooling, and "
+            "event traces; defaults beside the result artifact"
         ),
     )
     p_experiment_run.add_argument(

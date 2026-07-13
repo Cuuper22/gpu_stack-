@@ -75,6 +75,18 @@ cumulative energy, rack-PDU power, storage activity and power, and cooling
 telemetry. PW2 does not establish rack or facility transfer; PW3 must measure
 those boundaries rather than project a laptop result upward.
 
+The frozen physical protocol is
+[checkpoint-rack-dephasing-v3.md](checkpoint-rack-dephasing-v3.md), with the
+machine contract in
+[checkpoint-rack-dephasing-scenario-v3.json](checkpoint-rack-dephasing-scenario-v3.json)
+and deployable sensor binding in
+[checkpoint-rack-telemetry-v3.example.json](checkpoint-rack-telemetry-v3.example.json).
+It tests whether dependency-safe recovery slack can reduce both rack-PDU
+`p99.9 |dP/dt|` and 0.1–10 Hz spectral energy by at least 30% versus
+synchronized execution and 15% versus random legal jitter while preserving
+throughput, rack energy, recovery time, semantics, durable cuts, rollback, and
+held-out learning. No physical PW3 result exists yet.
+
 ## Question
 
 Can a controller coordinate the phase of compute, collectives, checkpoint I/O,
