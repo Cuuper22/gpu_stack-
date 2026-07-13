@@ -17,10 +17,10 @@ def test_root_debt_ranks_central_roots():
         for line in out.splitlines()
         if (parts := line.split()) and parts[0].isdigit() and len(parts) >= 3
     }
-    assert "physical.lithography.source_valence_up_quark_count" in ranked_variables
-    assert "physical.lithography.source_valence_down_quark_count" in ranked_variables
-    assert "physical.lithography.medium_component_a_valence_up_quark_count" in ranked_variables
-    assert "physical.lithography.medium_component_b_valence_up_quark_count" in ranked_variables
+    assert "physical.lithography.source_proton_count" in ranked_variables
+    assert "physical.lithography.source_neutron_count" in ranked_variables
+    assert "physical.lithography.medium_component_a_proton_count" in ranked_variables
+    assert "physical.lithography.medium_component_b_proton_count" in ranked_variables
     assert "physical.lithography.nuclear_binding_coulomb_coefficient" in ranked_variables
     assert "physical.lithography.nuclear_binding_volume_coefficient" in ranked_variables
     assert "physical.lithography.nuclear_binding_surface_coefficient" in ranked_variables
@@ -31,8 +31,8 @@ def test_root_debt_ranks_central_roots():
     assert "physical.lithography.gate_k1_mask_error_factor" in ranked_variables
     assert "physical.lithography.gate_k1_resolution_enhancement_factor" in ranked_variables
     assert "physical.lithography.gate_k1" not in ranked_variables
-    assert "physical.lithography.source_proton_count" not in ranked_variables
-    assert "physical.lithography.source_neutron_count" not in ranked_variables
+    assert "physical.lithography.source_valence_up_quark_count" not in ranked_variables
+    assert "physical.lithography.source_valence_down_quark_count" not in ranked_variables
     assert "physical.lithography.medium_component_binding_coulomb_coefficient" not in ranked_variables
     assert "physical.lithography.medium_component_binding_volume_coefficient" not in ranked_variables
     assert "physical.lithography.medium_component_binding_surface_coefficient" not in ranked_variables

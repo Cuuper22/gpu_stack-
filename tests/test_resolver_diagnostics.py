@@ -91,16 +91,16 @@ def test_physical_lithography_unresolved_inputs_expose_boundary_family():
     assert ionization.primitive_boundary is False
 
 
-def test_valence_quark_roots_share_compact_primitive_boundary_family():
-    result = resolve("physical.lithography.source_proton_count")
+def test_nucleon_count_roots_share_compact_primitive_boundary_family():
+    result = resolve("physical.lithography.source_valence_up_quark_count")
 
     diagnostics = {item.variable: item for item in result.unresolved_inputs}
     for variable in (
-        "physical.lithography.source_valence_down_quark_count",
-        "physical.lithography.source_valence_up_quark_count",
+        "physical.lithography.source_proton_count",
+        "physical.lithography.source_neutron_count",
     ):
         diagnostic = diagnostics[variable]
-        assert diagnostic.family == "physical.lithography.source_valence"
+        assert diagnostic.family == "physical.lithography.source"
         assert diagnostic.boundary_category == "primitive-root"
         assert diagnostic.primitive_boundary is True
 

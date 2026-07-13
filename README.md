@@ -81,17 +81,17 @@ Registry stats:
   systems        16
   variables      1517
   constants      24
-  equations      959
+  equations      950
   root_inputs    619
-  leaves         253
+  leaves         259
 
 Coverage:
   non_constant_variables         1493
   with_sp_units                  1493
   with_references                1493
-  equations                      959
-  equations_with_references      959
-  equations_with_unit_check      893
+  equations                      950
+  equations_with_references      950
+  equations_with_unit_check      884
 ```
 
 The model spans:
@@ -530,16 +530,16 @@ Calibration presets are still skeletal. Some presets are exact composition fixtu
 | Systems | 16 |
 | Variables | 1517 |
 | Constants | 24 |
-| Equations | 959 |
+| Equations | 950 |
 | Root inputs | 619 |
-| Leaves | 253 |
+| Leaves | 259 |
 | Cycles | 0 |
 | Topological order length | 1517 |
 | Hard audit failures | 0 |
 | Non-constant variables with `sp_units` | 1493 |
 | Non-constant variables with references | 1493 |
-| Equations with references | 959 |
-| Equations with unit checks | 893 |
+| Equations with references | 950 |
+| Equations with unit checks | 884 |
 | Root-debt families | 151 |
 | Package version | 0.27.0 |
 

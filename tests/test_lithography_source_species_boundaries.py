@@ -177,20 +177,22 @@ def test_source_plasma_species_ideal_gas_closure_resolves_without_defaults():
     _satisfied_constraint(result, SOURCE_PLASMA_NUMBER_DENSITY_POSITIVE)
 
 
-def test_source_valence_quark_roots_are_positive_integer_boundaries():
-    for variable_name in (SOURCE_VALENCE_UP, SOURCE_VALENCE_DOWN):
+def test_source_nucleon_roots_are_nonnegative_integer_boundaries():
+    for variable_name in (SOURCE_PROTON_COUNT, SOURCE_NEUTRON_COUNT):
         variable = Registry.variables[variable_name]
         assert variable.is_root_input
         assert variable.assumptions["integer"] is True
-        assert variable.assumptions["positive"] is True
-        assert "nonnegative" not in variable.assumptions
+        assert variable.assumptions["nonnegative"] is True
+        assert "positive" not in variable.assumptions
+        assert not hasattr(variable, "value")
+        assert variable.value_range is None
 
 
 def test_source_species_inventory_counts_are_domain_constrained_without_defaults():
     domain_cases = [
         (SOURCE_ATOMIC_NUMBER, "nonnegative"),
-        (SOURCE_PROTON_COUNT, "nonnegative"),
-        (SOURCE_NEUTRON_COUNT, "nonnegative"),
+        (SOURCE_VALENCE_UP, "positive"),
+        (SOURCE_VALENCE_DOWN, "positive"),
         (SOURCE_ISOTOPE_MASS_NUMBER, "positive"),
         (SOURCE_MASS_NUMBER, "positive"),
         (SOURCE_BOUND_ELECTRON_COUNT, "nonnegative"),
@@ -241,78 +243,53 @@ def test_source_valence_quark_zero_assignment_reports_named_domain(
     _violated_constraint(result, f"domain.{variable_name}.positive")
 
 
-def test_source_valence_quark_fractional_assignment_reports_integer_diagnostic():
+def test_source_nucleon_fractional_assignment_reports_integer_diagnostic():
     result = resolve(
         SOURCE_VALENCE_UP,
         assignments={
-            SOURCE_VALENCE_UP: 2.5,
-            SOURCE_VALENCE_DOWN: 2,
+            SOURCE_PROTON_COUNT: 2.5,
+            SOURCE_NEUTRON_COUNT: 2,
         },
     )
 
-    assert float(result.value) == pytest.approx(2.5)
+    assert float(result.value) == pytest.approx(7.0)
     integer_violation = _violated_constraint(
         result,
-        f"domain.{SOURCE_VALENCE_UP}.integer",
+        f"domain.{SOURCE_PROTON_COUNT}.integer",
     )
-    assert integer_violation.variable == SOURCE_VALENCE_UP
-    assert float(integer_violation.inputs[SOURCE_VALENCE_UP]) == pytest.approx(2.5)
-    _violated_constraint(
-        result,
-        "physical.eq.lithography_source_valence_quark_triplet_integrality",
-    )
+    assert integer_violation.variable == SOURCE_PROTON_COUNT
+    assert float(integer_violation.inputs[SOURCE_PROTON_COUNT]) == pytest.approx(2.5)
 
 
-def test_source_valence_quark_invalid_compositions_report_count_diagnostics():
-    invalid_proton = resolve(
+def test_source_nucleon_invalid_compositions_report_count_diagnostics():
+    negative_proton = resolve(
         SOURCE_PROTON_COUNT,
         assignments={
-            SOURCE_VALENCE_UP: 1,
-            SOURCE_VALENCE_DOWN: 5,
+            SOURCE_PROTON_COUNT: -1,
+            SOURCE_NEUTRON_COUNT: 1,
         },
     )
-    assert float(invalid_proton.value) == pytest.approx(-1.0)
+    assert float(negative_proton.value) == pytest.approx(-1.0)
     _violated_constraint(
-        invalid_proton,
-        "physical.ineq.lithography_source_valence_quarks_imply_nonnegative_protons",
+        negative_proton,
+        "physical.ineq.lithography_source_proton_count_positive",
     )
     _violated_constraint(
-        invalid_proton,
-        "physical.ineq.lithography_source_valence_quarks_imply_positive_protons",
-    )
-    _violated_constraint(
-        invalid_proton,
+        negative_proton,
         f"domain.{SOURCE_PROTON_COUNT}.nonnegative",
     )
 
     zero_proton = resolve(
-        SOURCE_PROTON_COUNT,
+        SOURCE_VALENCE_UP,
         assignments={
-            SOURCE_VALENCE_UP: 1,
-            SOURCE_VALENCE_DOWN: 2,
+            SOURCE_PROTON_COUNT: 0,
+            SOURCE_NEUTRON_COUNT: 1,
         },
     )
-    assert float(zero_proton.value) == pytest.approx(0.0)
+    assert float(zero_proton.value) == pytest.approx(1.0)
     _violated_constraint(
         zero_proton,
-        "physical.ineq.lithography_source_valence_quarks_imply_positive_protons",
-    )
-
-    invalid_neutron = resolve(
-        SOURCE_NEUTRON_COUNT,
-        assignments={
-            SOURCE_VALENCE_UP: 5,
-            SOURCE_VALENCE_DOWN: 1,
-        },
-    )
-    assert float(invalid_neutron.value) == pytest.approx(-1.0)
-    _violated_constraint(
-        invalid_neutron,
-        "physical.ineq.lithography_source_valence_quarks_imply_nonnegative_neutrons",
-    )
-    _violated_constraint(
-        invalid_neutron,
-        f"domain.{SOURCE_NEUTRON_COUNT}.nonnegative",
+        "physical.ineq.lithography_source_proton_count_positive",
     )
 
 
@@ -365,28 +342,24 @@ def test_source_electron_inventory_count_assignments_report_domain_diagnostics(
     _violated_constraint(fractional, f"domain.{variable_name}.integer")
 
 
-def test_source_valence_quark_valid_one_proton_boundary_satisfies_domains():
+def test_source_nucleon_valid_one_proton_boundary_satisfies_domains():
     result = resolve(
-        SOURCE_PROTON_COUNT,
+        SOURCE_VALENCE_UP,
         assignments={
-            SOURCE_VALENCE_UP: 2,
-            SOURCE_VALENCE_DOWN: 1,
+            SOURCE_PROTON_COUNT: 1,
+            SOURCE_NEUTRON_COUNT: 0,
         },
     )
 
-    assert float(result.value) == pytest.approx(1.0)
+    assert float(result.value) == pytest.approx(2.0)
+    assert [step.equation for step in result.trace] == [
+        "physical.eq.lithography_source_valence_up_quark_count_from_zn"
+    ]
     checks = {check.equation: check for check in result.constraints}
+    assert checks[f"domain.{SOURCE_PROTON_COUNT}.nonnegative"].satisfied is True
+    assert checks[f"domain.{SOURCE_NEUTRON_COUNT}.nonnegative"].satisfied is True
     assert checks[f"domain.{SOURCE_VALENCE_UP}.positive"].satisfied is True
-    assert checks[f"domain.{SOURCE_VALENCE_DOWN}.positive"].satisfied is True
     assert (
-        checks[
-            "physical.ineq.lithography_source_valence_quarks_imply_positive_protons"
-        ].satisfied
-        is True
-    )
-    assert (
-        checks[
-            "physical.eq.lithography_source_valence_quark_triplet_integrality"
-        ].satisfied
+        checks["physical.ineq.lithography_source_proton_count_positive"].satisfied
         is True
     )

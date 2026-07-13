@@ -23,160 +23,57 @@ def test_lithography_source_quantum_shell_and_valence_resolution_chain():
     )
     assert float(ionization_principal_result.value) == pytest.approx(3.0)
 
-    proton_count_result = resolve(
-        "physical.lithography.source_proton_count",
+    up_quark_result = resolve(
+        "physical.lithography.source_valence_up_quark_count",
         assignments=source_quark_assignments(3, 4),
     )
-    assert float(proton_count_result.value) == pytest.approx(3.0)
-    assert [step.equation for step in proton_count_result.trace] == [
-        "physical.eq.lithography_source_proton_count_from_valence_quarks",
+    assert float(up_quark_result.value) == pytest.approx(10.0)
+    assert [step.equation for step in up_quark_result.trace] == [
+        "physical.eq.lithography_source_valence_up_quark_count_from_zn",
     ]
-    proton_feasibility_eq = Registry.equations[
-        "physical.ineq.lithography_source_valence_quarks_imply_nonnegative_protons"
+    positive_proton_eq = Registry.equations[
+        "physical.ineq.lithography_source_proton_count_positive"
     ]
-    positive_proton_feasibility_eq = Registry.equations[
-        "physical.ineq.lithography_source_valence_quarks_imply_positive_protons"
-    ]
-    assert isinstance(proton_feasibility_eq, Inequality)
-    assert isinstance(positive_proton_feasibility_eq, Inequality)
-    assert proton_feasibility_eq.role is RelationRole.CONSTRAINT
-    assert positive_proton_feasibility_eq.role is RelationRole.CONSTRAINT
-    assert isinstance(proton_feasibility_eq.as_sympy(), sp.Rel)
-    assert isinstance(positive_proton_feasibility_eq.as_sympy(), sp.Rel)
-    assert not proton_feasibility_eq.is_trivially_true()
-    assert not positive_proton_feasibility_eq.is_trivially_true()
-    assert proton_feasibility_eq.references
-    assert positive_proton_feasibility_eq.references
-    assert getattr(proton_feasibility_eq, "_check_units_flag", False)
-    assert getattr(positive_proton_feasibility_eq, "_check_units_flag", False)
-    proton_feasibility = next(
-        c for c in proton_count_result.constraints
-        if c.equation == proton_feasibility_eq.name
+    assert isinstance(positive_proton_eq, Inequality)
+    assert positive_proton_eq.role is RelationRole.CONSTRAINT
+    assert isinstance(positive_proton_eq.as_sympy(), sp.Rel)
+    assert not positive_proton_eq.is_trivially_true()
+    assert positive_proton_eq.references
+    assert getattr(positive_proton_eq, "_check_units_flag", False)
+    positive_proton = next(
+        c for c in up_quark_result.constraints
+        if c.equation == positive_proton_eq.name
     )
-    assert proton_feasibility.satisfied is True
-    positive_proton_feasibility = next(
-        c for c in proton_count_result.constraints
-        if c.equation == positive_proton_feasibility_eq.name
-    )
-    assert positive_proton_feasibility.satisfied is True
-    triplet_integrality_eq = Registry.equations[
-        "physical.eq.lithography_source_valence_quark_triplet_integrality"
-    ]
-    assert triplet_integrality_eq.role is RelationRole.CONSTRAINT
-    assert isinstance(triplet_integrality_eq.as_sympy(), sp.Equality)
-    assert triplet_integrality_eq.as_sympy() is not sp.S.true
-    assert triplet_integrality_eq.references
-    assert getattr(triplet_integrality_eq, "_check_units_flag", False)
-    triplet_integrality = next(
-        c for c in proton_count_result.constraints
-        if c.equation == triplet_integrality_eq.name
-    )
-    assert triplet_integrality.satisfied is True
-    neutron_count_result = resolve(
-        "physical.lithography.source_neutron_count",
+    assert positive_proton.satisfied is True
+    down_quark_result = resolve(
+        "physical.lithography.source_valence_down_quark_count",
         assignments=source_quark_assignments(3, 4),
     )
-    assert float(neutron_count_result.value) == pytest.approx(4.0)
-    assert [step.equation for step in neutron_count_result.trace] == [
-        "physical.eq.lithography_source_neutron_count_from_valence_quarks",
+    assert float(down_quark_result.value) == pytest.approx(11.0)
+    assert [step.equation for step in down_quark_result.trace] == [
+        "physical.eq.lithography_source_valence_down_quark_count_from_zn",
     ]
-    neutron_feasibility_eq = Registry.equations[
-        "physical.ineq.lithography_source_valence_quarks_imply_nonnegative_neutrons"
-    ]
-    assert isinstance(neutron_feasibility_eq, Inequality)
-    assert neutron_feasibility_eq.role is RelationRole.CONSTRAINT
-    assert isinstance(neutron_feasibility_eq.as_sympy(), sp.Rel)
-    assert not neutron_feasibility_eq.is_trivially_true()
-    assert neutron_feasibility_eq.references
-    assert getattr(neutron_feasibility_eq, "_check_units_flag", False)
-    neutron_feasibility = next(
-        c for c in neutron_count_result.constraints
-        if c.equation == neutron_feasibility_eq.name
-    )
-    assert neutron_feasibility.satisfied is True
-
-    invalid_proton_result = resolve(
-        "physical.lithography.source_proton_count",
-        assignments={
-            "physical.lithography.source_valence_up_quark_count": 1,
-            "physical.lithography.source_valence_down_quark_count": 5,
-        },
-    )
-    assert float(invalid_proton_result.value) == pytest.approx(-1.0)
-    invalid_proton_feasibility = next(
-        c for c in invalid_proton_result.constraints
-        if c.equation == proton_feasibility_eq.name
-    )
-    assert invalid_proton_feasibility.satisfied is False
 
     zero_proton_result = resolve(
-        "physical.lithography.source_proton_count",
+        "physical.lithography.source_valence_up_quark_count",
         assignments=source_quark_assignments(0, 1),
     )
-    assert float(zero_proton_result.value) == pytest.approx(0.0)
-    zero_positive_proton_feasibility = next(
+    assert float(zero_proton_result.value) == pytest.approx(1.0)
+    zero_positive_proton = next(
         c for c in zero_proton_result.constraints
-        if c.equation == positive_proton_feasibility_eq.name
+        if c.equation == positive_proton_eq.name
     )
-    assert zero_positive_proton_feasibility.satisfied is False
-
-    invalid_neutron_result = resolve(
-        "physical.lithography.source_neutron_count",
-        assignments={
-            "physical.lithography.source_valence_up_quark_count": 5,
-            "physical.lithography.source_valence_down_quark_count": 1,
-        },
-    )
-    assert float(invalid_neutron_result.value) == pytest.approx(-1.0)
-    invalid_neutron_feasibility = next(
-        c for c in invalid_neutron_result.constraints
-        if c.equation == neutron_feasibility_eq.name
-    )
-    assert invalid_neutron_feasibility.satisfied is False
-
-    fractional_triplet_result = resolve(
-        "physical.lithography.source_proton_count",
-        assignments={
-            "physical.lithography.source_valence_up_quark_count": 1,
-            "physical.lithography.source_valence_down_quark_count": 1,
-        },
-    )
-    assert float(fractional_triplet_result.value) == pytest.approx(1.0 / 3.0)
-    fractional_triplet_constraint = next(
-        c for c in fractional_triplet_result.constraints
-        if c.equation == triplet_integrality_eq.name
-    )
-    assert fractional_triplet_constraint.satisfied is False
-    fractional_down_root_result = resolve(
-        "physical.lithography.source_valence_down_quark_count",
-        assignments={
-            "physical.lithography.source_valence_up_quark_count": 1,
-            "physical.lithography.source_valence_down_quark_count": 1,
-        },
-    )
-    assert float(fractional_down_root_result.value) == pytest.approx(1.0)
-    fractional_down_triplet_constraint = next(
-        c for c in fractional_down_root_result.constraints
-        if c.equation == triplet_integrality_eq.name
-    )
-    assert fractional_down_triplet_constraint.satisfied is False
+    assert zero_positive_proton.satisfied is False
     assert [
-        c.equation for c in fractional_down_root_result.constraints
-    ].count(triplet_integrality_eq.name) == 1
+        c.equation for c in zero_proton_result.constraints
+    ].count(positive_proton_eq.name) == 1
 
     isotope_descriptor_result = resolve(
         "physical.lithography.source_isotope_mass_number",
         assignments=source_quark_assignments(3, 4),
     )
     assert float(isotope_descriptor_result.value) == pytest.approx(7.0)
-    isotope_descriptor_trace = [
-        step.equation for step in isotope_descriptor_result.trace
-    ]
-    assert set(isotope_descriptor_trace[:2]) == {
-        "physical.eq.lithography_source_neutron_count_from_valence_quarks",
-        "physical.eq.lithography_source_proton_count_from_valence_quarks",
-    }
-    assert isotope_descriptor_trace[2:] == [
+    assert [step.equation for step in isotope_descriptor_result.trace] == [
         "physical.eq.lithography_source_isotope_mass_number",
     ]
     assert (
@@ -191,7 +88,6 @@ def test_lithography_source_quantum_shell_and_valence_resolution_chain():
     )
     assert float(atomic_descriptor_result.value) == pytest.approx(3.0)
     assert [step.equation for step in atomic_descriptor_result.trace] == [
-        "physical.eq.lithography_source_proton_count_from_valence_quarks",
         "physical.eq.lithography_source_atomic_number",
     ]
     assert (

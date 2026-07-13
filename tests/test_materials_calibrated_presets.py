@@ -15,33 +15,33 @@ EXPECTED_COMPOSITION_ASSIGNMENTS = (
     (
         materials.source_hydrogen_1,
         {
-            "physical.lithography.source_valence_up_quark_count": 2,
-            "physical.lithography.source_valence_down_quark_count": 1,
+            "physical.lithography.source_proton_count": 1,
+            "physical.lithography.source_neutron_count": 0,
         },
     ),
     (
         materials.source_oxygen_16,
         {
-            "physical.lithography.source_valence_up_quark_count": 24,
-            "physical.lithography.source_valence_down_quark_count": 24,
+            "physical.lithography.source_proton_count": 8,
+            "physical.lithography.source_neutron_count": 8,
         },
     ),
     (
         materials.source_tin_120,
         {
-            "physical.lithography.source_valence_up_quark_count": 170,
-            "physical.lithography.source_valence_down_quark_count": 190,
+            "physical.lithography.source_proton_count": 50,
+            "physical.lithography.source_neutron_count": 70,
         },
     ),
     (
         materials.medium_h2o_h1_o16_composition,
         {
             "physical.lithography.medium_component_a_stoichiometric_count": 2,
-            "physical.lithography.medium_component_a_valence_up_quark_count": 2,
-            "physical.lithography.medium_component_a_valence_down_quark_count": 1,
+            "physical.lithography.medium_component_a_proton_count": 1,
+            "physical.lithography.medium_component_a_neutron_count": 0,
             "physical.lithography.medium_component_b_stoichiometric_count": 1,
-            "physical.lithography.medium_component_b_valence_up_quark_count": 24,
-            "physical.lithography.medium_component_b_valence_down_quark_count": 24,
+            "physical.lithography.medium_component_b_proton_count": 8,
+            "physical.lithography.medium_component_b_neutron_count": 8,
         },
     ),
 )
@@ -54,11 +54,8 @@ EXPECTED_COMPOSITION_SOURCE_TOKENS = (
             "References:",
             "IUPAC/CIAAW nuclide notation",
             "For hydrogen-1: Z=1, A=1, N=0.",
-            "Valence-quark accounting",
             "IUPAC Gold Book, nuclide",
             "https://goldbook.iupac.org/terms/view/N04257",
-            "Particle Data Group Review of Particle Physics",
-            "https://pdg.lbl.gov/",
         ),
     ),
     (
@@ -67,11 +64,8 @@ EXPECTED_COMPOSITION_SOURCE_TOKENS = (
             "References:",
             "IUPAC/CIAAW nuclide notation",
             "For oxygen-16: Z=8, A=16, N=8.",
-            "Valence-quark accounting",
             "IUPAC Gold Book, nuclide",
             "https://goldbook.iupac.org/terms/view/N04257",
-            "Particle Data Group Review of Particle Physics",
-            "https://pdg.lbl.gov/",
         ),
     ),
     (
@@ -81,14 +75,11 @@ EXPECTED_COMPOSITION_SOURCE_TOKENS = (
             "ASML establishes molten tin droplets",
             "tin as Z=50",
             "tin-120 A=120 and N=70",
-            "Valence-quark accounting",
             "ASML Light & lasers lithography principles",
             "https://www.asml.com/en/technology/lithography-principles/light-and-lasers",
             "CIAAW Atomic Weight of Tin",
             "https://www.ciaaw.org/tin.htm",
             "tin-120 isotopic abundance 0.3258(9)",
-            "Particle Data Group Review of Particle Physics",
-            "https://pdg.lbl.gov/",
         ),
     ),
     (
@@ -97,16 +88,13 @@ EXPECTED_COMPOSITION_SOURCE_TOKENS = (
             "References:",
             "NIST Chemistry WebBook water entry",
             "water has molecular formula H2O",
-            "component A=hydrogen-1",
-            "component B=oxygen-16",
+            "component A=hydrogen-1 (Z=1, N=0)",
+            "component B=oxygen-16 (Z=8, N=8)",
             "stoichiometric counts 2:1",
-            "Valence-quark accounting",
             "NIST Chemistry WebBook, SRD 69, Water",
             "https://webbook.nist.gov/cgi/cbook.cgi?ID=C7732185",
             "IUPAC Gold Book, nuclide",
             "https://goldbook.iupac.org/terms/view/N04257",
-            "Particle Data Group Review of Particle Physics",
-            "https://pdg.lbl.gov/",
         ),
     ),
 )
@@ -136,8 +124,6 @@ def test_material_preset_sources_include_structured_reference_metadata():
     assert "https://webbook.nist.gov/cgi/cbook.cgi?ID=C7732185" in source
     assert "IUPAC Gold Book, nuclide" in source
     assert "https://goldbook.iupac.org/terms/view/N04257" in source
-    assert "Particle Data Group Review of Particle Physics" in source
-    assert "https://pdg.lbl.gov/" in source
 
 
 def test_source_tin_120_source_uses_official_euv_and_isotope_references():
@@ -150,7 +136,6 @@ def test_source_tin_120_source_uses_official_euv_and_isotope_references():
     assert "CIAAW Atomic Weight of Tin" in source
     assert "https://www.ciaaw.org/tin.htm" in source
     assert "tin-120 isotopic abundance 0.3258(9)" in source
-    assert "Particle Data Group Review of Particle Physics" in source
 
 
 @pytest.mark.parametrize(

@@ -13,11 +13,11 @@ from gpu_stack.presets import materials
 
 H2O_H1_O16_ASSIGNMENTS = {
     "physical.lithography.medium_component_a_stoichiometric_count": 2,
-    "physical.lithography.medium_component_a_valence_up_quark_count": 2,
-    "physical.lithography.medium_component_a_valence_down_quark_count": 1,
+    "physical.lithography.medium_component_a_proton_count": 1,
+    "physical.lithography.medium_component_a_neutron_count": 0,
     "physical.lithography.medium_component_b_stoichiometric_count": 1,
-    "physical.lithography.medium_component_b_valence_up_quark_count": 24,
-    "physical.lithography.medium_component_b_valence_down_quark_count": 24,
+    "physical.lithography.medium_component_b_proton_count": 8,
+    "physical.lithography.medium_component_b_neutron_count": 8,
 }
 
 
@@ -30,9 +30,12 @@ def test_h2o_medium_preset_records_material_provenance():
     assert "H2O" in source
     assert "hydrogen-1" in source
     assert "oxygen-16" in source
-    assert "U=2Z+N" in source
-    assert "D=Z+2N" in source
+    assert "(Z=1, N=0)" in source
+    assert "(Z=8, N=8)" in source
     assert any("Formula-unit proton, neutron, electron" in note for note in preset.notes)
+    assert any(
+        "derived from Z and N" in note for note in preset.notes
+    )
 
 
 def test_h2o_medium_preset_assigns_only_sourced_root_values():

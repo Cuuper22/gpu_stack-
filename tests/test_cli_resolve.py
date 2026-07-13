@@ -13,62 +13,62 @@ from tests.helpers.cli import (
 )
 
 
-def test_resolve_missing_exposes_source_valence_root_diagnostics():
+def test_resolve_missing_exposes_source_nucleon_root_diagnostics():
     with captured_stdout() as buf:
         rc = main([
             "resolve",
-            "physical.lithography.source_proton_count",
+            "physical.lithography.source_valence_up_quark_count",
             "--missing",
         ])
 
     out = buf.getvalue()
     assert rc == 0
     assert (
-        "missing: ['physical.lithography.source_valence_down_quark_count', "
-        "'physical.lithography.source_valence_up_quark_count']"
+        "missing: ['physical.lithography.source_neutron_count', "
+        "'physical.lithography.source_proton_count']"
     ) in out
     assert "unresolved inputs:" in out
     assert out.count("kind=ROOT_INPUT reason=root input assignment required") == 2
     assert "kind=DERIVED reason=symbolic boundary" not in out
 
-    down = unresolved_input_line(
+    neutron = unresolved_input_line(
         out,
-        "physical.lithography.source_valence_down_quark_count",
+        "physical.lithography.source_neutron_count",
     )
-    up = unresolved_input_line(
+    proton = unresolved_input_line(
         out,
-        "physical.lithography.source_valence_up_quark_count",
+        "physical.lithography.source_proton_count",
     )
-    assert "[count] scope=physical kind=ROOT_INPUT" in down
-    assert "[count] scope=physical kind=ROOT_INPUT" in up
+    assert "[count] scope=physical kind=ROOT_INPUT" in neutron
+    assert "[count] scope=physical kind=ROOT_INPUT" in proton
     assert (
         "hint: --assign "
-        "physical.lithography.source_valence_down_quark_count=VALUE"
+        "physical.lithography.source_neutron_count=VALUE"
     ) in out
     assert (
-        "direct physical.lithography.source_neutron_count, "
-        "physical.lithography.source_proton_count"
+        "direct physical.lithography.source_isotope_mass_number, "
+        "physical.lithography.source_neutron_excess"
     ) in out
 
 
-def test_resolve_missing_families_groups_source_valence_roots():
+def test_resolve_missing_families_groups_source_nucleon_roots():
     with captured_stdout() as buf:
         rc = main([
             "resolve",
-            "physical.lithography.source_proton_count",
+            "physical.lithography.source_valence_up_quark_count",
             "--missing-families",
         ])
 
     out = buf.getvalue()
     assert rc == 0
-    assert "physical.lithography.source_proton_count =" in out
+    assert "physical.lithography.source_valence_up_quark_count =" in out
     assert "unresolved inputs:" not in out
     assert "missing families:" in out
     assert (
-        "family=physical.lithography.source_valence "
+        "family=physical.lithography.source "
         "boundary_category=primitive-root primitive_boundary=True count=2 "
-        "names=physical.lithography.source_valence_down_quark_count, "
-        "physical.lithography.source_valence_up_quark_count"
+        "names=physical.lithography.source_neutron_count, "
+        "physical.lithography.source_proton_count"
     ) in out
 
 
@@ -168,7 +168,7 @@ def test_resolve_missing_and_missing_families_prints_both_sections():
     with captured_stdout() as buf:
         rc = main([
             "resolve",
-            "physical.lithography.source_proton_count",
+            "physical.lithography.source_valence_up_quark_count",
             "--missing",
             "--missing-families",
         ])
@@ -179,14 +179,14 @@ def test_resolve_missing_and_missing_families_prints_both_sections():
     assert "unresolved inputs:" in out
     assert "missing families:" in out
     assert (
-        "physical.lithography.source_valence_down_quark_count [count] "
+        "physical.lithography.source_neutron_count [count] "
         "scope=physical kind=ROOT_INPUT"
     ) in unresolved_input_line(
         out,
-        "physical.lithography.source_valence_down_quark_count",
+        "physical.lithography.source_neutron_count",
     )
     assert (
-        "family=physical.lithography.source_valence "
+        "family=physical.lithography.source "
         "boundary_category=primitive-root primitive_boundary=True count=2"
     ) in out
 

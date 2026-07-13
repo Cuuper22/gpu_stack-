@@ -9,16 +9,16 @@ def test_lithography_photon_energy_has_quantum_source_model():
     model = source_quantum_model()
 
     assert not model.photon_energy.is_root_input
-    assert model.up_quarks.is_root_input
-    assert model.down_quarks.is_root_input
+    assert model.proton_count.is_root_input
+    assert model.neutron_count.is_root_input
     assert not model.atomic_number.is_root_input
     assert not model.isotope_mass_number.is_root_input
-    assert not model.proton_count.is_root_input
-    assert not model.neutron_count.is_root_input
-    assert len(model.proton_count.defining_equations) == 1
-    assert len(model.neutron_count.defining_equations) == 1
-    assert not model.proton_count.has_multiple_definitions()
-    assert not model.neutron_count.has_multiple_definitions()
+    assert not model.up_quarks.is_root_input
+    assert not model.down_quarks.is_root_input
+    assert len(model.up_quarks.defining_equations) == 1
+    assert len(model.down_quarks.defining_equations) == 1
+    assert not model.up_quarks.has_multiple_definitions()
+    assert not model.down_quarks.has_multiple_definitions()
     assert not model.binding_energy.is_root_input
     assert not model.mass_number.is_root_input
     assert not model.neutron_excess.is_root_input
@@ -177,25 +177,23 @@ def test_lithography_source_quantum_particle_binding_and_reduced_mass_dependenci
         "physical.lithography.source_proton_count",
         "physical.lithography.source_neutron_count",
     }
-    assert {v.name for v in model.up_quarks.direct_dependencies()} == set()
-    assert {v.name for v in model.down_quarks.direct_dependencies()} == set()
+    assert {v.name for v in model.proton_count.direct_dependencies()} == set()
+    assert {v.name for v in model.neutron_count.direct_dependencies()} == set()
     assert {
-        v.name for v in model.up_quarks.direct_dependencies(include_constraints=True)
-    } == {
-        "physical.lithography.source_valence_down_quark_count",
-    }
+        v.name
+        for v in model.proton_count.direct_dependencies(include_constraints=True)
+    } == set()
     assert {
-        v.name for v in model.down_quarks.direct_dependencies(include_constraints=True)
-    } == {
-        "physical.lithography.source_valence_up_quark_count",
+        v.name
+        for v in model.neutron_count.direct_dependencies(include_constraints=True)
+    } == set()
+    assert {v.name for v in model.up_quarks.direct_dependencies()} == {
+        "physical.lithography.source_proton_count",
+        "physical.lithography.source_neutron_count",
     }
-    assert {v.name for v in model.proton_count.direct_dependencies()} == {
-        "physical.lithography.source_valence_down_quark_count",
-        "physical.lithography.source_valence_up_quark_count",
-    }
-    assert {v.name for v in model.neutron_count.direct_dependencies()} == {
-        "physical.lithography.source_valence_down_quark_count",
-        "physical.lithography.source_valence_up_quark_count",
+    assert {v.name for v in model.down_quarks.direct_dependencies()} == {
+        "physical.lithography.source_proton_count",
+        "physical.lithography.source_neutron_count",
     }
     assert {v.name for v in model.mass_number.direct_dependencies()} == {
         "physical.lithography.source_isotope_mass_number",
