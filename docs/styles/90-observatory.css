@@ -71,7 +71,7 @@ input {
 button,
 select {
   border: 1px solid var(--obs-rule);
-  border-radius: 4px;
+  border-radius: 0;
   background: var(--obs-paper-raised);
 }
 
@@ -339,7 +339,7 @@ main {
   margin: 0 auto 7px;
   font-size: clamp(2rem, 3vw, 3.25rem);
   font-weight: 600;
-  letter-spacing: -0.035em;
+  letter-spacing: 0;
   line-height: 1.04;
 }
 
@@ -617,7 +617,7 @@ body[data-depth="freshman"] .causal-reading > ol small {
   min-height: 116px;
   padding: 12px;
   border: 1px solid var(--obs-rule);
-  border-radius: 6px;
+  border-radius: 0;
   text-align: left;
   transition: border-color 150ms ease, background-color 150ms ease;
 }
@@ -981,7 +981,7 @@ body[data-depth="freshman"] .causal-reading > ol small {
 .inspector-value {
   margin: 0 0 3px;
   font: 600 2.05rem/1 var(--font-value);
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .evidence-tag {
@@ -4006,7 +4006,7 @@ input:disabled {
   min-height: 68px;
   padding: 10px 13px;
   border: 1px solid var(--obs-rule);
-  border-radius: 5px;
+  border-radius: 0;
 }
 
 .chain-item p {
@@ -4234,7 +4234,7 @@ input:disabled {
 .raw-trace {
   margin-top: 14px;
   border: 1px solid var(--obs-rule);
-  border-radius: 4px;
+  border-radius: 0;
   background: var(--obs-paper-raised);
 }
 
@@ -5491,7 +5491,7 @@ body[data-depth="full_trace"] .rack-dephasing-depth-copy .depth-researcher {
   .evidence-inspector {
     border-top: 1px solid var(--obs-rule);
     border-left: 0;
-    border-radius: 18px 18px 0 0;
+    border-radius: 0;
     background: var(--obs-paper-raised);
   }
 
@@ -5512,7 +5512,7 @@ body[data-depth="full_trace"] .rack-dephasing-depth-copy .depth-researcher {
     width: 42px;
     height: 4px;
     margin: 9px auto 0;
-    border-radius: 4px;
+    border-radius: 0;
     background: var(--obs-rule);
   }
 
