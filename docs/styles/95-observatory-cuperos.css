@@ -286,6 +286,91 @@ body[data-depth="freshman"] .plain-words.has-text {
 }
 
 /* ------------------------------------------------------------------ */
+/* Scenario band micro-motion                                           */
+/* The curtailment event and WAN traffic become something you watch.    */
+/* Meaning never depends on the motion: the outage chip and evidence    */
+/* tags carry it statically.                                            */
+/* ------------------------------------------------------------------ */
+
+.site-outage-chip {
+  justify-self: start;
+  margin-top: 4px;
+  padding: 2px 6px;
+  border: 2px dashed oklch(0.52 0.12 88);
+  color: oklch(0.45 0.09 88);
+  font: 700 10px/1.2 var(--font-value);
+  text-transform: uppercase;
+}
+
+/* The assumed interruption: the site periodically drops dark for a
+   slice of the loop, matching the scenario's outage-then-recovery shape. */
+@keyframes site-curtail {
+  0%,
+  58%,
+  92%,
+  100% {
+    filter: none;
+    opacity: 1;
+  }
+  64%,
+  84% {
+    filter: grayscale(0.9);
+    opacity: 0.45;
+  }
+}
+
+.site-button.has-assumed-outage {
+  animation: site-curtail 7200ms linear infinite;
+}
+
+/* WAN traffic: a gold packet sweeps along the link. Paint-only
+   background-position animation on a 14px strip. */
+.wan-packet {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  left: 6px;
+  height: 6px;
+  pointer-events: none;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 42%,
+    var(--accent-gold) 46%,
+    var(--accent-gold) 54%,
+    transparent 58%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  background-position: 120% 0;
+  animation: wan-packet-sweep 2600ms linear infinite;
+}
+
+.wan-link-button {
+  position: relative;
+}
+
+@keyframes wan-packet-sweep {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -20% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-button.has-assumed-outage,
+  .wan-packet {
+    animation: none;
+  }
+
+  .wan-packet {
+    background-position: 50% 0;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Small screens: the desktop margin collapses, the window fills        */
 /* ------------------------------------------------------------------ */
 

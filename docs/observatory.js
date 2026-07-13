@@ -3867,6 +3867,7 @@
           const label = element("span", "", gigabits === null ? "not reported" : `${formatDecimal(gigabits, gigabits % 1 === 0 ? 0 : 1)} Gbit/s`);
           label.append(element("small", "", `${latencyMs === null ? "latency not reported" : `${formatDecimal(latencyMs, latencyMs % 1 === 0 ? 0 : 1)} ms`} · assumed`));
           linkButton.append(label);
+          linkButton.append(element("span", "wan-packet"));
           linkButton.addEventListener("click", () => openInspectorFor(`link:${link.link_id}`));
         } else {
           linkButton.disabled = true;
@@ -3876,6 +3877,18 @@
         }
         dom.siterail.append(linkButton);
       }
+    });
+
+    // Mark sites carrying an assumed scenario interruption. The chip is
+    // static text (meaning survives reduced motion); the periodic dim is
+    // decoration on top.
+    const outages = Array.isArray(scenario.outages) ? scenario.outages : [];
+    outages.forEach((outage) => {
+      const target = dom.siterail.querySelector(`.site-button[data-site-id="${CSS.escape(String(outage.site_id))}"]`);
+      if (!target || target.classList.contains("has-assumed-outage")) return;
+      target.classList.add("has-assumed-outage");
+      const copy = target.querySelector(".site-copy");
+      if (copy) copy.append(element("span", "site-outage-chip", "assumed interruption"));
     });
 
     window.requestAnimationFrame(() => {
