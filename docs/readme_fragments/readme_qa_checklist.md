@@ -10,9 +10,9 @@ Prepared 2026-05-11 18:11 America/Los_Angeles for a README rewrite into a Medium
   - 16 systems
   - 1517 variables
   - 24 constants
-  - 959 equations
+  - 950 equations
   - 619 root inputs
-  - 253 leaves
+  - 259 leaves
   - 0 cycles
   - topological order length 1517
   - 0 collapsed equations
