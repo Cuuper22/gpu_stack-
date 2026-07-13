@@ -9,7 +9,7 @@
 
 .primer-copy,
 .primer-visual {
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: clamp(14px, 2vw, 22px);
   min-width: 0;
 }
@@ -38,7 +38,7 @@
 
 .primer-map {
   border: 2px inset var(--window-chrome);
-  background: oklch(0.91 0.006 250);
+  background: var(--chrome-well);
   padding: 10px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -48,7 +48,7 @@
 .primer-node {
   min-height: 108px;
   border: 2px outset var(--button-face);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 9px;
   display: grid;
   /* Explicit minmax(0) column: an implicit auto column sizes to the widest
@@ -71,7 +71,7 @@
 
 .primer-node.is-active {
   border-style: inset;
-  background: oklch(0.94 0.07 88);
+  background: var(--gold-wash);
   animation: trace-pulse 1800ms ease-out infinite;
 }
 
@@ -97,7 +97,7 @@
 
 .primer-status {
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 10px;
   display: grid;
   grid-template-columns: 32px minmax(0, 1fr);
@@ -109,7 +109,7 @@
   width: 22px;
   height: 22px;
   border: 2px inset var(--button-face);
-  background: oklch(0.20 0.01 250);
+  background: var(--well-dark);
   position: relative;
   overflow: hidden;
 }
@@ -140,7 +140,7 @@
 
 .section-copy,
 .section-visual {
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: clamp(14px, 2vw, 22px);
   min-width: 0;
 }
@@ -152,7 +152,7 @@
 .eyebrow {
   margin: 0 0 7px;
   /* Darker than --accent-cyan so 13px labels clear 4.5:1 on the pane. */
-  color: oklch(0.42 0.10 195);
+  color: var(--accent-cyan-deep);
   font-size: 13px;
   font-weight: 700;
 }
@@ -197,15 +197,15 @@ h3 {
 }
 
 .visual-frame {
-  background: oklch(0.91 0.006 250);
+  background: var(--chrome-well);
   border: 2px inset var(--window-chrome);
   padding: 10px;
 }
 
 .visual-frame img {
   width: 100%;
-  background: oklch(0.98 0.002 90);
-  border: 1px solid oklch(0.72 0.006 250);
+  background: var(--pane-bright);
+  border: 2px solid var(--frame-line);
 }
 
 .caption {
@@ -253,7 +253,7 @@ h3 {
 
 .trace-screen {
   border: 2px inset var(--window-chrome);
-  background: oklch(0.91 0.006 250);
+  background: var(--chrome-well);
   padding: 10px;
   display: grid;
   gap: 10px;
@@ -271,7 +271,7 @@ h3 {
 .trace-node {
   min-height: 92px;
   border: 2px outset var(--button-face);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 8px;
   display: grid;
   /* Explicit minmax(0) column: an implicit auto column sizes to the widest
@@ -284,7 +284,7 @@ h3 {
 
 .trace-node.active {
   border-style: inset;
-  background: oklch(0.94 0.07 88);
+  background: var(--gold-wash);
   animation: trace-pulse 1800ms ease-out infinite;
 }
 
@@ -311,7 +311,7 @@ h3 {
 .trace-connector {
   height: 12px;
   border: 2px inset var(--window-chrome);
-  background: oklch(0.20 0.01 250);
+  background: var(--well-dark);
   position: relative;
   overflow: hidden;
 }
@@ -335,7 +335,7 @@ h3 {
 .trace-note,
 .trace-meter {
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 10px;
   min-width: 0;
 }
@@ -357,7 +357,7 @@ h3 {
 .meter-bar {
   height: 18px;
   border: 2px inset var(--window-chrome);
-  background: oklch(0.20 0.01 250);
+  background: var(--well-dark);
   position: relative;
   overflow: hidden;
 }
@@ -387,7 +387,7 @@ h3 {
 
 .cone-status-bar {
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 8px 10px;
   font: 13px "IBM Plex Mono", monospace;
   color: var(--text-soft);
@@ -397,7 +397,7 @@ h3 {
 
 .cone-tree-pane {
   border: 2px inset var(--window-chrome);
-  background: oklch(0.91 0.006 250);
+  background: var(--chrome-well);
   padding: 6px;
   min-height: 240px;
   max-height: 420px;
@@ -414,7 +414,7 @@ h3 {
   gap: 6px;
   width: 100%;
   text-align: left;
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   border: 2px outset var(--button-face);
   border-radius: 0;
   padding: 5px 7px;
@@ -440,7 +440,7 @@ h3 {
 
 .cone-row[aria-expanded="true"] {
   border-style: inset;
-  background: oklch(0.94 0.004 250);
+  background: var(--chrome-well-bright);
 }
 
 /* Depth indentation: each level adds 18px via inline style --depth.
@@ -474,16 +474,16 @@ h3 {
   color: var(--text-dark);
   font: 700 10px/1 "IBM Plex Mono", monospace;
   padding: 2px 5px;
-  border: 1px solid oklch(0.65 0.12 88);
+  border: 2px solid var(--gold-line);
   text-transform: uppercase;
   letter-spacing: 0;
   white-space: nowrap;
 }
 
 .cone-badge.is-const {
-  background: oklch(0.85 0.005 250);
+  background: var(--button-face);
   color: var(--text-soft);
-  border-color: oklch(0.65 0.005 250);
+  border-color: var(--chrome-border);
 }
 
 /* Children container injected below a row */
@@ -498,5 +498,5 @@ h3 {
   font: 500 14px/1.55 "IBM Plex Sans", system-ui, sans-serif;
   color: var(--text-soft);
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
 }

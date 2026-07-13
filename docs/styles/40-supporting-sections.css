@@ -10,7 +10,7 @@
   gap: 10px;
   align-items: center;
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 10px;
   font: 13px/1.35 "IBM Plex Mono", monospace;
 }
@@ -27,7 +27,7 @@
 .impact-bar {
   height: 16px;
   border: 2px inset var(--window-chrome);
-  background: oklch(0.20 0.01 250);
+  background: var(--well-dark);
   position: relative;
 }
 
@@ -47,7 +47,7 @@
 
 .glossary-term {
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 12px;
 }
 
@@ -56,8 +56,8 @@
 }
 
 .console-window {
-  background: oklch(0.09 0.008 250);
-  color: oklch(0.78 0.18 132);
+  background: var(--console-bg);
+  color: var(--console-green);
   border: 2px inset var(--window-chrome);
   padding: 14px;
   overflow: auto;
@@ -74,7 +74,7 @@
 
 .dialog-body {
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 14px;
   min-width: 0;
 }
@@ -93,7 +93,7 @@
   grid-template-columns: 130px minmax(0, 1fr);
   gap: 10px;
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 10px;
   font: 14px "IBM Plex Sans", system-ui, sans-serif;
 }

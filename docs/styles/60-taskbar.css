@@ -10,7 +10,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 0 8px;
-  background: oklch(0.75 0.005 250);
+  background: var(--taskbar-bg);
   border-top: 2px solid var(--inset-light);
   box-shadow: 0 -2px 0 var(--inset-dark);
 }

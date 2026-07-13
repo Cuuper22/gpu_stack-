@@ -29,7 +29,7 @@
   color: var(--text-light);
   text-decoration: none;
   text-align: center;
-  text-shadow: 1px 1px 0 oklch(0.08 0.004 250);
+  text-shadow: 1px 1px 0 var(--pixel-ink);
   font-size: 13px;
 }
 
@@ -47,7 +47,7 @@
 
 .icon-label {
   padding: 1px 4px;
-  background: oklch(0.28 0.08 195 / 0.62);
+  background: var(--icon-label-veil);
   max-width: 100%;
   overflow-wrap: anywhere;
 }
@@ -60,7 +60,7 @@
   justify-items: end;
   gap: 0;
   color: var(--text-light);
-  text-shadow: 2px 2px 0 oklch(0.08 0.004 250);
+  text-shadow: 2px 2px 0 var(--pixel-ink);
   user-select: none;
   z-index: 1;
 }
@@ -75,5 +75,5 @@
 .logo-version {
   font-size: 14px;
   letter-spacing: 0;
-  color: oklch(0.90 0.06 88);
+  color: var(--gold-soft);
 }
