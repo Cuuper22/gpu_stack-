@@ -19,7 +19,7 @@ Simulation-only results never advance beyond `virtual`.
 | ID | Experiment | Current state | Primary causal test |
 |---|---|---|---|
 | E001 | [Beyond One Datacenter](e001-beyond-one-datacenter/experiment.md) | LC3 executed; survivor-continuation candidate falsified only on held-out device energy | Can a joint controller preserve learning efficiency while cutting cross-site communication under interruption? |
-| E002 | [Shape the Power Waveform](e002-power-waveform-shaping/experiment.md) | designed | Can dependency-safe phase control suppress grid-danger-band power without changing optimizer semantics? |
+| E002 | [Shape the Power Waveform](e002-power-waveform-shaping/experiment.md) | PW1 measurement failure preserved; PW2 valid local mechanism and salvage result; PW3 multi-GPU/rack transfer next | Can dependency-safe phase control suppress grid-danger-band power without changing optimizer semantics? |
 | E003 | [Semantic Fault Tolerance](e003-semantic-fault-tolerance/experiment.md) | designed | Can protection be allocated by counterfactual learning harm rather than fault label? |
 | E004 | [Fluid Inference Topology](e004-fluid-inference-topology/experiment.md) | designed | Do jointly controlled serving mechanisms create interaction gains and repeated topology-regime crossings? |
 | E005 | [Heterogeneous Architecture Co-design](e005-heterogeneous-architecture-codesign/experiment.md) | designed | Does hardware-aware architecture search beat heterogeneous placement of a frozen architecture? |
@@ -164,8 +164,56 @@ Artifacts:
 - observatory projection: `../docs/data/e001-equal-work-v1.json`
   (`5ff07c4cf5b59be04d14f1b66961e679c2cec127b521c386d54ff9ebaadc1ae1`).
 
-The result redirects the next frontier question to E002, not larger E001
-runs: attribute the energy penalty with an operation-to-facility waveform and
-a frozen 2x2 checkpoint-cadence by continuation experiment. Test whether
-dependency-safe phase scheduling removes the energy penalty without erasing
-the held-out learning, work, or tick gains.
+The result redirected the next frontier question to E002 rather than larger
+E001 runs.
+
+## Persisted E002-PW1 measurement failure
+
+E002-PW1 executed the frozen 2x2 checkpoint-cadence by survivor-continuation
+factorial over the exact LC3 warm state. All 32 runs completed and the warm
+checkpoint binding matched. The result is
+`e002-power-waveform-shaping/results/checkpoint-power-v1.json`, artifact
+`aff76946b26876820cdaa4ca43d0b6160cdc18b2f4c5bacd053cfe92f529d4f5`.
+
+Its conclusion is `measurement_invalid`. The requested 20 ms NVML polling
+yielded an effective 494.693 ms device-update period, with selected logger lag
+`+250` ms at the frozen boundary. The only active invalidators are
+`insufficient_evaluation_power_updates` and
+`insufficient_pooled_cadence_phase_updates`.
+
+The raw LC3-corner energy ratio was median `0.789` with paired 90% interval
+`[0.703, 0.923]`; the prior penalty did not reproduce. The raw preselected
+sparse-continuation salvage ratio was `0.823 [0.665, 1.019]`, with every
+non-energy gate passing. Neither value is admissible because measurement
+validity failed, and all three mechanism gates failed. No tuning, attribution,
+or generalization follows from PW1.
+
+## Persisted E002-PW2 cumulative-energy result
+
+PW2 repeated the same frozen factorial with the supported cumulative-energy
+counter. All 32 runs completed, the exact warm binding held, measurement
+validity passed, and no invalidator fired. Effective counter updates were
+91.667 ms; every held-out arm had 83 to 109 updates. Snapshot support was
+59.30 sparse and 110.06 dense; pooled checkpoint-group support was 124.56 and
+176.94.
+
+The total interaction was `2.2416e-5 [2.1746e-6, 3.5305e-5] J/token`, the
+checkpoint-related group was `5.8845e-6 [3.0774e-6, 8.9671e-6]`, and snapshot
+alone was `4.9917e-6 [2.8497e-6, 7.4481e-6]`. All three mechanism gates passed.
+The sensitivity-only idle-subtracted interaction was
+`3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token` and crossed zero. The frozen raw
+cumulative primary therefore passes, but the attribution is not insensitive
+to estimated idle-baseline subtraction.
+
+Sparse continuation passed all eight salvage gates: NLL delta median
+`0.0033385` and upper `0.0085037`, median attempted-work saving `3.03%`, 40
+opportunity ticks saved, and cumulative-energy ratio median `0.96099` with
+upper `1.00319`. The conclusion is
+`checkpoint_cadence_attributed_sparse_continuation_survives`.
+
+Result: `e002-power-waveform-shaping/results/checkpoint-energy-v2.json`,
+artifact
+`cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`.
+Individual rare restore/rejoin estimates remain exploratory. PW3 must test
+dependency-safe dephasing with simultaneous per-GPU cumulative, rack-PDU,
+storage, and cooling telemetry; PW2 does not establish facility transfer.

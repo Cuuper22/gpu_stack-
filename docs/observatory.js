@@ -8,6 +8,14 @@
   const LEARNING_ARTIFACT_URL = "data/e001-learning-v1.json";
   const EQUAL_WORK_ARTIFACT_URL = "data/e001-equal-work-v1.json";
   const EQUAL_WORK_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001-equal-work.v1";
+  const CHECKPOINT_POWER_ARTIFACT_URL = "data/e002-checkpoint-power-v1.json";
+  const CHECKPOINT_POWER_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-checkpoint-power.v1";
+  const CHECKPOINT_POWER_RAW_ARTIFACT_URL = "data/e002-checkpoint-power-raw-v1.json";
+  const CHECKPOINT_POWER_RAW_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-checkpoint-power.raw.v1";
+  const CHECKPOINT_ENERGY_ARTIFACT_URL = "data/e002-checkpoint-energy-v2.json";
+  const CHECKPOINT_ENERGY_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-checkpoint-energy.v2";
+  const CHECKPOINT_ENERGY_RAW_ARTIFACT_URL = "data/e002-checkpoint-energy-raw-v2.json";
+  const CHECKPOINT_ENERGY_RAW_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-checkpoint-energy.raw.v2";
   const SVG_NS = "http://www.w3.org/2000/svg";
   const VALID_DEPTHS = new Set(["freshman", "researcher", "full_trace"]);
   const VALID_POLICIES = new Set(["synchronous", "fixed_local", "adaptive_cadence"]);
@@ -173,6 +181,16 @@
   let learningArtifactError = null;
   let equalWorkArtifact = null;
   let equalWorkArtifactError = null;
+  let checkpointPowerArtifact = null;
+  let checkpointPowerArtifactError = null;
+  let checkpointPowerRawArtifact = null;
+  let checkpointPowerRawArtifactError = null;
+  let checkpointPowerRawLoad = null;
+  let checkpointEnergyArtifact = null;
+  let checkpointEnergyArtifactError = null;
+  let checkpointEnergyRawArtifact = null;
+  let checkpointEnergyRawArtifactError = null;
+  let checkpointEnergyRawLoad = null;
   let state = readStateFromURL();
   let timelineScale = null;
   let transientInspector = false;
@@ -475,6 +493,80 @@
     return value;
   }
 
+  function validateCheckpointPowerArtifact(value) {
+    const record = (candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate);
+    if (!record(value)) throw new ArtifactContractError("checkpoint-power artifact root is not an object");
+    if (value.schema !== CHECKPOINT_POWER_ARTIFACT_SCHEMA) throw new ArtifactContractError(`unsupported checkpoint-power schema: ${String(value.schema || "missing")}`);
+    if (value.experiment_id !== "E002-PW1") throw new ArtifactContractError("checkpoint-power artifact experiment_id is not E002-PW1");
+    if (value.artifact_state !== "measurement_invalid") throw new ArtifactContractError("checkpoint-power artifact state is not measurement_invalid");
+    if (typeof value.artifact_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.artifact_sha256)) throw new ArtifactContractError("checkpoint-power artifact sha256 is invalid");
+    ["freshman", "researcher", "full_trace", "next_experiment", "evidence_boundary", "facility_bridge", "source_result"].forEach((key) => {
+      if (!record(value[key])) throw new ArtifactContractError(`checkpoint-power artifact ${key} is missing`);
+    });
+    if (!Array.isArray(value.freshman.cards) || value.freshman.cards.length !== 4) throw new ArtifactContractError("checkpoint-power freshman cards are incomplete");
+    if (value.researcher.measurement_valid !== false || !Array.isArray(value.researcher.invalidators) || value.researcher.invalidators.length !== 2) throw new ArtifactContractError("checkpoint-power invalidators are incomplete");
+    if (!record(value.researcher.logger) || value.researcher.logger.boundary_hit !== true) throw new ArtifactContractError("checkpoint-power logger boundary is missing");
+    if (!Array.isArray(value.researcher.arm_rows) || value.researcher.arm_rows.length !== 4) throw new ArtifactContractError("checkpoint-power arm matrix is incomplete");
+    if (!Array.isArray(value.researcher.calibration_equivalence) || value.researcher.calibration_equivalence.length !== 4) throw new ArtifactContractError("checkpoint-power controls are incomplete");
+    if (!record(value.researcher.raw_inadmissible_signals)) throw new ArtifactContractError("checkpoint-power raw contrasts are missing");
+    if (value.full_trace.run_count !== 32 || !Array.isArray(value.full_trace.run_ledger) || value.full_trace.run_ledger.length !== 32) throw new ArtifactContractError("checkpoint-power run ledger requires 32 records");
+    if (!record(value.full_trace.raw_trace_artifact) || value.full_trace.raw_trace_artifact.run_count !== 32) throw new ArtifactContractError("checkpoint-power raw trace binding is incomplete");
+    if (!record(value.full_trace.warm_start) || value.full_trace.warm_start.binding_passed !== true || value.full_trace.warm_start.checkpoint_sha256 !== value.full_trace.warm_start.observed_checkpoint_sha256) throw new ArtifactContractError("checkpoint-power warm-state identity did not bind exactly");
+    return value;
+  }
+
+  function validateCheckpointPowerRawArtifact(value) {
+    const record = (candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate);
+    if (!record(value)) throw new ArtifactContractError("checkpoint-power raw artifact root is not an object");
+    if (value.schema !== CHECKPOINT_POWER_RAW_ARTIFACT_SCHEMA) throw new ArtifactContractError(`unsupported checkpoint-power raw schema: ${String(value.schema || "missing")}`);
+    if (value.experiment_id !== "E002-PW1") throw new ArtifactContractError("checkpoint-power raw experiment_id is not E002-PW1");
+    if (typeof value.artifact_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.artifact_sha256)) throw new ArtifactContractError("checkpoint-power raw artifact sha256 is invalid");
+    if (checkpointPowerArtifact && value.artifact_sha256 !== checkpointPowerArtifact.full_trace.raw_trace_artifact.artifact_sha256) throw new ArtifactContractError("checkpoint-power raw artifact hash does not match the compact binding");
+    if (!Array.isArray(value.runs) || value.runs.length !== 32) throw new ArtifactContractError("checkpoint-power raw artifact requires 32 runs");
+    value.runs.forEach((run) => {
+      if (!record(run) || typeof run.run_id !== "string" || !record(run.telemetry_trace) || !Array.isArray(run.telemetry_trace.points) || !Array.isArray(run.phase_intervals)) throw new ArtifactContractError("checkpoint-power raw artifact contains an invalid run");
+    });
+    return value;
+  }
+
+  function validateCheckpointEnergyArtifact(value) {
+    const record = (candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate);
+    if (!record(value)) throw new ArtifactContractError("checkpoint-energy artifact root is not an object");
+    if (value.schema !== CHECKPOINT_ENERGY_ARTIFACT_SCHEMA) throw new ArtifactContractError(`unsupported checkpoint-energy schema: ${String(value.schema || "missing")}`);
+    if (value.experiment_id !== "E002-PW2") throw new ArtifactContractError("checkpoint-energy artifact experiment_id is not E002-PW2");
+    if (value.artifact_state !== "checkpoint_cadence_attributed_sparse_continuation_survives") throw new ArtifactContractError("checkpoint-energy artifact state is not the frozen PW2 conclusion");
+    if (typeof value.artifact_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.artifact_sha256)) throw new ArtifactContractError("checkpoint-energy artifact sha256 is invalid");
+    ["freshman", "researcher", "full_trace", "next_experiment", "evidence_boundary", "facility_bridge", "source_result"].forEach((key) => {
+      if (!record(value[key])) throw new ArtifactContractError(`checkpoint-energy artifact ${key} is missing`);
+    });
+    if (!Array.isArray(value.freshman.cards) || value.freshman.cards.length !== 4) throw new ArtifactContractError("checkpoint-energy freshman cards are incomplete");
+    if (value.researcher.measurement_valid !== true || !Array.isArray(value.researcher.active_invalidators) || value.researcher.active_invalidators.length !== 0) throw new ArtifactContractError("checkpoint-energy measurement validity is inconsistent");
+    ["counter_calibration", "phase_support", "primary_total_interaction", "checkpoint_related_group_interaction", "mechanism_gates", "salvage_gates", "sparse_continuation_salvage"].forEach((key) => {
+      if (!record(value.researcher[key])) throw new ArtifactContractError(`checkpoint-energy researcher.${key} is missing`);
+    });
+    if (Object.values(value.researcher.mechanism_gates).length !== 3 || Object.values(value.researcher.mechanism_gates).some((passed) => passed !== true)) throw new ArtifactContractError("checkpoint-energy mechanism gates did not all pass");
+    if (Object.values(value.researcher.salvage_gates).length !== 8 || Object.values(value.researcher.salvage_gates).some((passed) => passed !== true)) throw new ArtifactContractError("checkpoint-energy salvage gates did not all pass");
+    if (value.full_trace.run_count !== 32 || !Array.isArray(value.full_trace.run_ledger) || value.full_trace.run_ledger.length !== 32) throw new ArtifactContractError("checkpoint-energy run ledger requires 32 records");
+    if (!record(value.full_trace.raw_trace_artifact) || value.full_trace.raw_trace_artifact.run_count !== 32) throw new ArtifactContractError("checkpoint-energy raw trace binding is incomplete");
+    if (!record(value.full_trace.warm_start) || value.full_trace.warm_start.binding_passed !== true || value.full_trace.warm_start.checkpoint_sha256 !== value.full_trace.warm_start.observed_checkpoint_sha256) throw new ArtifactContractError("checkpoint-energy warm-state identity did not bind exactly");
+    if (value.full_trace.pw1_failure_binding_verified !== true || value.facility_bridge.facility_claim_allowed !== false) throw new ArtifactContractError("checkpoint-energy predecessor or facility boundary is inconsistent");
+    return value;
+  }
+
+  function validateCheckpointEnergyRawArtifact(value) {
+    const record = (candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate);
+    if (!record(value)) throw new ArtifactContractError("checkpoint-energy raw artifact root is not an object");
+    if (value.schema !== CHECKPOINT_ENERGY_RAW_ARTIFACT_SCHEMA) throw new ArtifactContractError(`unsupported checkpoint-energy raw schema: ${String(value.schema || "missing")}`);
+    if (value.experiment_id !== "E002-PW2") throw new ArtifactContractError("checkpoint-energy raw experiment_id is not E002-PW2");
+    if (typeof value.artifact_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.artifact_sha256)) throw new ArtifactContractError("checkpoint-energy raw artifact sha256 is invalid");
+    if (checkpointEnergyArtifact && value.artifact_sha256 !== checkpointEnergyArtifact.full_trace.raw_trace_artifact.artifact_sha256) throw new ArtifactContractError("checkpoint-energy raw artifact hash does not match the compact binding");
+    if (!Array.isArray(value.runs) || value.runs.length !== 32) throw new ArtifactContractError("checkpoint-energy raw artifact requires 32 runs");
+    value.runs.forEach((run) => {
+      if (!record(run) || typeof run.run_id !== "string" || !record(run.telemetry_trace) || !Array.isArray(run.telemetry_trace.points) || !Array.isArray(run.phase_intervals)) throw new ArtifactContractError("checkpoint-energy raw artifact contains an invalid run");
+    });
+    return value;
+  }
+
   async function loadArtifact() {
     try {
       const response = await fetch(ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
@@ -535,6 +627,88 @@
     renderEqualWorkV1();
   }
 
+  async function loadCheckpointPowerArtifact() {
+    try {
+      const response = await fetch(CHECKPOINT_POWER_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error(`checkpoint-power artifact request returned ${response.status}`);
+      checkpointPowerArtifact = validateCheckpointPowerArtifact(await response.json());
+      checkpointPowerArtifactError = null;
+      document.body.dataset.checkpointPowerState = "ready";
+    } catch (error) {
+      checkpointPowerArtifact = null;
+      checkpointPowerArtifactError = error;
+      document.body.dataset.checkpointPowerState = error instanceof ArtifactContractError ? "invalid" : "missing";
+    }
+    renderCheckpointPowerV1();
+  }
+
+  async function loadCheckpointPowerRawArtifact() {
+    if (checkpointPowerRawArtifact) return checkpointPowerRawArtifact;
+    if (checkpointPowerRawLoad) return checkpointPowerRawLoad;
+    dom.checkpointpowerrawstate.textContent = "Loading the separate raw point artifact…";
+    checkpointPowerRawLoad = (async () => {
+      try {
+        const response = await fetch(CHECKPOINT_POWER_RAW_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+        if (!response.ok) throw new Error(`checkpoint-power raw artifact request returned ${response.status}`);
+        checkpointPowerRawArtifact = validateCheckpointPowerRawArtifact(await response.json());
+        checkpointPowerRawArtifactError = null;
+        document.body.dataset.checkpointPowerRawState = "ready";
+        renderCheckpointPowerRawTrace();
+        return checkpointPowerRawArtifact;
+      } catch (error) {
+        checkpointPowerRawArtifact = null;
+        checkpointPowerRawArtifactError = error;
+        document.body.dataset.checkpointPowerRawState = error instanceof ArtifactContractError ? "invalid" : "missing";
+        dom.checkpointpowerrawstate.textContent = `Raw trace unavailable: ${error.message}`;
+        throw error;
+      } finally {
+        checkpointPowerRawLoad = null;
+      }
+    })();
+    return checkpointPowerRawLoad;
+  }
+
+  async function loadCheckpointEnergyArtifact() {
+    try {
+      const response = await fetch(CHECKPOINT_ENERGY_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error(`checkpoint-energy artifact request returned ${response.status}`);
+      checkpointEnergyArtifact = validateCheckpointEnergyArtifact(await response.json());
+      checkpointEnergyArtifactError = null;
+      document.body.dataset.checkpointEnergyState = "ready";
+    } catch (error) {
+      checkpointEnergyArtifact = null;
+      checkpointEnergyArtifactError = error;
+      document.body.dataset.checkpointEnergyState = error instanceof ArtifactContractError ? "invalid" : "missing";
+    }
+    renderCheckpointEnergyV2();
+  }
+
+  async function loadCheckpointEnergyRawArtifact() {
+    if (checkpointEnergyRawArtifact) return checkpointEnergyRawArtifact;
+    if (checkpointEnergyRawLoad) return checkpointEnergyRawLoad;
+    dom.checkpointenergyrawstate.textContent = "Loading the separate cumulative-counter point artifact…";
+    checkpointEnergyRawLoad = (async () => {
+      try {
+        const response = await fetch(CHECKPOINT_ENERGY_RAW_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+        if (!response.ok) throw new Error(`checkpoint-energy raw artifact request returned ${response.status}`);
+        checkpointEnergyRawArtifact = validateCheckpointEnergyRawArtifact(await response.json());
+        checkpointEnergyRawArtifactError = null;
+        document.body.dataset.checkpointEnergyRawState = "ready";
+        renderCheckpointEnergyRawTrace();
+        return checkpointEnergyRawArtifact;
+      } catch (error) {
+        checkpointEnergyRawArtifact = null;
+        checkpointEnergyRawArtifactError = error;
+        document.body.dataset.checkpointEnergyRawState = error instanceof ArtifactContractError ? "invalid" : "missing";
+        dom.checkpointenergyrawstate.textContent = `Raw counter trace unavailable: ${error.message}`;
+        throw error;
+      } finally {
+        checkpointEnergyRawLoad = null;
+      }
+    })();
+    return checkpointEnergyRawLoad;
+  }
+
   function cacheDOM() {
     [
       "experiment-select", "share-state", "plain-answer", "artifact-state", "stage-boundary",
@@ -556,6 +730,23 @@
       "equal-work-checkpoint-clue", "equal-work-gate-strip", "equal-work-evidence-boundary",
       "equal-work-evaluation-pairs", "equal-work-run-details", "equal-work-predecessors",
       "equal-work-bridge", "equal-work-provenance-json",
+      "checkpoint-power-v1", "checkpoint-power-v1-state", "checkpoint-power-insight-title",
+      "checkpoint-power-plain-answer", "checkpoint-power-decision", "checkpoint-power-depth-trace",
+      "checkpoint-power-freshman-grid", "checkpoint-power-invalidators", "checkpoint-power-logger",
+      "checkpoint-power-arm-grid", "checkpoint-power-control-grid", "checkpoint-power-contrast-label",
+      "checkpoint-power-contrast-grid", "checkpoint-power-next-question", "checkpoint-power-next-frozen",
+      "checkpoint-power-next-evidence", "checkpoint-power-evidence-boundary", "checkpoint-power-run-select",
+      "checkpoint-power-run-ledger", "checkpoint-power-phase-metrics", "checkpoint-power-provenance-json",
+      "checkpoint-power-raw-details", "checkpoint-power-raw-state", "checkpoint-power-raw-meta",
+      "checkpoint-power-raw-points",
+      "checkpoint-energy-v2", "checkpoint-energy-v2-state", "checkpoint-energy-insight-title",
+      "checkpoint-energy-plain-answer", "checkpoint-energy-mechanism", "checkpoint-energy-depth-trace",
+      "checkpoint-energy-freshman-grid", "checkpoint-energy-validity-grid", "checkpoint-energy-effect-grid",
+      "checkpoint-energy-support-grid", "checkpoint-energy-exploratory", "checkpoint-energy-mechanism-gates",
+      "checkpoint-energy-salvage-gates", "checkpoint-energy-evidence-boundary", "checkpoint-energy-next-question",
+      "checkpoint-energy-run-select", "checkpoint-energy-run-ledger", "checkpoint-energy-counter-summary",
+      "checkpoint-energy-phase-metrics", "checkpoint-energy-provenance-json", "checkpoint-energy-raw-details",
+      "checkpoint-energy-raw-state", "checkpoint-energy-raw-meta", "checkpoint-energy-raw-points",
     ].forEach((id) => { dom[id.replaceAll("-", "")] = byId(id); });
     dom.researchBand = document.querySelector(".research-band");
     dom.depthButtons = [...document.querySelectorAll(".depth-control button")];
@@ -589,6 +780,22 @@
     dom.timescrubber.addEventListener("change", () => writeStateToURL(false));
     dom.previousevent.addEventListener("click", () => selectAdjacentEvent(-1));
     dom.nextevent.addEventListener("click", () => selectAdjacentEvent(1));
+    dom.checkpointpowerrunselect.addEventListener("change", () => {
+      renderCheckpointPowerPhaseMetrics();
+      if (checkpointPowerRawArtifact) renderCheckpointPowerRawTrace();
+    });
+    dom.checkpointpowerrawdetails.addEventListener("toggle", () => {
+      if (!dom.checkpointpowerrawdetails.open || state.depth !== "full_trace") return;
+      loadCheckpointPowerRawArtifact().catch(() => {});
+    });
+    dom.checkpointenergyrunselect.addEventListener("change", () => {
+      renderCheckpointEnergyPhaseMetrics();
+      if (checkpointEnergyRawArtifact) renderCheckpointEnergyRawTrace();
+    });
+    dom.checkpointenergyrawdetails.addEventListener("toggle", () => {
+      if (!dom.checkpointenergyrawdetails.open || state.depth !== "full_trace") return;
+      loadCheckpointEnergyRawArtifact().catch(() => {});
+    });
     dom.timelineviewport.addEventListener("keydown", (event) => {
       if (event.target !== dom.timelineviewport) return;
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -628,6 +835,8 @@
     loadRecoveryArtifact();
     loadLearningArtifact();
     loadEqualWorkArtifact();
+    loadCheckpointPowerArtifact();
+    loadCheckpointEnergyArtifact();
   }
 
   document.addEventListener("DOMContentLoaded", init, { once: true });
@@ -650,6 +859,8 @@
     renderRecoveryV2();
     renderLearningV1();
     renderEqualWorkV1();
+    renderCheckpointPowerV1();
+    renderCheckpointEnergyV2();
   }
 
   function recoveryRuns() {
@@ -1623,6 +1834,589 @@
     renderEqualWorkEffects();
     renderEqualWorkGates();
     renderEqualWorkTrace();
+  }
+
+  function checkpointPowerHumanLabel(value) {
+    return String(value || "not reported")
+      .replaceAll("_", " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  function checkpointPowerInterval(effect, formatter) {
+    if (!effect || !finiteNumber(effect.lower_bound) || !finiteNumber(effect.median) || !finiteNumber(effect.upper_bound)) return "interval not reported";
+    return `${formatter(effect.median)} median · 90% interval ${formatter(effect.lower_bound)} to ${formatter(effect.upper_bound)}`;
+  }
+
+  function renderCheckpointPowerFreshman() {
+    dom.checkpointpowerfreshmangrid.replaceChildren();
+    checkpointPowerArtifact.freshman.cards.forEach((entry) => {
+      const card = element("article", "checkpoint-power-plain-card");
+      card.dataset.state = entry.state;
+      card.append(
+        element("p", "checkpoint-power-plain-label", entry.label),
+        element("strong", "checkpoint-power-plain-value", entry.value),
+        element("p", "checkpoint-power-plain-detail", entry.detail),
+      );
+      dom.checkpointpowerfreshmangrid.append(card);
+    });
+  }
+
+  function renderCheckpointPowerValidity() {
+    const researcher = checkpointPowerArtifact.researcher;
+    dom.checkpointpowerinvalidators.replaceChildren();
+    researcher.invalidators.forEach((invalidator, index) => {
+      const item = element("article", "checkpoint-power-invalidator");
+      item.append(
+        element("span", "checkpoint-power-invalidator-number", String(index + 1)),
+        element("div", "", checkpointPowerHumanLabel(invalidator)),
+        element("strong", "", "ACTIVE · CLAIM BLOCKED"),
+      );
+      dom.checkpointpowerinvalidators.append(item);
+    });
+
+    const logger = researcher.logger;
+    const ratio = logger.effective_update_period_ms / logger.requested_poll_ms;
+    dom.checkpointpowerlogger.replaceChildren();
+    const heading = element("header");
+    heading.append(element("h4", "", "Logger calibration"), element("span", "checkpoint-power-boundary-badge", logger.boundary_hit ? "BOUNDARY HIT" : "inside boundary"));
+    const comparison = element("div", "checkpoint-power-poll-comparison");
+    [
+      ["Requested poll", `${logger.requested_poll_ms.toLocaleString("en-US", { maximumFractionDigits: 1 })} ms`],
+      ["Effective update", `${logger.effective_update_period_ms.toLocaleString("en-US", { maximumFractionDigits: 3 })} ms`],
+    ].forEach(([label, value]) => {
+      const metric = element("div");
+      metric.append(element("span", "", label), element("strong", "", value));
+      comparison.append(metric);
+    });
+    const detail = element("p", "", `${ratio.toLocaleString("en-US", { maximumFractionDigits: 1 })}× coarser than requested · selected delay ${logger.selected_delay_ms.toLocaleString("en-US", { maximumFractionDigits: 1 })} ms · correlation ${logger.selected_correlation.toLocaleString("en-US", { maximumFractionDigits: 3 })}.`);
+    dom.checkpointpowerlogger.append(heading, comparison, detail);
+  }
+
+  function renderCheckpointPowerArms() {
+    dom.checkpointpowerarmgrid.replaceChildren();
+    checkpointPowerArtifact.researcher.arm_rows.forEach((arm) => {
+      const card = element("article", "checkpoint-power-arm-card");
+      card.dataset.arm = arm.arm_code;
+      const header = element("header");
+      header.append(
+        element("span", "checkpoint-power-arm-code", arm.arm_code),
+        element("div", "", `${checkpointPowerHumanLabel(arm.checkpoint_cadence)} cadence · ${checkpointPowerHumanLabel(arm.continuation)}`),
+        element("strong", "", `${arm.run_count}-run median`),
+      );
+      const metrics = element("dl", "checkpoint-power-arm-metrics");
+      [
+        ["Final held-out NLL", formatLearningNll(arm.median_final_held_out_nll)],
+        ["Attempted tokens", formatLearningTokens(arm.median_attempted_tokens)],
+        ["Opportunity ticks", arm.median_opportunity_ticks.toLocaleString("en-US")],
+        ["Checkpoints", `${arm.median_checkpoint_count.toLocaleString("en-US")} · ${formatBytes(arm.median_checkpoint_bytes)}`],
+        ["Raw board energy", `${formatLearningEnergy(arm.median_idle_subtracted_gpu_board_energy_j)} · INADMISSIBLE`],
+      ].forEach(([term, value]) => {
+        const metric = element("div");
+        metric.append(element("dt", "", term), element("dd", "", value));
+        metrics.append(metric);
+      });
+      card.append(header, metrics);
+      dom.checkpointpowerarmgrid.append(card);
+    });
+  }
+
+  function renderCheckpointPowerControls() {
+    dom.checkpointpowercontrolgrid.replaceChildren();
+    checkpointPowerArtifact.researcher.calibration_equivalence.forEach((control) => {
+      const card = element("article", "checkpoint-power-control-card");
+      const title = element("h4", "", `${control.block_id} · ${checkpointPowerHumanLabel(control.checkpoint_cadence)} cadence`);
+      const checks = element("ul");
+      [
+        ["Training state", control.state_exactly_equal],
+        ["Attempted work", control.work_exactly_equal],
+        ["Final NLL", control.final_nll_exactly_equal],
+      ].forEach(([label, passed]) => {
+        const item = element("li");
+        item.dataset.passed = String(passed === true);
+        item.append(element("strong", "", passed === true ? "EXACT" : "MISMATCH"), document.createTextNode(` ${label}`));
+        checks.append(item);
+      });
+      card.append(title, checks);
+      dom.checkpointpowercontrolgrid.append(card);
+    });
+  }
+
+  function checkpointPowerContrastCard(title, value, detail) {
+    const card = element("article", "checkpoint-power-contrast-card");
+    card.setAttribute("aria-label", `${title}, inadmissible diagnostic`);
+    card.append(
+      element("span", "checkpoint-power-inadmissible", "INADMISSIBLE"),
+      element("h4", "", title),
+      element("strong", "checkpoint-power-contrast-value", value),
+      element("p", "", detail),
+    );
+    return card;
+  }
+
+  function renderCheckpointPowerContrasts() {
+    const signals = checkpointPowerArtifact.researcher.raw_inadmissible_signals;
+    dom.checkpointpowercontrastlabel.textContent = signals.label;
+    dom.checkpointpowercontrastgrid.replaceChildren();
+    dom.checkpointpowercontrastgrid.append(
+      checkpointPowerContrastCard(
+        "Total cadence × continuation interaction",
+        formatScientific(signals.primary_total_interaction.median),
+        `${checkpointPowerInterval(signals.primary_total_interaction, (value) => formatScientific(value))} J per canonical token.`,
+      ),
+      checkpointPowerContrastCard(
+        "Checkpoint-related interaction",
+        formatScientific(signals.checkpoint_related_interaction.median),
+        `${checkpointPowerInterval(signals.checkpoint_related_interaction, (value) => formatScientific(value))} J per canonical token.`,
+      ),
+      checkpointPowerContrastCard(
+        "LC3 corner energy ratio",
+        formatEqualWorkRatio(signals.lc3_corner_reproduction.dense_continue_to_sparse_restart_energy_ratio.median),
+        `${checkpointPowerInterval(signals.lc3_corner_reproduction.dense_continue_to_sparse_restart_energy_ratio, (value) => formatEqualWorkRatio(value))}. Penalty reproduced: ${signals.lc3_corner_reproduction.penalty_reproduced ? "yes" : "no"}.`,
+      ),
+      checkpointPowerContrastCard(
+        "Sparse continuation energy ratio",
+        formatEqualWorkRatio(signals.sparse_continuation_salvage.device_energy_ratio.median),
+        `${checkpointPowerInterval(signals.sparse_continuation_salvage.device_energy_ratio, (value) => formatEqualWorkRatio(value))}. This does not qualify sparse continuation as passing.`,
+      ),
+    );
+  }
+
+  function renderCheckpointPowerRedirect() {
+    const next = checkpointPowerArtifact.next_experiment;
+    dom.checkpointpowernextquestion.textContent = `${next.id}: ${next.question}`;
+    dom.checkpointpowernextfrozen.replaceChildren();
+    next.do_not_change.forEach((value) => dom.checkpointpowernextfrozen.append(element("li", "", value)));
+    dom.checkpointpowernextevidence.replaceChildren();
+    next.required_new_evidence.forEach((value) => dom.checkpointpowernextevidence.append(element("li", "", value)));
+  }
+
+  function checkpointPowerSelectedRun() {
+    if (!checkpointPowerArtifact) return null;
+    const runId = dom.checkpointpowerrunselect.value;
+    return checkpointPowerArtifact.full_trace.run_ledger.find((run) => run.run_id === runId) || checkpointPowerArtifact.full_trace.run_ledger[0] || null;
+  }
+
+  function renderCheckpointPowerRunSelector() {
+    const previous = dom.checkpointpowerrunselect.value;
+    dom.checkpointpowerrunselect.replaceChildren();
+    checkpointPowerArtifact.full_trace.run_ledger.forEach((run) => {
+      const option = element("option", "", `${run.block_id} · ${run.arm_code} · ${run.run_id}`);
+      option.value = run.run_id;
+      dom.checkpointpowerrunselect.append(option);
+    });
+    if (checkpointPowerArtifact.full_trace.run_ledger.some((run) => run.run_id === previous)) dom.checkpointpowerrunselect.value = previous;
+  }
+
+  function renderCheckpointPowerLedger() {
+    dom.checkpointpowerrunledger.replaceChildren();
+    checkpointPowerArtifact.full_trace.run_ledger.forEach((run) => {
+      const row = element("tr");
+      row.append(
+        element("td", "", run.run_id),
+        element("td", "", `${run.split} · ${run.block_id} · ${run.execution_order_id}/${run.execution_position}`),
+        element("td", "", `${run.arm_code} · ${run.checkpoint_cadence} · ${run.continuation}`),
+        element("td", "", `${formatLearningTokens(run.attempted_tokens)} / ${formatLearningTokens(run.canonical_tokens)}`),
+        element("td", "", formatLearningNll(run.final_held_out_nll)),
+        element("td", "", `${run.raw_sample_count.toLocaleString("en-US")} / ${run.effective_power_update_count.toLocaleString("en-US")}`),
+        element("td", "checkpoint-power-inadmissible-cell", `${formatLearningEnergy(run.idle_subtracted_gpu_board_energy_j)} · inadmissible`),
+        element("td", "", `${run.checkpoint_count.toLocaleString("en-US")} · ${formatBytes(run.checkpoint_bytes)}`),
+        element("td", "checkpoint-power-hash", run.raw_trace_sha256),
+      );
+      dom.checkpointpowerrunledger.append(row);
+    });
+  }
+
+  function renderCheckpointPowerPhaseMetrics() {
+    dom.checkpointpowerphasemetrics.replaceChildren();
+    const run = checkpointPowerSelectedRun();
+    if (!run || !run.phase_metrics || typeof run.phase_metrics !== "object") return;
+    Object.entries(run.phase_metrics).forEach(([phase, metrics]) => {
+      const row = element("tr");
+      row.append(
+        element("td", "", phase),
+        element("td", "", formatLearningSeconds(metrics.duration_seconds)),
+        element("td", "checkpoint-power-inadmissible-cell", formatLearningEnergy(metrics.idle_subtracted_energy_j)),
+        element("td", "checkpoint-power-inadmissible-cell", formatScientific(metrics.idle_subtracted_energy_j_per_canonical_token)),
+        element("td", "", finiteNumber(metrics.pooled_effective_update_equivalents) ? metrics.pooled_effective_update_equivalents.toLocaleString("en-US", { maximumFractionDigits: 3 }) : "not reported"),
+      );
+      dom.checkpointpowerphasemetrics.append(row);
+    });
+  }
+
+  function renderCheckpointPowerProvenance() {
+    const trace = checkpointPowerArtifact.full_trace;
+    const provenance = {
+      schema: checkpointPowerArtifact.schema,
+      artifact_sha256: checkpointPowerArtifact.artifact_sha256,
+      source_result: checkpointPowerArtifact.source_result,
+      scenario_sha256: trace.scenario_sha256,
+      engine: trace.engine,
+      source_bindings: trace.source_bindings,
+      warm_start: trace.warm_start,
+      runtime: trace.runtime,
+      raw_trace_artifact: trace.raw_trace_artifact,
+      facility_bridge: checkpointPowerArtifact.facility_bridge,
+      evidence_boundary: checkpointPowerArtifact.evidence_boundary,
+    };
+    dom.checkpointpowerprovenancejson.textContent = JSON.stringify(provenance, null, 2);
+    dom.checkpointpowerdepthtrace.textContent = `${trace.run_ledger.length} run records · ${trace.raw_trace_artifact.point_count.toLocaleString("en-US")} raw points available on demand · compact artifact ${checkpointPowerArtifact.artifact_sha256} · raw artifact ${trace.raw_trace_artifact.artifact_sha256}.`;
+  }
+
+  function checkpointPowerPhaseAtTimestamp(timestamp, windows) {
+    const match = windows.find((window) => timestamp >= window.start_seconds && timestamp <= window.end_seconds);
+    return match ? match.phase : "outside labeled phase";
+  }
+
+  function renderCheckpointPowerRawTrace() {
+    if (!checkpointPowerRawArtifact) return;
+    const selected = checkpointPowerSelectedRun();
+    const rawRun = selected && checkpointPowerRawArtifact.runs.find((run) => run.run_id === selected.run_id);
+    dom.checkpointpowerrawpoints.replaceChildren();
+    if (!rawRun) {
+      dom.checkpointpowerrawstate.textContent = "The selected run is absent from the bound raw artifact.";
+      dom.checkpointpowerrawmeta.textContent = "";
+      return;
+    }
+    const trace = rawRun.telemetry_trace;
+    dom.checkpointpowerrawstate.textContent = `Raw point artifact loaded · ${checkpointPowerRawArtifact.artifact_sha256} · ${checkpointPowerRawArtifact.boundary}`;
+    dom.checkpointpowerrawmeta.textContent = `${rawRun.run_id} · ${trace.points.length.toLocaleString("en-US")} points · poll ${finiteNumber(trace.poll_seconds) ? `${(trace.poll_seconds * 1000).toLocaleString("en-US", { maximumFractionDigits: 3 })} ms` : "not reported"} · run trace ${rawRun.raw_trace_sha256}.`;
+    const windows = Array.isArray(trace.phase_windows) ? trace.phase_windows : rawRun.phase_intervals;
+    trace.points.forEach((point, index) => {
+      const power = finiteNumber(point.gpu_board_power_w) ? point.gpu_board_power_w : point.power_w;
+      const row = element("tr");
+      row.append(
+        element("td", "", String(index + 1)),
+        element("td", "", `${finiteNumber(point.timestamp) ? point.timestamp.toFixed(6) : "not reported"} s · ${finiteNumber(point.monotonic_ns) ? point.monotonic_ns.toLocaleString("en-US") : "?"} ns`),
+        element("td", "", checkpointPowerPhaseAtTimestamp(point.timestamp, windows)),
+        element("td", "", finiteNumber(power) ? `${power.toLocaleString("en-US", { maximumFractionDigits: 3 })} W` : "not reported"),
+        element("td", "", finiteNumber(point.gpu_utilization_percent) ? `${point.gpu_utilization_percent}%` : "not reported"),
+        element("td", "", finiteNumber(point.memory_utilization_percent) ? `${point.memory_utilization_percent}%` : "not reported"),
+        element("td", "", `${finiteNumber(point.sm_clock_mhz) ? point.sm_clock_mhz.toLocaleString("en-US") : "?"} / ${finiteNumber(point.memory_clock_mhz) ? point.memory_clock_mhz.toLocaleString("en-US") : "?"} MHz`),
+        element("td", "", finiteNumber(point.temperature_c) ? `${point.temperature_c} °C` : "not reported"),
+        element("td", "", String(point.performance_state ?? point.pstate ?? "not reported")),
+      );
+      dom.checkpointpowerrawpoints.append(row);
+    });
+  }
+
+  function renderCheckpointPowerTrace() {
+    renderCheckpointPowerRunSelector();
+    renderCheckpointPowerLedger();
+    renderCheckpointPowerPhaseMetrics();
+    renderCheckpointPowerProvenance();
+    if (checkpointPowerRawArtifact) renderCheckpointPowerRawTrace();
+  }
+
+  function renderCheckpointPowerV1() {
+    if (!dom.checkpointpowerv1) return;
+    if (!checkpointPowerArtifact) {
+      dom.checkpointpowerv1.hidden = true;
+      return;
+    }
+    dom.checkpointpowerv1.hidden = false;
+    const freshman = checkpointPowerArtifact.freshman;
+    dom.checkpointpowerv1state.textContent = `measurement invalid · 32/32 runs · artifact ${checkpointPowerArtifact.artifact_sha256.slice(0, 12)}`;
+    dom.checkpointpowerinsighttitle.textContent = freshman.headline;
+    dom.checkpointpowerplainanswer.textContent = freshman.plain_answer;
+    dom.checkpointpowerdecision.textContent = freshman.decision;
+    const boundary = checkpointPowerArtifact.facility_bridge.plain_boundary;
+    const unmeasured = checkpointPowerArtifact.evidence_boundary.unmeasured.join(", ");
+    dom.checkpointpowerevidenceboundary.textContent = `${boundary} Unmeasured: ${unmeasured}.`;
+    renderCheckpointPowerFreshman();
+    renderCheckpointPowerValidity();
+    renderCheckpointPowerArms();
+    renderCheckpointPowerControls();
+    renderCheckpointPowerContrasts();
+    renderCheckpointPowerRedirect();
+    renderCheckpointPowerTrace();
+  }
+
+  function renderCheckpointEnergyFreshman() {
+    dom.checkpointenergyfreshmangrid.replaceChildren();
+    checkpointEnergyArtifact.freshman.cards.forEach((entry) => {
+      const card = element("article", "checkpoint-energy-plain-card");
+      card.dataset.state = entry.state;
+      card.append(
+        element("p", "checkpoint-energy-plain-label", entry.label),
+        element("strong", "checkpoint-energy-plain-value", entry.value),
+        element("p", "checkpoint-energy-plain-detail", entry.detail),
+      );
+      dom.checkpointenergyfreshmangrid.append(card);
+    });
+  }
+
+  function renderCheckpointEnergyValidity() {
+    dom.checkpointenergyvaliditygrid.replaceChildren();
+    const researcher = checkpointEnergyArtifact.researcher;
+    const counter = researcher.counter_calibration;
+    const evaluationRuns = checkpointEnergyArtifact.full_trace.run_ledger.filter((run) => run.split === "evaluation");
+    const updateCounts = evaluationRuns.map((run) => run.effective_counter_update_count).filter(finiteNumber);
+    const cards = [
+      ["Measurement", "VALID", `${researcher.active_invalidators.length} active invalidators`],
+      ["Effective counter period", `${counter.effective_update_period_ms.toLocaleString("en-US", { maximumFractionDigits: 2 })} ms`, `${counter.api} · supported`],
+      ["Evaluation support", `${Math.min(...updateCounts)}–${Math.max(...updateCounts)} updates`, `${evaluationRuns.length} evaluation arm runs`],
+      ["Calibration trace", `${counter.effective_update_count.toLocaleString("en-US")} updates`, `${counter.poll_count.toLocaleString("en-US")} polls · requested ${counter.requested_poll_interval_ms.toLocaleString("en-US")} ms`],
+    ];
+    cards.forEach(([label, value, detail], index) => {
+      const card = element("article", "checkpoint-energy-validity-card");
+      card.dataset.primary = String(index === 0);
+      card.append(element("p", "", label), element("strong", "", value), element("small", "", detail));
+      dom.checkpointenergyvaliditygrid.append(card);
+    });
+  }
+
+  function checkpointEnergyEffectCard(title, effect, plainMeaning, status = "SUPPORTED") {
+    const card = element("article", "checkpoint-energy-effect-card");
+    card.dataset.status = status.toLowerCase().replaceAll(" ", "-");
+    card.append(
+      element("span", "checkpoint-energy-effect-status", status),
+      element("h4", "", title),
+      element("strong", "checkpoint-energy-effect-value", `${formatScientific(effect.median)} J / canonical token`),
+      element("p", "checkpoint-energy-effect-interval", `90% interval ${formatScientific(effect.lower_bound)} to ${formatScientific(effect.upper_bound)}`),
+      element("p", "checkpoint-energy-effect-meaning", plainMeaning),
+    );
+    return card;
+  }
+
+  function renderCheckpointEnergyEffects() {
+    dom.checkpointenergyeffectgrid.replaceChildren();
+    const researcher = checkpointEnergyArtifact.researcher;
+    dom.checkpointenergyeffectgrid.append(
+      checkpointEnergyEffectCard(
+        "Total cadence × continuation interaction",
+        researcher.primary_total_interaction,
+        "The full interaction stayed positive: dense checkpoint cadence increased the continuation energy cost.",
+      ),
+      checkpointEnergyEffectCard(
+        "Checkpoint-related phase group",
+        researcher.checkpoint_related_group_interaction,
+        "The preregistered checkpoint group also stayed positive, locating part of the mechanism in checkpoint cadence.",
+      ),
+      checkpointEnergyEffectCard(
+        "Idle-subtracted interaction sensitivity",
+        researcher.idle_subtracted_interaction_sensitivity,
+        "This sensitivity interval crosses zero. It was not the frozen decision metric, but it shows that the attribution is not robust to estimated idle-baseline subtraction.",
+        "SENSITIVITY · INCONCLUSIVE",
+      ),
+    );
+  }
+
+  function renderCheckpointEnergyPhaseSupport() {
+    const support = checkpointEnergyArtifact.researcher.phase_support;
+    dom.checkpointenergysupportgrid.replaceChildren();
+    [
+      ["Sparse snapshot pool", support.pooled_checkpoint_snapshot_updates_by_cadence.sparse, "checkpoint snapshots"],
+      ["Dense snapshot pool", support.pooled_checkpoint_snapshot_updates_by_cadence.dense, "checkpoint snapshots"],
+      ["Sparse checkpoint group", support.pooled_checkpoint_related_updates_by_cadence.sparse, "preregistered group"],
+      ["Dense checkpoint group", support.pooled_checkpoint_related_updates_by_cadence.dense, "preregistered group"],
+    ].forEach(([label, value, detail]) => {
+      const card = element("article", "checkpoint-energy-support-card");
+      card.append(
+        element("p", "", label),
+        element("strong", "", `${Math.round(value).toLocaleString("en-US")} updates`),
+        element("small", "", `${detail} · supported`),
+      );
+      dom.checkpointenergysupportgrid.append(card);
+    });
+
+    dom.checkpointenergyexploratory.replaceChildren();
+    const header = element("header");
+    header.append(
+      element("span", "checkpoint-energy-exploratory-badge", "EXPLORATORY ONLY"),
+      element("p", "", `${checkpointEnergyArtifact.researcher.rare_phase_boundary}. The frozen individual-phase minimum is 30 effective updates.`),
+    );
+    const grid = element("div", "checkpoint-energy-exploratory-grid");
+    ["sparse", "dense"].forEach((cadence) => {
+      const column = element("section");
+      column.append(element("h4", "", `${checkpointPowerHumanLabel(cadence)} cadence`));
+      const list = element("ul");
+      Object.entries(support.individual_phase_support_by_cadence[cadence])
+        .filter(([, phase]) => String(phase.evidence_class).startsWith("exploratory"))
+        .forEach(([phaseId, phase]) => {
+          const item = element("li");
+          item.append(
+            element("span", "", phaseId),
+            element("strong", "", `${phase.effective_update_equivalents.toLocaleString("en-US", { maximumFractionDigits: 2 })} / ${phase.minimum_required.toLocaleString("en-US")} updates`),
+          );
+          list.append(item);
+        });
+      column.append(list);
+      grid.append(column);
+    });
+    dom.checkpointenergyexploratory.append(header, grid);
+  }
+
+  function renderCheckpointEnergyGateStrip(container, gates) {
+    container.replaceChildren();
+    Object.entries(gates).forEach(([gateId, passed]) => {
+      const gate = element("div", "checkpoint-energy-gate");
+      gate.dataset.passed = String(passed === true);
+      gate.append(
+        element("span", "checkpoint-energy-gate-state", passed === true ? "PASS" : "FAIL"),
+        element("span", "checkpoint-energy-gate-label", checkpointPowerHumanLabel(gateId)),
+      );
+      container.append(gate);
+    });
+  }
+
+  function renderCheckpointEnergyGates() {
+    renderCheckpointEnergyGateStrip(dom.checkpointenergymechanismgates, checkpointEnergyArtifact.researcher.mechanism_gates);
+    renderCheckpointEnergyGateStrip(dom.checkpointenergysalvagegates, checkpointEnergyArtifact.researcher.salvage_gates);
+  }
+
+  function checkpointEnergySelectedRun() {
+    if (!checkpointEnergyArtifact) return null;
+    const runId = dom.checkpointenergyrunselect.value;
+    return checkpointEnergyArtifact.full_trace.run_ledger.find((run) => run.run_id === runId) || checkpointEnergyArtifact.full_trace.run_ledger[0] || null;
+  }
+
+  function renderCheckpointEnergyRunSelector() {
+    const previous = dom.checkpointenergyrunselect.value;
+    dom.checkpointenergyrunselect.replaceChildren();
+    checkpointEnergyArtifact.full_trace.run_ledger.forEach((run) => {
+      const option = element("option", "", `${run.block_id} · ${run.arm_code} · ${run.run_id}`);
+      option.value = run.run_id;
+      dom.checkpointenergyrunselect.append(option);
+    });
+    if (checkpointEnergyArtifact.full_trace.run_ledger.some((run) => run.run_id === previous)) dom.checkpointenergyrunselect.value = previous;
+  }
+
+  function renderCheckpointEnergyLedger() {
+    dom.checkpointenergyrunledger.replaceChildren();
+    checkpointEnergyArtifact.full_trace.run_ledger.forEach((run) => {
+      const row = element("tr");
+      row.append(
+        element("td", "", run.run_id),
+        element("td", "", `${run.split} · ${run.block_id} · ${run.execution_order_id}/${run.execution_position}`),
+        element("td", "", `${run.arm_code} · ${run.checkpoint_cadence} · ${run.continuation}`),
+        element("td", "", `${formatLearningTokens(run.attempted_tokens)} / ${formatLearningTokens(run.canonical_tokens)}`),
+        element("td", "", formatLearningNll(run.final_held_out_nll)),
+        element("td", "", `${run.raw_poll_count.toLocaleString("en-US")} / ${run.effective_counter_update_count.toLocaleString("en-US")}`),
+        element("td", "", formatLearningEnergy(run.raw_run_energy_j)),
+        element("td", "", `${run.checkpoint_count.toLocaleString("en-US")} · ${formatBytes(run.checkpoint_bytes)}`),
+        element("td", "checkpoint-energy-hash", run.raw_counter_trace_sha256),
+      );
+      dom.checkpointenergyrunledger.append(row);
+    });
+  }
+
+  function renderCheckpointEnergyPhaseMetrics() {
+    dom.checkpointenergyphasemetrics.replaceChildren();
+    dom.checkpointenergycountersummary.replaceChildren();
+    const run = checkpointEnergySelectedRun();
+    if (!run || !run.phase_metrics || typeof run.phase_metrics !== "object") return;
+    const counterDeltaJ = (run.counter_end_mj - run.counter_start_mj) / 1000;
+    [
+      ["Counter start", `${run.counter_start_mj.toLocaleString("en-US")} mJ`],
+      ["Counter end", `${run.counter_end_mj.toLocaleString("en-US")} mJ`],
+      ["Observed delta", formatLearningEnergy(counterDeltaJ)],
+      ["Polls / effective updates", `${run.raw_poll_count.toLocaleString("en-US")} / ${run.effective_counter_update_count.toLocaleString("en-US")}`],
+    ].forEach(([label, value]) => {
+      const metric = element("div");
+      metric.append(element("span", "", label), element("strong", "", value));
+      dom.checkpointenergycountersummary.append(metric);
+    });
+    Object.entries(run.phase_metrics).forEach(([phase, metrics]) => {
+      const evidenceClass = run.individual_phase_evidence_class && run.individual_phase_evidence_class[phase];
+      const row = element("tr");
+      row.dataset.evidenceClass = String(evidenceClass || "not_reported");
+      row.append(
+        element("td", "", phase),
+        element("td", "", checkpointPowerHumanLabel(evidenceClass)),
+        element("td", "", formatLearningSeconds(metrics.duration_seconds)),
+        element("td", "", formatLearningEnergy(metrics.energy_j)),
+        element("td", "", formatScientific(metrics.energy_j_per_canonical_token)),
+        element("td", "", finiteNumber(metrics.counter_update_count) ? metrics.counter_update_count.toLocaleString("en-US") : "not reported"),
+        element("td", "", finiteNumber(metrics.pooled_effective_update_equivalents) ? metrics.pooled_effective_update_equivalents.toLocaleString("en-US", { maximumFractionDigits: 3 }) : "not reported"),
+      );
+      dom.checkpointenergyphasemetrics.append(row);
+    });
+  }
+
+  function renderCheckpointEnergyProvenance() {
+    const trace = checkpointEnergyArtifact.full_trace;
+    const provenance = {
+      schema: checkpointEnergyArtifact.schema,
+      artifact_sha256: checkpointEnergyArtifact.artifact_sha256,
+      source_result: checkpointEnergyArtifact.source_result,
+      scenario_sha256: trace.scenario_sha256,
+      engine: trace.engine,
+      source_bindings: trace.source_bindings,
+      pw1_failure_binding_verified: trace.pw1_failure_binding_verified,
+      warm_start: trace.warm_start,
+      runtime: trace.runtime,
+      raw_trace_artifact: trace.raw_trace_artifact,
+      counter_calibration: checkpointEnergyArtifact.researcher.counter_calibration,
+      facility_bridge: checkpointEnergyArtifact.facility_bridge,
+      evidence_boundary: checkpointEnergyArtifact.evidence_boundary,
+    };
+    dom.checkpointenergyprovenancejson.textContent = JSON.stringify(provenance, null, 2);
+    dom.checkpointenergydepthtrace.textContent = `${trace.run_ledger.length} run records · ${trace.raw_trace_artifact.poll_count.toLocaleString("en-US")} raw polls and ${trace.raw_trace_artifact.effective_update_count.toLocaleString("en-US")} effective counter updates available on demand · compact artifact ${checkpointEnergyArtifact.artifact_sha256} · raw artifact ${trace.raw_trace_artifact.artifact_sha256}.`;
+  }
+
+  function renderCheckpointEnergyRawTrace() {
+    if (!checkpointEnergyRawArtifact) return;
+    const selected = checkpointEnergySelectedRun();
+    const rawRun = selected && checkpointEnergyRawArtifact.runs.find((run) => run.run_id === selected.run_id);
+    dom.checkpointenergyrawpoints.replaceChildren();
+    if (!rawRun) {
+      dom.checkpointenergyrawstate.textContent = "The selected run is absent from the bound raw counter artifact.";
+      dom.checkpointenergyrawmeta.textContent = "";
+      return;
+    }
+    const trace = rawRun.telemetry_trace;
+    dom.checkpointenergyrawstate.textContent = `Raw cumulative-counter artifact loaded · ${checkpointEnergyRawArtifact.artifact_sha256} · ${checkpointEnergyRawArtifact.boundary}`;
+    dom.checkpointenergyrawmeta.textContent = `${rawRun.run_id} · ${trace.points.length.toLocaleString("en-US")} polls · counter trace ${rawRun.raw_counter_trace_sha256}.`;
+    const windows = Array.isArray(trace.phase_windows) ? trace.phase_windows : rawRun.phase_intervals;
+    trace.points.forEach((point, index) => {
+      const cumulative = finiteNumber(point.cumulative_gpu_board_energy_mj) ? point.cumulative_gpu_board_energy_mj : point.total_energy_mj;
+      const power = finiteNumber(point.instantaneous_gpu_board_power_w_ancillary) ? point.instantaneous_gpu_board_power_w_ancillary : point.gpu_board_power_w;
+      const row = element("tr");
+      row.dataset.counterUpdate = String(point.effective_counter_update === true);
+      row.append(
+        element("td", "", String(index + 1)),
+        element("td", "", `${finiteNumber(point.timestamp) ? point.timestamp.toFixed(6) : "not reported"} s · ${finiteNumber(point.monotonic_ns) ? point.monotonic_ns.toLocaleString("en-US") : "?"} ns`),
+        element("td", "", checkpointPowerPhaseAtTimestamp(point.timestamp, windows)),
+        element("td", "", finiteNumber(cumulative) ? `${cumulative.toLocaleString("en-US")} mJ` : "not reported"),
+        element("td", "", point.effective_counter_update === true ? "YES" : "no"),
+        element("td", "", finiteNumber(power) ? `${power.toLocaleString("en-US", { maximumFractionDigits: 3 })} W` : "not reported"),
+        element("td", "", finiteNumber(point.gpu_utilization_percent) ? `${point.gpu_utilization_percent}%` : "not reported"),
+        element("td", "", finiteNumber(point.temperature_c) ? `${point.temperature_c} °C` : "not reported"),
+      );
+      dom.checkpointenergyrawpoints.append(row);
+    });
+  }
+
+  function renderCheckpointEnergyTrace() {
+    renderCheckpointEnergyRunSelector();
+    renderCheckpointEnergyLedger();
+    renderCheckpointEnergyPhaseMetrics();
+    renderCheckpointEnergyProvenance();
+    if (checkpointEnergyRawArtifact) renderCheckpointEnergyRawTrace();
+  }
+
+  function renderCheckpointEnergyV2() {
+    if (!dom.checkpointenergyv2) return;
+    if (!checkpointEnergyArtifact) {
+      dom.checkpointenergyv2.hidden = true;
+      return;
+    }
+    dom.checkpointenergyv2.hidden = false;
+    const freshman = checkpointEnergyArtifact.freshman;
+    dom.checkpointenergyv2state.textContent = `measurement valid · 11/11 gates pass · artifact ${checkpointEnergyArtifact.artifact_sha256.slice(0, 12)}`;
+    dom.checkpointenergyinsighttitle.textContent = freshman.headline;
+    dom.checkpointenergyplainanswer.textContent = freshman.plain_answer;
+    dom.checkpointenergymechanism.textContent = freshman.mechanism;
+    const gpu = checkpointEnergyArtifact.full_trace.runtime.hardware.gpu;
+    dom.checkpointenergyevidenceboundary.textContent = `${freshman.boundary} Observed boundary: ${gpu}, cumulative GPU-board energy, and the frozen TinyStories learning setup. Facility claim allowed: no.`;
+    const next = checkpointEnergyArtifact.next_experiment;
+    dom.checkpointenergynextquestion.textContent = `${next.id}: ${next.question} Required scale: ${next.required_scale}. Do not claim yet: ${next.do_not_claim_yet.join(", ")}.`;
+    renderCheckpointEnergyFreshman();
+    renderCheckpointEnergyValidity();
+    renderCheckpointEnergyEffects();
+    renderCheckpointEnergyPhaseSupport();
+    renderCheckpointEnergyGates();
+    renderCheckpointEnergyTrace();
   }
 
   function renderStatus() {

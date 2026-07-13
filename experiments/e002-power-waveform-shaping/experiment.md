@@ -1,8 +1,79 @@
 # E002: Shape the Power Waveform
 
-Status: preregistered design; no experiment result exists
+Status: E002-PW1 preserved as `measurement_invalid`; E002-PW2 completed with
+valid local attribution; E002-PW3 is the active multi-GPU/rack slice
 
 Protocol date: July 12, 2026
+
+## Completed Causal Slice: E002-PW1
+
+The first E002 build is the frozen
+[checkpoint-power causal-attribution protocol](checkpoint-power-calibration-v1.md),
+with machine-readable factors, bindings, invalidators, estimands, and result
+requirements in
+[checkpoint-power-scenario-v1.json](checkpoint-power-scenario-v1.json).
+
+PW1 started from E001-LC3's sole failed gate instead of attempting the full
+facility controller at once. It crossed sparse versus dense checkpoint cadence
+with restart versus survivor continuation over LC3's exact warm state,
+canonical-work frontier, two calibration blocks, and six held-out failure
+blocks. Its primary interaction was intended to attribute GPU-board energy to
+operation phases;
+its preselected sparse-continuation arm must retain LC3's learning, attempted-
+work, and opportunity-tick gains while passing the original `1.05` energy
+ceiling. PW1 completed all 32 runs with exact warm-state binding, but its power
+meter did not update fast enough for the frozen phase-attribution requirements.
+The result is `measurement_invalid`, so it does not advance the broader
+dependency-safe waveform-shaping hypothesis below.
+
+The only active invalidators are
+`insufficient_evaluation_power_updates` and
+`insufficient_pooled_cadence_phase_updates`. Requested 20 ms polling produced
+an effective 494.693 ms update period; the selected +250 ms lag sits on the
+frozen boundary. The full failed measurement is preserved at
+[results/checkpoint-power-v1.json](results/checkpoint-power-v1.json), artifact
+`aff76946b26876820cdaa4ca43d0b6160cdc18b2f4c5bacd053cfe92f529d4f5`.
+
+## Completed Measurement Slice: E002-PW2
+
+The frozen protocol is
+[checkpoint-energy-calibration-v2.md](checkpoint-energy-calibration-v2.md),
+and its complete machine-readable engine contract is
+[checkpoint-energy-scenario-v2.json](checkpoint-energy-scenario-v2.json).
+
+PW2 keeps PW1's 2x2 checkpoint-cadence by survivor-continuation factorial,
+LC3 warm binding, block order, failure schedules, estimands, and gates frozen.
+It replaces only the inadmissible NVML instantaneous-power input with the
+supported cumulative-energy counter. A direct three-second capability
+observation at a requested 2 ms interval made 880 poll attempts, observed 40
+counter changes, measured change gaps of 12.19 to 108.29 ms with median 88.44
+ms, and accumulated 26,920 mJ. PW2 makes cumulative run energy and its additive
+2 x 2 interaction primary. Checkpoint-snapshot and grouped checkpoint-related
+claims retain explicit pooled-update floors; individual restore and rejoin
+estimates remain exploratory unless independently supported. The raw PW1
+ratios and failed mechanism gates are not priors to tune against. No mechanism
+attribution or scale generalization was allowed before PW2 yielded admissible
+measurements.
+
+PW2 completed all 32 arms with exact warm binding and no measurement
+invalidators. Its cumulative counter updated every 91.667 ms, with 83 to 109
+updates in each held-out arm. The total, checkpoint-group, and snapshot
+interactions were all positive under their paired 90% intervals; all three
+mechanism gates and all eight sparse-continuation salvage gates passed. The
+conclusion is `checkpoint_cadence_attributed_sparse_continuation_survives`.
+The sensitivity-only idle-subtracted interaction was
+`3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token` and crossed zero, so the frozen
+raw-cumulative primary passes but the attribution is not baseline-insensitive.
+The result is [results/checkpoint-energy-v2.json](results/checkpoint-energy-v2.json),
+artifact `cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`.
+
+## Active Causal Slice: E002-PW3
+
+PW3 moves the supported local mechanism to simultaneous multi-GPU and rack
+observation. It must execute dependency-safe dephasing with aligned per-GPU
+cumulative energy, rack-PDU power, storage activity and power, and cooling
+telemetry. PW2 does not establish rack or facility transfer; PW3 must measure
+those boundaries rather than project a laptop result upward.
 
 ## Question
 

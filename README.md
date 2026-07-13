@@ -329,6 +329,16 @@ The held-out LC3 result is persisted at
 with observatory projection `docs/data/e001-equal-work-v1.json`
 (`5ff07c4cf5b59be04d14f1b66961e679c2cec127b521c386d54ff9ebaadc1ae1`).
 
+E002-PW1 completed its frozen 32-run factorial and is preserved at
+`experiments/e002-power-waveform-shaping/results/checkpoint-power-v1.json`
+(`aff76946b26876820cdaa4ca43d0b6160cdc18b2f4c5bacd053cfe92f529d4f5`).
+Its conclusion is `measurement_invalid`, not a causal or candidate result.
+
+E002-PW2 completed the same frozen factorial with a valid cumulative-energy
+meter at
+`experiments/e002-power-waveform-shaping/results/checkpoint-energy-v2.json`
+(`cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`).
+
 ## The Next-Work Compass
 
 The continuation compass now scans executable research artifacts, experiments,
@@ -338,13 +348,13 @@ persisted results, the deployable observatory, and the symbolic graph:
 python -m gpu_stack.cli next-work
 ```
 
-With LC3 complete, its highest-impact section now advances to the failed gate:
-E002 phase-level energy attribution. The next experiment crosses checkpoint
-cadence with survivor continuation in a frozen 2x2 design, measures the
-operation-level power waveform, and asks whether dependency-safe phase
-scheduling removes the adaptive energy penalty without giving back LC3's
-learning, attempted-work, or opportunity-tick gains. Scaling E001 is downstream
-of that result. Pythia closure and root-debt ranking remain visible under
+PW1's invalid measurement remains preserved, but PW2 completed the same 32-run
+factorial with exact warm binding, no invalidators, and a valid 91.667 ms
+cumulative-energy signal. All three mechanism and eight salvage gates passed.
+The highest-impact section now promotes E002-PW3: multi-GPU/rack dependency-
+safe dephasing with simultaneous per-GPU cumulative energy, rack-PDU, storage,
+and cooling telemetry. It does not promote facility claims from one laptop
+GPU. Pythia closure and root-debt ranking remain visible under
 `Legacy diagnostics (not scientific priorities)` so useful maintenance does
 not quietly become the roadmap again.
 
@@ -377,9 +387,10 @@ These rules keep the package honest:
   preemption, checkpoint restore, replay, membership rejoin, and durable
   frontier recovery with exact work conservation.
 - Applying observable-only membership, cadence, parallelism, configuration, migration, and power-cap interventions at explicit decision epochs.
-- Producing content-addressed E001 v1, recovery-v2, LC1, LC2 protocol, and LC3
-  equal-work artifacts and visualizing measured, modeled, assumed, prior, and
-  unmeasured quantities without blending them.
+- Producing content-addressed E001 v1, recovery-v2, LC1, LC2 protocol, LC3
+  equal-work, E002-PW1 measurement-invalid, and E002-PW2 valid local artifacts while keeping
+  measured, modeled, assumed, prior, inadmissible, and unmeasured quantities
+  distinct.
 - Reporting site base plus accelerator-compute energy while explicitly excluding unmodeled network, checkpoint, storage, host, and cooling energy.
 - Inspecting symbolic dependencies across hardware, software, thermal, and economic layers.
 - Writing and checking new equations in a single registry.
@@ -441,10 +452,34 @@ sampled device-energy gate: the adaptive/fixed ratio had median
 `[1.0017954332700434, 1.134269402803286]`, above the frozen `1.05` bound.
 
 The persisted LC3 conclusion is `candidate_falsified_equal_canonical_work`.
-The next question is not whether to scale it. It is which checkpoint and
-recovery phases caused the energy penalty, and whether an E002 2x2 cadence by
-continuation experiment can remove that penalty without erasing the passed
-learning, work, or tick effects.
+
+E002-PW1 then completed all 32 frozen factorial runs with exact warm-state
+binding. Its requested 20 ms logger had an effective 494.693 ms device-update
+period and selected `+250` ms lag at the frozen boundary. The result is
+`measurement_invalid` solely because evaluation arms and pooled cadence phases
+received too few independent power updates. The raw LC3-corner ratio was
+`0.789 [0.703, 0.923]`, so the prior penalty did not reproduce numerically. The
+raw sparse-continuation ratio was `0.823 [0.665, 1.019]`, with all non-energy
+gates passing. Both are inadmissible, and all three mechanism gates failed.
+
+E002-PW2 then completed all 32 cumulative-energy runs with exact warm binding,
+no invalidators, a 91.667 ms effective counter period, and 83 to 109 updates per
+held-out arm. The total interaction was
+`2.2416e-5 [2.1746e-6, 3.5305e-5] J/token`; checkpoint-group and snapshot
+interactions were also positive. All three mechanism gates passed.
+The sensitivity-only idle-subtracted interaction was
+`3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token` and crossed zero. The frozen raw
+cumulative primary passes, but the attribution is not baseline-insensitive.
+
+Sparse continuation passed all eight salvage gates: NLL delta median
+`0.0033385` and upper `0.0085037`, attempted-work saving `3.03%`, 40
+opportunity ticks saved, and energy ratio `0.96099` with upper `1.00319`. The
+conclusion is `checkpoint_cadence_attributed_sparse_continuation_survives`.
+
+The next work is E002-PW3: test dependency-safe dephasing on simultaneous GPUs
+with aligned per-GPU cumulative, rack-PDU, storage, and cooling telemetry. Rare
+restore/rejoin phase estimates remain exploratory. PW2 does not establish rack
+or facility transfer.
 
 The symbolic resolver remains intentionally conservative. By default it does
 not solve simultaneous systems or switch relations when an approximation
@@ -490,10 +525,12 @@ evidence, residual, provenance, event trace, and falsifier in one shareable
 state. Semantic depth changes explanation density, never values or conclusions.
 
 The first screen is E001, Beyond One Datacenter. It retains the v1 mechanics,
-recovery-v2, and LC1 views, then adds the LC3 equal-work result. The page makes
-the central result legible at three depths: adaptive preserved learning and
-saved work and opportunity ticks, but its measured device energy exceeded the
-frozen bound. Researcher and Full trace views expose all six paired effects,
+recovery-v2, LC1, and LC3 views, preserves PW1's measurement-invalid raw result,
+and adds PW2's valid local attribution without claiming facility transfer. The
+page makes the sequence legible at three depths: LC3 exposed the energy
+failure, PW1 rejected an undersampled meter, and PW2 attributed the supported
+local effect to checkpoint cadence while sparse continuation passed all gates.
+Researcher and Full trace views expose paired effects, support counts,
 falsifier outcomes, learning curves, work conservation, checkpoint overhead,
 source hashes, assumptions, and the observed/modelled evidence boundary.
 

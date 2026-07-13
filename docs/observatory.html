@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/90-observatory.css?v=20260712.10">
-  <script src="observatory.js?v=20260712.6" defer></script>
+  <link rel="stylesheet" href="styles/90-observatory.css?v=20260712.12">
+  <script src="observatory.js?v=20260712.8" defer></script>
 </head>
 <body data-depth="freshman" data-data-state="loading">
   <a class="skip-link" href="#observatory-main">Skip to experiment</a>
@@ -459,6 +459,288 @@
         <details>
           <summary>Source hashes and complete provenance</summary>
           <pre id="equal-work-provenance-json" tabindex="0">not loaded</pre>
+        </details>
+      </div>
+    </section>
+
+    <section class="checkpoint-power-v1-band" id="checkpoint-power-v1" aria-labelledby="checkpoint-power-v1-title" hidden>
+      <header class="band-header checkpoint-power-v1-header">
+        <div>
+          <p class="control-label">E002-PW1 · measured local power</p>
+          <h2 id="checkpoint-power-v1-title">Did checkpoint cadence cause LC3’s energy penalty?</h2>
+        </div>
+        <output id="checkpoint-power-v1-state" role="status" aria-live="polite">Reading checkpoint-power artifact…</output>
+      </header>
+
+      <article class="checkpoint-power-insight" aria-labelledby="checkpoint-power-insight-title">
+        <div>
+          <p class="checkpoint-power-eyebrow">32 real GPU runs · measurement rejected</p>
+          <h3 id="checkpoint-power-insight-title">Result loading</h3>
+        </div>
+        <div>
+          <p id="checkpoint-power-plain-answer">The observatory will state the measurement boundary after loading the persisted artifact.</p>
+          <strong id="checkpoint-power-decision">No policy claim is available yet.</strong>
+        </div>
+      </article>
+
+      <div class="checkpoint-power-depth-copy">
+        <p class="depth-freshman"><strong>The experiment ran; the measuring stick failed.</strong> All 32 planned comparisons started from the exact same trained model. Asking the sensor every 20 milliseconds did not make it answer that fast: its reading effectively changed about every 495 milliseconds. That is too slow to decide whether sparse continuation saves energy.</p>
+        <p class="depth-researcher"><strong>The 2×2 cadence-by-continuation design remains intact, but its energy estimand is inadmissible.</strong> Both frozen update-count invalidators fired and the logger calibration hit its boundary. Arm medians and contrasts remain visible as diagnostics, never as mechanism evidence.</p>
+        <p class="depth-full_trace" id="checkpoint-power-depth-trace">The 32-run ledger, per-phase metrics, bound source identities, and lazy raw telemetry are attached below.</p>
+      </div>
+
+      <div class="checkpoint-power-freshman-grid depth-freshman" id="checkpoint-power-freshman-grid" aria-label="Plain-language checkpoint-power result"></div>
+
+      <div class="checkpoint-power-research depth-researcher">
+        <section class="checkpoint-power-validity" aria-labelledby="checkpoint-power-validity-title">
+          <header class="checkpoint-power-section-header">
+            <div>
+              <p class="control-label">Validity before effect size</p>
+              <h3 id="checkpoint-power-validity-title">Two active invalidators stopped the claim</h3>
+            </div>
+            <span>both were frozen before evaluation</span>
+          </header>
+          <div class="checkpoint-power-validity-grid">
+            <div class="checkpoint-power-invalidators" id="checkpoint-power-invalidators"></div>
+            <div class="checkpoint-power-logger" id="checkpoint-power-logger"></div>
+          </div>
+        </section>
+
+        <section class="checkpoint-power-arms" aria-labelledby="checkpoint-power-arms-title">
+          <header class="checkpoint-power-section-header">
+            <div>
+              <p class="control-label">Observed arm medians</p>
+              <h3 id="checkpoint-power-arms-title">The intended 2×2 comparison completed</h3>
+            </div>
+            <span>energy values are descriptive and inadmissible</span>
+          </header>
+          <div class="checkpoint-power-arm-grid" id="checkpoint-power-arm-grid"></div>
+        </section>
+
+        <section class="checkpoint-power-controls" aria-labelledby="checkpoint-power-controls-title">
+          <header class="checkpoint-power-section-header">
+            <div>
+              <p class="control-label">No-failure controls</p>
+              <h3 id="checkpoint-power-controls-title">State, work, and final NLL matched exactly</h3>
+            </div>
+            <span>two blocks × two checkpoint cadences</span>
+          </header>
+          <div class="checkpoint-power-control-grid" id="checkpoint-power-control-grid"></div>
+        </section>
+
+        <section class="checkpoint-power-contrasts" aria-labelledby="checkpoint-power-contrasts-title">
+          <header class="checkpoint-power-section-header">
+            <div>
+              <p class="control-label">Raw diagnostic contrasts</p>
+              <h3 id="checkpoint-power-contrasts-title">Visible, but explicitly inadmissible</h3>
+            </div>
+            <span id="checkpoint-power-contrast-label">measurement invalidators take precedence</span>
+          </header>
+          <div class="checkpoint-power-contrast-warning" role="note"><strong>DO NOT INTERPRET AS A POLICY PASS.</strong> These numbers describe the rejected telemetry stream; they cannot establish that sparse continuation fixed LC3’s energy failure.</div>
+          <div class="checkpoint-power-contrast-grid" id="checkpoint-power-contrast-grid"></div>
+        </section>
+
+        <aside class="checkpoint-power-redirect" aria-labelledby="checkpoint-power-redirect-title">
+          <span aria-hidden="true">PW2</span>
+          <div>
+            <p class="control-label">Direct redirect</p>
+            <h3 id="checkpoint-power-redirect-title">Keep the design; replace the meter</h3>
+            <p id="checkpoint-power-next-question">PW2 question loading.</p>
+            <div class="checkpoint-power-redirect-grid">
+              <div><strong>Do not change</strong><ul id="checkpoint-power-next-frozen"></ul></div>
+              <div><strong>New evidence required</strong><ul id="checkpoint-power-next-evidence"></ul></div>
+            </div>
+          </div>
+        </aside>
+
+        <aside class="checkpoint-power-boundary" aria-labelledby="checkpoint-power-boundary-title">
+          <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
+          <div>
+            <h3 id="checkpoint-power-boundary-title">Local board telemetry is not facility power</h3>
+            <p id="checkpoint-power-evidence-boundary">Evidence boundary loading.</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="checkpoint-power-trace depth-full_trace">
+        <div class="checkpoint-power-run-selector">
+          <label for="checkpoint-power-run-select">Selected run for phase metrics and raw points</label>
+          <select id="checkpoint-power-run-select" aria-label="Selected PW1 run"></select>
+        </div>
+
+        <details open>
+          <summary>All 32 run records</summary>
+          <div class="checkpoint-power-table-scroll">
+            <table class="checkpoint-power-trace-table checkpoint-power-ledger-table">
+              <thead><tr><th scope="col">Run</th><th scope="col">Split / block</th><th scope="col">Arm</th><th scope="col">Attempted / canonical</th><th scope="col">Final NLL</th><th scope="col">Samples / effective updates</th><th scope="col">Raw board energy</th><th scope="col">Checkpoints</th><th scope="col">Raw trace SHA-256</th></tr></thead>
+              <tbody id="checkpoint-power-run-ledger"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <details open>
+          <summary>Selected-run phase metrics</summary>
+          <p class="checkpoint-power-trace-warning">Phase energy is retained for diagnosis, but remains inadmissible for a causal policy comparison because the logger invalidators fired.</p>
+          <div class="checkpoint-power-table-scroll">
+            <table class="checkpoint-power-trace-table">
+              <thead><tr><th scope="col">Phase</th><th scope="col">Duration</th><th scope="col">Idle-subtracted board energy</th><th scope="col">Energy / canonical token</th><th scope="col">Effective update equivalents</th></tr></thead>
+              <tbody id="checkpoint-power-phase-metrics"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <details>
+          <summary>Hashes and complete compact provenance</summary>
+          <pre id="checkpoint-power-provenance-json" tabindex="0">not loaded</pre>
+        </details>
+
+        <details id="checkpoint-power-raw-details">
+          <summary>Load on-demand raw point trace</summary>
+          <div class="checkpoint-power-raw-panel">
+            <p id="checkpoint-power-raw-state" role="status" aria-live="polite">Raw telemetry has not been loaded. Opening this disclosure in Full trace fetches the separate point artifact.</p>
+            <p id="checkpoint-power-raw-meta"></p>
+            <div class="checkpoint-power-table-scroll">
+              <table class="checkpoint-power-trace-table checkpoint-power-points-table">
+                <thead><tr><th scope="col">Point</th><th scope="col">Time</th><th scope="col">Phase at timestamp</th><th scope="col">Board power</th><th scope="col">GPU util.</th><th scope="col">Memory util.</th><th scope="col">SM / memory clock</th><th scope="col">Temperature</th><th scope="col">P-state</th></tr></thead>
+                <tbody id="checkpoint-power-raw-points"></tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section class="checkpoint-energy-v2-band" id="checkpoint-energy-v2" aria-labelledby="checkpoint-energy-v2-title" hidden>
+      <header class="band-header checkpoint-energy-v2-header">
+        <div>
+          <p class="control-label">E002-PW2 · valid cumulative energy</p>
+          <h2 id="checkpoint-energy-v2-title">What caused the local GPU-energy penalty?</h2>
+        </div>
+        <output id="checkpoint-energy-v2-state" role="status" aria-live="polite">Reading cumulative-energy artifact…</output>
+      </header>
+
+      <article class="checkpoint-energy-insight" aria-labelledby="checkpoint-energy-insight-title">
+        <div>
+          <p class="checkpoint-energy-eyebrow">32 real GPU runs · measurement valid</p>
+          <h3 id="checkpoint-energy-insight-title">Result loading</h3>
+        </div>
+        <div>
+          <p id="checkpoint-energy-plain-answer">The observatory will state the mechanism after loading the persisted artifact.</p>
+          <strong id="checkpoint-energy-mechanism">Mechanism estimate loading.</strong>
+        </div>
+      </article>
+
+      <div class="checkpoint-energy-depth-copy">
+        <p class="depth-freshman"><strong>Checkpointing less often fixed the measured energy problem without giving back the recovery win.</strong> Both policies kept exactly 524,288 useful tokens. Sparse continuation attempted less work, finished 40 scheduling ticks sooner, and stayed inside the frozen GPU-energy limit. An estimated idle-baseline subtraction was less certain and could not rule out zero interaction.</p>
+        <p class="depth-researcher"><strong>PW2 repeats PW1’s frozen 2×2 design with a supported cumulative-energy counter.</strong> No measurement invalidator fired. Positive total and checkpoint-group interactions pass the frozen primary attribution gates while sparse continuation preserves the learning, work, schedule, and energy gates. The sensitivity-only idle-subtracted interaction crossed zero, so the result is not insensitive to baseline treatment.</p>
+        <p class="depth-full_trace" id="checkpoint-energy-depth-trace">The 32-run ledger, selected-run counter phases, bound identities, and lazy raw counter points are attached below.</p>
+      </div>
+
+      <div class="checkpoint-energy-freshman-grid depth-freshman" id="checkpoint-energy-freshman-grid" aria-label="Plain-language cumulative-energy result"></div>
+
+      <div class="checkpoint-energy-research depth-researcher">
+        <section class="checkpoint-energy-validity" aria-labelledby="checkpoint-energy-validity-title">
+          <header class="checkpoint-energy-section-header">
+            <div>
+              <p class="control-label">Measurement validity</p>
+              <h3 id="checkpoint-energy-validity-title">The cumulative counter cleared the frozen support rules</h3>
+            </div>
+            <span>zero active invalidators</span>
+          </header>
+          <div class="checkpoint-energy-validity-grid" id="checkpoint-energy-validity-grid"></div>
+        </section>
+
+        <section class="checkpoint-energy-effects" aria-labelledby="checkpoint-energy-effects-title">
+          <header class="checkpoint-energy-section-header">
+            <div>
+              <p class="control-label">Paired causal contrasts</p>
+              <h3 id="checkpoint-energy-effects-title">Primary attribution passed; baseline sensitivity is unresolved</h3>
+            </div>
+            <span>six frozen evaluation blocks · 90% intervals</span>
+          </header>
+          <div class="checkpoint-energy-effect-grid" id="checkpoint-energy-effect-grid"></div>
+        </section>
+
+        <section class="checkpoint-energy-phase-support" aria-labelledby="checkpoint-energy-phase-support-title">
+          <header class="checkpoint-energy-section-header">
+            <div>
+              <p class="control-label">Counter support by phase</p>
+              <h3 id="checkpoint-energy-phase-support-title">Checkpoint groups are supported; rare recovery phases are exploratory</h3>
+            </div>
+            <span>effective counter-update equivalents</span>
+          </header>
+          <div class="checkpoint-energy-support-grid" id="checkpoint-energy-support-grid"></div>
+          <div class="checkpoint-energy-exploratory" id="checkpoint-energy-exploratory"></div>
+        </section>
+
+        <section class="checkpoint-energy-gates" aria-labelledby="checkpoint-energy-gates-title">
+          <header class="checkpoint-energy-section-header">
+            <div>
+              <p class="control-label">Frozen decision</p>
+              <h3 id="checkpoint-energy-gates-title">All 3 mechanism gates and all 8 salvage gates passed</h3>
+            </div>
+            <span>eleven independent checks remain visible</span>
+          </header>
+          <div class="checkpoint-energy-gate-groups">
+            <div><h4>Mechanism · 3 / 3</h4><div class="checkpoint-energy-gate-strip" id="checkpoint-energy-mechanism-gates"></div></div>
+            <div><h4>Sparse continuation · 8 / 8</h4><div class="checkpoint-energy-gate-strip" id="checkpoint-energy-salvage-gates"></div></div>
+          </div>
+        </section>
+
+        <aside class="checkpoint-energy-boundary" aria-labelledby="checkpoint-energy-boundary-title">
+          <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
+          <div>
+            <h3 id="checkpoint-energy-boundary-title">Local RTX + TinyStories result only</h3>
+            <p id="checkpoint-energy-evidence-boundary">Scope boundary loading.</p>
+            <p id="checkpoint-energy-next-question"></p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="checkpoint-energy-trace depth-full_trace">
+        <div class="checkpoint-energy-run-selector">
+          <label for="checkpoint-energy-run-select">Selected run for counter and nine-phase trace</label>
+          <select id="checkpoint-energy-run-select" aria-label="Selected PW2 run"></select>
+        </div>
+
+        <details open>
+          <summary>All 32 run records</summary>
+          <div class="checkpoint-energy-table-scroll">
+            <table class="checkpoint-energy-trace-table checkpoint-energy-ledger-table">
+              <thead><tr><th scope="col">Run</th><th scope="col">Split / block</th><th scope="col">Arm</th><th scope="col">Attempted / canonical</th><th scope="col">Final NLL</th><th scope="col">Polls / counter updates</th><th scope="col">Run energy</th><th scope="col">Checkpoints</th><th scope="col">Counter trace SHA-256</th></tr></thead>
+              <tbody id="checkpoint-energy-run-ledger"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <details open>
+          <summary>Selected-run cumulative counter and nine phases</summary>
+          <div class="checkpoint-energy-counter-summary" id="checkpoint-energy-counter-summary"></div>
+          <div class="checkpoint-energy-table-scroll">
+            <table class="checkpoint-energy-trace-table">
+              <thead><tr><th scope="col">Phase</th><th scope="col">Evidence class</th><th scope="col">Duration</th><th scope="col">Energy</th><th scope="col">Energy / canonical token</th><th scope="col">Counter updates</th><th scope="col">Effective update equivalents</th></tr></thead>
+              <tbody id="checkpoint-energy-phase-metrics"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <details>
+          <summary>Hashes and complete compact provenance</summary>
+          <pre id="checkpoint-energy-provenance-json" tabindex="0">not loaded</pre>
+        </details>
+
+        <details id="checkpoint-energy-raw-details">
+          <summary>Load on-demand raw cumulative-counter trace</summary>
+          <div class="checkpoint-energy-raw-panel">
+            <p id="checkpoint-energy-raw-state" role="status" aria-live="polite">Raw counter telemetry has not been loaded. Opening this disclosure in Full trace fetches the separate point artifact.</p>
+            <p id="checkpoint-energy-raw-meta"></p>
+            <div class="checkpoint-energy-table-scroll">
+              <table class="checkpoint-energy-trace-table checkpoint-energy-points-table">
+                <thead><tr><th scope="col">Point</th><th scope="col">Time</th><th scope="col">Phase at timestamp</th><th scope="col">Cumulative board energy</th><th scope="col">Counter update</th><th scope="col">Ancillary board power</th><th scope="col">GPU util.</th><th scope="col">Temperature</th></tr></thead>
+                <tbody id="checkpoint-energy-raw-points"></tbody>
+              </table>
+            </div>
+          </div>
         </details>
       </div>
     </section>

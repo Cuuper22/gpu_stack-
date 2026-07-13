@@ -1,0 +1,636 @@
+{
+  "schema": "gpu-stack.e002-checkpoint-energy-scenario.v2",
+  "experiment_id": "E002-PW2",
+  "scenario_id": "e002-cumulative-checkpoint-energy-factorial-v2",
+  "status": "frozen_protocol_no_result",
+  "protocol_date": "2026-07-12",
+  "protocol_path": "experiments/e002-power-waveform-shaping/checkpoint-energy-calibration-v2.md",
+  "research_question": "Using the supported cumulative millijoule counter, is E001-LC3's survivor-continuation GPU-board energy failure caused by checkpoint cadence, and does sparse continuation pass the unchanged learning, work, timing, and 1.05 energy gates?",
+  "source_bindings": {
+    "pw1_result": {
+      "path": "experiments/e002-power-waveform-shaping/results/checkpoint-power-v1.json",
+      "schema": "gpu-stack.e002-checkpoint-power-evidence.v1",
+      "artifact_sha256": "aff76946b26876820cdaa4ca43d0b6160cdc18b2f4c5bacd053cfe92f529d4f5",
+      "scenario_sha256": "c368180070d4e257326be7649b6f593d20d89d768b2cf57d49fdb9672b6c2d93",
+      "conclusion": "measurement_invalid"
+    },
+    "pw1_scenario": {
+      "path": "experiments/e002-power-waveform-shaping/checkpoint-power-scenario-v1.json",
+      "schema": "gpu-stack.e002-checkpoint-power-scenario.v1",
+      "artifact_sha256": "c368180070d4e257326be7649b6f593d20d89d768b2cf57d49fdb9672b6c2d93"
+    },
+    "lc3_result": {
+      "path": "experiments/e001-beyond-one-datacenter/results/equal-work-v1.json",
+      "schema": "gpu-stack.e001-equal-work-evidence.v1",
+      "artifact_sha256": "f7548b68d4791978260f0bd557bf92041d0f769b796b1e684bbcab99e88f639f",
+      "conclusion": "candidate_falsified_equal_canonical_work"
+    },
+    "lc3_scenario": {
+      "path": "experiments/e001-beyond-one-datacenter/equal-work-scenario-v1.json",
+      "schema": "gpu-stack.e001-equal-work-scenario.v1",
+      "artifact_sha256": "f5212c19e701f183c7ab9aaf7620bf43c03a234eee92dd7e9d98c73c5c22a9ed"
+    },
+    "lc3_engine": {
+      "engine_id": "gpu-stack.e001-lc3-equal-work.v1",
+      "bundle_sha256": "b574609b19eeca593dc932ec09943a779b50a28b4d9e336afa07b5a18fa52249",
+      "source_sha256": "893b2d25eed53122c59ee26ac95a10c2e9f2e360c0c9b6c39c14bf1d32d25fbd"
+    },
+    "lc1_learning_result": {
+      "path": "experiments/e001-beyond-one-datacenter/results/learning-calibration-v1.json",
+      "artifact_sha256": "0597ca6deeeb34ae97d57d72b49187c687af921d3eec7b804ceb48b0d3994826"
+    },
+    "recovery_mechanics_result": {
+      "path": "experiments/e001-beyond-one-datacenter/results/recovery-mechanics-v2.json",
+      "artifact_sha256": "b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57"
+    }
+  },
+  "pw1_failure_binding": {
+    "conclusion_must_equal": "measurement_invalid",
+    "completed_run_count": 32,
+    "passed_validity_checks": [
+      "source_bindings",
+      "warm_checkpoint",
+      "canonical_work_identity",
+      "calibration_state_equivalence",
+      "calibration_work_equivalence",
+      "calibration_final_nll_equivalence",
+      "phase_partition",
+      "phase_energy_closure",
+      "gpu_power_configuration",
+      "thermal_limit",
+      "divergence",
+      "raw_trace_and_phase_ledger_presence"
+    ],
+    "failed_validity_checks": [
+      "minimum_effective_power_updates_per_evaluation_arm",
+      "minimum_pooled_effective_updates_per_cadence_phase"
+    ],
+    "instantaneous_power_effective_update_period_ms": 494.6930000005523,
+    "forbidden_uses": [
+      "reuse_pw1_energy_as_pw2_observation",
+      "reuse_pw1_phase_energy_as_prior_or_imputation",
+      "reinterpret_pw1_salvage_gate_as_research_evidence",
+      "reinterpret_pw1_interaction_as_checkpoint_causality",
+      "change_pw2_threshold_from_pw1_raw_energy"
+    ]
+  },
+  "capability_observation": {
+    "evidence_class": "observed_local_capability_not_experiment_arm",
+    "device": "NVIDIA GeForce RTX 3060 Laptop GPU",
+    "api": "nvmlDeviceGetTotalEnergyConsumption",
+    "supported": true,
+    "duration_seconds": 3.0,
+    "requested_poll_interval_ms": 2.0,
+    "poll_count": 880,
+    "counter_change_count": 40,
+    "counter_unit": "mJ",
+    "counter_delta_mj": 26920,
+    "counter_update_gap_ms": {
+      "minimum": 12.19,
+      "median": 88.44,
+      "maximum": 108.29
+    },
+    "used_as_energy_baseline_or_expected_effect": false
+  },
+  "warm_start_binding": {
+    "rebuild_once_before_matrix": true,
+    "ticks": 8192,
+    "seed": 7,
+    "checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5",
+    "parameter_count": 1871232,
+    "attempted_tokens": 16777216,
+    "attempted_compute_flops": 188364380700672.0,
+    "late_window_start_tick": 7936,
+    "late_window_end_tick": 8192,
+    "maximum_nll_improvement": 0.03,
+    "observed_nll_improvement": 0.004534989595413208,
+    "late_stage_gate_must_pass": true,
+    "hash_mismatch_action": "measurement_invalid_stop_before_arms"
+  },
+  "dataset": {
+    "dataset_id": "roneneldan/TinyStories",
+    "config": "default",
+    "split": "train",
+    "shard": "0000.parquet",
+    "uri": "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet",
+    "sha256": "77cf780cebe52b6e83e3a2ac84bc56d8059363113e41d17a023f1d8b2ed0fc0b",
+    "train_rows": 50000,
+    "validation_start_row": 50000,
+    "validation_rows": 2000,
+    "encoding": "utf-8 bytes",
+    "separator_byte": 0
+  },
+  "model": {
+    "vocab_size": 256,
+    "context_length": 256,
+    "layers": 4,
+    "width": 192,
+    "heads": 4,
+    "mlp_width": 768,
+    "dropout": 0.0,
+    "tie_embeddings": true,
+    "expected_parameter_count": 1871232
+  },
+  "optimization": {
+    "optimizer": "AdamW",
+    "learning_rate": 0.0003,
+    "weight_decay": 0.1,
+    "beta1": 0.9,
+    "beta2": 0.95,
+    "gradient_clip_norm": 1.0,
+    "autocast": "bfloat16",
+    "deterministic_cuda_algorithms": false,
+    "batch_size_per_site": 4,
+    "healthy_merge_ticks": 8,
+    "reduced_membership_merge_ticks": 2,
+    "post_rejoin_sync_ticks": 2,
+    "validation_batches": 64,
+    "validation_seed": 20260712,
+    "validation_timing": "initial_and_final_only_outside_energy_window",
+    "flop_model": "6 * parameter_count * attempted_tokens"
+  },
+  "canonical_work": {
+    "target_logical_ticks": 256,
+    "site_quota_count_per_logical_tick": 2,
+    "tokens_per_site_quota": 1024,
+    "canonical_tokens_per_logical_tick": 2048,
+    "target_canonical_tokens": 524288,
+    "maximum_opportunity_ticks": 384,
+    "completion_rule": "both logical site quota identities committed for every canonical logical tick",
+    "censoring_rule": "failure_if_target_not_reached_by_maximum_opportunity_ticks"
+  },
+  "checkpoint_representation": {
+    "state": [
+      "model_parameters",
+      "adam_optimizer_state",
+      "logical_tick",
+      "merge_count"
+    ],
+    "local_destination": "host_memory_snapshot",
+    "durable_storage_write_measured": false,
+    "checkpoint_bytes_required": true,
+    "boundary_note": "PW2 measures GPU-board cumulative energy around host-memory snapshot behavior, not host memory or durable storage energy."
+  },
+  "thermal_guard": {
+    "arm_start_temperature_c_lte": 70,
+    "paired_block_start_temperature_spread_c_lte": 2,
+    "pause_temperature_c_gte": 94,
+    "resume_temperature_c_lte": 70,
+    "poll_seconds": 2.0,
+    "cooldown_outside_energy_window": true,
+    "gpu_power_configuration_change_within_block_invalidates_block": true
+  },
+  "factors": {
+    "checkpoint_cadence": {
+      "factor_id": "C",
+      "eligibility": {
+        "healthy_merge_every_logical_ticks": 8,
+        "reduced_membership_merge_every_logical_ticks": 2,
+        "initial_checkpoint_all_arms": true
+      },
+      "levels": {
+        "sparse": {
+          "checkpoint_every_eligible_merges": 2,
+          "effective_healthy_checkpoint_ticks": 16,
+          "effective_reduced_membership_checkpoint_ticks": 4
+        },
+        "dense": {
+          "checkpoint_every_eligible_merges": 1,
+          "effective_healthy_checkpoint_ticks": 8,
+          "effective_reduced_membership_checkpoint_ticks": 2
+        }
+      }
+    },
+    "survivor_continuation": {
+      "factor_id": "S",
+      "levels": {
+        "restart": {
+          "on_failure_start": "restore both site states from latest checkpoint and roll logical tick back to checkpoint tick",
+          "during_active_failure": "perform no training and create no reduced-membership merge",
+          "after_failure": "replay deterministic logical quota identities until canonical frontier"
+        },
+        "continue": {
+          "on_failure_start": "retain canonical survivor state",
+          "during_active_failure": "execute both logical site quotas sequentially on survivor and checkpoint by assigned cadence",
+          "on_rejoin": "copy canonical model and Adam state to rejoined site",
+          "after_rejoin": "execute two frozen synchronization ticks"
+        }
+      }
+    }
+  },
+  "arms": [
+    {
+      "arm_id": "A-sparse-restart",
+      "arm_code": "A",
+      "checkpoint_cadence": "sparse",
+      "survivor_continuation": "restart",
+      "lc3_role": "fixed_local_anchor"
+    },
+    {
+      "arm_id": "B-dense-restart",
+      "arm_code": "B",
+      "checkpoint_cadence": "dense",
+      "survivor_continuation": "restart",
+      "lc3_role": "missing_cadence_counterfactual"
+    },
+    {
+      "arm_id": "C-sparse-continue",
+      "arm_code": "C",
+      "checkpoint_cadence": "sparse",
+      "survivor_continuation": "continue",
+      "lc3_role": "preselected_salvage_candidate"
+    },
+    {
+      "arm_id": "D-dense-continue",
+      "arm_code": "D",
+      "checkpoint_cadence": "dense",
+      "survivor_continuation": "continue",
+      "lc3_role": "adaptive_anchor"
+    }
+  ],
+  "splits": {
+    "calibration": {
+      "used_for_primary_estimand": false,
+      "used_for_counter_characterization_and_semantic_equivalence": true,
+      "blocks": [
+        {"block_id": "C1", "seed": 11, "failures": []},
+        {"block_id": "C2", "seed": 29, "failures": []}
+      ]
+    },
+    "evaluation": {
+      "used_for_primary_estimand": true,
+      "blocks": [
+        {"block_id": "E1", "seed": 101, "failures": [[40, 8], [136, 16]]},
+        {"block_id": "E2", "seed": 131, "failures": [[64, 16], [200, 8]]},
+        {"block_id": "E3", "seed": 151, "failures": [[72, 8], [128, 24]]},
+        {"block_id": "E4", "seed": 181, "failures": [[104, 16], [184, 16]]},
+        {"block_id": "E5", "seed": 211, "failures": [[32, 8], [104, 8], [216, 16]]},
+        {"block_id": "E6", "seed": 241, "failures": [[88, 24], [168, 8]]}
+      ]
+    }
+  },
+  "execution_order": {
+    "design": "unchanged four-sequence Williams order, each sequence used twice",
+    "orders": {
+      "W1": ["A-sparse-restart", "B-dense-restart", "D-dense-continue", "C-sparse-continue"],
+      "W2": ["B-dense-restart", "C-sparse-continue", "A-sparse-restart", "D-dense-continue"],
+      "W3": ["C-sparse-continue", "D-dense-continue", "B-dense-restart", "A-sparse-restart"],
+      "W4": ["D-dense-continue", "A-sparse-restart", "C-sparse-continue", "B-dense-restart"]
+    },
+    "block_assignment": {
+      "C1": "W1",
+      "C2": "W2",
+      "E1": "W3",
+      "E2": "W4",
+      "E3": "W1",
+      "E4": "W2",
+      "E5": "W3",
+      "E6": "W4"
+    },
+    "total_run_count": 32,
+    "interim_reordering_forbidden": true
+  },
+  "cumulative_meter": {
+    "primary_api": "nvmlDeviceGetTotalEnergyConsumption",
+    "counter_unit": "mJ",
+    "requested_poll_interval_ms": 2.0,
+    "clock": "time.perf_counter_ns",
+    "continuous_per_arm": true,
+    "effective_update_definition": "strictly positive change in cumulative counter value",
+    "required_sample_fields": [
+      "monotonic_ns",
+      "cumulative_gpu_board_energy_mj",
+      "effective_counter_update",
+      "instantaneous_gpu_board_power_w_ancillary",
+      "gpu_utilization_percent",
+      "memory_utilization_percent",
+      "sm_clock_mhz",
+      "memory_clock_mhz",
+      "temperature_c",
+      "performance_state"
+    ],
+    "idle_plateaus": {
+      "pre_run_seconds": 2.0,
+      "post_run_seconds": 2.0,
+      "idle_rate_statistic": "cumulative_delta_j / plateau_seconds",
+      "idle_rate_interpolation": "linear_between_pre_and_post",
+      "idle_subtracted_energy_role": "sensitivity_only"
+    },
+    "counter_increment_allocation": {
+      "increment": "changed_counter_value_right - changed_counter_value_left",
+      "support_interval": "left_change_monotonic_ns through right_change_monotonic_ns",
+      "allocation": "fractional_temporal_overlap_with_run_then_exclusive_phase_intervals",
+      "raw_run_total_is_primary": true,
+      "instantaneous_power_integration_is_primary": false
+    },
+    "counter_validity": {
+      "must_be_supported": true,
+      "must_be_monotonic": true,
+      "counter_reset_allowed": false,
+      "undocumented_wrap_allowed": false,
+      "strictly_positive_run_delta_required": true,
+      "changed_sample_before_run_required": true,
+      "changed_sample_after_run_required": true
+    }
+  },
+  "phase_markers": [
+    {"phase_id": "canonical-healthy-compute", "boundary": "previously uncommitted healthy quota through completed optimizer update"},
+    {"phase_id": "replay-compute", "boundary": "replayed quota identity through completed optimizer update"},
+    {"phase_id": "survivor-redistributed-compute", "boundary": "survivor-executed unavailable-site quota through completed optimizer update"},
+    {"phase_id": "model-optimizer-merge", "boundary": "site-state merge through GPU completion"},
+    {"phase_id": "checkpoint-snapshot", "boundary": "model/optimizer snapshot start through completed host snapshot copy"},
+    {"phase_id": "checkpoint-restore", "boundary": "checkpoint restore start through completed GPU state"},
+    {"phase_id": "rejoin-state-transfer", "boundary": "canonical survivor copy start through completed rejoined model/Adam state"},
+    {"phase_id": "post-rejoin-sync", "boundary": "post-rejoin synchronization start through GPU completion"},
+    {"phase_id": "runtime-control-remainder", "boundary": "every measured interval not exclusively owned by another phase"}
+  ],
+  "phase_support": {
+    "checkpoint_related_group": [
+      "checkpoint-snapshot",
+      "model-optimizer-merge",
+      "checkpoint-restore",
+      "rejoin-state-transfer",
+      "post-rejoin-sync"
+    ],
+    "minimum_effective_counter_updates_per_evaluation_arm": 40,
+    "minimum_pooled_updates_per_cadence_checkpoint_snapshot": 30,
+    "minimum_pooled_updates_per_cadence_checkpoint_related_group": 30,
+    "individual_phase_causal_support_updates_per_cadence": 30,
+    "individual_phase_support_scope": [
+      "model-optimizer-merge",
+      "checkpoint-restore",
+      "rejoin-state-transfer",
+      "post-rejoin-sync"
+    ],
+    "individual_phase_below_floor_evidence_class": "exploratory_insufficient_updates",
+    "individual_phase_below_floor_invalidates_run_total_or_group": false,
+    "checkpoint_snapshot_or_group_below_floor_invalidates_measurement": true,
+    "pool_scope": "all held-out runs sharing cadence level",
+    "pw1_phase_pooling_forbidden": true
+  },
+  "measurement_invalidators": {
+    "precedence_over_scientific_conclusion": true,
+    "source_binding_mismatch": true,
+    "pw1_conclusion_not_measurement_invalid": true,
+    "pw1_energy_reused_or_reinterpreted": true,
+    "warm_checkpoint_hash_mismatch": true,
+    "dataset_model_factor_split_order_or_canonical_work_mismatch": true,
+    "cumulative_energy_api_unavailable": true,
+    "counter_decrease_reset_or_undocumented_wrap": true,
+    "counter_does_not_bracket_run": true,
+    "run_counter_delta_non_positive": true,
+    "evaluation_arm_effective_counter_updates_lt": 40,
+    "pooled_cadence_checkpoint_snapshot_updates_lt": 30,
+    "pooled_cadence_checkpoint_related_group_updates_lt": 30,
+    "phase_internal_gap_ms_gt": 1.0,
+    "phase_overlap_allowed": false,
+    "phase_run_window_coverage_required": true,
+    "phase_energy_closure_relative_error_lte": 0.005,
+    "calibration_same_cadence_restart_continue_exact_state_equivalence": true,
+    "calibration_same_cadence_restart_continue_exact_work_equivalence": true,
+    "calibration_same_cadence_restart_continue_exact_final_nll_equivalence": true,
+    "gpu_power_configuration_stable_within_block": true,
+    "thermal_limit_crossed": true,
+    "divergence": true,
+    "required_counter_trace_phase_learning_or_work_field_missing": true,
+    "missing_energy_imputation_from_power_or_pw1_forbidden": true,
+    "invalid_result_conclusion": "measurement_invalid"
+  },
+  "estimands": {
+    "evaluation_blocks": ["E1", "E2", "E3", "E4", "E5", "E6"],
+    "primary_arm_energy": "raw cumulative GPU-board joules allocated to complete run window",
+    "primary_normalized_outcome": "primary_arm_energy / 524288 canonical tokens",
+    "primary_additive_interaction": "(dense_continue - sparse_continue) - (dense_restart - sparse_restart)",
+    "primary_total_interaction_scope": "complete run energy",
+    "checkpoint_snapshot_interaction": "same additive interaction on supported pooled checkpoint-snapshot cumulative energy",
+    "checkpoint_related_group_interaction": "same additive interaction on supported pooled checkpoint-related group cumulative energy",
+    "scale_free_sensitivity": "log(dense_continue / sparse_continue) - log(dense_restart / sparse_restart)",
+    "idle_subtracted_sensitivity": "primary interaction after linearly interpolated idle-rate subtraction",
+    "preselected_salvage_comparison": "C-sparse-continue versus A-sparse-restart",
+    "lc3_corner_reproduction_comparison": "D-dense-continue versus A-sparse-restart",
+    "penalty_removed_fraction": "(dense_continue_energy - sparse_continue_energy) / (dense_continue_energy - sparse_restart_energy)",
+    "paired_interval": {
+      "method": "paired_percentile_bootstrap",
+      "confidence_level": 0.9,
+      "draws": 10000,
+      "seed": 20260714
+    },
+    "required_reporting": [
+      "all_six_block_effects",
+      "median",
+      "lower_bound",
+      "upper_bound"
+    ]
+  },
+  "mechanism_falsifiers": {
+    "primary_total_interaction_lower_bound_gt": 0.0,
+    "supported_checkpoint_related_group_interaction_lower_bound_gt": 0.0,
+    "penalty_removed_fraction_median_gte": 0.5,
+    "all_required_for_checkpoint_cadence_attribution": true,
+    "unchanged_from_pw1": true
+  },
+  "salvage_falsifiers": {
+    "comparison": "C-sparse-continue versus A-sparse-restart",
+    "paired_target_count_eq": 6,
+    "canonical_target_ticks_eq": 256,
+    "maximum_opportunity_ticks_lte": 384,
+    "sparse_continue_minus_sparse_restart_nll_upper_bound_lte": 0.01,
+    "paired_attempted_flop_savings_lower_bound_gt": 0.0,
+    "paired_attempted_flop_savings_median_gte": 0.03,
+    "median_opportunity_tick_savings_gte": 24,
+    "continuation_earlier_block_count_eq": 6,
+    "sparse_continue_to_sparse_restart_cumulative_energy_ratio_upper_bound_lte": 1.05,
+    "continuation_divergence_count_eq": 0,
+    "cadence_within_continuation_nll_difference_upper_bound_lte": 0.01,
+    "all_required_for_sparse_continuation_survival": true,
+    "unchanged_numeric_thresholds_from_pw1": true
+  },
+  "decision_rules": [
+    {
+      "priority": 1,
+      "if": "any measurement invalidator is true",
+      "conclusion": "measurement_invalid"
+    },
+    {
+      "priority": 2,
+      "if": "valid measurement and D-dense-continue does not reproduce positive cumulative-energy excess over A-sparse-restart",
+      "conclusion": "lc3_energy_penalty_not_reproduced"
+    },
+    {
+      "priority": 3,
+      "if": "valid measurement, LC3 penalty reproduces, all mechanism falsifiers pass, and all salvage falsifiers pass",
+      "conclusion": "checkpoint_cadence_attributed_sparse_continuation_survives"
+    },
+    {
+      "priority": 4,
+      "if": "valid measurement, LC3 penalty reproduces, and either total or supported grouped interaction gate fails",
+      "conclusion": "continuation_energy_not_attributed_to_checkpoint_cadence"
+    },
+    {
+      "priority": 5,
+      "if": "valid measurement, checkpoint cadence is attributed, and any salvage falsifier fails",
+      "conclusion": "checkpoint_cadence_partial_cause_candidate_still_fails"
+    }
+  ],
+  "facility_bridge": {
+    "local_observed": [
+      "isolated GPU-board cumulative energy",
+      "cumulative-counter update trace",
+      "operation phase duration and ordering",
+      "checkpoint and state-transfer bytes",
+      "attempted replayed discarded redistributed and canonical work",
+      "final held-out NLL"
+    ],
+    "local_unmeasured": [
+      "host energy",
+      "DRAM energy",
+      "NIC energy",
+      "storage-service energy",
+      "cooling energy",
+      "power-delivery loss",
+      "rack power",
+      "point-of-common-coupling power",
+      "physical datacenter outage duration"
+    ],
+    "gpu_kernel_equation": "P_GPU_g(t) = P_idle_g + alpha_phase(t) * (P_train_g - P_idle_g)",
+    "it_equation": "P_IT(t) = sum_g P_GPU_g(t) + P_CPU(t) + P_NIC(t) + P_storage(t)",
+    "facility_transform": "separately calibrated electrical power-chain and cooling response models",
+    "static_pue_as_waveform_model_forbidden": true,
+    "checkpoint_bytes_drive_separate_host_network_storage_models": true,
+    "modeled_outputs": [
+      "total_energy_j",
+      "maximum_ramp_rate_w_per_s",
+      "spectral_power_0_1_to_10_hz",
+      "checkpoint_rejoin_coincidence_factor",
+      "curtailment_headroom_w",
+      "useful_work_flops",
+      "target_quality_time_s"
+    ],
+    "future_observation_requirements": [
+      "simultaneous per-GPU telemetry",
+      "rack PDU telemetry",
+      "cooling telemetry",
+      "facility or point-of-common-coupling meter"
+    ],
+    "facility_claim_allowed_from_local_result": false
+  },
+  "literature": [
+    {
+      "title": "EasyRider: Mitigating Power Transients in Datacenter-Scale Training Workloads",
+      "url": "https://arxiv.org/abs/2604.15522"
+    },
+    {
+      "title": "CompPow: A Case for Component-level GPU Power Management",
+      "url": "https://arxiv.org/abs/2605.21847"
+    },
+    {
+      "title": "The Energy Blind Spot: NVIDIA's Flagship Edge AI Hardware Cannot Support Process-Level Energy Attribution",
+      "url": "https://arxiv.org/abs/2605.27599"
+    },
+    {
+      "title": "PHOENIX: Resilient LLM Training with Hot-Swapping via Zero-Overhead Checkpoint",
+      "url": "https://arxiv.org/abs/2607.01646"
+    },
+    {
+      "title": "Direct Model State Migration for Elastic Training of Large Language Models",
+      "url": "https://arxiv.org/abs/2607.04749"
+    }
+  ],
+  "engine_input_contract": [
+    "source_bindings",
+    "pw1_failure_binding",
+    "capability_observation",
+    "warm_start_binding",
+    "dataset",
+    "model",
+    "optimization",
+    "canonical_work",
+    "checkpoint_representation",
+    "thermal_guard",
+    "factors",
+    "arms",
+    "splits",
+    "execution_order",
+    "cumulative_meter",
+    "phase_markers",
+    "phase_support",
+    "measurement_invalidators",
+    "estimands",
+    "mechanism_falsifiers",
+    "salvage_falsifiers",
+    "decision_rules",
+    "facility_bridge"
+  ],
+  "required_result_fields": [
+    "schema",
+    "experiment_id",
+    "scenario_id",
+    "scenario_sha256",
+    "artifact_sha256",
+    "engine.engine_id",
+    "engine.bundle_sha256",
+    "source_bindings",
+    "pw1_failure_binding_verified",
+    "warm_start.observed_checkpoint_sha256",
+    "warm_start.binding_passed",
+    "runtime.hardware",
+    "runtime.software",
+    "runtime.power_configuration",
+    "counter_calibration.api_supported",
+    "counter_calibration.poll_count",
+    "counter_calibration.effective_update_count",
+    "counter_calibration.update_gap_ms",
+    "runs[32].block_id",
+    "runs[32].split",
+    "runs[32].arm_id",
+    "runs[32].execution_position",
+    "runs[32].failure_schedule",
+    "runs[32].raw_counter_trace_sha256",
+    "runs[32].raw_poll_count",
+    "runs[32].effective_counter_update_count",
+    "runs[32].counter_start_mj",
+    "runs[32].counter_end_mj",
+    "runs[32].raw_run_energy_j",
+    "runs[32].idle_subtracted_energy_j_sensitivity",
+    "runs[32].phase_intervals",
+    "runs[32].phase_counter_update_counts",
+    "runs[32].phase_energy_j",
+    "runs[32].phase_energy_closure_relative_error",
+    "runs[32].individual_phase_evidence_class",
+    "runs[32].checkpoint_count",
+    "runs[32].checkpoint_bytes",
+    "runs[32].checkpoint_copy_seconds",
+    "runs[32].restore_seconds",
+    "runs[32].attempted_tokens",
+    "runs[32].canonical_tokens",
+    "runs[32].replayed_tokens",
+    "runs[32].discarded_tokens",
+    "runs[32].survivor_redistributed_tokens",
+    "runs[32].opportunity_ticks_to_target",
+    "runs[32].final_held_out_nll",
+    "runs[32].diverged",
+    "phase_support.evaluation_arm_update_floor_passed",
+    "phase_support.pooled_checkpoint_snapshot_updates_by_cadence",
+    "phase_support.pooled_checkpoint_related_updates_by_cadence",
+    "phase_support.individual_phase_support_by_cadence",
+    "measurement_validity.invalidators",
+    "measurement_validity.valid",
+    "summary.evaluation_block_interactions[6]",
+    "summary.primary_total_interaction",
+    "summary.checkpoint_snapshot_interaction",
+    "summary.checkpoint_related_group_interaction",
+    "summary.scale_free_interaction_sensitivity",
+    "summary.idle_subtracted_interaction_sensitivity",
+    "summary.penalty_removed_fraction",
+    "summary.lc3_corner_reproduction",
+    "summary.sparse_continuation_salvage",
+    "summary.mechanism_falsifier_results",
+    "summary.salvage_falsifier_results",
+    "summary.conclusion",
+    "evidence_boundary.observed",
+    "evidence_boundary.modeled",
+    "evidence_boundary.unmeasured",
+    "facility_bridge"
+  ],
+  "frontier_scale_question": "Can dependency-safe dephasing of checkpoint, collective, survivor-compute, and rejoin operations across 10,000-100,000 GPUs prevent failures from producing coherent megawatt-scale power shocks without burn loads, spare-compute redundancy, optimizer-state divergence, or loss of liveput?"
+}

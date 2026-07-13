@@ -246,6 +246,8 @@ def build_parser() -> argparse.ArgumentParser:
             "E001-LC1",
             "E001-LC2",
             "E001-LC3",
+            "E002-PW1",
+            "E002-PW2",
         ),
         help="experiment identifier",
     )
@@ -272,7 +274,8 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help=(
             "local source dataset shard for a measured experiment; required by "
-            "E001-LC1 and never copied into the repository"
+            "E001-LC1, E001-LC2, E001-LC3, E002-PW1, and E002-PW2 and is never "
+            "copied into the repository"
         ),
     )
     p_experiment_run.add_argument(

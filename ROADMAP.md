@@ -47,7 +47,13 @@ The first research substrate is no longer roadmap prose:
 - the recovery mechanics screen remains a prior Pareto result; E001-LC1 adds
   40 measured small-model GPU runs, LC2 preserves two protocol-stage failures,
   and E001-LC3 adds an equal-canonical-work held-out result that isolates a
-  measured device-energy failure after its learning, work, and tick gates pass.
+  measured device-energy failure after its learning, work, and tick gates pass;
+- E002-PW1 completed the resulting 32-run factorial with exact bindings, then
+  correctly rejected its own phase-energy evidence when the device power
+  update rate could not support the frozen attribution;
+- E002-PW2 repeated the frozen design with cumulative energy, passed validity,
+  attributed the local checkpoint-cadence effect, and recovered sparse
+  continuation across all eight frozen gates.
 
 Merge verification: focused research/docs pack `28 passed in 11.83s` and
 read-only full verifier `5/5` in `320.32s` with a 600-second gate ceiling.
@@ -109,14 +115,44 @@ ceiling. The sole failed gate makes the conclusion
 `candidate_falsified_equal_canonical_work`. The compact observatory sidecar is
 `docs/data/e001-equal-work-v1.json`.
 
-## Next Research Milestone: E002 Checkpoint-Power Attribution
+## E002-PW1 Checkpoint-Power Result: Measurement Invalid
 
-Run one frozen 2x2 factorial that crosses checkpoint cadence with survivor
-continuation at equal canonical work. Attribute checkpoint, training, restore,
-and synchronization power waveforms so the continuation effect, cadence
-effect, and their interaction are separately identifiable. Scale the survivor-
-continuation candidate only if that experiment preserves LC3's learning, work,
-and opportunity-tick gains while passing the 1.05 device-energy gate.
+PW1 completed all 32 frozen factorial runs with exact LC3 warm-state binding.
+Its requested 20 ms logger observed effective NVML updates every 494.693 ms,
+with selected +250 ms lag at the frozen boundary. The only active invalidators
+are `insufficient_evaluation_power_updates` and
+`insufficient_pooled_cadence_phase_updates`. The preserved conclusion is
+`measurement_invalid`.
+
+Raw PW1 values cannot select a mechanism. The LC3-corner energy ratio was
+median `0.789 [0.703, 0.923]` and did not reproduce the earlier penalty. The
+sparse-continuation salvage ratio was `0.823 [0.665, 1.019]`, with all
+non-energy gates passing. Both are inadmissible; all mechanism gates failed.
+
+## E002-PW2 Cumulative-Energy Result: Valid Local Mechanism
+
+PW2 completed 32/32 runs with exact warm binding, measurement validity, and no
+invalidators. Its counter updated every 91.667 ms effectively, and each
+held-out arm carried 83 to 109 updates. Snapshot support was 59.30 sparse and
+110.06 dense; checkpoint-group support was 124.56 and 176.94.
+
+All three mechanism gates passed. Total interaction was
+`2.2416e-5 [2.1746e-6, 3.5305e-5] J/token`; checkpoint group was
+`5.8845e-6 [3.0774e-6, 8.9671e-6]`; snapshot was
+`4.9917e-6 [2.8497e-6, 7.4481e-6]`. Sparse continuation passed all eight gates:
+NLL upper `0.0085037`, 3.03% work saving, 40 ticks saved, and energy-ratio
+upper `1.00319`. Conclusion:
+`checkpoint_cadence_attributed_sparse_continuation_survives`.
+The sensitivity-only idle-subtracted interaction crossed zero at
+`3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token`; the frozen raw-cumulative primary
+passes, but the attribution is not baseline-insensitive.
+
+## Next Research Milestone: E002-PW3 Multi-GPU/Rack Dephasing
+
+Test dependency-safe dephasing across simultaneous GPUs with aligned per-GPU
+cumulative energy, rack-PDU, storage, and cooling telemetry. Rare restore and
+rejoin phases remain exploratory. PW2 is a valid local GPU-board mechanism; it
+does not establish rack or facility transfer.
 
 ## Latest Verified Wave
 
@@ -253,10 +289,10 @@ and preset export/discovery tests.
 
 | Priority | Work | Done when |
 |---|---|---|
-| P0 | Run E002 checkpoint-power waveform attribution. | One frozen 2x2 checkpoint-cadence x survivor-continuation experiment reports phase-attributed power and device energy at equal canonical work. |
-| P0 | Separate cadence from continuation. | Main effects and their interaction are identifiable while learning noninferiority, attempted-work saving, and opportunity-tick saving remain visible. |
-| P0 | Preserve the LC1-to-LC3 evidence sequence. | LC1 remains a finite-horizon candidate falsification, both LC2 protocol failures remain non-candidate evidence, and LC3 remains false solely on its energy gate. |
-| P1 | Scale survivor continuation only after the energy gate passes. | Model-family, optimizer, non-IID data, outage-duration, and accelerator panels follow only a positive factorial energy result. |
+| P0 | Run E002-PW3 multi-GPU/rack dependency-safe dephasing. | Simultaneous GPUs execute controlled phase offsets with exact learning/work semantics and paired undephased baselines. |
+| P0 | Instrument the transfer boundary. | Aligned per-GPU cumulative energy, rack-PDU power, storage activity/power, and cooling telemetry support causal attribution. |
+| P0 | Preserve PW1 and PW2 distinctly. | PW1 remains measurement-invalid; PW2 remains a valid local GPU-board mechanism with rare phases labeled exploratory. |
+| P1 | Withhold facility transfer. | Rack, cooling, grid-safety, and admission-capacity claims wait for direct PW3 evidence. |
 | P1 | Keep the continuation compass scientific. | `next-work` ranks missing evidence, mechanism leverage, residuals, and uncertainty contribution; root debt remains a secondary diagnostic. |
 | P2 | Deepen physical ancestry selectively. | New lower-level physics closes a measured residual, reduces uncertainty, or enables an experiment. |
 

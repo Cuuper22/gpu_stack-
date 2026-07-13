@@ -92,6 +92,74 @@ def cmd_experiment_protocol(args) -> int:
 
 
 def cmd_experiment_run(args) -> int:
+    if args.experiment == "E002-PW2":
+        if not args.dataset:
+            raise ValueError("E002-PW2 requires --dataset")
+        from .research.e002_cumulative_energy import (
+            run_e002_cumulative_energy,
+        )
+        from .research.observatory_checkpoint_energy import (
+            build_e002_checkpoint_energy_observatory_artifact,
+            build_e002_checkpoint_energy_raw_artifact,
+        )
+
+        result_payload = run_e002_cumulative_energy(
+            args.scenario,
+            args.dataset,
+        )
+        _write_json_artifact(result_payload, args.output)
+        if args.observatory_output:
+            raw_payload = build_e002_checkpoint_energy_raw_artifact(
+                result_payload
+            )
+            raw_path = Path(args.observatory_output).with_name(
+                "e002-checkpoint-energy-raw-v2.json"
+            )
+            _write_json_artifact(raw_payload, str(raw_path))
+            _write_json_artifact(
+                build_e002_checkpoint_energy_observatory_artifact(
+                    result_payload,
+                    source_uri=None if args.output == "-" else args.output,
+                    raw_trace_uri=raw_path.name,
+                    raw_trace_sha256=raw_payload["artifact_sha256"],
+                ),
+                args.observatory_output,
+            )
+        return 0
+    if args.experiment == "E002-PW1":
+        if not args.dataset:
+            raise ValueError("E002-PW1 requires --dataset")
+        from .research.e002_checkpoint_power import (
+            run_e002_checkpoint_power,
+        )
+        from .research.observatory_checkpoint_power import (
+            build_e002_checkpoint_power_observatory_artifact,
+            build_e002_checkpoint_power_raw_artifact,
+        )
+
+        result_payload = run_e002_checkpoint_power(
+            args.scenario,
+            args.dataset,
+        )
+        _write_json_artifact(result_payload, args.output)
+        if args.observatory_output:
+            raw_payload = build_e002_checkpoint_power_raw_artifact(
+                result_payload
+            )
+            raw_path = Path(args.observatory_output).with_name(
+                "e002-checkpoint-power-raw-v1.json"
+            )
+            _write_json_artifact(raw_payload, str(raw_path))
+            _write_json_artifact(
+                build_e002_checkpoint_power_observatory_artifact(
+                    result_payload,
+                    source_uri=None if args.output == "-" else args.output,
+                    raw_trace_uri=raw_path.name,
+                    raw_trace_sha256=raw_payload["artifact_sha256"],
+                ),
+                args.observatory_output,
+            )
+        return 0
     if args.experiment == "E001-LC3":
         if not args.dataset:
             raise ValueError("E001-LC3 requires --dataset")

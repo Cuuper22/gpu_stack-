@@ -15,35 +15,31 @@ training span heterogeneous, intermittently powered datacenters without losing
 centralized learning efficiency. Its preregistered virtual design is in
 `experiments/e001-beyond-one-datacenter/experiment.md`.
 
-`next-work` now promotes `Run E002 checkpoint-power waveform attribution`,
-`Separate checkpoint cadence from survivor continuation`, and `Scale survivor
-continuation only after the energy gate passes`. Physical root debt and Pythia
-closure remain legacy diagnostics, not the scientific priority function.
+`next-work` now promotes E002-PW3 multi-GPU/rack dependency-safe dephasing,
+simultaneous GPU/rack/storage/cooling instrumentation, and an explicit hold on
+facility transfer claims. Physical root debt and Pythia closure
+remain legacy diagnostics, not the scientific priority function.
 
-## Active Wave: E001-LC3 Equal-Canonical-Work Result
+## Active Wave: E002-PW2 Valid Result To E002-PW3
 
-Status: executed on `research/e001-lc2-quality-target`; end-of-feature
+Status: executed on `research/e002-checkpoint-power`; end-of-feature
 verification, merge, and push remain pending.
 
-- LC1 remains `candidate_falsified_small_model_calibration`: 10 calibration
-  and 30 held-out observations showed its finite-horizon denominator rewarded
-  fixed restart for stopping at worse quality with less attempted work.
-- LC2 v1 stopped at `protocol_failed_warm_start_not_late_stage`. LC2 v2
-  established a valid late-stage checkpoint and exact no-failure equivalence,
-  then stopped at `protocol_failed_calibration_validity` because raw NLL first
-  crossing fell outside the frozen target window. Neither protocol artifact is
-  candidate evidence.
-- LC3 used equal canonical work instead. Its 12 held-out observations all
-  reached 524,288 canonical tokens. Learning noninferiority, attempted-work
-  saving, and opportunity-tick saving passed; adaptive saved median 3.03
-  percent attempted work and 40 opportunity ticks.
-- Device energy was the sole failed gate: median adaptive/fixed 1.068 and
-  paired 90 percent upper bound 1.134 against the frozen 1.05 ceiling. The
-  conclusion is `candidate_falsified_equal_canonical_work` and
-  `candidate_survives_lc3=False`.
-- The full result and `docs/data/e001-equal-work-v1.json` observatory sidecar
-  are present. Recovery-v2 time, WAN, and facility energy remain modeled
-  mechanics, not measured LC3 outcomes.
+- PW1 remains preserved as `measurement_invalid`.
+- PW2 completed 32/32 runs with exact warm binding, valid cumulative energy,
+  and no invalidators. Artifact:
+  `cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`.
+- Effective updates were 91.667 ms, with 83 to 109 per held-out arm. Snapshot
+  support was 59.30/110.06 and grouped support 124.56/176.94 sparse/dense.
+- Total, checkpoint-group, and snapshot interactions were positive; all 3
+  mechanism gates passed.
+- Idle-subtracted sensitivity was
+  `3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token` and crossed zero. PW2 passes its
+  frozen raw-cumulative primary but is not baseline-insensitive.
+- Sparse continuation passed all 8 gates: NLL upper `0.0085037`, 3.03% work
+  saving, 40 ticks saved, and energy-ratio upper `1.00319`.
+- Conclusion: `checkpoint_cadence_attributed_sparse_continuation_survives`.
+  Rare restore/rejoin phases remain exploratory; facility transfer is unproven.
 
 ## Prior Completed Wave: Recovery-Backed E001 Mechanics
 
@@ -119,11 +115,10 @@ Implemented facts:
 
 ## Resume Instructions
 
-Resume from LC3's isolated energy failure, not recovery infrastructure. Run
-E002 as a frozen 2x2 checkpoint-cadence x survivor-continuation experiment at
-equal canonical work, with checkpoint/training/restore/synchronization power-
-waveform attribution. Generalize only if the factorial result preserves LC3's
-learning, work, and tick gains while passing the energy ceiling.
+Resume from PW2's valid local mechanism, not PW1's raw invalid ratios. Run
+E002-PW3 across simultaneous GPUs and rack-visible checkpoint activity with
+aligned per-GPU cumulative, rack-PDU, storage, and cooling telemetry. Do not
+promote the laptop result to rack or facility transfer.
 
 ## Current State
 
@@ -210,14 +205,12 @@ and preset export/discovery tests.
 
 ## Next Real Work
 
-1. Run E002 checkpoint-power waveform attribution as a frozen 2x2 factorial:
-   checkpoint cadence by survivor continuation.
-2. Estimate cadence, continuation, and interaction effects at equal canonical
-   work while attributing checkpoint, training, restore, and synchronization
-   power phases.
-3. Preserve LC3's passing learning, attempted-work, and opportunity-tick gates
-   and require the adaptive/fixed device-energy upper bound to pass 1.05.
-4. Scale survivor continuation only after the energy gate passes.
+1. Run E002-PW3 multi-GPU/rack dependency-safe dephasing.
+2. Measure aligned per-GPU cumulative energy, rack-PDU power, storage
+   activity/power, and cooling telemetry against paired undephased baselines.
+3. Preserve exact learning/work semantics and test whether PW2's cadence
+   mechanism transfers under simultaneous execution.
+4. Keep rare restore/rejoin phases exploratory and facility/grid claims open.
 
 ## Verification Policy
 

@@ -63,6 +63,190 @@ def _highest_impact(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
             )
             if name in evidence.production_symbol_names
         )
+        if evidence.e002_checkpoint_energy_result_present:
+            def fixed(value: float | None, digits: int = 3) -> str:
+                return f"{value:.{digits}f}" if value is not None else "missing"
+
+            def scientific(value: float | None) -> str:
+                return f"{value:.4e}" if value is not None else "missing"
+
+            invalidators = ", ".join(
+                evidence.e002_checkpoint_energy_active_invalidators
+            ) or "none"
+            work_saving = evidence.e002_checkpoint_energy_salvage_work_median
+            work_saving_text = (
+                f"{work_saving * 100:.2f}" if work_saving is not None else "missing"
+            )
+            return (
+                NextWorkItem(
+                    title="Run E002-PW3 multi-GPU/rack dependency-safe dephasing",
+                    evidence=(
+                        "live PW2 result scan: artifact_sha256="
+                        f"{evidence.e002_checkpoint_energy_artifact_sha256}, completed "
+                        f"runs={evidence.e002_checkpoint_energy_run_count}/32, exact "
+                        "warm binding="
+                        f"{evidence.e002_checkpoint_energy_warm_binding_passed}, "
+                        "measurement_valid="
+                        f"{evidence.e002_checkpoint_energy_measurement_valid}, active "
+                        f"invalidators={invalidators}, cumulative update period="
+                        f"{fixed(evidence.e002_checkpoint_energy_effective_update_ms)} "
+                        "ms, evaluation updates="
+                        f"{evidence.e002_checkpoint_energy_eval_update_min}-"
+                        f"{evidence.e002_checkpoint_energy_eval_update_max}; conclusion="
+                        f"{evidence.e002_checkpoint_energy_conclusion}. The next causal "
+                        "step is simultaneous multi-GPU/rack dephasing, not another "
+                        "single-GPU cadence run. The sensitivity-only idle-subtracted "
+                        "interaction was "
+                        f"{scientific(evidence.e002_checkpoint_energy_idle_sensitivity_median)} "
+                        "["
+                        f"{scientific(evidence.e002_checkpoint_energy_idle_sensitivity_lower)}, "
+                        f"{scientific(evidence.e002_checkpoint_energy_idle_sensitivity_upper)}] "
+                        "J/token and crossed zero, so PW3 must measure the rack "
+                        "baseline directly"
+                    ),
+                    path="experiments/e002-power-waveform-shaping/experiment.md",
+                ),
+                NextWorkItem(
+                    title="Measure simultaneous GPU, rack, storage, and cooling power",
+                    evidence=(
+                        "valid PW2 causal support: total interaction median="
+                        f"{scientific(evidence.e002_checkpoint_energy_total_interaction_median)} "
+                        "J/token ["
+                        f"{scientific(evidence.e002_checkpoint_energy_total_interaction_lower)}, "
+                        f"{scientific(evidence.e002_checkpoint_energy_total_interaction_upper)}]; "
+                        "checkpoint group="
+                        f"{scientific(evidence.e002_checkpoint_energy_group_interaction_median)} "
+                        "["
+                        f"{scientific(evidence.e002_checkpoint_energy_group_interaction_lower)}, "
+                        f"{scientific(evidence.e002_checkpoint_energy_group_interaction_upper)}]; "
+                        "snapshot="
+                        f"{scientific(evidence.e002_checkpoint_energy_snapshot_interaction_median)} "
+                        "["
+                        f"{scientific(evidence.e002_checkpoint_energy_snapshot_interaction_lower)}, "
+                        f"{scientific(evidence.e002_checkpoint_energy_snapshot_interaction_upper)}]. "
+                        "Snapshot support sparse/dense="
+                        f"{fixed(evidence.e002_checkpoint_energy_snapshot_support_sparse, 2)}/"
+                        f"{fixed(evidence.e002_checkpoint_energy_snapshot_support_dense, 2)}; "
+                        "group support="
+                        f"{fixed(evidence.e002_checkpoint_energy_group_support_sparse, 2)}/"
+                        f"{fixed(evidence.e002_checkpoint_energy_group_support_dense, 2)}; "
+                        "mechanism gates="
+                        f"{evidence.e002_checkpoint_energy_mechanism_gates_passed}/"
+                        f"{evidence.e002_checkpoint_energy_mechanism_gate_count}. "
+                        "PW3 must observe simultaneous per-GPU cumulative energy, rack "
+                        "PDU, storage, and cooling telemetry"
+                    ),
+                    path=(
+                        "experiments/e002-power-waveform-shaping/"
+                        "checkpoint-energy-calibration-v2.md"
+                    ),
+                ),
+                NextWorkItem(
+                    title="Keep facility transfer outside the PW2 claim",
+                    evidence=(
+                        "PW2 sparse continuation survived all "
+                        f"{evidence.e002_checkpoint_energy_salvage_gates_passed}/"
+                        f"{evidence.e002_checkpoint_energy_salvage_gate_count} gates: "
+                        "NLL delta median="
+                        f"{fixed(evidence.e002_checkpoint_energy_salvage_nll_median, 7)} "
+                        "upper="
+                        f"{fixed(evidence.e002_checkpoint_energy_salvage_nll_upper, 7)}, "
+                        "attempted-work saving="
+                        f"{work_saving_text}%, "
+                        "opportunity ticks saved="
+                        f"{fixed(evidence.e002_checkpoint_energy_salvage_ticks_median, 0)}, "
+                        "energy ratio median="
+                        f"{fixed(evidence.e002_checkpoint_energy_salvage_ratio_median, 5)} "
+                        "upper="
+                        f"{fixed(evidence.e002_checkpoint_energy_salvage_ratio_upper, 5)}. "
+                        "Rare restore/rejoin phase estimates remain exploratory, and "
+                        "one laptop GPU cannot establish rack or facility transfer"
+                    ),
+                    path=(
+                        "experiments/e002-power-waveform-shaping/results/"
+                        "checkpoint-energy-v2.json"
+                    ),
+                ),
+            )
+        if evidence.e002_checkpoint_power_result_present:
+            def metric(value: float | None) -> str:
+                return f"{value:.3f}" if value is not None else "missing"
+
+            invalidators = ", ".join(
+                evidence.e002_checkpoint_power_active_invalidators
+            ) or "none"
+            return (
+                NextWorkItem(
+                    title="Run E002-PW2 on the supported cumulative-energy counter",
+                    evidence=(
+                        "live PW1 artifact scan: artifact_sha256="
+                        f"{evidence.e002_checkpoint_power_artifact_sha256}, completed "
+                        f"runs={evidence.e002_checkpoint_power_run_count}/32, exact "
+                        "warm binding="
+                        f"{evidence.e002_checkpoint_power_warm_binding_passed}, "
+                        f"conclusion={evidence.e002_checkpoint_power_conclusion}, "
+                        "measurement_valid="
+                        f"{evidence.e002_checkpoint_power_measurement_valid}; active "
+                        f"invalidators={invalidators}. PW2 cumulative protocol "
+                        f"present={evidence.e002_cumulative_protocol_present}; local "
+                        "capability measurement observed 880 polls, 40 counter "
+                        "changes, and an 88.44 ms median change gap. Execute the same "
+                        "frozen factorial on that supported cumulative-energy counter"
+                    ),
+                    path=(
+                        "experiments/e002-power-waveform-shaping/"
+                        "checkpoint-energy-calibration-v2.md"
+                    ),
+                ),
+                NextWorkItem(
+                    title="Keep the PW1 factorial and bindings frozen",
+                    evidence=(
+                        "live logger calibration: requested poll="
+                        f"{metric(evidence.e002_checkpoint_power_requested_poll_ms)} "
+                        "ms, effective device update="
+                        f"{metric(evidence.e002_checkpoint_power_effective_update_ms)} "
+                        "ms, selected lag=+"
+                        f"{metric(evidence.e002_checkpoint_power_logger_delay_ms)} ms "
+                        "at the frozen boundary. PW2 changes the measurement source, "
+                        "not the 2x2 cadence-by-continuation design, warm state, block "
+                        "order, schedules, estimands, or gates"
+                    ),
+                    path=(
+                        "experiments/e002-power-waveform-shaping/"
+                        "checkpoint-power-scenario-v1.json"
+                    ),
+                ),
+                NextWorkItem(
+                    title="Hold mechanism and generalization claims until PW2",
+                    evidence=(
+                        "inadmissible raw PW1 effects: LC3-corner energy ratio median="
+                        f"{metric(evidence.e002_checkpoint_power_lc3_ratio_median)} "
+                        "["
+                        f"{metric(evidence.e002_checkpoint_power_lc3_ratio_lower)}, "
+                        f"{metric(evidence.e002_checkpoint_power_lc3_ratio_upper)}], "
+                        "penalty_reproduced="
+                        f"{evidence.e002_checkpoint_power_penalty_reproduced}; sparse "
+                        "salvage ratio median="
+                        f"{metric(evidence.e002_checkpoint_power_salvage_ratio_median)} "
+                        "["
+                        f"{metric(evidence.e002_checkpoint_power_salvage_ratio_lower)}, "
+                        f"{metric(evidence.e002_checkpoint_power_salvage_ratio_upper)}], "
+                        "all non-energy gates passed="
+                        f"{evidence.e002_checkpoint_power_salvage_non_energy_gates_passed}. "
+                        "Both are inadmissible because measurement validity failed; "
+                        "mechanism gates passed="
+                        f"{evidence.e002_checkpoint_power_mechanism_gates_passed}/"
+                        f"{evidence.e002_checkpoint_power_mechanism_gate_count}. No "
+                        "mechanism attribution, tuning, or scale generalization follows. "
+                        "Use an external high-rate input-power meter only if PW2 also "
+                        "fails its frozen measurement-validity contract"
+                    ),
+                    path=(
+                        "experiments/e002-power-waveform-shaping/results/"
+                        "checkpoint-power-v1.json"
+                    ),
+                ),
+            )
         if evidence.e001_equal_work_result_present:
             energy_median = evidence.e001_equal_work_energy_ratio_median
             energy_upper = evidence.e001_equal_work_energy_ratio_upper_bound
@@ -333,7 +517,72 @@ def _highest_impact(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
 
 
 def _best_implementations(evidence: _Evidence) -> tuple[NextWorkItem, ...]:
-    """Report current foundations worth preserving during the research reset."""
+    """Report the concrete implementation surfaces for the active research wave."""
+
+    if evidence.e002_checkpoint_energy_result_present:
+        total_interaction = evidence.e002_checkpoint_energy_total_interaction_median
+        checkpoint_interaction = (
+            evidence.e002_checkpoint_energy_group_interaction_median
+        )
+        return (
+            NextWorkItem(
+                title="Implement dependency-safe phase offsets across workers",
+                evidence=(
+                    "PW2 isolated a positive checkpoint-cadence interaction on one "
+                    "GPU: total="
+                    f"{total_interaction:.4e} J/token, checkpoint group="
+                    f"{checkpoint_interaction:.4e} J/token. PW3 needs a scheduler "
+                    "that shifts checkpoint and rejoin work across simultaneous "
+                    "workers while preserving the exact checkpoint DAG, canonical "
+                    "tokens, failure schedule, and learning state"
+                ),
+                path="experiments/e002-power-waveform-shaping/experiment.md",
+            ),
+            NextWorkItem(
+                title="Ingest time-aligned GPU and rack-boundary energy",
+                evidence=(
+                    "PW2's cumulative GPU-board counter was valid at "
+                    f"{evidence.e002_checkpoint_energy_effective_update_ms:.3f} ms "
+                    "effective updates, but host, storage, network, cooling, and rack "
+                    "energy were outside the boundary. PW3 must align every GPU "
+                    "counter with rack PDU, storage, and cooling telemetry on one "
+                    "clock before it can estimate a rack ramp"
+                ),
+                path=(
+                    "experiments/e002-power-waveform-shaping/"
+                    "checkpoint-energy-calibration-v2.md"
+                ),
+            ),
+            NextWorkItem(
+                title="Run paired undephased and dephased rack blocks",
+                evidence=(
+                    "The valid single-GPU result completed "
+                    f"{evidence.e002_checkpoint_energy_run_count}/32 runs and passed "
+                    f"{evidence.e002_checkpoint_energy_mechanism_gates_passed}/"
+                    f"{evidence.e002_checkpoint_energy_mechanism_gate_count} mechanism "
+                    "gates plus "
+                    f"{evidence.e002_checkpoint_energy_salvage_gates_passed}/"
+                    f"{evidence.e002_checkpoint_energy_salvage_gate_count} learning, "
+                    "work, schedule, and energy gates. PW3 should keep those semantics "
+                    "fixed and pair only the rack phase policy"
+                ),
+                path=(
+                    "experiments/e002-power-waveform-shaping/results/"
+                    "checkpoint-energy-v2.json"
+                ),
+            ),
+            NextWorkItem(
+                title="Render synchronized rack ramps at three semantic depths",
+                evidence=(
+                    "The observatory already explains PW2 as a plain-language result, "
+                    "paired causal contrasts, and a 32-run cumulative-counter trace. "
+                    "PW3 should add a shared time axis across workers, checkpoint and "
+                    "rejoin dependencies, rack power, storage activity, uncertainty, "
+                    "and the exact counterfactual phase offsets"
+                ),
+                path="docs/observatory.html",
+            ),
+        )
 
     pythia = evidence.pythia_report
     dense = evidence.dense_cost_result

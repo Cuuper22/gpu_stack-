@@ -122,6 +122,64 @@ class _Evidence:
     e001_equal_work_energy_ratio_median: float | None
     e001_equal_work_energy_ratio_upper_bound: float | None
     e001_equal_work_observatory_present: bool
+    e002_checkpoint_power_result_present: bool
+    e002_checkpoint_power_artifact_sha256: str | None
+    e002_checkpoint_power_run_count: int
+    e002_checkpoint_power_warm_binding_passed: bool | None
+    e002_checkpoint_power_conclusion: str | None
+    e002_checkpoint_power_measurement_valid: bool | None
+    e002_checkpoint_power_active_invalidators: tuple[str, ...]
+    e002_checkpoint_power_requested_poll_ms: float | None
+    e002_checkpoint_power_effective_update_ms: float | None
+    e002_checkpoint_power_logger_delay_ms: float | None
+    e002_checkpoint_power_lc3_ratio_median: float | None
+    e002_checkpoint_power_lc3_ratio_lower: float | None
+    e002_checkpoint_power_lc3_ratio_upper: float | None
+    e002_checkpoint_power_penalty_reproduced: bool | None
+    e002_checkpoint_power_salvage_ratio_median: float | None
+    e002_checkpoint_power_salvage_ratio_lower: float | None
+    e002_checkpoint_power_salvage_ratio_upper: float | None
+    e002_checkpoint_power_salvage_non_energy_gates_passed: bool | None
+    e002_checkpoint_power_mechanism_gates_passed: int
+    e002_checkpoint_power_mechanism_gate_count: int
+    e002_cumulative_protocol_present: bool
+    e002_checkpoint_energy_result_present: bool
+    e002_checkpoint_energy_artifact_sha256: str | None
+    e002_checkpoint_energy_run_count: int
+    e002_checkpoint_energy_warm_binding_passed: bool | None
+    e002_checkpoint_energy_measurement_valid: bool | None
+    e002_checkpoint_energy_active_invalidators: tuple[str, ...]
+    e002_checkpoint_energy_effective_update_ms: float | None
+    e002_checkpoint_energy_eval_update_min: int | None
+    e002_checkpoint_energy_eval_update_max: int | None
+    e002_checkpoint_energy_snapshot_support_sparse: float | None
+    e002_checkpoint_energy_snapshot_support_dense: float | None
+    e002_checkpoint_energy_group_support_sparse: float | None
+    e002_checkpoint_energy_group_support_dense: float | None
+    e002_checkpoint_energy_conclusion: str | None
+    e002_checkpoint_energy_total_interaction_median: float | None
+    e002_checkpoint_energy_total_interaction_lower: float | None
+    e002_checkpoint_energy_total_interaction_upper: float | None
+    e002_checkpoint_energy_group_interaction_median: float | None
+    e002_checkpoint_energy_group_interaction_lower: float | None
+    e002_checkpoint_energy_group_interaction_upper: float | None
+    e002_checkpoint_energy_snapshot_interaction_median: float | None
+    e002_checkpoint_energy_snapshot_interaction_lower: float | None
+    e002_checkpoint_energy_snapshot_interaction_upper: float | None
+    e002_checkpoint_energy_idle_sensitivity_median: float | None
+    e002_checkpoint_energy_idle_sensitivity_lower: float | None
+    e002_checkpoint_energy_idle_sensitivity_upper: float | None
+    e002_checkpoint_energy_salvage_nll_median: float | None
+    e002_checkpoint_energy_salvage_nll_upper: float | None
+    e002_checkpoint_energy_salvage_work_median: float | None
+    e002_checkpoint_energy_salvage_ticks_median: float | None
+    e002_checkpoint_energy_salvage_ratio_median: float | None
+    e002_checkpoint_energy_salvage_ratio_upper: float | None
+    e002_checkpoint_energy_mechanism_gates_passed: int
+    e002_checkpoint_energy_mechanism_gate_count: int
+    e002_checkpoint_energy_salvage_gates_passed: int
+    e002_checkpoint_energy_salvage_gate_count: int
+    e002_checkpoint_energy_rare_phase_status: str | None
     e002_result_artifact_count: int
     observation_artifact_count: int
     evaluation_observation_reference_count: int
@@ -303,6 +361,8 @@ def _collect_evidence_uncached(resolved_repo_root: Path) -> _Evidence:
     e001_v1_identity = _e001_v1_identity(resolved_repo_root)
     e001_learning = _e001_learning_result(resolved_repo_root)
     e001_equal_work = _e001_equal_work_result(resolved_repo_root)
+    e002_checkpoint_power = _e002_checkpoint_power_result(resolved_repo_root)
+    e002_checkpoint_energy = _e002_checkpoint_energy_result(resolved_repo_root)
 
     return _Evidence(
         stats=stats,
@@ -407,6 +467,197 @@ def _collect_evidence_uncached(resolved_repo_root: Path) -> _Evidence:
         e001_equal_work_observatory_present=(
             resolved_repo_root / "docs" / "data" / "e001-equal-work-v1.json"
         ).is_file(),
+        e002_checkpoint_power_result_present=bool(
+            e002_checkpoint_power["present"]
+        ),
+        e002_checkpoint_power_artifact_sha256=(
+            str(e002_checkpoint_power["artifact_sha256"])
+            if e002_checkpoint_power["artifact_sha256"] is not None
+            else None
+        ),
+        e002_checkpoint_power_run_count=int(e002_checkpoint_power["run_count"]),
+        e002_checkpoint_power_warm_binding_passed=(
+            bool(e002_checkpoint_power["warm_binding_passed"])
+            if e002_checkpoint_power["warm_binding_passed"] is not None
+            else None
+        ),
+        e002_checkpoint_power_conclusion=(
+            str(e002_checkpoint_power["conclusion"])
+            if e002_checkpoint_power["conclusion"] is not None
+            else None
+        ),
+        e002_checkpoint_power_measurement_valid=(
+            bool(e002_checkpoint_power["measurement_valid"])
+            if e002_checkpoint_power["measurement_valid"] is not None
+            else None
+        ),
+        e002_checkpoint_power_active_invalidators=tuple(
+            str(item) for item in e002_checkpoint_power["active_invalidators"]
+        ),
+        e002_checkpoint_power_requested_poll_ms=_optional_float(
+            e002_checkpoint_power["requested_poll_ms"]
+        ),
+        e002_checkpoint_power_effective_update_ms=_optional_float(
+            e002_checkpoint_power["effective_update_ms"]
+        ),
+        e002_checkpoint_power_logger_delay_ms=_optional_float(
+            e002_checkpoint_power["logger_delay_ms"]
+        ),
+        e002_checkpoint_power_lc3_ratio_median=_optional_float(
+            e002_checkpoint_power["lc3_ratio_median"]
+        ),
+        e002_checkpoint_power_lc3_ratio_lower=_optional_float(
+            e002_checkpoint_power["lc3_ratio_lower"]
+        ),
+        e002_checkpoint_power_lc3_ratio_upper=_optional_float(
+            e002_checkpoint_power["lc3_ratio_upper"]
+        ),
+        e002_checkpoint_power_penalty_reproduced=(
+            bool(e002_checkpoint_power["penalty_reproduced"])
+            if e002_checkpoint_power["penalty_reproduced"] is not None
+            else None
+        ),
+        e002_checkpoint_power_salvage_ratio_median=_optional_float(
+            e002_checkpoint_power["salvage_ratio_median"]
+        ),
+        e002_checkpoint_power_salvage_ratio_lower=_optional_float(
+            e002_checkpoint_power["salvage_ratio_lower"]
+        ),
+        e002_checkpoint_power_salvage_ratio_upper=_optional_float(
+            e002_checkpoint_power["salvage_ratio_upper"]
+        ),
+        e002_checkpoint_power_salvage_non_energy_gates_passed=(
+            bool(e002_checkpoint_power["salvage_non_energy_gates_passed"])
+            if e002_checkpoint_power["salvage_non_energy_gates_passed"] is not None
+            else None
+        ),
+        e002_checkpoint_power_mechanism_gates_passed=int(
+            e002_checkpoint_power["mechanism_gates_passed"]
+        ),
+        e002_checkpoint_power_mechanism_gate_count=int(
+            e002_checkpoint_power["mechanism_gate_count"]
+        ),
+        e002_cumulative_protocol_present=(
+            resolved_repo_root
+            / "experiments"
+            / "e002-power-waveform-shaping"
+            / "checkpoint-energy-calibration-v2.md"
+        ).is_file(),
+        e002_checkpoint_energy_result_present=bool(
+            e002_checkpoint_energy["present"]
+        ),
+        e002_checkpoint_energy_artifact_sha256=(
+            str(e002_checkpoint_energy["artifact_sha256"])
+            if e002_checkpoint_energy["artifact_sha256"] is not None
+            else None
+        ),
+        e002_checkpoint_energy_run_count=int(e002_checkpoint_energy["run_count"]),
+        e002_checkpoint_energy_warm_binding_passed=_optional_bool(
+            e002_checkpoint_energy["warm_binding_passed"]
+        ),
+        e002_checkpoint_energy_measurement_valid=_optional_bool(
+            e002_checkpoint_energy["measurement_valid"]
+        ),
+        e002_checkpoint_energy_active_invalidators=tuple(
+            str(item) for item in e002_checkpoint_energy["active_invalidators"]
+        ),
+        e002_checkpoint_energy_effective_update_ms=_optional_float(
+            e002_checkpoint_energy["effective_update_ms"]
+        ),
+        e002_checkpoint_energy_eval_update_min=_optional_int(
+            e002_checkpoint_energy["eval_update_min"]
+        ),
+        e002_checkpoint_energy_eval_update_max=_optional_int(
+            e002_checkpoint_energy["eval_update_max"]
+        ),
+        e002_checkpoint_energy_snapshot_support_sparse=_optional_float(
+            e002_checkpoint_energy["snapshot_support_sparse"]
+        ),
+        e002_checkpoint_energy_snapshot_support_dense=_optional_float(
+            e002_checkpoint_energy["snapshot_support_dense"]
+        ),
+        e002_checkpoint_energy_group_support_sparse=_optional_float(
+            e002_checkpoint_energy["group_support_sparse"]
+        ),
+        e002_checkpoint_energy_group_support_dense=_optional_float(
+            e002_checkpoint_energy["group_support_dense"]
+        ),
+        e002_checkpoint_energy_conclusion=(
+            str(e002_checkpoint_energy["conclusion"])
+            if e002_checkpoint_energy["conclusion"] is not None
+            else None
+        ),
+        e002_checkpoint_energy_total_interaction_median=_optional_float(
+            e002_checkpoint_energy["total_interaction_median"]
+        ),
+        e002_checkpoint_energy_total_interaction_lower=_optional_float(
+            e002_checkpoint_energy["total_interaction_lower"]
+        ),
+        e002_checkpoint_energy_total_interaction_upper=_optional_float(
+            e002_checkpoint_energy["total_interaction_upper"]
+        ),
+        e002_checkpoint_energy_group_interaction_median=_optional_float(
+            e002_checkpoint_energy["group_interaction_median"]
+        ),
+        e002_checkpoint_energy_group_interaction_lower=_optional_float(
+            e002_checkpoint_energy["group_interaction_lower"]
+        ),
+        e002_checkpoint_energy_group_interaction_upper=_optional_float(
+            e002_checkpoint_energy["group_interaction_upper"]
+        ),
+        e002_checkpoint_energy_snapshot_interaction_median=_optional_float(
+            e002_checkpoint_energy["snapshot_interaction_median"]
+        ),
+        e002_checkpoint_energy_snapshot_interaction_lower=_optional_float(
+            e002_checkpoint_energy["snapshot_interaction_lower"]
+        ),
+        e002_checkpoint_energy_snapshot_interaction_upper=_optional_float(
+            e002_checkpoint_energy["snapshot_interaction_upper"]
+        ),
+        e002_checkpoint_energy_idle_sensitivity_median=_optional_float(
+            e002_checkpoint_energy["idle_sensitivity_median"]
+        ),
+        e002_checkpoint_energy_idle_sensitivity_lower=_optional_float(
+            e002_checkpoint_energy["idle_sensitivity_lower"]
+        ),
+        e002_checkpoint_energy_idle_sensitivity_upper=_optional_float(
+            e002_checkpoint_energy["idle_sensitivity_upper"]
+        ),
+        e002_checkpoint_energy_salvage_nll_median=_optional_float(
+            e002_checkpoint_energy["salvage_nll_median"]
+        ),
+        e002_checkpoint_energy_salvage_nll_upper=_optional_float(
+            e002_checkpoint_energy["salvage_nll_upper"]
+        ),
+        e002_checkpoint_energy_salvage_work_median=_optional_float(
+            e002_checkpoint_energy["salvage_work_median"]
+        ),
+        e002_checkpoint_energy_salvage_ticks_median=_optional_float(
+            e002_checkpoint_energy["salvage_ticks_median"]
+        ),
+        e002_checkpoint_energy_salvage_ratio_median=_optional_float(
+            e002_checkpoint_energy["salvage_ratio_median"]
+        ),
+        e002_checkpoint_energy_salvage_ratio_upper=_optional_float(
+            e002_checkpoint_energy["salvage_ratio_upper"]
+        ),
+        e002_checkpoint_energy_mechanism_gates_passed=int(
+            e002_checkpoint_energy["mechanism_gates_passed"]
+        ),
+        e002_checkpoint_energy_mechanism_gate_count=int(
+            e002_checkpoint_energy["mechanism_gate_count"]
+        ),
+        e002_checkpoint_energy_salvage_gates_passed=int(
+            e002_checkpoint_energy["salvage_gates_passed"]
+        ),
+        e002_checkpoint_energy_salvage_gate_count=int(
+            e002_checkpoint_energy["salvage_gate_count"]
+        ),
+        e002_checkpoint_energy_rare_phase_status=(
+            str(e002_checkpoint_energy["rare_phase_status"])
+            if e002_checkpoint_energy["rare_phase_status"] is not None
+            else None
+        ),
         e002_result_artifact_count=research_counts["e002_results"],
         observation_artifact_count=research_counts["observations"],
         evaluation_observation_reference_count=research_counts[
@@ -570,6 +821,306 @@ def _e001_equal_work_result(repo_root: Path) -> dict[str, object]:
             value = energy_ratio.get(source)
             if isinstance(value, (int, float)) and not isinstance(value, bool):
                 result[target] = float(value)
+    return result
+
+
+def _optional_float(value: object) -> float | None:
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return float(value)
+    return None
+
+
+def _optional_int(value: object) -> int | None:
+    if isinstance(value, int) and not isinstance(value, bool):
+        return value
+    return None
+
+
+def _optional_bool(value: object) -> bool | None:
+    return value if isinstance(value, bool) else None
+
+
+def _e002_checkpoint_power_result(repo_root: Path) -> dict[str, object]:
+    """Read the executed PW1 decision and its measurement-validity boundary."""
+
+    path = (
+        repo_root
+        / "experiments"
+        / "e002-power-waveform-shaping"
+        / "results"
+        / "checkpoint-power-v1.json"
+    )
+    empty: dict[str, object] = {
+        "present": False,
+        "artifact_sha256": None,
+        "run_count": 0,
+        "warm_binding_passed": None,
+        "conclusion": None,
+        "measurement_valid": None,
+        "active_invalidators": (),
+        "requested_poll_ms": None,
+        "effective_update_ms": None,
+        "logger_delay_ms": None,
+        "lc3_ratio_median": None,
+        "lc3_ratio_lower": None,
+        "lc3_ratio_upper": None,
+        "penalty_reproduced": None,
+        "salvage_ratio_median": None,
+        "salvage_ratio_lower": None,
+        "salvage_ratio_upper": None,
+        "salvage_non_energy_gates_passed": None,
+        "mechanism_gates_passed": 0,
+        "mechanism_gate_count": 0,
+    }
+    if not path.is_file():
+        return empty
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return empty
+    if not isinstance(payload, dict) or payload.get("schema") != (
+        "gpu-stack.e002-checkpoint-power-evidence.v1"
+    ):
+        return empty
+
+    result = dict(empty)
+    result["present"] = True
+    artifact_sha256 = payload.get("artifact_sha256")
+    if isinstance(artifact_sha256, str):
+        result["artifact_sha256"] = artifact_sha256
+    runs = payload.get("runs")
+    if isinstance(runs, list):
+        result["run_count"] = len(runs)
+        if runs and isinstance(runs[0], dict):
+            trace = runs[0].get("telemetry_trace")
+            if isinstance(trace, dict):
+                poll_seconds = _optional_float(trace.get("poll_seconds"))
+                if poll_seconds is not None:
+                    result["requested_poll_ms"] = poll_seconds * 1_000.0
+
+    warm_start = payload.get("warm_start")
+    if isinstance(warm_start, dict) and isinstance(
+        warm_start.get("binding_passed"), bool
+    ):
+        result["warm_binding_passed"] = warm_start["binding_passed"]
+
+    measurement = payload.get("measurement_validity")
+    if isinstance(measurement, dict):
+        if isinstance(measurement.get("valid"), bool):
+            result["measurement_valid"] = measurement["valid"]
+        invalidators = measurement.get("invalidators")
+        if isinstance(invalidators, dict):
+            result["active_invalidators"] = tuple(
+                name for name, active in invalidators.items() if active is True
+            )
+
+    logger = payload.get("logger_calibration")
+    if isinstance(logger, dict):
+        result["effective_update_ms"] = _optional_float(
+            logger.get("effective_update_period_ms")
+        )
+        result["logger_delay_ms"] = _optional_float(logger.get("logger_delay_ms"))
+
+    summary = payload.get("summary")
+    if not isinstance(summary, dict):
+        return result
+    if isinstance(summary.get("conclusion"), str):
+        result["conclusion"] = summary["conclusion"]
+
+    lc3_reproduction = summary.get("lc3_corner_reproduction")
+    if isinstance(lc3_reproduction, dict):
+        if isinstance(lc3_reproduction.get("penalty_reproduced"), bool):
+            result["penalty_reproduced"] = lc3_reproduction["penalty_reproduced"]
+        ratio = lc3_reproduction.get(
+            "dense_continue_to_sparse_restart_energy_ratio"
+        )
+        if isinstance(ratio, dict):
+            result["lc3_ratio_median"] = _optional_float(ratio.get("median"))
+            result["lc3_ratio_lower"] = _optional_float(ratio.get("lower_bound"))
+            result["lc3_ratio_upper"] = _optional_float(ratio.get("upper_bound"))
+
+    salvage = summary.get("sparse_continuation_salvage")
+    if isinstance(salvage, dict):
+        ratio = salvage.get("device_energy_ratio")
+        if isinstance(ratio, dict):
+            result["salvage_ratio_median"] = _optional_float(ratio.get("median"))
+            result["salvage_ratio_lower"] = _optional_float(ratio.get("lower_bound"))
+            result["salvage_ratio_upper"] = _optional_float(ratio.get("upper_bound"))
+
+    salvage_gates = summary.get("salvage_falsifier_results")
+    if isinstance(salvage_gates, dict):
+        non_energy = [
+            passed
+            for name, passed in salvage_gates.items()
+            if name != "device_energy_bounded" and isinstance(passed, bool)
+        ]
+        if non_energy:
+            result["salvage_non_energy_gates_passed"] = all(non_energy)
+
+    mechanism_gates = summary.get("mechanism_falsifier_results")
+    if isinstance(mechanism_gates, dict):
+        values = [value for value in mechanism_gates.values() if isinstance(value, bool)]
+        result["mechanism_gate_count"] = len(values)
+        result["mechanism_gates_passed"] = sum(values)
+    return result
+
+
+def _e002_checkpoint_energy_result(repo_root: Path) -> dict[str, object]:
+    """Read the valid cumulative-energy PW2 result for research routing."""
+
+    path = (
+        repo_root
+        / "experiments"
+        / "e002-power-waveform-shaping"
+        / "results"
+        / "checkpoint-energy-v2.json"
+    )
+    empty: dict[str, object] = {
+        "present": False,
+        "artifact_sha256": None,
+        "run_count": 0,
+        "warm_binding_passed": None,
+        "measurement_valid": None,
+        "active_invalidators": (),
+        "effective_update_ms": None,
+        "eval_update_min": None,
+        "eval_update_max": None,
+        "snapshot_support_sparse": None,
+        "snapshot_support_dense": None,
+        "group_support_sparse": None,
+        "group_support_dense": None,
+        "conclusion": None,
+        "total_interaction_median": None,
+        "total_interaction_lower": None,
+        "total_interaction_upper": None,
+        "group_interaction_median": None,
+        "group_interaction_lower": None,
+        "group_interaction_upper": None,
+        "snapshot_interaction_median": None,
+        "snapshot_interaction_lower": None,
+        "snapshot_interaction_upper": None,
+        "idle_sensitivity_median": None,
+        "idle_sensitivity_lower": None,
+        "idle_sensitivity_upper": None,
+        "salvage_nll_median": None,
+        "salvage_nll_upper": None,
+        "salvage_work_median": None,
+        "salvage_ticks_median": None,
+        "salvage_ratio_median": None,
+        "salvage_ratio_upper": None,
+        "mechanism_gates_passed": 0,
+        "mechanism_gate_count": 0,
+        "salvage_gates_passed": 0,
+        "salvage_gate_count": 0,
+        "rare_phase_status": None,
+    }
+    if not path.is_file():
+        return empty
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return empty
+    if not isinstance(payload, dict) or payload.get("schema") != (
+        "gpu-stack.e002-checkpoint-energy-evidence.v2"
+    ):
+        return empty
+
+    result = dict(empty)
+    result["present"] = True
+    if isinstance(payload.get("artifact_sha256"), str):
+        result["artifact_sha256"] = payload["artifact_sha256"]
+
+    runs = payload.get("runs")
+    if isinstance(runs, list):
+        result["run_count"] = len(runs)
+        evaluation_updates = [
+            run.get("effective_counter_update_count")
+            for run in runs
+            if isinstance(run, dict)
+            and run.get("split") == "evaluation"
+            and isinstance(run.get("effective_counter_update_count"), int)
+        ]
+        if evaluation_updates:
+            result["eval_update_min"] = min(evaluation_updates)
+            result["eval_update_max"] = max(evaluation_updates)
+
+    warm_start = payload.get("warm_start")
+    if isinstance(warm_start, dict):
+        result["warm_binding_passed"] = _optional_bool(
+            warm_start.get("binding_passed")
+        )
+
+    measurement = payload.get("measurement_validity")
+    if isinstance(measurement, dict):
+        result["measurement_valid"] = _optional_bool(measurement.get("valid"))
+        invalidators = measurement.get("invalidators")
+        if isinstance(invalidators, dict):
+            result["active_invalidators"] = tuple(
+                name for name, active in invalidators.items() if active is True
+            )
+        groups = measurement.get("cadence_group_effective_update_equivalents")
+        if isinstance(groups, dict):
+            for cadence in ("sparse", "dense"):
+                support = groups.get(cadence)
+                if not isinstance(support, dict):
+                    continue
+                result[f"snapshot_support_{cadence}"] = _optional_float(
+                    support.get("checkpoint_snapshot_update_equivalents")
+                )
+                result[f"group_support_{cadence}"] = _optional_float(
+                    support.get("checkpoint_related_group_update_equivalents")
+                )
+
+    counter = payload.get("counter_calibration")
+    if isinstance(counter, dict):
+        result["effective_update_ms"] = _optional_float(
+            counter.get("effective_update_period_ms")
+        )
+
+    summary = payload.get("summary")
+    if not isinstance(summary, dict):
+        return result
+    if isinstance(summary.get("conclusion"), str):
+        result["conclusion"] = summary["conclusion"]
+    if isinstance(summary.get("individual_rare_phase_claim_status"), str):
+        result["rare_phase_status"] = summary["individual_rare_phase_claim_status"]
+
+    for source, prefix in (
+        ("primary_total_interaction", "total_interaction"),
+        ("checkpoint_related_group_interaction", "group_interaction"),
+        ("checkpoint_snapshot_interaction", "snapshot_interaction"),
+        ("idle_subtracted_interaction_sensitivity", "idle_sensitivity"),
+    ):
+        interval = summary.get(source)
+        if not isinstance(interval, dict):
+            continue
+        result[f"{prefix}_median"] = _optional_float(interval.get("median"))
+        result[f"{prefix}_lower"] = _optional_float(interval.get("lower_bound"))
+        result[f"{prefix}_upper"] = _optional_float(interval.get("upper_bound"))
+
+    salvage = summary.get("sparse_continuation_salvage")
+    if isinstance(salvage, dict):
+        for source, prefix in (
+            ("nll_difference", "salvage_nll"),
+            ("attempted_flop_saving_fraction", "salvage_work"),
+            ("opportunity_tick_saving", "salvage_ticks"),
+            ("device_energy_ratio", "salvage_ratio"),
+        ):
+            interval = salvage.get(source)
+            if not isinstance(interval, dict):
+                continue
+            result[f"{prefix}_median"] = _optional_float(interval.get("median"))
+            result[f"{prefix}_upper"] = _optional_float(interval.get("upper_bound"))
+
+    for source, passed_key, count_key in (
+        ("mechanism_falsifier_results", "mechanism_gates_passed", "mechanism_gate_count"),
+        ("salvage_falsifier_results", "salvage_gates_passed", "salvage_gate_count"),
+    ):
+        gates = summary.get(source)
+        if isinstance(gates, dict):
+            values = [value for value in gates.values() if isinstance(value, bool)]
+            result[count_key] = len(values)
+            result[passed_key] = sum(values)
     return result
 
 

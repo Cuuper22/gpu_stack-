@@ -191,7 +191,9 @@ The repository now contains the observation and split contracts, held-out
 evaluation and replicated-panel aggregation, deterministic temporal and
 multi-site mechanics, observable-only interventions, six scalar-plus-structured
 protocols, E001 recovery mechanics, the artifact-driven causal observatory,
-and three successive measured learning questions through E001-LC3.
+three successive measured learning questions through E001-LC3, the completed
+E002-PW1 factorial preserved as measurement-invalid evidence, and E002-PW2's
+valid cumulative-energy mechanism and salvage result.
 
 LC2 preserved two protocol failures without opening held-out evaluation. V1's
 2,048-tick checkpoint was not late-stage: NLL improved `0.0862674` over its
@@ -215,24 +217,49 @@ This is measured small-model learning and sampled board energy from one local
 GPU. Opportunity ticks are simulated. Datacenter concurrency, WAN, storage,
 host, cooling, and facility-energy behavior remain modeled or unmeasured.
 
-The next order is determined by the only LC3 gate that failed:
+E002-PW1 executed that frozen 2x2 with exact LC3 warm binding and all 32 arms
+complete. It did not produce an admissible attribution. Requested 20 ms NVML
+polling yielded an effective 494.693 ms update period; the selected +250 ms lag
+sat at the frozen boundary. The only active invalidators were
+`insufficient_evaluation_power_updates` and
+`insufficient_pooled_cadence_phase_updates`, so the result is
+`measurement_invalid`.
 
-1. Build E002's operation-to-facility power-waveform attribution path for the
-   checkpoint and recovery phases exercised by LC3.
-2. Run a frozen 2x2 experiment crossing checkpoint cadence with survivor
-   continuation. Test whether dependency-safe phase scheduling removes the
-   measured energy penalty without giving back learning noninferiority,
-   attempted-work saving, or opportunity-tick saving.
-3. Keep observed RTX learning, token, time, and energy quantities separate
-   from the modeled E001 recovery timeline. Use the model bridge only for
-   explicit sensitivity attribution, never as measured facility evidence.
-4. Scale E001 across optimizer, model, topology, and real-cluster transfer only
-   if the energy mechanism survives the 2x2 attribution experiment. A larger
-   run is not the next answer to a phase-level energy failure.
-5. Complete other E001 controller mechanisms only where the E002 attribution
-   or later shadow residuals identify decision-relevant missing behavior.
-6. Admit E003 through E006 only when their required observations, vector
-   metrics, baselines, and transfer panels are executable.
+The raw LC3-corner ratio was `0.789 [0.703, 0.923]` and did not reproduce the
+penalty. The raw sparse-continuation ratio was `0.823 [0.665, 1.019]`, with all
+non-energy gates passing. Both are inadmissible under the frozen measurement
+contract, and all three mechanism gates failed.
+
+PW2 then executed the same frozen factorial with the cumulative counter. All 32
+runs completed with exact warm binding, measurement validity passed, and no
+invalidator fired. Its effective counter period was 91.667 ms, with 83 to 109
+updates in each held-out arm. Snapshot and checkpoint-group pooled support
+cleared their frozen thresholds for both cadences.
+
+The total interaction was `2.2416e-5 [2.1746e-6, 3.5305e-5] J/token`; the
+checkpoint group was `5.8845e-6 [3.0774e-6, 8.9671e-6]`, and snapshot alone was
+`4.9917e-6 [2.8497e-6, 7.4481e-6]`. All three mechanism gates passed. Sparse
+continuation passed all eight salvage gates with NLL upper bound `0.0085037`,
+3.03% attempted-work saving, 40 opportunity ticks saved, and cumulative-energy
+ratio upper bound `1.00319`. The valid local conclusion is
+`checkpoint_cadence_attributed_sparse_continuation_survives`.
+
+The frozen primary uses raw cumulative energy over the complete run window.
+The idle-subtracted sensitivity was
+`3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token` and crossed zero, so PW2 does not
+show that its local attribution is insensitive to estimated idle-baseline
+treatment.
+
+The next research order is:
+
+1. Execute E002-PW3 across simultaneous GPUs and rack-visible checkpoint work,
+   testing dependency-safe dephasing rather than another isolated cadence run.
+2. Align per-GPU cumulative energy with rack-PDU power, storage activity and
+   power, and cooling telemetry.
+3. Preserve PW1 as failed measurement evidence and PW2 as a local GPU-board
+   mechanism result. Rare restore/rejoin phases remain exploratory.
+4. Test multi-GPU and rack transfer explicitly. Do not call the PW2 effect a
+   facility-energy, grid-safety, or admission-capacity result.
 
 No controller is trusted with live actions before shadow comparison and a
 separate controlled protocol.

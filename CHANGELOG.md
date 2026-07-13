@@ -8,6 +8,42 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
 
 ## Current physical deepening notes
 
+* Completed E002-PW2 with the supported cumulative-energy counter. All 32
+  frozen factorial runs completed with exact warm binding, measurement validity
+  passed, and no invalidators fired. Effective counter period was 91.667 ms;
+  held-out arms contained 83 to 109 updates. Snapshot support was 59.30 sparse
+  and 110.06 dense; checkpoint-group support was 124.56 and 176.94. Total
+  interaction was `2.2416e-5 [2.1746e-6, 3.5305e-5] J/token`, checkpoint group
+  `5.8845e-6 [3.0774e-6, 8.9671e-6]`, and snapshot
+  `4.9917e-6 [2.8497e-6, 7.4481e-6]`. All 3 mechanism gates passed. The
+  sensitivity-only idle-subtracted interaction was
+  `3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token` and crossed zero, so the frozen
+  raw-cumulative primary passes without establishing baseline insensitivity.
+  Sparse continuation passed all 8 gates with NLL upper `0.0085037`, 3.03% attempted-
+  work saving, 40 opportunity ticks saved, and energy-ratio upper `1.00319`.
+  Conclusion: `checkpoint_cadence_attributed_sparse_continuation_survives`;
+  artifact
+  `cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`.
+  Next is E002-PW3 multi-GPU/rack dependency-safe dephasing with simultaneous
+  per-GPU cumulative, rack-PDU, storage, and cooling telemetry. Rare
+  restore/rejoin estimates remain exploratory; no facility transfer is claimed.
+
+* Executed E002-PW1's frozen 2x2 checkpoint-cadence by survivor-continuation
+  factorial: all 32 runs completed and the LC3 warm-state binding matched
+  exactly. The result is preserved as `measurement_invalid`, artifact
+  `aff76946b26876820cdaa4ca43d0b6160cdc18b2f4c5bacd053cfe92f529d4f5`.
+  Requested 20 ms instantaneous-power polling produced a 494.693 ms effective
+  device-update period with selected +250 ms lag at the frozen boundary. The
+  only active invalidators are `insufficient_evaluation_power_updates` and
+  `insufficient_pooled_cadence_phase_updates`. Raw LC3-corner energy was
+  `0.789 [0.703, 0.923]`; raw sparse salvage was
+  `0.823 [0.665, 1.019]`, with all non-energy gates passing. Both are
+  inadmissible, and all three mechanism gates failed. That failure selected the
+  locally supported cumulative-energy counter for E002-PW2. Its capability observation
+  recorded 880 polls, 40 counter changes, an 88.44 ms median gap, and 26,920 mJ
+  cumulative delta. PW2 kept the factorial frozen and produced the valid result
+  recorded above.
+
 * Executed the LC2-to-LC3 research redirect without overwriting failed
   protocols. LC2 v1 persisted `protocol_failed_warm_start_not_late_stage`; LC2
   v2 established a valid 8,192-tick late-stage checkpoint and exact no-failure

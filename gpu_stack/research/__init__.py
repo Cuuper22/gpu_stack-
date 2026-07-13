@@ -130,6 +130,30 @@ from .observatory_equal_work import (
     build_e001_equal_work_observatory_artifact,
     project_e001_equal_work_result_file,
 )
+from .e002_checkpoint_power import (
+    ENGINE_ID as E002_CHECKPOINT_POWER_ENGINE_ID,
+    SCHEMA as E002_CHECKPOINT_POWER_SCHEMA,
+    run_e002_checkpoint_power,
+)
+from .observatory_checkpoint_power import (
+    RAW_SCHEMA as E002_CHECKPOINT_POWER_RAW_OBSERVATORY_SCHEMA,
+    SCHEMA as E002_CHECKPOINT_POWER_OBSERVATORY_SCHEMA,
+    build_e002_checkpoint_power_observatory_artifact,
+    build_e002_checkpoint_power_raw_artifact,
+    project_e002_checkpoint_power_result_file,
+)
+from .e002_cumulative_energy import (
+    ENGINE_ID as E002_CUMULATIVE_ENERGY_ENGINE_ID,
+    SCHEMA as E002_CUMULATIVE_ENERGY_SCHEMA,
+    run_e002_cumulative_energy,
+)
+from .observatory_checkpoint_energy import (
+    RAW_SCHEMA as E002_CUMULATIVE_ENERGY_RAW_OBSERVATORY_SCHEMA,
+    SCHEMA as E002_CUMULATIVE_ENERGY_OBSERVATORY_SCHEMA,
+    build_e002_checkpoint_energy_observatory_artifact,
+    build_e002_checkpoint_energy_raw_artifact,
+    project_e002_checkpoint_energy_result_file,
+)
 from .recovery import (
     CheckpointLedger,
     CompletedCheckpoint,
@@ -368,6 +392,22 @@ __all__ = [
     "project_e001_learning_result_file",
     "E001_EQUAL_WORK_OBSERVATORY_SCHEMA",
     "build_e001_equal_work_observatory_artifact",
+    "E002_CHECKPOINT_POWER_ENGINE_ID",
+    "E002_CHECKPOINT_POWER_SCHEMA",
+    "run_e002_checkpoint_power",
+    "E002_CHECKPOINT_POWER_OBSERVATORY_SCHEMA",
+    "E002_CHECKPOINT_POWER_RAW_OBSERVATORY_SCHEMA",
+    "build_e002_checkpoint_power_observatory_artifact",
+    "build_e002_checkpoint_power_raw_artifact",
+    "project_e002_checkpoint_power_result_file",
+    "E002_CUMULATIVE_ENERGY_ENGINE_ID",
+    "E002_CUMULATIVE_ENERGY_SCHEMA",
+    "run_e002_cumulative_energy",
+    "E002_CUMULATIVE_ENERGY_OBSERVATORY_SCHEMA",
+    "E002_CUMULATIVE_ENERGY_RAW_OBSERVATORY_SCHEMA",
+    "build_e002_checkpoint_energy_observatory_artifact",
+    "build_e002_checkpoint_energy_raw_artifact",
+    "project_e002_checkpoint_energy_result_file",
     "project_e001_equal_work_result_file",
     "CheckpointLedger",
     "CompletedCheckpoint",

@@ -1,0 +1,4142 @@
+{
+  "artifact_sha256": "308e5e1fb5785b6e0131f887f7c32e64984303452c80b77d2299d4b0ac557905",
+  "artifact_state": "measurement_invalid",
+  "evidence_boundary": {
+    "frontier_scale_question": "Can dependency-safe dephasing of checkpoint, collective, survivor-compute, and rejoin operations across 10,000-100,000 GPUs prevent failures from producing coherent megawatt-scale power shocks without burn loads, spare-compute redundancy, optimizer-state divergence, or loss of liveput?",
+    "modeled": [
+      "facility bridge equations conditioned on local phase kernels"
+    ],
+    "observed": [
+      "isolated GPU-board power waveform",
+      "phase duration and ordering",
+      "checkpoint and state-transfer bytes",
+      "attempted replayed discarded redistributed and canonical work",
+      "final held-out NLL"
+    ],
+    "unmeasured": [
+      "host energy",
+      "DRAM energy",
+      "NIC energy",
+      "storage-service energy",
+      "cooling energy",
+      "power-delivery loss",
+      "rack power",
+      "point-of-common-coupling power",
+      "physical datacenter outage duration"
+    ]
+  },
+  "experiment_id": "E002-PW1",
+  "facility_bridge": {
+    "evidence_class": "modeled_facility_bridge_conditioned_on_observed_local_phase_kernels",
+    "facility_claim_allowed": false,
+    "facility_transform": "separately calibrated electrical power-chain and cooling response models",
+    "future_observation_requirements": [
+      "simultaneous per-GPU telemetry",
+      "rack PDU telemetry",
+      "cooling telemetry",
+      "facility or point-of-common-coupling meter"
+    ],
+    "gpu_kernel_equation": "P_GPU_g(t) = P_idle_g + alpha_phase(t) * (P_train_g - P_idle_g)",
+    "it_equation": "P_IT(t) = sum_g P_GPU_g(t) + P_CPU(t) + P_NIC(t) + P_storage(t)",
+    "modeled_outputs_not_evaluated_in_pw1": [
+      "total_energy_j",
+      "maximum_ramp_rate_w_per_s",
+      "spectral_power_0_1_to_10_hz",
+      "checkpoint_rejoin_coincidence_factor",
+      "curtailment_headroom_w",
+      "useful_work_flops",
+      "target_quality_time_s"
+    ],
+    "observed_local_phase_kernels": {
+      "canonical-healthy-compute": {
+        "boundary": "local isolated GPU board only",
+        "median_duration_seconds": 6.4072515499610745,
+        "median_idle_subtracted_power_w": 7.8045045769168375,
+        "observed_run_count": 24
+      },
+      "checkpoint-restore": {
+        "boundary": "local isolated GPU board only",
+        "median_duration_seconds": 0.08461919999899692,
+        "median_idle_subtracted_power_w": 8.052124459152454,
+        "observed_run_count": 12
+      },
+      "checkpoint-snapshot": {
+        "boundary": "local isolated GPU board only",
+        "median_duration_seconds": 0.4987624500026868,
+        "median_idle_subtracted_power_w": 7.674119548577536,
+        "observed_run_count": 24
+      },
+      "model-optimizer-merge": {
+        "boundary": "local isolated GPU board only",
+        "median_duration_seconds": 0.2908712000025844,
+        "median_idle_subtracted_power_w": 7.906121363679299,
+        "observed_run_count": 24
+      },
+      "post-rejoin-sync": {
+        "boundary": "local isolated GPU board only",
+        "median_duration_seconds": 0.055325950001133606,
+        "median_idle_subtracted_power_w": 5.492625975350526,
+        "observed_run_count": 12
+      },
+      "rejoin-state-transfer": {
+        "boundary": "local isolated GPU board only",
+        "median_duration_seconds": 0.02524239999911515,
+        "median_idle_subtracted_power_w": 5.730625527418384,
+        "observed_run_count": 12
+      },
+      "replay-compute": {
+        "boundary": "local isolated GPU board only",
+        "median_duration_seconds": 0.24921420000100625,
+        "median_idle_subtracted_power_w": 8.84026041696143,
+        "observed_run_count": 6
+      },
+      "runtime-control-remainder": {
+        "boundary": "local isolated GPU board only",
+        "median_duration_seconds": 0.26424155003769556,
+        "median_idle_subtracted_power_w": -0.057422391642880946,
+        "observed_run_count": 24
+      },
+      "survivor-redistributed-compute": {
+        "boundary": "local isolated GPU board only",
+        "median_duration_seconds": 0.8408753500043531,
+        "median_idle_subtracted_power_w": 7.556761485223752,
+        "observed_run_count": 12
+      }
+    },
+    "plain_boundary": "PW1 identifies local operation kernels. It does not observe rack, cooling, storage, network, or point-of-common-coupling power.",
+    "static_pue_as_waveform_model_forbidden": true
+  },
+  "freshman": {
+    "cards": [
+      {
+        "detail": "four cadence-by-continuation arms across eight frozen blocks",
+        "label": "Factorial matrix",
+        "state": "pass",
+        "value": "32 / 32"
+      },
+      {
+        "detail": "fd7c6d7ed521",
+        "label": "Warm-state identity",
+        "state": "pass",
+        "value": "matched"
+      },
+      {
+        "detail": "host requested sample interval",
+        "label": "Requested polling",
+        "state": "neutral",
+        "value": "20 ms"
+      },
+      {
+        "detail": "24.7x coarser than requested",
+        "label": "Effective sensor update",
+        "state": "fail",
+        "value": "495 ms"
+      }
+    ],
+    "decision": "Do not advance sparse continuation from these energy numbers. Move the same frozen design to an external or cumulative-energy meter.",
+    "headline": "We ran the right comparison, but the power sensor was too slow to answer it.",
+    "plain_answer": "All 32 planned GPU runs completed from the exact LC3 warm state. Polling every 20 ms did not create 20 ms evidence: the board-power reading effectively changed about every 495 ms. The frozen rules therefore reject the energy comparison."
+  },
+  "full_trace": {
+    "engine": {
+      "bundle_sha256": "7840618015a182115eaefc9e8820725606113958b6ea3b0472c937895753ab22",
+      "component_source_sha256": {
+        "checkpoint_power_engine": "fa997f170dd8ba2c059232987851bdf8de4eac945f8b6f7467b48837c933be49",
+        "equal_work_runtime": "893b2d25eed53122c59ee26ac95a10c2e9f2e360c0c9b6c39c14bf1d32d25fbd",
+        "learning_runtime": "3a51c72de99fd17580b0bbf4bbc6722db7470b41ac8d74d2f9fcabc386cdb010",
+        "quality_target_runtime": "94a5f1454407e4a2316d831c0ed7340a161e2d6a78312dcc0b8dfe19cd81a502"
+      },
+      "engine_id": "gpu-stack.e002-pw1-checkpoint-power.v1",
+      "source_sha256": "fa997f170dd8ba2c059232987851bdf8de4eac945f8b6f7467b48837c933be49"
+    },
+    "raw_trace_artifact": {
+      "artifact_sha256": "0d589d418a3c1cab3aad94677218f4d2972f7b298f991f7d1853866d73e760c2",
+      "point_count": 12495,
+      "run_count": 32,
+      "uri": "e002-checkpoint-power-raw-v1.json"
+    },
+    "run_count": 32,
+    "run_ledger": [
+      {
+        "arm_code": "A",
+        "arm_id": "A-sparse-restart",
+        "attempted_tokens": 524288,
+        "block_id": "C1",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 385076112,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.34574539998720866,
+        "checkpoint_count": 17,
+        "continuation": "restart",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 16,
+        "execution_order_id": "W1",
+        "execution_position": 1,
+        "failure_schedule": [],
+        "final_held_out_nll": 1.017894477583468,
+        "final_training_state_sha256": "c28435d733b9ddc8d8990996290e391f28012239f86c9fb05ab6eb46cc0d43a3",
+        "idle_baseline": {
+          "post_power_w": 31.247803030303032,
+          "post_sample_count": 66,
+          "pre_power_w": 30.35080303030303,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 91.64433220197276,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 1.5506528744061377e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.730704700079514,
+            "idle_subtracted_energy_j": 83.74575319856375,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0001597323478671336,
+            "pooled_effective_update_equivalents": 13.605821590505625
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.332015300016792,
+            "idle_subtracted_energy_j": 3.784021066681199,
+            "idle_subtracted_energy_j_per_canonical_token": 7.2174474080680825e-06,
+            "pooled_effective_update_equivalents": 0.671154231041113
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.32030949999170844,
+            "idle_subtracted_energy_j": 4.025198565045069,
+            "idle_subtracted_energy_j_per_canonical_token": 7.67745697983755e-06,
+            "pooled_effective_update_equivalents": 0.6474914744929701
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.26264399991487153,
+            "idle_subtracted_energy_j": 0.08935937168273402,
+            "idle_subtracted_energy_j_per_canonical_token": 1.7043947540804675e-07,
+            "pooled_effective_update_equivalents": 0.5309232188742883
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 381,
+        "raw_trace_sha256": "bfb7622ea2fb41a14f8c533d723ed4718371d3da81c063772c51a7154444ff74",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:C1:A-sparse-restart",
+        "split": "calibration",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 69,
+          "start_c": 70
+        },
+        "total_gpu_board_energy_j": 327.1257471993192,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "B",
+        "arm_id": "B-dense-restart",
+        "attempted_tokens": 524288,
+        "block_id": "C1",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 747500688,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.6326301999797579,
+        "checkpoint_count": 33,
+        "continuation": "restart",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 18,
+        "execution_order_id": "W1",
+        "execution_position": 2,
+        "failure_schedule": [],
+        "final_held_out_nll": 1.017894477583468,
+        "final_training_state_sha256": "c28435d733b9ddc8d8990996290e391f28012239f86c9fb05ab6eb46cc0d43a3",
+        "idle_baseline": {
+          "post_power_w": 31.268953846153845,
+          "post_sample_count": 65,
+          "pre_power_w": 30.035590909090907,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 67.23692135596629,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 2.1135492864057195e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 7.221580299948982,
+            "idle_subtracted_energy_j": 59.20015111804145,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00011291532729728975,
+            "pooled_effective_update_equivalents": 14.598104885132638
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.6137389000068652,
+            "idle_subtracted_energy_j": 4.995193243561209,
+            "idle_subtracted_energy_j_per_canonical_token": 9.52757500374071e-06,
+            "pooled_effective_update_equivalents": 1.240646016835047
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.33409349999419646,
+            "idle_subtracted_energy_j": 2.7090148539385237,
+            "idle_subtracted_energy_j_per_canonical_token": 5.1670357779283976e-06,
+            "pooled_effective_update_equivalents": 0.6753552202958673
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.26436790004663635,
+            "idle_subtracted_energy_j": 0.3325621404251209,
+            "idle_subtracted_energy_j_per_canonical_token": 6.34311943865053e-07,
+            "pooled_effective_update_equivalents": 0.5344080066755366
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 404,
+        "raw_trace_sha256": "45abae5026677d3188ca5ce5f736922cc611db85194b92b4b042a25484e454db",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:C1:B-dense-restart",
+        "split": "calibration",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 67,
+          "start_c": 69
+        },
+        "total_gpu_board_energy_j": 325.75146148017234,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "D",
+        "arm_id": "D-dense-continue",
+        "attempted_tokens": 524288,
+        "block_id": "C1",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 747500688,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.5857024999932037,
+        "checkpoint_count": 33,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 17,
+        "execution_order_id": "W1",
+        "execution_position": 3,
+        "failure_schedule": [],
+        "final_held_out_nll": 1.017894477583468,
+        "final_training_state_sha256": "c28435d733b9ddc8d8990996290e391f28012239f86c9fb05ab6eb46cc0d43a3",
+        "idle_baseline": {
+          "post_power_w": 31.17273846153846,
+          "post_sample_count": 65,
+          "pre_power_w": 30.305636363636363,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 58.93625375259135,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 3.6168369578233936e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 7.052867400030664,
+            "idle_subtracted_energy_j": 52.607966350276484,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00010034173269324586,
+            "pooled_effective_update_equivalents": 14.257059226677535
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.5552750999995624,
+            "idle_subtracted_energy_j": 4.095184163087,
+            "idle_subtracted_energy_j_per_canonical_token": 7.81094391457939e-06,
+            "pooled_effective_update_equivalents": 1.1224640332467661
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.31283210001856787,
+            "idle_subtracted_energy_j": 2.3113334830956007,
+            "idle_subtracted_energy_j_per_canonical_token": 4.408518758956148e-06,
+            "pooled_effective_update_equivalents": 0.632376241463329
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2630396999520599,
+            "idle_subtracted_energy_j": -0.07823024386775919,
+            "idle_subtracted_energy_j_per_canonical_token": -1.4921234868575895e-07,
+            "pooled_effective_update_equivalents": 0.5317231089822703
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 396,
+        "raw_trace_sha256": "11e9a7e157c3d13b2d1e3fe36bfc11e475e4d6d829e303de31a2a00d697811e1",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:C1:D-dense-continue",
+        "split": "calibration",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 66,
+          "start_c": 68
+        },
+        "total_gpu_board_energy_j": 310.506203107613,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "C",
+        "arm_id": "C-sparse-continue",
+        "attempted_tokens": 524288,
+        "block_id": "C1",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 385076112,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.3165274999992107,
+        "checkpoint_count": 17,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 16,
+        "execution_order_id": "W1",
+        "execution_position": 4,
+        "failure_schedule": [],
+        "final_held_out_nll": 1.017894477583468,
+        "final_training_state_sha256": "c28435d733b9ddc8d8990996290e391f28012239f86c9fb05ab6eb46cc0d43a3",
+        "idle_baseline": {
+          "post_power_w": 33.71264615384616,
+          "post_sample_count": 65,
+          "pre_power_w": 31.52559090909091,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 89.24880122340912,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 0.0,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.3822348000176135,
+            "idle_subtracted_energy_j": 81.43765607679427,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00015533000197752813,
+            "pooled_effective_update_equivalents": 12.90140511389991
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.2995328999895719,
+            "idle_subtracted_energy_j": 3.7930563388814433,
+            "idle_subtracted_energy_j_per_canonical_token": 7.234680822146308e-06,
+            "pooled_effective_update_equivalents": 0.605492497345298
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.30323029999271967,
+            "idle_subtracted_energy_j": 3.9999034621189686,
+            "idle_subtracted_energy_j_per_canonical_token": 7.6292103998546e-06,
+            "pooled_effective_update_equivalents": 0.6129666277719336
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2620442000043113,
+            "idle_subtracted_energy_j": 0.018185345614437024,
+            "idle_subtracted_energy_j_per_canonical_token": 3.468579409491925e-08,
+            "pooled_effective_update_equivalents": 0.5297107499075563
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 366,
+        "raw_trace_sha256": "91bf0925a2f996c1cf65ff083ddd023b37cdaca3b3b29a9981026e5afa1dffb6",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:C1:C-sparse-continue",
+        "split": "calibration",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 67,
+          "start_c": 68
+        },
+        "total_gpu_board_energy_j": 325.6409297479012,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "B",
+        "arm_id": "B-dense-restart",
+        "attempted_tokens": 524288,
+        "block_id": "C2",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 747500688,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.6743278999783797,
+        "checkpoint_count": 33,
+        "continuation": "restart",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 18,
+        "execution_order_id": "W2",
+        "execution_position": 1,
+        "failure_schedule": [],
+        "final_held_out_nll": 1.022410818375647,
+        "final_training_state_sha256": "aaa321918c47c61be6543df29ac3283b103a07d7066ea8d83118b775bfb6193f",
+        "idle_baseline": {
+          "post_power_w": 30.64378787878788,
+          "post_sample_count": 66,
+          "pre_power_w": 29.808939393939397,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 63.830373913100644,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 5.565866939205469e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 7.722128999972483,
+            "idle_subtracted_energy_j": 56.20929475423439,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0001072107215008438,
+            "pooled_effective_update_equivalents": 15.609941923503794
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.6593032000018866,
+            "idle_subtracted_energy_j": 4.7131311285454505,
+            "idle_subtracted_energy_j_per_canonical_token": 8.9895842142972e-06,
+            "pooled_effective_update_equivalents": 1.3327522321948169
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.3671217000010074,
+            "idle_subtracted_energy_j": 2.734586123487608,
+            "idle_subtracted_energy_j_per_canonical_token": 5.215809103942123e-06,
+            "pooled_effective_update_equivalents": 0.7421202644884758
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2653472000238253,
+            "idle_subtracted_energy_j": 0.17336190683315839,
+            "idle_subtracted_energy_j_per_canonical_token": 3.3066159597999265e-07,
+            "pooled_effective_update_equivalents": 0.5363876182269186
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 424,
+        "raw_trace_sha256": "4912d82059f9ad8438842bb9c23764c46032b87ca75c93ff54137043a34b8de3",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:C2:B-dense-restart",
+        "split": "calibration",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 66,
+          "start_c": 68
+        },
+        "total_gpu_board_energy_j": 336.2878263438947,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "C",
+        "arm_id": "C-sparse-continue",
+        "attempted_tokens": 524288,
+        "block_id": "C2",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 385076112,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.32013910000387114,
+        "checkpoint_count": 17,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 14,
+        "execution_order_id": "W2",
+        "execution_position": 2,
+        "failure_schedule": [],
+        "final_held_out_nll": 1.022410818375647,
+        "final_training_state_sha256": "aaa321918c47c61be6543df29ac3283b103a07d7066ea8d83118b775bfb6193f",
+        "idle_baseline": {
+          "post_power_w": 34.93862121212121,
+          "post_sample_count": 66,
+          "pre_power_w": 30.804606060606062,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 73.48627601439448,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 1.9338107039766695e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.45605460000661,
+            "idle_subtracted_energy_j": 67.1122054078454,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00012800637322968558,
+            "pooled_effective_update_equivalents": 13.050628571658386
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.30538050000177464,
+            "idle_subtracted_energy_j": 2.952286943886674,
+            "idle_subtracted_energy_j_per_canonical_token": 5.631040466092442e-06,
+            "pooled_effective_update_equivalents": 0.6173131619033091
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.32148720001714537,
+            "idle_subtracted_energy_j": 3.6064737884078455,
+            "idle_subtracted_energy_j_per_canonical_token": 6.8788028495938215e-06,
+            "pooled_effective_update_equivalents": 0.6498721429589391
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2626657999717281,
+            "idle_subtracted_energy_j": -0.18469012574542962,
+            "idle_subtracted_energy_j_per_canonical_token": -3.522684588345139e-07,
+            "pooled_effective_update_equivalents": 0.53096728672416
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 371,
+        "raw_trace_sha256": "c0c3398f6f04a6edf0dc07ec7d67686bf5f482ad28f3d807058fb7e334bd199c",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:C2:C-sparse-continue",
+        "split": "calibration",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 67,
+          "start_c": 67
+        },
+        "total_gpu_board_energy_j": 314.9476099693748,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "A",
+        "arm_id": "A-sparse-restart",
+        "attempted_tokens": 524288,
+        "block_id": "C2",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 385076112,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.3090995000311523,
+        "checkpoint_count": 17,
+        "continuation": "restart",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 15,
+        "execution_order_id": "W2",
+        "execution_position": 3,
+        "failure_schedule": [],
+        "final_held_out_nll": 1.022410818375647,
+        "final_training_state_sha256": "aaa321918c47c61be6543df29ac3283b103a07d7066ea8d83118b775bfb6193f",
+        "idle_baseline": {
+          "post_power_w": 33.52029230769231,
+          "post_sample_count": 65,
+          "pre_power_w": 31.24448484848485,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 66.93246069928837,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 2.1231633450692923e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.421803200057184,
+            "idle_subtracted_energy_j": 61.33613481236082,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00011698939287635959,
+            "pooled_effective_update_equivalents": 12.981390882931464
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.29304389997560065,
+            "idle_subtracted_energy_j": 2.593114237891073,
+            "idle_subtracted_energy_j_per_canonical_token": 4.945972896368166e-06,
+            "pooled_effective_update_equivalents": 0.5923752710777664
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.33896819997607963,
+            "idle_subtracted_energy_j": 3.29534282544519,
+            "idle_subtracted_energy_j_per_canonical_token": 6.285367632761364e-06,
+            "pooled_effective_update_equivalents": 0.6852092105117744
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.26249439999082824,
+            "idle_subtracted_energy_j": -0.29213117640869773,
+            "idle_subtracted_energy_j_per_canonical_token": -5.571959999250369e-07,
+            "pooled_effective_update_equivalents": 0.5306208092504547
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 369,
+        "raw_trace_sha256": "0d237b57b3e0857be6de1cd781020a2f0139c63c83587dd9ad8fa33767b60beb",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:C2:A-sparse-restart",
+        "split": "calibration",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 66,
+          "start_c": 67
+        },
+        "total_gpu_board_energy_j": 303.852044362317,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "D",
+        "arm_id": "D-dense-continue",
+        "attempted_tokens": 524288,
+        "block_id": "C2",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 747500688,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.6257720999783487,
+        "checkpoint_count": 33,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 16,
+        "execution_order_id": "W2",
+        "execution_position": 4,
+        "failure_schedule": [],
+        "final_held_out_nll": 1.022410818375647,
+        "final_training_state_sha256": "aaa321918c47c61be6543df29ac3283b103a07d7066ea8d83118b775bfb6193f",
+        "idle_baseline": {
+          "post_power_w": 31.894893939393942,
+          "post_sample_count": 66,
+          "pre_power_w": 29.97640909090909,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 57.950610452794855,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 2.452235550957279e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 7.066304699976172,
+            "idle_subtracted_energy_j": 51.30760691611936,
+            "idle_subtracted_energy_j_per_canonical_token": 9.786149390434143e-05,
+            "pooled_effective_update_equivalents": 14.284222133663269
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.6111928999962402,
+            "idle_subtracted_energy_j": 4.393179658823343,
+            "idle_subtracted_energy_j_per_canonical_token": 8.37932521595639e-06,
+            "pooled_effective_update_equivalents": 1.2354993905221174
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.31424469998455606,
+            "idle_subtracted_energy_j": 2.236605230255162,
+            "idle_subtracted_energy_j_per_canonical_token": 4.26598592806847e-06,
+            "pooled_effective_update_equivalents": 0.635231749760367
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2632595000395668,
+            "idle_subtracted_energy_j": 0.013218647596975481,
+            "idle_subtracted_energy_j_per_canonical_token": 2.5212569421721423e-08,
+            "pooled_effective_update_equivalents": 0.5321674251288635
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 399,
+        "raw_trace_sha256": "d574610ac768743096d30a6785b9a3b355e71b030081ba205022dee350968c2a",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:C2:D-dense-continue",
+        "split": "calibration",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 67
+        },
+        "total_gpu_board_energy_j": 313.32446939443605,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "C",
+        "arm_id": "C-sparse-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E1",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 498333792,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.46461949999502394,
+        "checkpoint_count": 22,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 17,
+        "execution_order_id": "W3",
+        "execution_position": 1,
+        "failure_schedule": [
+          [
+            40,
+            8
+          ],
+          [
+            136,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.017077624797821,
+        "final_training_state_sha256": "6cacba789843e6cf347e6119be334031358cda918b24f95b868e91971e0902df",
+        "idle_baseline": {
+          "post_power_w": 32.71784615384615,
+          "post_sample_count": 65,
+          "pre_power_w": 31.329242424242423,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 64.99412564863997,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 6.559448830203337e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.1740348000093945,
+            "idle_subtracted_energy_j": 50.753475870840994,
+            "idle_subtracted_energy_j_per_canonical_token": 9.680457281273078e-05,
+            "pooled_effective_update_equivalents": 12.480538030662455
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.4662571999870124,
+            "idle_subtracted_energy_j": 3.882845227850596,
+            "idle_subtracted_energy_j_per_canonical_token": 7.405939536763374e-06,
+            "pooled_effective_update_equivalents": 0.9425182890934214
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.2819467999943299,
+            "idle_subtracted_energy_j": 2.43821761744698,
+            "idle_subtracted_energy_j_per_canonical_token": 4.650531039136849e-06,
+            "pooled_effective_update_equivalents": 0.5699429747217267
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.05943600001046434,
+            "idle_subtracted_energy_j": 0.5037768210294786,
+            "idle_subtracted_energy_j_per_canonical_token": 9.608780308332036e-07,
+            "pooled_effective_update_equivalents": 0.12014724285647459
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.024931799998739734,
+            "idle_subtracted_energy_j": 0.20876903278152334,
+            "idle_subtracted_energy_j_per_canonical_token": 3.9819532924942654e-07,
+            "pooled_effective_update_equivalents": 0.050398529994788485
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2642247000185307,
+            "idle_subtracted_energy_j": -0.37356208193593854,
+            "idle_subtracted_energy_j_per_canonical_token": -7.125131262511035e-07,
+            "pooled_effective_update_equivalents": 0.5341185341580247
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.7326774999819463,
+            "idle_subtracted_energy_j": 7.58060316062638,
+            "idle_subtracted_energy_j_per_canonical_token": 1.4458853074314842e-05,
+            "pooled_effective_update_equivalents": 1.4810751314070107
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 390,
+        "raw_trace_sha256": "0c13d3dbd35f92bcd98817f63ed07e066244ab381c73385709371d7449cbb099",
+        "rejoin_seconds": 0.024766700000327546,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E1:C-sparse-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 24576,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 66
+        },
+        "total_gpu_board_energy_j": 321.2948441732087,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "D",
+        "arm_id": "D-dense-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E1",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 996667584,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.79131650000636,
+        "checkpoint_count": 44,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 18,
+        "execution_order_id": "W3",
+        "execution_position": 2,
+        "failure_schedule": [
+          [
+            40,
+            8
+          ],
+          [
+            136,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.017077624797821,
+        "final_training_state_sha256": "6cacba789843e6cf347e6119be334031358cda918b24f95b868e91971e0902df",
+        "idle_baseline": {
+          "post_power_w": 30.43993846153846,
+          "post_sample_count": 65,
+          "pre_power_w": 30.00287878787879,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 64.6681160934437,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 4.395011196759682e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.399942499883764,
+            "idle_subtracted_energy_j": 50.57567661131774,
+            "idle_subtracted_energy_j_per_canonical_token": 9.646544763816402e-05,
+            "pooled_effective_update_equivalents": 12.937200445279434
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.774214100005338,
+            "idle_subtracted_energy_j": 5.9193384822430435,
+            "idle_subtracted_energy_j_per_canonical_token": 1.1290242161260688e-05,
+            "pooled_effective_update_equivalents": 1.5650395295758655
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.2931518999976106,
+            "idle_subtracted_energy_j": 2.370443149032525,
+            "idle_subtracted_energy_j_per_canonical_token": 4.5212614994669434e-06,
+            "pooled_effective_update_equivalents": 0.5925935883412203
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.04785720000654692,
+            "idle_subtracted_energy_j": 0.21567389067481693,
+            "idle_subtracted_energy_j_per_canonical_token": 4.1136530051196467e-07,
+            "pooled_effective_update_equivalents": 0.09674121122897128
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.02262539999355795,
+            "idle_subtracted_energy_j": 0.10699197667529949,
+            "idle_subtracted_energy_j_per_canonical_token": 2.0407100043353936e-07,
+            "pooled_effective_update_equivalents": 0.04573624448604021
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2649974001105875,
+            "idle_subtracted_energy_j": 0.6111551811554938,
+            "idle_subtracted_energy_j_per_canonical_token": 1.165685999213207e-06,
+            "pooled_effective_update_equivalents": 0.5356805131875559
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.6377379000041401,
+            "idle_subtracted_energy_j": 4.868836802344747,
+            "idle_subtracted_energy_j_per_canonical_token": 9.286569218339438e-06,
+            "pooled_effective_update_equivalents": 1.2891589329208786
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 404,
+        "raw_trace_sha256": "7c6c94d6fed5448616bb8d111c8096ba959710ee1f3094f718db3d05578903dc",
+        "rejoin_seconds": 0.022542300008353777,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E1:D-dense-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 24576,
+        "temperature": {
+          "end_c": 66,
+          "start_c": 66
+        },
+        "total_gpu_board_energy_j": 319.7527134355311,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "B",
+        "arm_id": "B-dense-restart",
+        "attempted_tokens": 524288,
+        "block_id": "E1",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 747500688,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.5832319999899482,
+        "checkpoint_count": 33,
+        "continuation": "restart",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 18,
+        "execution_order_id": "W3",
+        "execution_position": 3,
+        "failure_schedule": [
+          [
+            40,
+            8
+          ],
+          [
+            136,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.0146848345175385,
+        "final_training_state_sha256": "8905f23313c8456d50c9fd87027ff45ee6499f3d6cbe261b77a8a72cf309a22c",
+        "idle_baseline": {
+          "post_power_w": 30.852553846153846,
+          "post_sample_count": 65,
+          "pre_power_w": 31.13854545454545,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 55.31493442828986,
+        "opportunity_ticks_to_target": 280,
+        "phase_energy_closure_relative_error": 5.138162003473012e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.863525500026299,
+            "idle_subtracted_energy_j": 48.65370100512974,
+            "idle_subtracted_energy_j_per_canonical_token": 9.279957009340237e-05,
+            "pooled_effective_update_equivalents": 13.874312957771055
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.08870919999753824,
+            "idle_subtracted_energy_j": 0.646176398041495,
+            "idle_subtracted_energy_j_per_canonical_token": 1.2324836693601512e-06,
+            "pooled_effective_update_equivalents": 0.1793217207388
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.5696109000200522,
+            "idle_subtracted_energy_j": 3.853216983704994,
+            "idle_subtracted_energy_j_per_canonical_token": 7.349428145799626e-06,
+            "pooled_effective_update_equivalents": 1.1514432183584895
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.3548348999902373,
+            "idle_subtracted_energy_j": 2.5086688259950045,
+            "idle_subtracted_energy_j_per_canonical_token": 4.784906055440911e-06,
+            "pooled_effective_update_equivalents": 0.7172830421894815
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2648492999651353,
+            "idle_subtracted_energy_j": -0.3468287845813995,
+            "idle_subtracted_energy_j_per_canonical_token": -6.615234080913534e-07,
+            "pooled_effective_update_equivalents": 0.5353811352997507
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 394,
+        "raw_trace_sha256": "faefa7238d494ce238bf4a13c88f45842ac347d5b0abbe72fc6eb0eb272b7497",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.08858640000107698,
+        "run_id": "e002-pw1:E1:B-dense-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 66
+        },
+        "total_gpu_board_energy_j": 307.66612557396826,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "A",
+        "arm_id": "A-sparse-restart",
+        "attempted_tokens": 557056,
+        "block_id": "E1",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 385076112,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.337452799998573,
+        "checkpoint_count": 17,
+        "continuation": "restart",
+        "discarded_tokens": 32768,
+        "diverged": false,
+        "effective_power_update_count": 17,
+        "execution_order_id": "W3",
+        "execution_position": 4,
+        "failure_schedule": [
+          [
+            40,
+            8
+          ],
+          [
+            136,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.0146848345175385,
+        "final_training_state_sha256": "8905f23313c8456d50c9fd87027ff45ee6499f3d6cbe261b77a8a72cf309a22c",
+        "idle_baseline": {
+          "post_power_w": 31.729215384615383,
+          "post_sample_count": 65,
+          "pre_power_w": 29.344863636363637,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 84.04341784177858,
+        "opportunity_ticks_to_target": 296,
+        "phase_energy_closure_relative_error": 6.763577722150985e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.629025499998534,
+            "idle_subtracted_energy_j": 70.82427979519221,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00013508659323728983,
+            "pooled_effective_update_equivalents": 13.400281588765422
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.07838499999343185,
+            "idle_subtracted_energy_j": 0.8858121477481102,
+            "idle_subtracted_energy_j_per_canonical_token": 1.6895525889360623e-06,
+            "pooled_effective_update_equivalents": 0.15845180747118787
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.31739079999533715,
+            "idle_subtracted_energy_j": 3.352551802368798,
+            "idle_subtracted_energy_j_per_canonical_token": 6.39448509668121e-06,
+            "pooled_effective_update_equivalents": 0.6415914516578621
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.352836899983231,
+            "idle_subtracted_energy_j": 3.856463248493489,
+            "idle_subtracted_energy_j_per_canonical_token": 7.355619904505709e-06,
+            "pooled_effective_update_equivalents": 0.7132441736245249
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.42711530000087805,
+            "idle_subtracted_energy_j": 4.837412598710166,
+            "idle_subtracted_energy_j_per_canonical_token": 9.226632306499799e-06,
+            "pooled_effective_update_equivalents": 0.8633946710392126
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.26442550002684584,
+            "idle_subtracted_energy_j": 0.2868982492658584,
+            "idle_subtracted_energy_j_per_canonical_token": 5.472149834935348e-07,
+            "pooled_effective_update_equivalents": 0.5345244424856439
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 392,
+        "raw_trace_sha256": "c05328dcee0a4006eb2c248dc377ba34998b8df7b89e118497bdff4871ff8d8c",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 32768,
+        "restore_seconds": 0.07826550000027055,
+        "run_id": "e002-pw1:E1:A-sparse-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 330.4522557819374,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "D",
+        "arm_id": "D-dense-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E2",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 996667584,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.8380966000258923,
+        "checkpoint_count": 44,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 18,
+        "execution_order_id": "W4",
+        "execution_position": 1,
+        "failure_schedule": [
+          [
+            64,
+            16
+          ],
+          [
+            200,
+            8
+          ]
+        ],
+        "final_held_out_nll": 1.025381457991898,
+        "final_training_state_sha256": "ed189f03cacc24f3e41f6d791b13c7cdbebaf8639431e4b1dc47c1aa3276e17d",
+        "idle_baseline": {
+          "post_power_w": 32.06968181818182,
+          "post_sample_count": 66,
+          "pre_power_w": 30.07590909090909,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 50.611198774018796,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 1.4039239397049344e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.676266799942823,
+            "idle_subtracted_energy_j": 39.876259924195274,
+            "idle_subtracted_energy_j_per_canonical_token": 7.605792984808974e-05,
+            "pooled_effective_update_equivalents": 13.49577778528374
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.8209023999806959,
+            "idle_subtracted_energy_j": 4.756409118685541,
+            "idle_subtracted_energy_j_per_canonical_token": 9.072130429621775e-06,
+            "pooled_effective_update_equivalents": 1.6594178611376742
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.28449650001130067,
+            "idle_subtracted_energy_j": 1.7876764600074648,
+            "idle_subtracted_energy_j_per_canonical_token": 3.409722251906328e-06,
+            "pooled_effective_update_equivalents": 0.5750970804336893
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.04417400000238558,
+            "idle_subtracted_energy_j": 0.154037808835137,
+            "idle_subtracted_energy_j_per_canonical_token": 2.938038040831318e-07,
+            "pooled_effective_update_equivalents": 0.08929578547166883
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.022774199998821132,
+            "idle_subtracted_energy_j": 0.08013676304768043,
+            "idle_subtracted_energy_j_per_canonical_token": 1.5284874543701254e-07,
+            "pooled_effective_update_equivalents": 0.046037037109471345
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.26473680006165523,
+            "idle_subtracted_energy_j": -0.09068305555350377,
+            "idle_subtracted_energy_j_per_canonical_token": -1.729642020292354e-07,
+            "pooled_effective_update_equivalents": 0.5351537217251097
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.6682037999999011,
+            "idle_subtracted_energy_j": 4.047361754801206,
+            "idle_subtracted_energy_j_per_canonical_token": 7.719729909517681e-06,
+            "pooled_effective_update_equivalents": 1.3507444010712808
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 417,
+        "raw_trace_sha256": "5234791c1d9c45a73d9e7fd224208bbd52d354ff0f5173a9c2c3f05e00c4c506",
+        "rejoin_seconds": 0.022690100006002467,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E2:D-dense-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 24576,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 66
+        },
+        "total_gpu_board_energy_j": 323.47864552538675,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "A",
+        "arm_id": "A-sparse-restart",
+        "attempted_tokens": 540672,
+        "block_id": "E2",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 385076112,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.3285375999621465,
+        "checkpoint_count": 17,
+        "continuation": "restart",
+        "discarded_tokens": 16384,
+        "diverged": false,
+        "effective_power_update_count": 16,
+        "execution_order_id": "W4",
+        "execution_position": 2,
+        "failure_schedule": [
+          [
+            64,
+            16
+          ],
+          [
+            200,
+            8
+          ]
+        ],
+        "final_held_out_nll": 1.0193839268758893,
+        "final_training_state_sha256": "92abfc4122fcb23e5ae3ec791a36e23dd30996d1a3bd5ef16e3d8dd7d010d820",
+        "idle_baseline": {
+          "post_power_w": 34.60772307692308,
+          "post_sample_count": 65,
+          "pre_power_w": 30.203348484848487,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 64.24331094844253,
+        "opportunity_ticks_to_target": 288,
+        "phase_energy_closure_relative_error": 8.848145903692109e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.434982199963997,
+            "idle_subtracted_energy_j": 56.02790974573537,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0001068647570528705,
+            "pooled_effective_update_equivalents": 13.008031647823627
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0984790999937104,
+            "idle_subtracted_energy_j": 0.9765424458820564,
+            "idle_subtracted_energy_j_per_canonical_token": 1.862606899036515e-06,
+            "pooled_effective_update_equivalents": 0.1990711410786093
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.31262149999383837,
+            "idle_subtracted_energy_j": 2.5340060416838113,
+            "idle_subtracted_energy_j_per_canonical_token": 4.833232959144232e-06,
+            "pooled_effective_update_equivalents": 0.6319505228363639
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.3129150999884587,
+            "idle_subtracted_energy_j": 2.74616734433011,
+            "idle_subtracted_energy_j_per_canonical_token": 5.237898529682369e-06,
+            "pooled_effective_update_equivalents": 0.6325440222281482
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.25170939999225084,
+            "idle_subtracted_energy_j": 1.6369538520624396,
+            "idle_subtracted_energy_j_per_canonical_token": 3.1222416917084495e-06,
+            "pooled_effective_update_equivalents": 0.5088194091931154
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2637307000695728,
+            "idle_subtracted_energy_j": 0.3217315187487896,
+            "idle_subtracted_energy_j_per_canonical_token": 6.13654172418193e-07,
+            "pooled_effective_update_equivalents": 0.5331199351300268
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 381,
+        "raw_trace_sha256": "f3ae91ff6ceddcbf7533279833a3ea74f593537ae49f7c0f7433d39aebdb45bb",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 16384,
+        "restore_seconds": 0.09828179999749409,
+        "run_id": "e002-pw1:E2:A-sparse-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 312.9375861556913,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "C",
+        "arm_id": "C-sparse-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E2",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 498333792,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.3895285000326112,
+        "checkpoint_count": 22,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 16,
+        "execution_order_id": "W4",
+        "execution_position": 3,
+        "failure_schedule": [
+          [
+            64,
+            16
+          ],
+          [
+            200,
+            8
+          ]
+        ],
+        "final_held_out_nll": 1.025381457991898,
+        "final_training_state_sha256": "ed189f03cacc24f3e41f6d791b13c7cdbebaf8639431e4b1dc47c1aa3276e17d",
+        "idle_baseline": {
+          "post_power_w": 30.856876923076925,
+          "post_sample_count": 65,
+          "pre_power_w": 30.527272727272727,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 74.76495071756048,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 3.8014750438039727e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 5.973680800037982,
+            "idle_subtracted_energy_j": 59.23657644608838,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00011298480309693981,
+            "pooled_effective_update_equivalents": 12.075531289165832
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.39197200002672616,
+            "idle_subtracted_energy_j": 3.9251476346403624,
+            "idle_subtracted_energy_j_per_canonical_token": 7.4866249745185135e-06,
+            "pooled_effective_update_equivalents": 0.7923540458957142
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.27123130000109086,
+            "idle_subtracted_energy_j": 2.703596333051852,
+            "idle_subtracted_energy_j_per_canonical_token": 5.156700769523338e-06,
+            "pooled_effective_update_equivalents": 0.548282065848492
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.05569820000528125,
+            "idle_subtracted_energy_j": 0.604503889540929,
+            "idle_subtracted_energy_j_per_canonical_token": 1.1529996672457295e-06,
+            "pooled_effective_update_equivalents": 0.11259144561418712
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.025552999999490567,
+            "idle_subtracted_energy_j": 0.27979873689588586,
+            "idle_subtracted_energy_j_per_canonical_token": 5.336737382810323e-07,
+            "pooled_effective_update_equivalents": 0.05165425829648295
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.262855699940701,
+            "idle_subtracted_energy_j": -0.1485303623915646,
+            "idle_subtracted_energy_j_per_canonical_token": -2.8329918363869593e-07,
+            "pooled_effective_update_equivalents": 0.5313511611047813
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.6703025999886449,
+            "idle_subtracted_energy_j": 8.163858039734665,
+            "idle_subtracted_energy_j_per_canonical_token": 1.557132347056325e-05,
+            "pooled_effective_update_equivalents": 1.3549870323370183
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 379,
+        "raw_trace_sha256": "bf486de59a5f47d8bc65544c83cda2a0f2cfb546c65728ac4c53ce7f4e840708",
+        "rejoin_seconds": 0.025439099998038728,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E2:C-sparse-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 24576,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 309.59902639813924,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "B",
+        "arm_id": "B-dense-restart",
+        "attempted_tokens": 524288,
+        "block_id": "E2",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 747500688,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.6377056999699562,
+        "checkpoint_count": 33,
+        "continuation": "restart",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 18,
+        "execution_order_id": "W4",
+        "execution_position": 4,
+        "failure_schedule": [
+          [
+            64,
+            16
+          ],
+          [
+            200,
+            8
+          ]
+        ],
+        "final_held_out_nll": 1.0193839268758893,
+        "final_training_state_sha256": "92abfc4122fcb23e5ae3ec791a36e23dd30996d1a3bd5ef16e3d8dd7d010d820",
+        "idle_baseline": {
+          "post_power_w": 32.7810303030303,
+          "post_sample_count": 66,
+          "pre_power_w": 29.47459090909091,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 49.10882714767891,
+        "opportunity_ticks_to_target": 280,
+        "phase_energy_closure_relative_error": 1.4468737639027152e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 7.108276600083627,
+            "idle_subtracted_energy_j": 43.094226678390605,
+            "idle_subtracted_energy_j_per_canonical_token": 8.219571433714028e-05,
+            "pooled_effective_update_equivalents": 14.369066471681814
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.08399699999426957,
+            "idle_subtracted_energy_j": 0.5374701650954358,
+            "idle_subtracted_energy_j_per_canonical_token": 1.025142984572288e-06,
+            "pooled_effective_update_equivalents": 0.1697962170359714
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.6199332999967737,
+            "idle_subtracted_energy_j": 3.6212972554401013,
+            "idle_subtracted_energy_j_per_canonical_token": 6.907076369171336e-06,
+            "pooled_effective_update_equivalents": 1.2531677221955468
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.3073251000168966,
+            "idle_subtracted_energy_j": 1.7720064404894036,
+            "idle_subtracted_energy_j_per_canonical_token": 3.3798340616024086e-06,
+            "pooled_effective_update_equivalents": 0.621244084748629
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2642976999122766,
+            "idle_subtracted_energy_j": 0.08382660826336905,
+            "idle_subtracted_energy_j_per_canonical_token": 1.5988656666444596e-07,
+            "pooled_effective_update_equivalents": 0.534266100211609
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 404,
+        "raw_trace_sha256": "7083e3edf3c06adc57048c6e7087ca5e40992c145b210996b605384d66998733",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.08389399999578018,
+        "run_id": "e002-pw1:E2:B-dense-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 64,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 310.0790902028646,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "A",
+        "arm_id": "A-sparse-restart",
+        "attempted_tokens": 540672,
+        "block_id": "E3",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 385076112,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.312102199983201,
+        "checkpoint_count": 17,
+        "continuation": "restart",
+        "discarded_tokens": 16384,
+        "diverged": false,
+        "effective_power_update_count": 16,
+        "execution_order_id": "W1",
+        "execution_position": 1,
+        "failure_schedule": [
+          [
+            72,
+            8
+          ],
+          [
+            128,
+            24
+          ]
+        ],
+        "final_held_out_nll": 1.016331878490746,
+        "final_training_state_sha256": "669f3474d6fd06621cfe17b08614f69af5e2f3e8c176c10119ba669305143fc2",
+        "idle_baseline": {
+          "post_power_w": 31.731060606060606,
+          "post_sample_count": 66,
+          "pre_power_w": 31.13578787878788,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 77.86500422614849,
+        "opportunity_ticks_to_target": 296,
+        "phase_energy_closure_relative_error": 1.0950378689195325e-15,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.620970399992075,
+            "idle_subtracted_energy_j": 67.36939610190066,
+            "idle_subtracted_energy_j_per_canonical_token": 0.000128496925548364,
+            "pooled_effective_update_equivalents": 13.383998560692557
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0756288000047789,
+            "idle_subtracted_energy_j": 0.7310075010061144,
+            "idle_subtracted_energy_j_per_canonical_token": 1.3942861576196946e-06,
+            "pooled_effective_update_equivalents": 0.15288027120799053
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.29441839997889474,
+            "idle_subtracted_energy_j": 3.0259608787480956,
+            "idle_subtracted_energy_j_per_canonical_token": 5.771562345024291e-06,
+            "pooled_effective_update_equivalents": 0.5951537619868607
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.31409969997184817,
+            "idle_subtracted_energy_j": 3.208827859870583,
+            "idle_subtracted_energy_j_per_canonical_token": 6.120353431454817e-06,
+            "pooled_effective_update_equivalents": 0.6349386386536651
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.21958069999527652,
+            "idle_subtracted_energy_j": 2.600052036462389,
+            "idle_subtracted_energy_j_per_canonical_token": 4.959205696987894e-06,
+            "pooled_effective_update_equivalents": 0.4438726644505408
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2642584000568604,
+            "idle_subtracted_energy_j": 0.92975984816072,
+            "idle_subtracted_energy_j_per_canonical_token": 1.7733761752333069e-06,
+            "pooled_effective_update_equivalents": 0.5341866572936456
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 385,
+        "raw_trace_sha256": "bb42514c9c19cd80c38d95f9c84088e63871fe28bcad64138f61321248025ac8",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 16384,
+        "restore_seconds": 0.07551030000468018,
+        "run_id": "e002-pw1:E3:A-sparse-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 322.69857515308564,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "B",
+        "arm_id": "B-dense-restart",
+        "attempted_tokens": 524288,
+        "block_id": "E3",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 747500688,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.6263452999846777,
+        "checkpoint_count": 33,
+        "continuation": "restart",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 18,
+        "execution_order_id": "W1",
+        "execution_position": 2,
+        "failure_schedule": [
+          [
+            72,
+            8
+          ],
+          [
+            128,
+            24
+          ]
+        ],
+        "final_held_out_nll": 1.016331878490746,
+        "final_training_state_sha256": "669f3474d6fd06621cfe17b08614f69af5e2f3e8c176c10119ba669305143fc2",
+        "idle_baseline": {
+          "post_power_w": 31.189523076923077,
+          "post_sample_count": 65,
+          "pre_power_w": 30.00583333333333,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 61.56145177011158,
+        "opportunity_ticks_to_target": 288,
+        "phase_energy_closure_relative_error": 2.308401492588167e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 7.1724374999903375,
+            "idle_subtracted_energy_j": 53.82340111413204,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00010265999052835853,
+            "pooled_effective_update_equivalents": 14.498764890512561
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.07842220000020461,
+            "idle_subtracted_energy_j": 0.5784383002766497,
+            "idle_subtracted_energy_j_per_canonical_token": 1.103283501199054e-06,
+            "pooled_effective_update_equivalents": 0.15852700563807667
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.6065385999972932,
+            "idle_subtracted_energy_j": 4.433004545755552,
+            "idle_subtracted_energy_j_per_canonical_token": 8.45528515959845e-06,
+            "pooled_effective_update_equivalents": 1.2260909291148572
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.29844609996507643,
+            "idle_subtracted_energy_j": 2.245519974270577,
+            "idle_subtracted_energy_j_per_canonical_token": 4.282989452878145e-06,
+            "pooled_effective_update_equivalents": 0.6032955792071916
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2649079000475467,
+            "idle_subtracted_energy_j": 0.48108783567677693,
+            "idle_subtracted_energy_j_per_canonical_token": 9.176022256408251e-07,
+            "pooled_effective_update_equivalents": 0.535499592772186
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 405,
+        "raw_trace_sha256": "77d0e9f30a696a9617990b694a5256705b8197e06b235300b73222f607a53210",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0783171000002767,
+        "run_id": "e002-pw1:E3:B-dense-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 319.21692089061884,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "D",
+        "arm_id": "D-dense-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E3",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 1064622192,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.8940398000268033,
+        "checkpoint_count": 47,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 18,
+        "execution_order_id": "W1",
+        "execution_position": 3,
+        "failure_schedule": [
+          [
+            72,
+            8
+          ],
+          [
+            128,
+            24
+          ]
+        ],
+        "final_held_out_nll": 1.0177394188940525,
+        "final_training_state_sha256": "bd14156034d2a343a181e363a19a066e48585e818f5ef2b331c6e17dc5d6e242",
+        "idle_baseline": {
+          "post_power_w": 31.915107692307693,
+          "post_sample_count": 65,
+          "pre_power_w": 31.416333333333334,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 47.95474168745686,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 8.890166570693273e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.28993180001271,
+            "idle_subtracted_energy_j": 36.36955608864258,
+            "idle_subtracted_energy_j_per_canonical_token": 6.936942308166996e-05,
+            "pooled_effective_update_equivalents": 12.714818685539694
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.8814588999957778,
+            "idle_subtracted_energy_j": 4.665082883941475,
+            "idle_subtracted_energy_j_per_canonical_token": 8.897939460642766e-06,
+            "pooled_effective_update_equivalents": 1.7818301451502117
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.25365460000466555,
+            "idle_subtracted_energy_j": 1.4696220008747458,
+            "idle_subtracted_energy_j_per_canonical_token": 2.803081514119617e-06,
+            "pooled_effective_update_equivalents": 0.5127515449064013
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.056689200006076135,
+            "idle_subtracted_energy_j": 0.25716476302781527,
+            "idle_subtracted_energy_j_per_canonical_token": 4.90502859168654e-07,
+            "pooled_effective_update_equivalents": 0.11459470824534175
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.026699999994889367,
+            "idle_subtracted_energy_j": 0.12306437693182007,
+            "idle_subtracted_energy_j_per_canonical_token": 2.3472667108882917e-07,
+            "pooled_effective_update_equivalents": 0.053972868010785595
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2654928999909316,
+            "idle_subtracted_energy_j": 0.03431909485943466,
+            "idle_subtracted_energy_j_per_canonical_token": 6.545847865950519e-08,
+            "pooled_effective_update_equivalents": 0.5366821442604509
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 1.0105428999886499,
+            "idle_subtracted_energy_j": 5.035932479179032,
+            "idle_subtracted_energy_j_per_canonical_token": 9.605278929098191e-06,
+            "pooled_effective_update_equivalents": 2.0427677367327246
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 417,
+        "raw_trace_sha256": "0beca52c4da2e3f885dfd35d60ac636f69bc838024d970c583e04af5deb2dc39",
+        "rejoin_seconds": 0.02658060000248952,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E3:D-dense-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 32768,
+        "temperature": {
+          "end_c": 64,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 326.12132306023005,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "C",
+        "arm_id": "C-sparse-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E3",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 543636864,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.4288628999856883,
+        "checkpoint_count": 24,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 17,
+        "execution_order_id": "W1",
+        "execution_position": 4,
+        "failure_schedule": [
+          [
+            72,
+            8
+          ],
+          [
+            128,
+            24
+          ]
+        ],
+        "final_held_out_nll": 1.0177394188940525,
+        "final_training_state_sha256": "bd14156034d2a343a181e363a19a066e48585e818f5ef2b331c6e17dc5d6e242",
+        "idle_baseline": {
+          "post_power_w": 35.36313846153846,
+          "post_sample_count": 65,
+          "pre_power_w": 29.38931818181818,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 43.31644092618242,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 3.280706912052028e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 5.80948739995074,
+            "idle_subtracted_energy_j": 34.79323813369329,
+            "idle_subtracted_energy_j_per_canonical_token": 6.636283518541964e-05,
+            "pooled_effective_update_equivalents": 11.74362159954609
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.41175930001190864,
+            "idle_subtracted_energy_j": 2.1027300753869187,
+            "idle_subtracted_energy_j_per_canonical_token": 4.0106393344629644e-06,
+            "pooled_effective_update_equivalents": 0.8323531968543095
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.26837489999161335,
+            "idle_subtracted_energy_j": 1.587273067354611,
+            "idle_subtracted_energy_j_per_canonical_token": 3.0274831149189204e-06,
+            "pooled_effective_update_equivalents": 0.5425079796789397
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.04439150000689551,
+            "idle_subtracted_energy_j": 0.14326771704584004,
+            "idle_subtracted_energy_j_per_canonical_token": 2.732614842335511e-07,
+            "pooled_effective_update_equivalents": 0.08973545210230578
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.019685600003867876,
+            "idle_subtracted_energy_j": 0.05965801433683782,
+            "idle_subtracted_energy_j_per_canonical_token": 1.1378863208167613e-07,
+            "pooled_effective_update_equivalents": 0.0397935689485113
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.26315990000148304,
+            "idle_subtracted_energy_j": 0.6124838686625342,
+            "idle_subtracted_energy_j_per_canonical_token": 1.1682202695131955e-06,
+            "pooled_effective_update_equivalents": 0.5319660880610586
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.9286516000283882,
+            "idle_subtracted_energy_j": 4.017790049702403,
+            "idle_subtracted_energy_j_per_canonical_token": 7.663326358227544e-06,
+            "pooled_effective_update_equivalents": 1.8772280990985348
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 383,
+        "raw_trace_sha256": "7e5e99da53cf97ed02d45e0f175d0720c12548bb4d454df74419fb1edbde9bbe",
+        "rejoin_seconds": 0.01956849999987753,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E3:C-sparse-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 32768,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 294.0868476291054,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "B",
+        "arm_id": "B-dense-restart",
+        "attempted_tokens": 524288,
+        "block_id": "E4",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 747500688,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.610121399993659,
+        "checkpoint_count": 33,
+        "continuation": "restart",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 17,
+        "execution_order_id": "W2",
+        "execution_position": 1,
+        "failure_schedule": [
+          [
+            104,
+            16
+          ],
+          [
+            184,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.0212700562551618,
+        "final_training_state_sha256": "e73479a8a19f72f8dde4631a3e0aa95cbc9f4293bf1f941ab15117a0d8ae5c54",
+        "idle_baseline": {
+          "post_power_w": 29.99769230769231,
+          "post_sample_count": 65,
+          "pre_power_w": 30.883803030303028,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 64.28100617688564,
+        "opportunity_ticks_to_target": 288,
+        "phase_energy_closure_relative_error": 0.0,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 7.310377799942216,
+            "idle_subtracted_energy_j": 56.33734379075931,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00010745495565559256,
+            "pooled_effective_update_equivalents": 14.777605100403797
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0730829999956768,
+            "idle_subtracted_energy_j": 0.5018374783928815,
+            "idle_subtracted_energy_j_per_canonical_token": 9.57179028306735e-07,
+            "pooled_effective_update_equivalents": 0.1477340491892855
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.5915970000132802,
+            "idle_subtracted_energy_j": 4.573685972472415,
+            "idle_subtracted_energy_j_per_canonical_token": 8.72361368650897e-06,
+            "pooled_effective_update_equivalents": 1.1958871461949527
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.36362300000473624,
+            "idle_subtracted_energy_j": 2.809418614475086,
+            "idle_subtracted_energy_j_per_canonical_token": 5.358540753317043e-06,
+            "pooled_effective_update_equivalents": 0.7350477973295161
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.26496670004416956,
+            "idle_subtracted_energy_j": 0.058720320785949354,
+            "idle_subtracted_energy_j_per_canonical_token": 1.1200012356939193e-07,
+            "pooled_effective_update_equivalents": 0.5356184543623494
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 410,
+        "raw_trace_sha256": "9ed9851aecc697c68784d1373ed51a187e73de1c335802a16f66798ebc4c2703",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.07296199999836972,
+        "run_id": "e002-pw1:E4:B-dense-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 64,
+          "start_c": 66
+        },
+        "total_gpu_board_energy_j": 326.18246875739055,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "C",
+        "arm_id": "C-sparse-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E4",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 543636864,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.4561598999935086,
+        "checkpoint_count": 24,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 17,
+        "execution_order_id": "W2",
+        "execution_position": 2,
+        "failure_schedule": [
+          [
+            104,
+            16
+          ],
+          [
+            184,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.0244259517639875,
+        "final_training_state_sha256": "8fecc1c35fc271e847a55821525857dfaa24c8c228c1b364edb871181aada543",
+        "idle_baseline": {
+          "post_power_w": 33.72630769230769,
+          "post_sample_count": 65,
+          "pre_power_w": 32.16239393939394,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 50.4567246170673,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 1.1265776621889637e-15,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 5.884627000014007,
+            "idle_subtracted_energy_j": 41.5199111077972,
+            "idle_subtracted_energy_j_per_canonical_token": 7.919294568595352e-05,
+            "pooled_effective_update_equivalents": 11.895512974728645
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.44029340000997763,
+            "idle_subtracted_energy_j": 2.472766752542282,
+            "idle_subtracted_energy_j_per_canonical_token": 4.716428284725727e-06,
+            "pooled_effective_update_equivalents": 0.8900336168279844
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.2492986000215751,
+            "idle_subtracted_energy_j": 1.9232006692116257,
+            "idle_subtracted_energy_j_per_canonical_token": 3.6682141670448793e-06,
+            "pooled_effective_update_equivalents": 0.5039460837757899
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.057338299993716646,
+            "idle_subtracted_energy_j": 0.12434000243506359,
+            "idle_subtracted_energy_j_per_canonical_token": 2.3715973364842145e-07,
+            "pooled_effective_update_equivalents": 0.11590683513543275
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.03132360000745393,
+            "idle_subtracted_energy_j": 0.07761294517654682,
+            "idle_subtracted_energy_j_per_canonical_token": 1.480349448710381e-07,
+            "pooled_effective_update_equivalents": 0.06331927075462754
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2638718999296543,
+            "idle_subtracted_energy_j": -0.41112523567136783,
+            "idle_subtracted_energy_j_per_canonical_token": -7.841591561725003e-07,
+            "pooled_effective_update_equivalents": 0.533405364396423
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.9683628000202589,
+            "idle_subtracted_energy_j": 4.750018375575898,
+            "idle_subtracted_energy_j_per_canonical_token": 9.059941054488942e-06,
+            "pooled_effective_update_equivalents": 1.9575025319120702
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 388,
+        "raw_trace_sha256": "fa42aed5fb5f6c83ef0acb6332c3920c4d8f01f04a9b97a1c67f658810b4a773",
+        "rejoin_seconds": 0.03103230000124313,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E4:C-sparse-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 32768,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 310.5561826750532,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "A",
+        "arm_id": "A-sparse-restart",
+        "attempted_tokens": 540672,
+        "block_id": "E4",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 385076112,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.3171680999803357,
+        "checkpoint_count": 17,
+        "continuation": "restart",
+        "discarded_tokens": 16384,
+        "diverged": false,
+        "effective_power_update_count": 16,
+        "execution_order_id": "W2",
+        "execution_position": 3,
+        "failure_schedule": [
+          [
+            104,
+            16
+          ],
+          [
+            184,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.0212700562551618,
+        "final_training_state_sha256": "e73479a8a19f72f8dde4631a3e0aa95cbc9f4293bf1f941ab15117a0d8ae5c54",
+        "idle_baseline": {
+          "post_power_w": 34.59678461538462,
+          "post_sample_count": 65,
+          "pre_power_w": 30.250166666666665,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 57.76339596544333,
+        "opportunity_ticks_to_target": 296,
+        "phase_energy_closure_relative_error": 1.3531008630512251e-15,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.590003899967996,
+            "idle_subtracted_energy_j": 50.03049757258232,
+            "idle_subtracted_energy_j_per_canonical_token": 9.542560114399399e-05,
+            "pooled_effective_update_equivalents": 13.32140115174591
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.08255410000128904,
+            "idle_subtracted_energy_j": 0.6867556447176045,
+            "idle_subtracted_energy_j_per_canonical_token": 1.30988244002839e-06,
+            "pooled_effective_update_equivalents": 0.16687945857571643
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.30299220002052607,
+            "idle_subtracted_energy_j": 2.3024370293898606,
+            "idle_subtracted_energy_j_per_canonical_token": 4.3915501201436245e-06,
+            "pooled_effective_update_equivalents": 0.6124853192185614
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.3288245000076131,
+            "idle_subtracted_energy_j": 2.508393365300628,
+            "idle_subtracted_energy_j_per_canonical_token": 4.784380655862098e-06,
+            "pooled_effective_update_equivalents": 0.6647041700756752
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.24671900000976166,
+            "idle_subtracted_energy_j": 2.0941613537521704,
+            "idle_subtracted_energy_j_per_canonical_token": 3.994295794967976e-06,
+            "pooled_effective_update_equivalents": 0.49873153654789176
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2631953999880352,
+            "idle_subtracted_energy_j": 0.1411509997006653,
+            "idle_subtracted_energy_j_per_canonical_token": 2.6922416629918156e-07,
+            "pooled_effective_update_equivalents": 0.5320378497123294
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 385,
+        "raw_trace_sha256": "3912c7e279c8fd10a1ee945b7e10a7ee88532726856196cc7f6f3674e4d87c11",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 16384,
+        "restore_seconds": 0.08243089999450604,
+        "run_id": "e002-pw1:E4:A-sparse-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 311.12980825107053,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "D",
+        "arm_id": "D-dense-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E4",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 1064622192,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.9445285000037984,
+        "checkpoint_count": 47,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 17,
+        "execution_order_id": "W2",
+        "execution_position": 4,
+        "failure_schedule": [
+          [
+            104,
+            16
+          ],
+          [
+            184,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.0244259517639875,
+        "final_training_state_sha256": "8fecc1c35fc271e847a55821525857dfaa24c8c228c1b364edb871181aada543",
+        "idle_baseline": {
+          "post_power_w": 32.464784615384616,
+          "post_sample_count": 65,
+          "pre_power_w": 30.806272727272727,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 45.648780132224566,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 1.245234126654808e-15,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.255451400007587,
+            "idle_subtracted_energy_j": 34.761361512516714,
+            "idle_subtracted_energy_j_per_canonical_token": 6.630203535559981e-05,
+            "pooled_effective_update_equivalents": 12.645118083337753
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.932386200001929,
+            "idle_subtracted_energy_j": 4.434387380847692,
+            "idle_subtracted_energy_j_per_canonical_token": 8.457922708220848e-06,
+            "pooled_effective_update_equivalents": 1.884777427618519
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.28461870001774514,
+            "idle_subtracted_energy_j": 1.7437793517865314,
+            "idle_subtracted_energy_j_per_canonical_token": 3.325995162556708e-06,
+            "pooled_effective_update_equivalents": 0.5753441023370603
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.05495369999698596,
+            "idle_subtracted_energy_j": 0.13415026685566397,
+            "idle_subtracted_energy_j_per_canonical_token": 2.558713280785827e-07,
+            "pooled_effective_update_equivalents": 0.11108647180559379
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.027542899995751213,
+            "idle_subtracted_energy_j": 0.06440678446045342,
+            "idle_subtracted_energy_j_per_canonical_token": 1.228461922844952e-07,
+            "pooled_effective_update_equivalents": 0.05567675304829554
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2654019999827142,
+            "idle_subtracted_energy_j": -0.08905084379604226,
+            "idle_subtracted_energy_j_per_canonical_token": -1.698510051651807e-07,
+            "pooled_effective_update_equivalents": 0.5364983939178801
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 1.0192555999965407,
+            "idle_subtracted_energy_j": 4.599745679553613,
+            "idle_subtracted_energy_j_per_canonical_token": 8.773318633181787e-06,
+            "pooled_effective_update_equivalents": 2.060380074097274
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 418,
+        "raw_trace_sha256": "5d6781a3869ead8d47301bdf0407c6689d5aacd40bb92ae3bb60f54c21fb00a1",
+        "rejoin_seconds": 0.02742020000005141,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E4:D-dense-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 32768,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 66
+        },
+        "total_gpu_board_energy_j": 325.294531548329,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "C",
+        "arm_id": "C-sparse-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E5",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 543636864,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.41619289998925524,
+        "checkpoint_count": 24,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 16,
+        "execution_order_id": "W3",
+        "execution_position": 1,
+        "failure_schedule": [
+          [
+            32,
+            8
+          ],
+          [
+            104,
+            8
+          ],
+          [
+            216,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.0332674141973257,
+        "final_training_state_sha256": "38316e9544b922d829fcd8f96c3400b80250107d246d9c6b4ec0d2ecf6c5f548",
+        "idle_baseline": {
+          "post_power_w": 30.787476923076923,
+          "post_sample_count": 65,
+          "pre_power_w": 32.50593939393939,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 70.2170167868176,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 2.0238476889935208e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 5.537539799915976,
+            "idle_subtracted_energy_j": 55.210406259544804,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00010530549289616547,
+            "pooled_effective_update_equivalents": 11.193891564889324
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.4176592000221717,
+            "idle_subtracted_energy_j": 4.121128914336802,
+            "idle_subtracted_energy_j_per_canonical_token": 7.860429600404362e-06,
+            "pooled_effective_update_equivalents": 0.8442795835431377
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.2798382000037236,
+            "idle_subtracted_energy_j": 2.6915855711747643,
+            "idle_subtracted_energy_j_per_canonical_token": 5.1337920592780385e-06,
+            "pooled_effective_update_equivalents": 0.5656805331860593
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.06477579999045702,
+            "idle_subtracted_energy_j": 0.7075901505102037,
+            "idle_subtracted_energy_j_per_canonical_token": 1.349621106167228e-06,
+            "pooled_effective_update_equivalents": 0.13094141212910776
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.02758950000134064,
+            "idle_subtracted_energy_j": 0.308833437633663,
+            "idle_subtracted_energy_j_per_canonical_token": 5.890530350373516e-07,
+            "pooled_effective_update_equivalents": 0.05577095289666488
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2634036000526976,
+            "idle_subtracted_energy_j": -0.6163050947978986,
+            "idle_subtracted_energy_j_per_canonical_token": -1.1755086799581502e-06,
+            "pooled_effective_update_equivalents": 0.5324587169262623
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.7379084000131115,
+            "idle_subtracted_energy_j": 7.793777548415275,
+            "idle_subtracted_energy_j_per_canonical_token": 1.4865450951414634e-05,
+            "pooled_effective_update_equivalents": 1.491649164253967
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 369,
+        "raw_trace_sha256": "f6a1d2f882db60efd4507b35d14cd8483e263ae3d8f549bcd73994e814379f19",
+        "rejoin_seconds": 0.027430499998445157,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E5:C-sparse-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 32768,
+        "temperature": {
+          "end_c": 66,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 302.14670574532823,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "D",
+        "arm_id": "D-dense-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E5",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 1087273728,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.7601226999686332,
+        "checkpoint_count": 48,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 15,
+        "execution_order_id": "W3",
+        "execution_position": 2,
+        "failure_schedule": [
+          [
+            32,
+            8
+          ],
+          [
+            104,
+            8
+          ],
+          [
+            216,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.0332674141973257,
+        "final_training_state_sha256": "38316e9544b922d829fcd8f96c3400b80250107d246d9c6b4ec0d2ecf6c5f548",
+        "idle_baseline": {
+          "post_power_w": 32.330630769230766,
+          "post_sample_count": 65,
+          "pre_power_w": 31.792560606060608,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 67.02893587184319,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 0.0,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 5.223342100049194,
+            "idle_subtracted_energy_j": 51.01732401639313,
+            "idle_subtracted_energy_j_per_canonical_token": 9.730782321241976e-05,
+            "pooled_effective_update_equivalents": 10.558754823786394
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.749067400029162,
+            "idle_subtracted_energy_j": 6.565160556221441,
+            "idle_subtracted_energy_j_per_canonical_token": 1.2522050011103518e-05,
+            "pooled_effective_update_equivalents": 1.514206588790069
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.2131751000051736,
+            "idle_subtracted_energy_j": 2.0985446422255944,
+            "idle_subtracted_energy_j_per_canonical_token": 4.0026562542449845e-06,
+            "pooled_effective_update_equivalents": 0.43092402763923404
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.07855600000766572,
+            "idle_subtracted_energy_j": 0.6555650969585143,
+            "idle_subtracted_energy_j_per_canonical_token": 1.2503911914034162e-06,
+            "pooled_effective_update_equivalents": 0.15879747642998387
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.031543700002657715,
+            "idle_subtracted_energy_j": 0.2631103447328561,
+            "idle_subtracted_energy_j_per_canonical_token": 5.018431563050387e-07,
+            "pooled_effective_update_equivalents": 0.06376419315135347
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2625135998969199,
+            "idle_subtracted_energy_j": -0.4769078236211836,
+            "idle_subtracted_energy_j_per_canonical_token": -9.096294853614495e-07,
+            "pooled_effective_update_equivalents": 0.5306596210106609
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.8169945000117877,
+            "idle_subtracted_energy_j": 6.906139038932839,
+            "idle_subtracted_energy_j_per_canonical_token": 1.3172414853921583e-05,
+            "pooled_effective_update_equivalents": 1.65151821434885
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 371,
+        "raw_trace_sha256": "eb2e6d698bc1b21331241774625d15c537e78f0d874e646dfb04faa7a4521efe",
+        "rejoin_seconds": 0.03136880000238307,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E5:D-dense-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 32768,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 66
+        },
+        "total_gpu_board_energy_j": 303.4893727193224,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "B",
+        "arm_id": "B-dense-restart",
+        "attempted_tokens": 524288,
+        "block_id": "E5",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 747500688,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.5610179999421234,
+        "checkpoint_count": 33,
+        "continuation": "restart",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 16,
+        "execution_order_id": "W3",
+        "execution_position": 3,
+        "failure_schedule": [
+          [
+            32,
+            8
+          ],
+          [
+            104,
+            8
+          ],
+          [
+            216,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.0197812216356397,
+        "final_training_state_sha256": "c00c69ac83e96feab937a2845836ba23d68a42b89dcc841c5ae0d345d62ee865",
+        "idle_baseline": {
+          "post_power_w": 32.998015151515155,
+          "post_sample_count": 66,
+          "pre_power_w": 31.590863636363633,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 60.019256911554734,
+        "opportunity_ticks_to_target": 288,
+        "phase_energy_closure_relative_error": 5.919289677371102e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.414560600038385,
+            "idle_subtracted_energy_j": 52.451167079554104,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00010004266181860753,
+            "pooled_effective_update_equivalents": 12.966750287615195
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.10662369999772636,
+            "idle_subtracted_energy_j": 0.8301074316949403,
+            "idle_subtracted_energy_j_per_canonical_token": 1.58330427493084e-06,
+            "pooled_effective_update_equivalents": 0.21553508943447214
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.5312677000183612,
+            "idle_subtracted_energy_j": 4.227506043819926,
+            "idle_subtracted_energy_j_per_canonical_token": 8.063327872886517e-06,
+            "pooled_effective_update_equivalents": 1.0739341369652857
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.28859050000755815,
+            "idle_subtracted_energy_j": 2.4810569300868393,
+            "idle_subtracted_energy_j_per_canonical_token": 4.732240543531111e-06,
+            "pooled_effective_update_equivalents": 0.5833729201893618
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.26273089993628673,
+            "idle_subtracted_energy_j": 0.029419426398889396,
+            "idle_subtracted_energy_j_per_canonical_token": 5.611310272004966e-08,
+            "pooled_effective_update_equivalents": 0.5310988834206132
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 378,
+        "raw_trace_sha256": "fce17ebe41937527e7d9ddc5e0f005afd3e7a1f79c4b9f0270d1a156b3a86c2b",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.10648020000371616,
+        "run_id": "e002-pw1:E5:B-dense-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 64,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 305.57885614304894,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "A",
+        "arm_id": "A-sparse-restart",
+        "attempted_tokens": 540672,
+        "block_id": "E5",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 385076112,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.30145780000748346,
+        "checkpoint_count": 17,
+        "continuation": "restart",
+        "discarded_tokens": 16384,
+        "diverged": false,
+        "effective_power_update_count": 15,
+        "execution_order_id": "W3",
+        "execution_position": 4,
+        "failure_schedule": [
+          [
+            32,
+            8
+          ],
+          [
+            104,
+            8
+          ],
+          [
+            216,
+            16
+          ]
+        ],
+        "final_held_out_nll": 1.0197812216356397,
+        "final_training_state_sha256": "c00c69ac83e96feab937a2845836ba23d68a42b89dcc841c5ae0d345d62ee865",
+        "idle_baseline": {
+          "post_power_w": 34.32878461538462,
+          "post_sample_count": 65,
+          "pre_power_w": 31.722924242424245,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 72.58552555185749,
+        "opportunity_ticks_to_target": 296,
+        "phase_energy_closure_relative_error": 5.873425014350541e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 5.819077999913134,
+            "idle_subtracted_energy_j": 63.57827247169328,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00012126593107546479,
+            "pooled_effective_update_equivalents": 11.763008572805028
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.10317399999621557,
+            "idle_subtracted_energy_j": 1.0078501323199491,
+            "idle_subtracted_energy_j_per_canonical_token": 1.922321571960352e-06,
+            "pooled_effective_update_equivalents": 0.208561673595746
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.2823666000040248,
+            "idle_subtracted_energy_j": 2.870452842900287,
+            "idle_subtracted_energy_j_per_canonical_token": 5.4749543054586165e-06,
+            "pooled_effective_update_equivalents": 0.570791581857252
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.3248655999705079,
+            "idle_subtracted_energy_j": 3.550978372940077,
+            "idle_subtracted_energy_j_per_canonical_token": 6.772953744774011e-06,
+            "pooled_effective_update_equivalents": 0.6567014289067062
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.21199839998735115,
+            "idle_subtracted_energy_j": 1.7948547923709601,
+            "idle_subtracted_energy_j_per_canonical_token": 3.4234138343257144e-06,
+            "pooled_effective_update_equivalents": 0.42854538064438846
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.26239810013066744,
+            "idle_subtracted_energy_j": -0.21688306036711505,
+            "idle_subtracted_energy_j_per_canonical_token": -4.136716086714078e-07,
+            "pooled_effective_update_equivalents": 0.5304261433462258
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 358,
+        "raw_trace_sha256": "a297da342cc7a570344f1836409693f1aba298acc27bc4716651329a50c10832",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 16384,
+        "restore_seconds": 0.10301890000118874,
+        "run_id": "e002-pw1:E5:A-sparse-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 65,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 303.8946699875333,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "D",
+        "arm_id": "D-dense-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E6",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 1064622192,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.7591105000101379,
+        "checkpoint_count": 47,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 16,
+        "execution_order_id": "W4",
+        "execution_position": 1,
+        "failure_schedule": [
+          [
+            88,
+            24
+          ],
+          [
+            168,
+            8
+          ]
+        ],
+        "final_held_out_nll": 1.0252785505726933,
+        "final_training_state_sha256": "445fe436adcd00c4f8741d020ebce872c6c73d44dc476d1d3c1efce6c44bac99",
+        "idle_baseline": {
+          "post_power_w": 31.959738461538457,
+          "post_sample_count": 65,
+          "pre_power_w": 30.587878787878786,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 65.39029250664565,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 4.3464722883011255e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 5.306562700025097,
+            "idle_subtracted_energy_j": 46.557689933201424,
+            "idle_subtracted_energy_j_per_canonical_token": 8.880174624100003e-05,
+            "pooled_effective_update_equivalents": 10.72698158255559
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.7471278999946662,
+            "idle_subtracted_energy_j": 7.024710366176826,
+            "idle_subtracted_energy_j_per_canonical_token": 1.3398571712831166e-05,
+            "pooled_effective_update_equivalents": 1.510285975329815
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.234558999989531,
+            "idle_subtracted_energy_j": 2.139834883607117,
+            "idle_subtracted_energy_j_per_canonical_token": 4.081411139692529e-06,
+            "pooled_effective_update_equivalents": 0.4741506348164804
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.04448390000470681,
+            "idle_subtracted_energy_j": 0.4075614307602581,
+            "idle_subtracted_energy_j_per_canonical_token": 7.773617377476846e-07,
+            "pooled_effective_update_equivalents": 0.08992223460743765
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.020094599996809848,
+            "idle_subtracted_energy_j": 0.1785965517323343,
+            "idle_subtracted_energy_j_per_canonical_token": 3.4064588877169475e-07,
+            "pooled_effective_update_equivalents": 0.04062034432827514
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2627526999931433,
+            "idle_subtracted_energy_j": -0.19560675531832566,
+            "idle_subtracted_energy_j_per_canonical_token": -3.7309027732529767e-07,
+            "pooled_effective_update_equivalents": 0.5311429512704849
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.8647561999969184,
+            "idle_subtracted_energy_j": 9.277506096485988,
+            "idle_subtracted_energy_j_per_canonical_token": 1.7695438569042183e-05,
+            "pooled_effective_update_equivalents": 1.7480663765122066
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 372,
+        "raw_trace_sha256": "1c38fe40857e3daea654114241872d2b0a83181db299cf414a6cc60136b1abf0",
+        "rejoin_seconds": 0.019886899994162377,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E6:D-dense-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 32768,
+        "temperature": {
+          "end_c": 64,
+          "start_c": 66
+        },
+        "total_gpu_board_energy_j": 299.328920293,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "A",
+        "arm_id": "A-sparse-restart",
+        "attempted_tokens": 557056,
+        "block_id": "E6",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 385076112,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.365148600001703,
+        "checkpoint_count": 17,
+        "continuation": "restart",
+        "discarded_tokens": 32768,
+        "diverged": false,
+        "effective_power_update_count": 18,
+        "execution_order_id": "W4",
+        "execution_position": 2,
+        "failure_schedule": [
+          [
+            88,
+            24
+          ],
+          [
+            168,
+            8
+          ]
+        ],
+        "final_held_out_nll": 1.021757415495813,
+        "final_training_state_sha256": "06f08bbbc5814e48e57e70815ebd52966659caefcf4aa03768723348fe592940",
+        "idle_baseline": {
+          "post_power_w": 31.580151515151513,
+          "post_sample_count": 66,
+          "pre_power_w": 29.63740909090909,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 67.88379578377548,
+        "opportunity_ticks_to_target": 304,
+        "phase_energy_closure_relative_error": 4.1868179441428523e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 6.879176600028586,
+            "idle_subtracted_energy_j": 56.840894195185705,
+            "idle_subtracted_energy_j_per_canonical_token": 0.00010841540183102742,
+            "pooled_effective_update_equivalents": 13.905950963569135
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.08609669999714242,
+            "idle_subtracted_energy_j": 0.8420808784056144,
+            "idle_subtracted_energy_j_per_canonical_token": 1.6061418121444977e-06,
+            "pooled_effective_update_equivalents": 0.1740406676404281
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.34344910000800155,
+            "idle_subtracted_energy_j": 2.6454612896930656,
+            "idle_subtracted_energy_j_per_canonical_token": 5.045816974054462e-06,
+            "pooled_effective_update_equivalents": 0.6942671515619144
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.37023189998581074,
+            "idle_subtracted_energy_j": 3.136827929223768,
+            "idle_subtracted_energy_j_per_canonical_token": 5.983024462173019e-06,
+            "pooled_effective_update_equivalents": 0.7484073960727106
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.46791780002240557,
+            "idle_subtracted_energy_j": 4.301324246136999,
+            "idle_subtracted_energy_j_per_canonical_token": 8.204124920152662e-06,
+            "pooled_effective_update_equivalents": 0.9458751185520782
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.26457999995182035,
+            "idle_subtracted_energy_j": 0.11720724513035645,
+            "idle_subtracted_energy_j_per_canonical_token": 2.2355507875510492e-07,
+            "pooled_effective_update_equivalents": 0.5348367572444425
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 405,
+        "raw_trace_sha256": "f5973f386daa1ed2b51836ecfddf95700c04b4d158a7e995e4827bd02b00a78d",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 32768,
+        "restore_seconds": 0.08598680000432068,
+        "run_id": "e002-pw1:E6:A-sparse-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 64,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 325.3480851419477,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "C",
+        "arm_id": "C-sparse-continue",
+        "attempted_tokens": 524288,
+        "block_id": "E6",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 543636864,
+        "checkpoint_cadence": "sparse",
+        "checkpoint_copy_seconds": 0.4418509999741218,
+        "checkpoint_count": 24,
+        "continuation": "continue",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 16,
+        "execution_order_id": "W4",
+        "execution_position": 3,
+        "failure_schedule": [
+          [
+            88,
+            24
+          ],
+          [
+            168,
+            8
+          ]
+        ],
+        "final_held_out_nll": 1.0252785505726933,
+        "final_training_state_sha256": "445fe436adcd00c4f8741d020ebce872c6c73d44dc476d1d3c1efce6c44bac99",
+        "idle_baseline": {
+          "post_power_w": 33.91198461538462,
+          "post_sample_count": 65,
+          "pre_power_w": 31.56892424242424,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 51.7199108982348,
+        "opportunity_ticks_to_target": 256,
+        "phase_energy_closure_relative_error": 6.869141143322725e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 5.619912899965129,
+            "idle_subtracted_energy_j": 40.02158045652856,
+            "idle_subtracted_energy_j_per_canonical_token": 7.633510676675522e-05,
+            "pooled_effective_update_equivalents": 11.36040514007446
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.4242484999995213,
+            "idle_subtracted_energy_j": 2.9353203029787944,
+            "idle_subtracted_energy_j_per_canonical_token": 5.598679166753377e-06,
+            "pooled_effective_update_equivalents": 0.8575995617464724
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.24760280001646606,
+            "idle_subtracted_energy_j": 1.896869251934862,
+            "idle_subtracted_energy_j_per_canonical_token": 3.6179909743020287e-06,
+            "pooled_effective_update_equivalents": 0.5005180991366153
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.04567539999698056,
+            "idle_subtracted_energy_j": 0.29455399218148426,
+            "idle_subtracted_energy_j_per_canonical_token": 5.618171542768178e-07,
+            "pooled_effective_update_equivalents": 0.09233079909545833
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.022113099999842234,
+            "idle_subtracted_energy_j": 0.14887440054114526,
+            "idle_subtracted_energy_j_per_canonical_token": 2.839553843329339e-07,
+            "pooled_effective_update_equivalents": 0.04470065272768676
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.263721000024816,
+            "idle_subtracted_energy_j": -0.39320443222510726,
+            "idle_subtracted_energy_j_per_canonical_token": -7.499779362203736e-07,
+            "pooled_effective_update_equivalents": 0.533100326918961
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.9113429999997607,
+            "idle_subtracted_energy_j": 6.815916926295023,
+            "idle_subtracted_energy_j_per_canonical_token": 1.300032983073239e-05,
+            "pooled_effective_update_equivalents": 1.842239530372864
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 376,
+        "raw_trace_sha256": "df8a76d50d86938ba0f49ef506d25a82b4ceb793edcecfca8f51e8ad092f4b98",
+        "rejoin_seconds": 0.022011299995938316,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.0,
+        "run_id": "e002-pw1:E6:C-sparse-continue",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 32768,
+        "temperature": {
+          "end_c": 64,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 298.4066856039293,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      },
+      {
+        "arm_code": "B",
+        "arm_id": "B-dense-restart",
+        "attempted_tokens": 524288,
+        "block_id": "E6",
+        "canonical_tokens": 524288,
+        "checkpoint_bytes": 747500688,
+        "checkpoint_cadence": "dense",
+        "checkpoint_copy_seconds": 0.5926908000037656,
+        "checkpoint_count": 33,
+        "continuation": "restart",
+        "discarded_tokens": 0,
+        "diverged": false,
+        "effective_power_update_count": 17,
+        "execution_order_id": "W4",
+        "execution_position": 4,
+        "failure_schedule": [
+          [
+            88,
+            24
+          ],
+          [
+            168,
+            8
+          ]
+        ],
+        "final_held_out_nll": 1.021757415495813,
+        "final_training_state_sha256": "06f08bbbc5814e48e57e70815ebd52966659caefcf4aa03768723348fe592940",
+        "idle_baseline": {
+          "post_power_w": 31.258615384615382,
+          "post_sample_count": 65,
+          "pre_power_w": 30.173757575757577,
+          "pre_sample_count": 66
+        },
+        "idle_subtracted_gpu_board_energy_j": 53.40705673369447,
+        "opportunity_ticks_to_target": 288,
+        "phase_energy_closure_relative_error": 7.982571359097038e-16,
+        "phase_metrics": {
+          "canonical-healthy-compute": {
+            "duration_seconds": 7.112139400051092,
+            "idle_subtracted_energy_j": 46.763591533955505,
+            "idle_subtracted_energy_j_per_canonical_token": 8.919447237769223e-05,
+            "pooled_effective_update_equivalents": 14.376874950814246
+          },
+          "checkpoint-restore": {
+            "duration_seconds": 0.08524140000372427,
+            "idle_subtracted_energy_j": 0.6555848297448915,
+            "idle_subtracted_energy_j_per_canonical_token": 1.2504288287065344e-06,
+            "pooled_effective_update_equivalents": 0.17231171656689928
+          },
+          "checkpoint-snapshot": {
+            "duration_seconds": 0.5745080999986385,
+            "idle_subtracted_energy_j": 3.680076224978048,
+            "idle_subtracted_energy_j_per_canonical_token": 7.019188356357666e-06,
+            "pooled_effective_update_equivalents": 1.1613426913216827
+          },
+          "model-optimizer-merge": {
+            "duration_seconds": 0.3527855999855092,
+            "idle_subtracted_energy_j": 2.3678115402275886,
+            "idle_subtracted_energy_j_per_canonical_token": 4.516242104010751e-06,
+            "pooled_effective_update_equivalents": 0.7131404729501233
+          },
+          "post-rejoin-sync": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "rejoin-state-transfer": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "replay-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          },
+          "runtime-control-remainder": {
+            "duration_seconds": 0.2645591999607859,
+            "idle_subtracted_energy_j": -0.060007395211521763,
+            "idle_subtracted_energy_j_per_canonical_token": -1.144550232153354e-07,
+            "pooled_effective_update_equivalents": 0.5347947109833585
+          },
+          "survivor-redistributed-compute": {
+            "duration_seconds": 0.0,
+            "idle_subtracted_energy_j": 0.0,
+            "idle_subtracted_energy_j_per_canonical_token": 0.0,
+            "pooled_effective_update_equivalents": 0.0
+          }
+        },
+        "phase_partition_valid": true,
+        "raw_sample_count": 404,
+        "raw_trace_sha256": "0839cbaee858c99ac09e022523ef9fb872f155931da100ff4e0934a06423883a",
+        "rejoin_seconds": 0.0,
+        "replayed_tokens": 0,
+        "restore_seconds": 0.08512340000015683,
+        "run_id": "e002-pw1:E6:B-dense-restart",
+        "split": "evaluation",
+        "survivor_redistributed_tokens": 0,
+        "temperature": {
+          "end_c": 64,
+          "start_c": 65
+        },
+        "total_gpu_board_energy_j": 311.09232348875173,
+        "warm_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5"
+      }
+    ],
+    "runtime": {
+      "hardware": {
+        "compute_capability": [
+          8,
+          6
+        ],
+        "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU"
+      },
+      "power_configuration": {
+        "device_name": "NVIDIA GeForce RTX 3060 Laptop GPU",
+        "nvml_available": true,
+        "power_management_default_limit_w": 80.0,
+        "power_management_limit_w": null
+      },
+      "software": {
+        "cuda_version": "13.0",
+        "engine_id": "gpu-stack.e002-pw1-checkpoint-power.v1",
+        "torch_version": "2.12.1+cu130"
+      }
+    },
+    "scenario_sha256": "c368180070d4e257326be7649b6f593d20d89d768b2cf57d49fdb9672b6c2d93",
+    "source_bindings": {
+      "lc1_learning_result": {
+        "artifact_sha256": "0597ca6deeeb34ae97d57d72b49187c687af921d3eec7b804ceb48b0d3994826",
+        "path": "experiments/e001-beyond-one-datacenter/results/learning-calibration-v1.json"
+      },
+      "lc3_engine": {
+        "bundle_sha256": "b574609b19eeca593dc932ec09943a779b50a28b4d9e336afa07b5a18fa52249",
+        "component_source_sha256": {
+          "equal_work_engine": "893b2d25eed53122c59ee26ac95a10c2e9f2e360c0c9b6c39c14bf1d32d25fbd",
+          "learning_runtime": "2f0f44afaea5a1a83460f85da12087aeb569c8bf78cb1fab7e23826e6acd0325",
+          "quality_target_runtime": "94a5f1454407e4a2316d831c0ed7340a161e2d6a78312dcc0b8dfe19cd81a502"
+        },
+        "engine_id": "gpu-stack.e001-lc3-equal-work.v1",
+        "line_ending_canonicalization": "source identity accepts raw or CRLF-to-LF canonical bytes",
+        "source_sha256": "893b2d25eed53122c59ee26ac95a10c2e9f2e360c0c9b6c39c14bf1d32d25fbd"
+      },
+      "lc3_result": {
+        "artifact_sha256": "f7548b68d4791978260f0bd557bf92041d0f769b796b1e684bbcab99e88f639f",
+        "path": "experiments/e001-beyond-one-datacenter/results/equal-work-v1.json"
+      },
+      "lc3_scenario": {
+        "artifact_sha256": "f5212c19e701f183c7ab9aaf7620bf43c03a234eee92dd7e9d98c73c5c22a9ed",
+        "path": "experiments/e001-beyond-one-datacenter/equal-work-scenario-v1.json"
+      },
+      "recovery_mechanics_result": {
+        "artifact_sha256": "b1200f99487afe9c690fa723b45a9be764e40f63d8ff4a1e897154e630b29b57",
+        "path": "experiments/e001-beyond-one-datacenter/results/recovery-mechanics-v2.json"
+      }
+    },
+    "warm_start": {
+      "attempted_compute_flops": 188364380700672.0,
+      "attempted_tokens": 16777216,
+      "binding_passed": true,
+      "checkpoint_bytes": 22651536,
+      "checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5",
+      "cooldown_before_seconds": 0.0002699000033317134,
+      "end_temperature_c": 82,
+      "energy": {
+        "idle_power_w": 28.730700000000002,
+        "idle_subtracted_energy_j": 5658.486165614004,
+        "raw_energy_j": 11361.500821792277,
+        "sample_count": 1835
+      },
+      "late_window": {
+        "end_held_out_nll": 1.02718645054847,
+        "end_tick": 8192,
+        "late_stage_gate_passed": true,
+        "maximum_nll_improvement": 0.03,
+        "nll_improvement": 0.004534989595413208,
+        "start_held_out_nll": 1.0317214401438832,
+        "start_tick": 7936
+      },
+      "local_active_seconds": 198.5634796999948,
+      "observed_checkpoint_sha256": "fd7c6d7ed521087300611b059d77c7019b9293ee196a31cf6939c29de2036cd5",
+      "parameter_count": 1871232,
+      "physical_seconds": 199.03247330000158,
+      "seed": 7,
+      "start_temperature_c": 60,
+      "thermal_pause_seconds": 0.0,
+      "ticks": 8192
+    }
+  },
+  "next_experiment": {
+    "do_not_change": [
+      "LC3 warm checkpoint",
+      "four arms",
+      "six evaluation failure schedules",
+      "equal canonical-work frontier",
+      "learning, work, tick, and energy gates"
+    ],
+    "id": "E002-PW2",
+    "question": "Does the same frozen 2x2 result survive phase-aligned external or cumulative GPU energy measurement with enough effective updates?",
+    "required_new_evidence": [
+      "external high-rate GPU input power or supported cumulative energy counter",
+      "simultaneous monotonic phase markers",
+      "pre-registered minimum effective updates per arm and phase"
+    ]
+  },
+  "question": "Is LC3's energy failure caused by survivor continuation itself, or by the denser checkpoint cadence coupled to it?",
+  "researcher": {
+    "arm_rows": [
+      {
+        "arm_code": "A",
+        "arm_id": "A-sparse-restart",
+        "checkpoint_cadence": "sparse",
+        "continuation": "restart",
+        "energy_admissible": false,
+        "median_attempted_tokens": 540672.0,
+        "median_checkpoint_bytes": 385076112.0,
+        "median_checkpoint_count": 17.0,
+        "median_final_held_out_nll": 1.0195825742557645,
+        "median_idle_subtracted_gpu_board_energy_j": 70.23466066781648,
+        "median_opportunity_ticks": 296.0,
+        "run_count": 6
+      },
+      {
+        "arm_code": "B",
+        "arm_id": "B-dense-restart",
+        "checkpoint_cadence": "dense",
+        "continuation": "restart",
+        "energy_admissible": false,
+        "median_attempted_tokens": 524288.0,
+        "median_checkpoint_bytes": 747500688.0,
+        "median_checkpoint_count": 33.0,
+        "median_final_held_out_nll": 1.0195825742557645,
+        "median_idle_subtracted_gpu_board_energy_j": 57.6670956699223,
+        "median_opportunity_ticks": 288.0,
+        "run_count": 6
+      },
+      {
+        "arm_code": "C",
+        "arm_id": "C-sparse-continue",
+        "checkpoint_cadence": "sparse",
+        "continuation": "continue",
+        "energy_admissible": false,
+        "median_attempted_tokens": 524288.0,
+        "median_checkpoint_bytes": 543636864.0,
+        "median_checkpoint_count": 24.0,
+        "median_final_held_out_nll": 1.0248522511683404,
+        "median_idle_subtracted_gpu_board_energy_j": 58.35701827343738,
+        "median_opportunity_ticks": 256.0,
+        "run_count": 6
+      },
+      {
+        "arm_code": "D",
+        "arm_id": "D-dense-continue",
+        "checkpoint_cadence": "dense",
+        "continuation": "continue",
+        "energy_admissible": false,
+        "median_attempted_tokens": 524288.0,
+        "median_checkpoint_bytes": 1064622192.0,
+        "median_checkpoint_count": 47.0,
+        "median_final_held_out_nll": 1.0248522511683404,
+        "median_idle_subtracted_gpu_board_energy_j": 57.639657433731244,
+        "median_opportunity_ticks": 256.0,
+        "run_count": 6
+      }
+    ],
+    "block_interactions": [
+      {
+        "arm_energy_j_per_canonical_token": {
+          "A": 0.00016030009811740604,
+          "B": 0.00010550486455591175,
+          "C": 0.00012396645669677728,
+          "D": 0.00012334464281738987
+        },
+        "block_id": "E1",
+        "checkpoint_related_interaction_j_per_canonical_token": 5.0842357452125755e-06,
+        "penalty_removed_fraction": null,
+        "phase_interactions_j_per_canonical_token": {
+          "canonical-healthy-compute": 4.194789796932071e-05,
+          "checkpoint-restore": 4.570689195759111e-07,
+          "checkpoint-snapshot": 2.929359575378898e-06,
+          "model-optimizer-merge": 2.4414443093948924e-06,
+          "post-rejoin-sync": -5.495127303212389e-07,
+          "rejoin-state-transfer": -1.9412432881588717e-07,
+          "replay-compute": 9.226632306499799e-06,
+          "runtime-control-remainder": 3.0869375170491987e-06,
+          "survivor-redistributed-compute": -5.172283855975404e-06
+        },
+        "primary_total_interaction_j_per_canonical_token": 5.417341968210688e-05,
+        "scale_free_log_ratio_of_ratios": 0.41326200309850525,
+        "sparse_continuation_salvage": {
+          "attempted_flop_saving_fraction": 0.058823529411764705,
+          "complete": true,
+          "device_energy_ratio": 0.7733398678644757,
+          "nll_delta": 0.0023927902802824974,
+          "opportunity_tick_saving": 40.0
+        }
+      },
+      {
+        "arm_energy_j_per_canonical_token": {
+          "A": 0.00012253439130486017,
+          "B": 9.366765431915075e-05,
+          "C": 0.00014260282653343292,
+          "D": 9.653320078662643e-05
+        },
+        "block_id": "E2",
+        "checkpoint_related_interaction_j_per_canonical_token": -7.798089460032824e-07,
+        "penalty_removed_fraction": null,
+        "phase_interactions_j_per_canonical_token": {
+          "canonical-healthy-compute": -1.2257830533119845e-05,
+          "checkpoint-restore": 8.37463914464227e-07,
+          "checkpoint-snapshot": -4.883379549238422e-07,
+          "model-optimizer-merge": 1.1108595046295025e-07,
+          "post-rejoin-sync": -8.591958631625977e-07,
+          "rejoin-state-transfer": -3.808249928440198e-07,
+          "replay-compute": 3.1222416917084495e-06,
+          "runtime-control-remainder": 5.641025873632076e-07,
+          "survivor-redistributed-compute": -7.851593561045568e-06
+        },
+        "primary_total_interaction_j_per_canonical_token": -1.7202888761097082e-05,
+        "scale_free_log_ratio_of_ratios": -0.12153751943416985,
+        "sparse_continuation_salvage": {
+          "attempted_flop_saving_fraction": 0.030303030303030304,
+          "complete": true,
+          "device_energy_ratio": 1.1637779811436233,
+          "nll_delta": 0.0059975311160087585,
+          "opportunity_tick_saving": 32.0
+        }
+      },
+      {
+        "arm_energy_j_per_canonical_token": {
+          "A": 0.00014851570935468385,
+          "B": 0.00011741915086767498,
+          "C": 8.261955437885747e-05,
+          "D": 9.146641099444744e-05
+        },
+        "block_id": "E3",
+        "checkpoint_related_interaction_j_per_canonical_token": 4.445721759745908e-06,
+        "penalty_removed_fraction": null,
+        "phase_interactions_j_per_canonical_token": {
+          "canonical-healthy-compute": 2.8843522916255783e-05,
+          "checkpoint-restore": 2.9100265642064053e-07,
+          "checkpoint-snapshot": 2.203577311605643e-06,
+          "model-optimizer-merge": 1.6129623777773686e-06,
+          "post-rejoin-sync": 2.172413749351029e-07,
+          "rejoin-state-transfer": 1.2093803900715304e-07,
+          "replay-compute": 4.959205696987894e-06,
+          "runtime-control-remainder": -2.469878412612086e-07,
+          "survivor-redistributed-compute": 1.9419525708706464e-06
+        },
+        "primary_total_interaction_j_per_canonical_token": 3.994341510259884e-05,
+        "scale_free_log_ratio_of_ratios": 0.33666614411832113,
+        "sparse_continuation_salvage": {
+          "attempted_flop_saving_fraction": 0.030303030303030304,
+          "complete": true,
+          "device_energy_ratio": 0.5563017861063183,
+          "nll_delta": 0.0014075404033064842,
+          "opportunity_tick_saving": 40.0
+        }
+      },
+      {
+        "arm_energy_j_per_canonical_token": {
+          "A": 0.00011017493432129541,
+          "B": 0.0001226062892472947,
+          "C": 9.623856471456013e-05,
+          "D": 8.706813837475694e-05
+        },
+        "block_id": "E4",
+        "checkpoint_related_interaction_j_per_canonical_token": -1.1607219912480663e-06,
+        "penalty_removed_fraction": null,
+        "phase_interactions_j_per_canonical_token": {
+          "canonical-healthy-compute": -2.4920264841952282e-05,
+          "checkpoint-restore": 3.5270341172165493e-07,
+          "checkpoint-snapshot": -5.905691428702238e-07,
+          "model-optimizer-merge": -9.163791019431158e-07,
+          "post-rejoin-sync": 1.871159443016126e-08,
+          "rejoin-state-transfer": -2.5188752586542895e-08,
+          "replay-compute": 3.994295794967976e-06,
+          "runtime-control-remainder": 7.715321937371092e-07,
+          "survivor-redistributed-compute": -2.866224213071543e-07
+        },
+        "primary_total_interaction_j_per_canonical_token": -2.160178126580247e-05,
+        "scale_free_log_ratio_of_ratios": -0.2070480526324566,
+        "sparse_continuation_salvage": {
+          "attempted_flop_saving_fraction": 0.030303030303030304,
+          "complete": true,
+          "device_energy_ratio": 0.8735068943531781,
+          "nll_delta": 0.003155895508825779,
+          "opportunity_tick_saving": 40.0
+        }
+      },
+      {
+        "arm_energy_j_per_canonical_token": {
+          "A": 0.00013844590292331216,
+          "B": 0.00011447764761267611,
+          "C": 0.0001339283309685089,
+          "D": 0.00012784754919403684
+        },
+        "block_id": "E5",
+        "checkpoint_related_interaction_j_per_canonical_token": 3.1354017430144874e-06,
+        "penalty_removed_fraction": null,
+        "phase_interactions_j_per_canonical_token": {
+          "canonical-healthy-compute": 1.3225599573111547e-05,
+          "checkpoint-restore": 3.390172970295121e-07,
+          "checkpoint-snapshot": 2.0732468432712544e-06,
+          "model-optimizer-merge": 9.09577396209846e-07,
+          "post-rejoin-sync": -9.922991476381188e-08,
+          "rejoin-state-transfer": -8.720987873231295e-08,
+          "replay-compute": 3.4234138343257144e-06,
+          "runtime-control-remainder": -2.0390551679475674e-07,
+          "survivor-redistributed-compute": -1.6930360974930508e-06
+        },
+        "primary_total_interaction_j_per_canonical_token": 1.788747353616399e-05,
+        "scale_free_log_ratio_of_ratios": 0.14363378894964235,
+        "sparse_continuation_salvage": {
+          "attempted_flop_saving_fraction": 0.030303030303030304,
+          "complete": true,
+          "device_energy_ratio": 0.9673694066822214,
+          "nll_delta": 0.013486192561686039,
+          "opportunity_tick_saving": 40.0
+        }
+      },
+      {
+        "arm_energy_j_per_canonical_token": {
+          "A": 0.00012947806507830712,
+          "B": 0.00010186587664355176,
+          "C": 9.864790134093247e-05,
+          "D": 0.00012472208501176004
+        },
+        "block_id": "E6",
+        "checkpoint_related_interaction_j_per_canonical_token": 8.384671758674944e-06,
+        "penalty_removed_fraction": null,
+        "phase_interactions_j_per_canonical_token": {
+          "canonical-healthy-compute": 3.168756892758e-05,
+          "checkpoint-restore": 3.557129834379633e-07,
+          "checkpoint-snapshot": 5.826521163774584e-06,
+          "model-optimizer-merge": 1.930202523552769e-06,
+          "post-rejoin-sync": 2.1554458347086682e-07,
+          "rejoin-state-transfer": 5.669050443876083e-08,
+          "replay-compute": 8.204124920152662e-06,
+          "runtime-control-remainder": 7.148977608655163e-07,
+          "survivor-redistributed-compute": 4.6951087383097924e-06
+        },
+        "primary_total_interaction_j_per_canonical_token": 5.368637210558293e-05,
+        "scale_free_log_ratio_of_ratios": 0.4743854557221631,
+        "sparse_continuation_salvage": {
+          "attempted_flop_saving_fraction": 0.058823529411764705,
+          "complete": true,
+          "device_energy_ratio": 0.7618889059028735,
+          "nll_delta": 0.003521135076880455,
+          "opportunity_tick_saving": 48.0
+        }
+      }
+    ],
+    "cadence_phase_effective_updates": {
+      "dense": {
+        "checkpoint-restore": 1.043225798603505,
+        "checkpoint-snapshot": 21.908785044551717,
+        "model-optimizer-merge": 9.819328351096429,
+        "post-rejoin-sync": 0.6604378877889971,
+        "rejoin-state-transfer": 0.3058074401342213
+      },
+      "sparse": {
+        "checkpoint-restore": 1.0598850195696783,
+        "checkpoint-snapshot": 11.391713244447342,
+        "model-optimizer-merge": 9.876957021644671,
+        "post-rejoin-sync": 0.6616531869329664,
+        "rejoin-state-transfer": 0.30563723361876194
+      }
+    },
+    "calibration_equivalence": [
+      {
+        "block_id": "C1",
+        "checkpoint_cadence": "sparse",
+        "final_nll_exactly_equal": true,
+        "state_exactly_equal": true,
+        "work_exactly_equal": true
+      },
+      {
+        "block_id": "C1",
+        "checkpoint_cadence": "dense",
+        "final_nll_exactly_equal": true,
+        "state_exactly_equal": true,
+        "work_exactly_equal": true
+      },
+      {
+        "block_id": "C2",
+        "checkpoint_cadence": "sparse",
+        "final_nll_exactly_equal": true,
+        "state_exactly_equal": true,
+        "work_exactly_equal": true
+      },
+      {
+        "block_id": "C2",
+        "checkpoint_cadence": "dense",
+        "final_nll_exactly_equal": true,
+        "state_exactly_equal": true,
+        "work_exactly_equal": true
+      }
+    ],
+    "conclusion": "measurement_invalid",
+    "invalidators": [
+      "insufficient_evaluation_power_updates",
+      "insufficient_pooled_cadence_phase_updates"
+    ],
+    "logger": {
+      "boundary_hit": true,
+      "effective_update_period_ms": 494.6930000005523,
+      "requested_poll_ms": 20.0,
+      "selected_correlation": 0.83547866083453,
+      "selected_delay_ms": 250.0
+    },
+    "measurement_valid": false,
+    "mechanism_gates": {
+      "checkpoint_related_interaction_positive": false,
+      "penalty_removed_fraction_material": false,
+      "total_interaction_positive": false
+    },
+    "raw_inadmissible_signals": {
+      "checkpoint_related_interaction": {
+        "confidence_level": 0.9,
+        "draws": 10000,
+        "lower_bound": -7.798089460032824e-07,
+        "median": 3.7905617513801975e-06,
+        "method": "paired percentile bootstrap of the median",
+        "upper_bound": 6.4151967592104265e-06,
+        "values": [
+          5.0842357452125755e-06,
+          -7.798089460032824e-07,
+          4.445721759745908e-06,
+          -1.1607219912480663e-06,
+          3.1354017430144874e-06,
+          8.384671758674944e-06
+        ]
+      },
+      "label": "descriptive only; frozen measurement invalidators take precedence",
+      "lc3_corner_reproduction": {
+        "dense_continue_to_sparse_restart_energy_ratio": {
+          "confidence_level": 0.9,
+          "draws": 10000,
+          "lower_bound": 0.7030710142921701,
+          "median": 0.7890383541576738,
+          "method": "paired percentile bootstrap of the median",
+          "upper_bound": 0.9234476896355254,
+          "values": [
+            0.7694608067366904,
+            0.7878049562955438,
+            0.6158702765645363,
+            0.7902717520198038,
+            0.9234476896355254,
+            0.9632680634849563
+          ]
+        },
+        "penalty_reproduced": false
+      },
+      "primary_total_interaction": {
+        "confidence_level": 0.9,
+        "draws": 10000,
+        "lower_bound": -1.7202888761097082e-05,
+        "median": 2.8915444319381414e-05,
+        "method": "paired percentile bootstrap of the median",
+        "upper_bound": 5.368637210558293e-05,
+        "values": [
+          5.417341968210688e-05,
+          -1.7202888761097082e-05,
+          3.994341510259884e-05,
+          -2.160178126580247e-05,
+          1.788747353616399e-05,
+          5.368637210558293e-05
+        ]
+      },
+      "sparse_continuation_salvage": {
+        "attempted_flop_saving_fraction": {
+          "confidence_level": 0.9,
+          "draws": 10000,
+          "lower_bound": 0.030303030303030304,
+          "median": 0.030303030303030304,
+          "method": "paired percentile bootstrap of the median",
+          "upper_bound": 0.058823529411764705,
+          "values": [
+            0.058823529411764705,
+            0.030303030303030304,
+            0.030303030303030304,
+            0.030303030303030304,
+            0.030303030303030304,
+            0.058823529411764705
+          ]
+        },
+        "continuation_earlier_block_count": 6,
+        "device_energy_ratio": {
+          "confidence_level": 0.9,
+          "draws": 10000,
+          "lower_bound": 0.664820826985397,
+          "median": 0.823423381108827,
+          "method": "paired percentile bootstrap of the median",
+          "upper_bound": 1.0186424377484007,
+          "values": [
+            0.7733398678644757,
+            1.1637779811436233,
+            0.5563017861063183,
+            0.8735068943531781,
+            0.9673694066822214,
+            0.7618889059028735
+          ]
+        },
+        "nll_difference": {
+          "confidence_level": 0.9,
+          "draws": 10000,
+          "lower_bound": 0.0022817179560661316,
+          "median": 0.003338515292853117,
+          "method": "paired percentile bootstrap of the median",
+          "upper_bound": 0.008503663819283247,
+          "values": [
+            0.0023927902802824974,
+            0.0059975311160087585,
+            0.0014075404033064842,
+            0.003155895508825779,
+            0.013486192561686039,
+            0.003521135076880455
+          ]
+        },
+        "opportunity_tick_saving": {
+          "confidence_level": 0.9,
+          "draws": 10000,
+          "lower_bound": 36.0,
+          "median": 40.0,
+          "method": "paired percentile bootstrap of the median",
+          "upper_bound": 44.0,
+          "values": [
+            40.0,
+            32.0,
+            40.0,
+            40.0,
+            40.0,
+            48.0
+          ]
+        }
+      }
+    },
+    "salvage_gates": {
+      "all_pairs_complete": true,
+      "attempted_work_saving_material": true,
+      "attempted_work_saving_positive": true,
+      "cadence_preserves_learning": true,
+      "continuation_does_not_diverge": true,
+      "device_energy_bounded": true,
+      "learning_noninferior": true,
+      "opportunity_ticks_saved": true
+    }
+  },
+  "schema": "gpu-stack.causal-observatory.e002-checkpoint-power.v1",
+  "source_result": {
+    "artifact_sha256": "aff76946b26876820cdaa4ca43d0b6160cdc18b2f4c5bacd053cfe92f529d4f5",
+    "schema": "gpu-stack.e002-checkpoint-power-evidence.v1",
+    "uri": "experiments/e002-power-waveform-shaping/results/checkpoint-power-v1.json"
+  }
+}

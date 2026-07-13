@@ -4,32 +4,22 @@ Updated: 2026-07-12 PDT.
 
 Purpose: compact recovery surface for the visible backlog.
 
-## Active Research Wave: E002 After LC3's Isolated Energy Failure
+## Active Research Wave: E002-PW3 After Valid Local PW2
 
-Status: LC1's 40-run finite-horizon falsification remains published. LC2 v1
-and v2 preserve protocol-stage failures before held-out evaluation: first the
-checkpoint was not late-stage, then raw NLL first crossing failed the frozen
-target-window validity gate. LC3 redirected to equal canonical work without
-smoothing or retuning.
+PW1 remains `measurement_invalid`. PW2 completed all 32 cumulative-energy arms
+with exact warm binding, 91.667 ms effective updates, 83 to 109 updates per
+held-out arm, and no invalidators. All 3 mechanism and 8 salvage gates passed.
+The conclusion is
+`checkpoint_cadence_attributed_sparse_continuation_survives`; artifact
+`cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`.
 
-All 12 LC3 held-out observations reached 524,288 canonical tokens. Adaptive
-passed learning noninferiority, attempted-work saving, and opportunity-tick
-saving, with median 3.03 percent less attempted work and 40 fewer opportunity
-ticks. It failed solely on sampled training-device energy: median ratio 1.068
-and paired 90 percent upper bound 1.134 versus the frozen 1.05 ceiling. The
-persisted conclusion is `candidate_falsified_equal_canonical_work`; the
-`docs/data/e001-equal-work-v1.json` observatory sidecar is present.
-
-- P0: run E002 checkpoint-power waveform attribution. Freeze a 2x2 factorial
-  crossing checkpoint cadence with survivor continuation at equal canonical
-  work.
-- P0: separate checkpoint cadence from survivor continuation. Attribute
-  checkpoint, training, restore, and synchronization power so main effects and
-  their interaction are identifiable.
-- P0: preserve LC1, both LC2 protocol results, and LC3 as distinct evidence.
-  Do not retune or collapse the sequence into one favorable claim.
-- P1: scale survivor continuation only after the factorial result preserves
-  LC3's learning/work/tick gates and passes the 1.05 energy ceiling.
+- P0: run E002-PW3 multi-GPU/rack dependency-safe dephasing.
+- P0: align per-GPU cumulative energy, rack-PDU power, storage activity/power,
+  and cooling telemetry with operation phases.
+- P0: compare paired dephased and undephased schedules while preserving exact
+  learning and work semantics.
+- P1: keep rare restore/rejoin phases exploratory and withhold rack, cooling,
+  facility, grid-safety, and admission-capacity claims until measured.
 - P2: advance E003 to E006 only when an earlier experiment yields a reusable
   mechanism or measurement need.
 
