@@ -284,6 +284,30 @@ if (clock) {
   setInterval(updateClock, 1000);
 }
 
+// Cone diagram: clicking a layer explains what it owes. Clicking the active
+// layer again restores the default caption.
+(function initConeDiagram() {
+  const diagram = document.getElementById("cone-diagram");
+  const note = document.getElementById("cone-diagram-note");
+  if (!diagram || !note) {
+    return;
+  }
+  const defaultNote = note.textContent;
+  const layers = [...diagram.querySelectorAll(".cone-layer")];
+  layers.forEach((layer) => {
+    layer.addEventListener("click", () => {
+      const wasActive = layer.classList.contains("is-active");
+      layers.forEach((other) => other.classList.remove("is-active"));
+      if (wasActive) {
+        note.textContent = defaultNote;
+        return;
+      }
+      layer.classList.add("is-active");
+      note.textContent = layer.dataset.coneNote || defaultNote;
+    });
+  });
+})();
+
 // Scroll reveals. The hidden pre-reveal state only exists once html.js-anim
 // is set, so readers without JS, without IntersectionObserver, or with
 // reduced motion requested always get the fully visible page.

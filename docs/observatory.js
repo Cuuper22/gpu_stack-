@@ -4057,14 +4057,33 @@
         tabindex: 0,
         "aria-label": `${node.label}, ${EVIDENCE_LABELS[kind]}. ${node[state.depth] || "No explanation reported."}`,
       });
-      group.append(svgElement("rect", { class: "node-frame", x: 0, y: 0, width: box.width, height: box.height, rx: 6 }));
+      group.append(svgElement("rect", { class: "node-frame", x: 0, y: 0, width: box.width, height: box.height, rx: 0 }));
       addSVGEvidenceGlyph(group, kind, 14, 15);
-      const titleNode = svgElement("text", { class: "node-title", x: 50, y: 27 });
-      titleNode.textContent = String(node.label);
-      const evidence = svgElement("text", { class: "node-evidence", x: 50, y: 47 });
+      // Wrap long labels onto two lines instead of letting them escape the
+      // frame. 13px mono advances ~7.8px per character; 60px is glyph + pad.
+      const label = String(node.label);
+      const fitChars = Math.max(10, Math.floor((box.width - 60) / 7.8));
+      let lines = [label];
+      if (label.length > fitChars) {
+        const mid = Math.floor(label.length / 2);
+        let split = -1;
+        for (let off = 0; off < label.length && split < 0; off++) {
+          if (mid - off > 0 && label[mid - off] === " ") split = mid - off;
+          else if (mid + off < label.length && label[mid + off] === " ") split = mid + off;
+        }
+        if (split > 0) lines = [label.slice(0, split), label.slice(split + 1)];
+      }
+      const wrapped = lines.length > 1;
+      const titleNode = svgElement("text", { class: "node-title", x: 50, y: wrapped ? 20 : 27 });
+      lines.forEach((line, lineIndex) => {
+        const span = svgElement("tspan", { x: 50, dy: lineIndex === 0 ? 0 : 15 });
+        span.textContent = line;
+        titleNode.append(span);
+      });
+      const evidence = svgElement("text", { class: "node-evidence", x: 50, y: wrapped ? 52 : 47 });
       evidence.textContent = EVIDENCE_LABELS[kind];
       group.append(titleNode, evidence);
-      const traceId = svgElement("text", { class: "node-detail depth-full_trace", x: 50, y: 63 });
+      const traceId = svgElement("text", { class: "node-detail depth-full_trace", x: 50, y: wrapped ? 66 : 63 });
       traceId.textContent = String(node.node_id);
       group.append(traceId);
       group.addEventListener("click", () => openInspectorFor(String(node.node_id)));

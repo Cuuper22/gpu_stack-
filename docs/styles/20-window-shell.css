@@ -161,6 +161,8 @@
   padding: clamp(16px, 3vw, 28px);
   min-width: 0;
   max-width: 100%;
+  /* Size container so the H1 can cap itself with cqw and never clip. */
+  container-type: inline-size;
 }
 
 .file-path {
@@ -181,8 +183,12 @@ h3 {
 h1 {
   margin: 0;
   color: var(--title-bar);
-  font-size: 48px;
-  font-size: clamp(48px, 8vw, 98px);
+  /* The display spec allows up to 98px, but the wordmark must never leave
+     its column: cap by container width (Pixelify "gpu_stack" is ~5.4x the
+     font size wide, so 17cqw keeps ~8% slack). 72px fallback for browsers
+     without container queries. */
+  font-size: clamp(48px, 8vw, 72px);
+  font-size: min(clamp(48px, 8vw, 98px), 17cqw);
   white-space: nowrap;
 }
 

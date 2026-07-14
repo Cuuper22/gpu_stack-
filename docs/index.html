@@ -220,10 +220,33 @@
               </ul>
             </div>
             <div class="section-visual">
-              <div class="visual-frame">
-                <img src="assets/readme-equation-cone.svg" alt="Dependency cone showing cost per token expanding into upstream equations and root inputs." loading="lazy">
+              <div class="cone-diagram" id="cone-diagram" role="group" aria-label="Dependency cone: a datacenter question at the top rests on cluster, GPU, transistor, and atomic layers, ending at universal constants and named root inputs">
+                <button class="cone-layer" type="button" style="--w:100%; --i:0;" data-cone-note="The wide end. Questions people actually ask, and the numbers that answer them.">
+                  <b>Datacenter question</b>
+                  <span>cost per token, tokens per second, site power</span>
+                </button>
+                <button class="cone-layer" type="button" style="--w:87%; --i:1;" data-cone-note="The building. Racks, network topology, cooling loops, and the capex meter running behind all of it.">
+                  <b>Cluster, rack, node</b>
+                  <span>topology, bisection, facility power, PUE, capex</span>
+                </button>
+                <button class="cone-layer" type="button" style="--w:74%; --i:2;" data-cone-note="The machine itself. Peak compute is a ceiling; memory traffic and kernel shape decide what you actually get.">
+                  <b>GPU, memory, kernels</b>
+                  <span>FLOPs, HBM, roofline, occupancy, MFU</span>
+                </button>
+                <button class="cone-layer" type="button" style="--w:61%; --i:3;" data-cone-note="Where switching costs energy and geometry sets the speed limit.">
+                  <b>Transistor and process</b>
+                  <span>gate pitch, RC delay, leakage, thermal transport</span>
+                </button>
+                <button class="cone-layer" type="button" style="--w:48%; --i:4;" data-cone-note="How chips get made at all: light, plasma, and materials physics.">
+                  <b>Atoms and lithography</b>
+                  <span>source plasma, imaging medium, materials</span>
+                </button>
+                <button class="cone-layer is-roots" type="button" style="--w:38%; --i:5;" data-cone-note="The floor. Universal constants, next to the root inputs the model names instead of hiding.">
+                  <b>Constants and roots</b>
+                  <span>universal constants, named unknowns</span>
+                </button>
               </div>
-              <p class="caption">One output, many upstream obligations. The useful part is that the obligations stay inspectable.</p>
+              <p class="caption" id="cone-diagram-note">One output, many upstream obligations. Click a layer to see what it owes.</p>
             </div>
           </section>
 

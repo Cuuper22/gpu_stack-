@@ -96,6 +96,23 @@ html.js-anim .reveal.in-view {
   transform: translateY(0);
 }
 
+/* Cone layers stack in top-down as their section reveals, so the cone
+   visibly builds from the question toward the physical floor. */
+html.js-anim .reveal .cone-layer {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 420ms var(--ease-mech),
+    transform 420ms var(--ease-mech),
+    background 160ms var(--ease-snap);
+  transition-delay: calc(var(--i, 0) * 80ms + 180ms), calc(var(--i, 0) * 80ms + 180ms), 0ms;
+}
+
+html.js-anim .reveal.in-view .cone-layer {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Trace meter fills by transform, never width. */
 .meter-bar span {
   transform-origin: left center;

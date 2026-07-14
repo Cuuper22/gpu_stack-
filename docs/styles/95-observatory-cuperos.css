@@ -263,6 +263,16 @@ body[data-depth="freshman"] .plain-words.has-text {
   display: block;
 }
 
+/* Dark insight cards set light text on their paragraphs with selectors like
+   .semantic-consistency-insight > div:last-child p (0,2,2). The translation
+   box is always gold, so its ink must always be dark regardless of the card
+   it sits in; three classes plus the element outrank every card rule. */
+.obs-window-content p.plain-words.has-text {
+  color: var(--text-dark);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
 .plain-words.has-text::before {
   content: "In plain words";
   display: block;

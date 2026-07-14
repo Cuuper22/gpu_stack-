@@ -215,6 +215,61 @@ h3 {
   line-height: 1.45;
 }
 
+/* Live dependency-cone diagram: six layer bars narrowing toward the
+   physical floor. Replaces the static SVG so the cone is inspectable. */
+.cone-diagram {
+  border: 2px inset var(--window-chrome);
+  background: var(--chrome-well);
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+}
+
+.cone-layer {
+  width: var(--w, 100%);
+  min-height: 46px;
+  border: 2px outset var(--button-face);
+  background: var(--pane-bright);
+  padding: 6px 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 160ms var(--ease-snap);
+}
+
+.cone-layer b {
+  font: 700 14px var(--font-display);
+  color: var(--title-bar);
+  overflow-wrap: anywhere;
+}
+
+.cone-layer span {
+  font: 12px/1.3 var(--font-mono);
+  color: var(--text-soft);
+  overflow-wrap: anywhere;
+}
+
+.cone-layer:hover {
+  background: var(--button-hover);
+}
+
+.cone-layer:active,
+.cone-layer.is-active {
+  border-style: inset;
+  background: var(--gold-wash);
+}
+
+.cone-layer.is-roots {
+  border-color: var(--gold-line);
+}
+
+.cone-layer.is-roots b {
+  color: oklch(0.45 0.09 88);
+}
+
 .dependency-stack {
   display: grid;
   gap: 6px;
