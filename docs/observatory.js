@@ -2645,7 +2645,7 @@
     dom.checkpointenergyv2state.textContent = `measurement valid · 11/11 gates pass · artifact ${checkpointEnergyArtifact.artifact_sha256.slice(0, 12)}`;
     dom.checkpointenergyinsighttitle.textContent = freshman.headline;
     dom.checkpointenergyplainanswer.textContent = freshman.plain_answer;
-    setPlainWords("checkpoint-energy-plain-words", checkpointEnergyArtifact.conclusion);
+    setPlainWords("checkpoint-energy-plain-words", checkpointEnergyArtifact.researcher.conclusion);
     dom.checkpointenergymechanism.textContent = freshman.mechanism;
     const gpu = checkpointEnergyArtifact.full_trace.runtime.hardware.gpu;
     dom.checkpointenergyevidenceboundary.textContent = `${freshman.boundary} Observed boundary: ${gpu}, cumulative GPU-board energy, and the frozen TinyStories learning setup. Facility claim allowed: no.`;
