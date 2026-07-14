@@ -4,16 +4,38 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="GPUSTACK causal observatory for evidence-preserving virtual datacenter experiments.">
-  <meta name="theme-color" content="#f3f0e7">
+  <meta name="theme-color" content="#0e7d84">
   <title>GPUSTACK Causal Observatory · E001</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23008080'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%23808080' stroke='%231A1A1A'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23C0C0C0'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@500;600&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/90-observatory.css?v=20260712.12">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/00-foundation.css">
+  <link rel="stylesheet" href="styles/90-observatory.css?v=20260713.1">
+  <link rel="stylesheet" href="styles/60-taskbar.css">
+  <link rel="stylesheet" href="styles/70-pixel-icons.css">
+  <link rel="stylesheet" href="styles/95-observatory-cuperos.css?v=20260713.1">
   <script src="observatory.js?v=20260712.10" defer></script>
 </head>
 <body data-depth="freshman" data-data-state="loading">
   <a class="skip-link" href="#observatory-main">Skip to experiment</a>
+
+  <div class="obs-desktop">
+    <div class="desktop-logo">
+      <span class="logo-text">CuperOS</span>
+      <span class="logo-version">CAUSAL OBSERVATORY V0.27</span>
+    </div>
+
+    <div class="window obs-app-window" aria-label="Causal observatory window">
+      <div class="title-bar">
+        <div class="title-text"><span class="px-icon px-graph"></span> observatory.exe · E001</div>
+        <div class="window-controls" aria-hidden="true">
+          <span class="window-btn">_</span>
+          <span class="window-btn">□</span>
+          <span class="window-btn">x</span>
+        </div>
+      </div>
+      <div class="window-content obs-window-content">
 
   <header class="obs-header" aria-label="Observatory header">
     <a class="obs-identity" href="index.html" aria-label="GPUSTACK home">
@@ -66,6 +88,7 @@
           <span>small-model learning + virtual datacenter</span>
         </div>
         <p class="plain-answer" id="plain-answer">Loading the held-out semantic-consistency result. No conclusion is shown until its evidence boundary is known.</p>
+        <p class="plain-words" id="plain-words"></p>
         <p class="artifact-state" id="artifact-state" role="status" aria-live="polite">Reading data/e001-semantic-consistency-v1.json…</p>
       </div>
     </section>
@@ -86,6 +109,7 @@
         </div>
         <div>
           <p id="semantic-consistency-plain-answer">The observatory will state whether adaptive switching preserved held-out learning and beat the frozen fixed comparator.</p>
+          <p class="plain-words" id="semantic-consistency-plain-words"></p>
           <strong id="semantic-consistency-boundary-short">Infrastructure remains modeled unless the artifact says otherwise.</strong>
         </div>
       </article>
@@ -413,6 +437,7 @@
           <h3 id="learning-insight-title">The learning result is loading</h3>
         </div>
         <p id="learning-plain-answer">The observatory will state the measured answer once the persisted artifact is available.</p>
+        <p class="plain-words" id="learning-plain-words"></p>
       </article>
 
       <div class="learning-depth-copy" id="learning-depth-copy">
@@ -513,6 +538,7 @@
           <h3 id="equal-work-insight-title">Equal-work result loading</h3>
         </div>
         <p id="equal-work-plain-answer">The observatory will state the result after loading the persisted LC3 artifact.</p>
+        <p class="plain-words" id="equal-work-plain-words"></p>
       </article>
 
       <div class="equal-work-depth-copy">
@@ -629,6 +655,7 @@
         </div>
         <div>
           <p id="checkpoint-power-plain-answer">The observatory will state the measurement boundary after loading the persisted artifact.</p>
+          <p class="plain-words" id="checkpoint-power-plain-words"></p>
           <strong id="checkpoint-power-decision">No policy claim is available yet.</strong>
         </div>
       </article>
@@ -776,6 +803,7 @@
         </div>
         <div>
           <p id="checkpoint-energy-plain-answer">The observatory will state the mechanism after loading the persisted artifact.</p>
+          <p class="plain-words" id="checkpoint-energy-plain-words"></p>
           <strong id="checkpoint-energy-mechanism">Mechanism estimate loading.</strong>
         </div>
       </article>
@@ -1154,6 +1182,34 @@
     <span>All experiment times shown in seconds unless nanoseconds are selected in full trace.</span>
   </footer>
 
+      </div>
+    </div>
+  </div>
+
+  <footer class="taskbar" aria-label="CuperOS taskbar">
+    <div class="taskbar-left">
+      <a class="start-button" href="https://cuuper22.github.io/"><span class="px-icon px-start"></span> Start</a>
+      <a class="task-button" href="index.html"><span class="px-icon px-chip"></span> gpu_stack.exe</a>
+      <span class="task-button is-active"><span class="px-icon px-graph"></span> observatory.exe</span>
+    </div>
+    <div class="taskbar-clock" id="obs-clock">12:00 PM</div>
+  </footer>
+
   <div class="sr-status" id="sr-status" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      var clock = document.getElementById("obs-clock");
+      if (!clock) { return; }
+      function tick() {
+        var now = new Date();
+        var h = now.getHours() % 12 || 12;
+        var m = String(now.getMinutes()).padStart(2, "0");
+        clock.textContent = h + ":" + m + " " + (now.getHours() >= 12 ? "PM" : "AM");
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
 </body>
 </html>

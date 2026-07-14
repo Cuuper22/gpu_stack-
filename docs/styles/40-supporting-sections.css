@@ -10,7 +10,7 @@
   gap: 10px;
   align-items: center;
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 10px;
   font: 13px/1.35 "IBM Plex Mono", monospace;
 }
@@ -27,7 +27,7 @@
 .impact-bar {
   height: 16px;
   border: 2px inset var(--window-chrome);
-  background: oklch(0.20 0.01 250);
+  background: var(--well-dark);
   position: relative;
 }
 
@@ -47,7 +47,7 @@
 
 .glossary-term {
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 12px;
 }
 
@@ -56,8 +56,8 @@
 }
 
 .console-window {
-  background: oklch(0.09 0.008 250);
-  color: oklch(0.78 0.18 132);
+  background: var(--console-bg);
+  color: var(--console-green);
   border: 2px inset var(--window-chrome);
   padding: 14px;
   overflow: auto;
@@ -74,7 +74,7 @@
 
 .dialog-body {
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 14px;
   min-width: 0;
 }
@@ -93,7 +93,7 @@
   grid-template-columns: 130px minmax(0, 1fr);
   gap: 10px;
   border: 2px inset var(--window-chrome);
-  background: oklch(0.98 0.002 90);
+  background: var(--pane-bright);
   padding: 10px;
   font: 14px "IBM Plex Sans", system-ui, sans-serif;
 }
@@ -101,4 +101,96 @@
 .timeline-row b {
   color: var(--title-bar);
   font-family: "Pixelify Sans", monospace;
+}
+
+/* Token journey strip: one token walks the stack, station by station, and
+   the trip ends in an invoice. The animation timing lives in
+   50-animations.css; this block is the hardware it runs on. */
+.journey-strip {
+  border: 2px inset var(--window-chrome);
+  background: var(--pane-bright);
+  padding: clamp(14px, 2vw, 22px);
+  display: grid;
+  gap: 14px;
+}
+
+.journey-head h2 {
+  font-size: clamp(24px, 3vw, 34px);
+}
+
+.journey-track {
+  display: grid;
+  grid-template-columns: 1fr 22px 1fr 22px 1fr 22px 1fr 22px 1fr 22px 1.15fr;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.journey-station,
+.journey-invoice {
+  border: 2px outset var(--button-face);
+  background: var(--pane-bright);
+  padding: 9px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: 5px;
+  min-height: 96px;
+}
+
+.journey-station b,
+.journey-invoice b {
+  color: var(--title-bar);
+  font: 700 13px/1.2 "IBM Plex Mono", monospace;
+  overflow-wrap: anywhere;
+}
+
+.journey-station span,
+.journey-invoice span {
+  color: var(--text-soft);
+  font: 12px/1.35 "IBM Plex Sans", system-ui, sans-serif;
+  overflow-wrap: anywhere;
+}
+
+.journey-lamp {
+  width: 12px;
+  height: 12px;
+  border: 2px inset var(--button-face);
+  background: var(--well-dark);
+}
+
+.journey-invoice .journey-lamp {
+  background: var(--accent-gold);
+}
+
+.journey-hop {
+  align-self: center;
+  height: 14px;
+  border: 2px inset var(--window-chrome);
+  background: var(--well-dark);
+  position: relative;
+  overflow: hidden;
+}
+
+.journey-hop::after {
+  content: "";
+  position: absolute;
+  inset: 2px auto 2px 4px;
+  width: 6px;
+  background: var(--accent-gold);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* With motion off, show the whole trip already completed. */
+  .journey-station {
+    background: var(--gold-wash);
+  }
+
+  .journey-lamp {
+    background: var(--accent-gold);
+  }
+
+  .journey-hop::after {
+    opacity: 1;
+  }
 }

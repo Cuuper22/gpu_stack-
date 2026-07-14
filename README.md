@@ -3,9 +3,8 @@
 ![A wide visual map of the training stack descending from datacenters through GPU systems, lithography, atoms, and particle-like root assumptions.](docs/assets/readme-hero.png)
 
 **Website:** <https://cuuper22.github.io/gpu_stack-/><br>
-**Repository:** <https://github.com/Cuuper22/gpu_stack-><br>
-
 **Causal observatory:** <https://cuuper22.github.io/gpu_stack-/observatory.html><br>
+**Repository:** <https://github.com/Cuuper22/gpu_stack-><br>
 **Research program:** [RESEARCH.md](RESEARCH.md)
 
 `gpu_stack` started as a curiosity project in the overlap between my AI work and my physics brain.
@@ -16,22 +15,17 @@ Not rhetorically. Physically.
 
 A token passes through model architecture, kernels, collectives, memory bandwidth, transistor switching, lithography, materials, thermals, power delivery, and eventually a cost line item that someone has to pay. The stack is usually explained in slices. I wanted the uncomfortable version where the slices have to talk to each other.
 
-That symbolic graph is still the causal backbone, but it is no longer the
-project's finish line.
+## What This Is Now, And How It Got Here
 
-GPUSTACK is becoming a causal, uncertainty-aware virtual AI datacenter. It
-combines three expressions of one system:
+The project grew in three stages, and knowing the stages makes everything else legible.
 
-- an engine that predicts temporal execution, state movement, failures,
-  facility power, economics, and eventually learning or service outcomes;
-- a visual observatory that can explain the same result at freshman,
-  researcher, or full-trace depth without changing the underlying truth;
-- a research lab that turns frontier systems questions into preregistered,
-  falsifiable experiments before asking for datacenter-scale validation.
+First it was an equation graph: thousands of physics and engineering relations wired together so that a question like "what does one token cost" could be traced all the way down instead of stopping at a vendor slide.
 
-Measurements calibrate the engine. The engine powers the explanation. The
-explanation exposes the hypothesis and its assumptions. Experiments produce
-new measurements. That loop is the telos now.
+Then the graph learned to move. Events, failures, checkpoints, power draw, multi-site traffic. A static graph became a small virtual datacenter that can replay what a training run does over time.
+
+Now it is a lab. The virtual datacenter runs preregistered experiments. Preregistered means the pass/fail line is frozen before the run starts, so I cannot move the goalposts after seeing the result. Measurements calibrate the engine, the engine powers the explanation, the explanation exposes its own assumptions, and experiments produce new measurements. That loop is the whole point now.
+
+So in one sentence: GPUSTACK is a virtual AI datacenter you can interrogate. It predicts what a training run does to time, power, and money, says how sure it is, and can show you what every one of its numbers is made of.
 
 If that sounds like a weird amount of effort to understand GPU training, yes. That is more or less how the project happened.
 
@@ -39,7 +33,7 @@ If that sounds like a weird amount of effort to understand GPU training, yes. Th
 
 ![Dependency cone from datacenter economics down through GPU systems, transistor physics, lithography, atoms, nucleons, quarks, and equations.](docs/assets/readme-equation-cone.svg)
 
-`gpu_stack` treats the training stack like one inspectable dependency cone.
+`gpu_stack` treats the training stack like one inspectable dependency cone. Start from a single number at the top, collect everything it depends on, and the shape that falls out is a cone: one question at the tip, hundreds of assumptions at the base.
 
 At the wide end are questions people actually ask:
 
@@ -48,17 +42,19 @@ At the wide end are questions people actually ask:
 - How much site power disappears into cooling?
 - Which missing assumptions matter most downstream?
 
-At the narrow end are the things the model refuses to pretend away: process geometry, pulse fluence, imaging-medium composition, gate constraints, source-plasma behavior, proton and neutron counts, valence quark roots, and universal constants.
+The bridge between the two ends is the same chain every time. Cooling depends on chip heat. Chip heat depends on how transistors switch. Switching depends on how the transistors were manufactured. Manufacturing depends on physics that does not care about anyone's roadmap.
+
+At the narrow end are the things the model refuses to pretend away: how the chip was etched (lithography), how the etching light is generated (a plasma source), what that light lands on (the imaging medium), the transistor's gate constraints, and below all of it the proton and neutron counts and quark composition that decide what atoms even are, sitting next to the universal constants.
 
 Most tooling stops at the first satisfying number. `gpu_stack` keeps asking: what is that number made of?
 
-The answer can be an equation, a sourced scenario value, a universal constant, or a root input. Root inputs are not a shame pile. They are visible modeling debt, which is much better than hidden modeling debt wearing a lab coat.
+The answer can be an equation, a sourced scenario value, a universal constant, or a root input. A root input is a value the model needs but cannot yet derive, so it names it instead of hiding it. Root inputs are not a shame pile. They are visible modeling debt, which is much better than hidden modeling debt wearing a lab coat.
 
 ## The Central Idea
 
-The core object is a registry-backed equation graph.
+The core object is a registry-backed equation graph. The registry is one global catalog: every variable and every equation in the model checks itself in there, so anything can be looked up, traced, and audited from one place.
 
-Every scope self-registers on import. Variables carry identity, units, descriptions, scope metadata, symbolic assumptions, and back-references for graph traversal. Equations define relations between variables. Constants are reserved for universal physics constants. Everything else, including clocks, voltages, tensor shapes, optimizer hyperparameters, GPU counts, tariffs, and facility assumptions, remains a variable.
+Variables carry identity, units, descriptions, scope metadata, symbolic assumptions, and back-references for graph traversal. Equations define relations between variables. Constants are reserved for universal physics constants. Everything else, including clocks, voltages, tensor shapes, optimizer hyperparameters, GPU counts, tariffs, and facility assumptions, remains a variable.
 
 That choice matters.
 
@@ -66,11 +62,7 @@ A variable with no defining value relation is a root input. Some roots should ev
 
 This is why root count alone is not the score. Decomposing one vague root into several primitive roots can make the count rise while making the model more honest.
 
-The research score is held-out predictive error, uncertainty coverage,
-configuration ranking, intervention regret, time to a learning or service
-target, facility energy and power behavior, and whether a preregistered
-hypothesis survives evidence. Equation count, root count, and passing tests are
-diagnostics. They are not research results.
+The research score is held-out predictive error, uncertainty coverage, configuration ranking, intervention regret, time to a learning or service target, facility energy and power behavior, and whether a preregistered hypothesis survives evidence. Held-out means the data was never used to tune the model, so the model cannot grade its own homework. Regret is the gap between the decision the model recommended and the best decision in hindsight. Equation count, root count, and passing tests are diagnostics. They are not research results.
 
 ## What The Graph Knows Right Now
 
@@ -94,6 +86,8 @@ Coverage:
   equations_with_unit_check      884
 ```
 
+Leaves are variables nothing else depends on, the end of the line in the graph.
+
 The model spans:
 
 | Layer | What lives there |
@@ -109,7 +103,7 @@ The model spans:
 | Cluster and facility | nodes, racks, bisection, storage, reliability, power, cooling, PUE |
 | Economics | capex, opex, amortization, power cost, run cost, cost per token |
 
-MFU means Model FLOPs Utilization. HBM means High Bandwidth Memory. PUE means Power Usage Effectiveness. The README should not assume the reader was born knowing datacenter abbreviations. Sadly, many datacenter docs do.
+MFU means Model FLOPs Utilization. HBM means High Bandwidth Memory. PUE means Power Usage Effectiveness. The README should not assume the reader was born knowing datacenter abbreviations. Sadly, many datacenter docs do. If half the other words in that table are new to you, that is fine. The table is a map of where things live, not a quiz.
 
 ## Try It Without Believing Me
 
@@ -169,7 +163,7 @@ The exact count is not the important part. The posture is. Every cost number has
 
 ## Root Debt
 
-`root-debt` ranks unresolved root inputs by downstream blast radius.
+`root-debt` ranks unresolved root inputs by downstream blast radius: how many other variables would feel it if this assumption moved.
 
 ```bash
 python -m gpu_stack.cli root-debt --families --limit 5
@@ -193,14 +187,13 @@ total_weight  root_count  family                                      boundary_c
         1293           8  physical.process                            primitive-root     True
 ```
 
-The live table also appends a `top_roots` column naming the heaviest
-individual roots per family, truncated here for line width.
+Reading the columns: `total_weight` is how many downstream variables depend on the family's roots, `family` is the group of related roots, and `primitive_boundary` marks families sitting at the edge of what the model can currently derive. The live table also appends a `top_roots` column naming the heaviest individual roots per family, truncated here for line width.
 
 This is one of the more useful commands because it prevents the project from drifting into "add equations wherever it feels cool." The graph can tell which unknowns are currently expensive.
 
 ## Scenario Reports
 
-Presets can evaluate named targets and return structured artifacts.
+Presets can evaluate named targets and return structured artifacts. A preset is a saved bundle of scenario assignments, so a run is reproducible instead of vibes.
 
 ```python
 from gpu_stack.presets import scenarios
@@ -252,7 +245,9 @@ econ.run.power_cost     = 0.00078
 econ.cost.per_token     = 3.000078e-06
 ```
 
-That fixture is synthetic. It is a deterministic test anchor, not vendor truth, historical data, or a price recommendation. The distinction matters. Fake authority is how technical debt gets a haircut and calls itself strategy.
+That last line reads as three millionths of a dollar per token: for this synthetic scenario, a million tokens costs about three dollars of datacenter.
+
+That fixture is synthetic. A fixture is a fixed test anchor: deterministic on purpose, not vendor truth, historical data, or a price recommendation. The distinction matters. Fake authority is how technical debt gets a haircut and calls itself strategy.
 
 ## Resolver Workflows
 
@@ -280,99 +275,36 @@ python -m gpu_stack.cli scenario-audit --json
 python -m gpu_stack.cli scenario-audit --missing-families
 ```
 
-## Frontier Experiment Protocols
+## The Research Program
 
-All six research programs are machine-readable before they have results:
+Six questions, each frozen as a machine-readable protocol before it has results:
 
 ```bash
 python -m gpu_stack.cli experiment-protocol E001 --json
-python -m gpu_stack.cli experiment-protocol E002 --json
-python -m gpu_stack.cli experiment-protocol E003 --json
-python -m gpu_stack.cli experiment-protocol E004 --json
-python -m gpu_stack.cli experiment-protocol E005 --json
-python -m gpu_stack.cli experiment-protocol E006 --json
 ```
 
-Each protocol freezes scalar falsifiers and structured evidence requirements.
-The structured gates cover outcome vectors, baseline dominance, transfer
-panels, causal attribution, full-boundary accounting, and abstention questions
-that would be dishonest to squeeze into an invented scalar threshold. Missing
-mandatory gates make a run inconclusive; a failed computable gate still fails
-the virtual screen instead of being hidden by unrelated missing evidence.
+Each protocol freezes its falsifiers up front. A falsifier is the specific outcome that kills the hypothesis, written down before the run so the experiment can actually lose. Missing mandatory evidence makes a run inconclusive; a failed computable gate fails the virtual screen instead of being hidden by unrelated missing evidence.
 
-Reproduce the modeled E001 recovery-mechanics baseline and its observatory
-payload:
+In plain words, the six questions:
 
-```bash
-python -B -m gpu_stack.cli experiment-run E001-RECOVERY-V2 \
-  --scenario experiments/e001-beyond-one-datacenter/recovery-scenario-v2.json \
-  --output experiments/e001-beyond-one-datacenter/results/recovery-mechanics-v2.json \
-  --observatory-output docs/data/e001-recovery-v2.json
-```
+| Code | The question | Where it stands |
+|---|---|---|
+| E001 | Can you pretrain one model across several unreliable datacenters without giving up the learning efficiency of one tight cluster? | Ran, repeatedly. The clever adaptive controller has so far lost to the boring baseline, and outside its calibrated territory it abstained rather than guessing. Next step is SC2, a frozen risk predictor. |
+| E002 | Can checkpoint timing be used to shape a rack's power draw? | First measurement attempt threw itself out (broken power meter sampling). Second attempt produced a valid local attribution. The physical rack test waits on hardware this machine does not have. |
+| E003 | Can a training system treat failures by how much they hurt learning, instead of treating every failure the same? | Protocol frozen. Not run. |
+| E004 | Should an inference fleet move requests around while they are being served? | Protocol frozen. Not run. |
+| E005 | Under a fixed power envelope, can mixed hardware plus architecture co-design beat a uniform cluster? | Protocol frozen. Not run. |
+| E006 | Can an inference fleet behave as a firm, grid-responsive electrical load? | Protocol frozen. Not run. |
 
-The measured LC1 result is persisted at
-`experiments/e001-beyond-one-datacenter/results/learning-calibration-v1.json`
-(`0597ca6deeeb34ae97d57d72b49187c687af921d3eec7b804ceb48b0d3994826`),
-with observatory projection `docs/data/e001-learning-v1.json`
-(`ff6b5a56dab3314f9ad0b1def40fda9ce9df540bda411284bb9766d9a3ee3c12`).
+A few experiment codes appear throughout the project: LC stands for learning calibration, PW for power waveform, SC for semantic consistency. E001-LC3 is just "the third learning-calibration run of experiment one."
 
-The two LC2 protocol-stage artifacts are preserved at
-`experiments/e001-beyond-one-datacenter/results/quality-target-v1.json`
-(`4781781857ae638f6e64868ed3fa156d9459f5f64e62f82aad3db6cde3bfd0c6`)
-and `experiments/e001-beyond-one-datacenter/results/quality-target-v2.json`
-(`a3bb91b74a99708a08b5196ffc8d16bb27bca697f7f54fb63e60564851f97517`).
-Neither contains held-out policy evidence.
+Two results are worth telling as stories, because they are the project behaving the way it was designed to.
 
-The held-out LC3 result is persisted at
-`experiments/e001-beyond-one-datacenter/results/equal-work-v1.json`
-(`f7548b68d4791978260f0bd557bf92041d0f769b796b1e684bbcab99e88f639f`),
-with observatory projection `docs/data/e001-equal-work-v1.json`
-(`5ff07c4cf5b59be04d14f1b66961e679c2cec127b521c386d54ff9ebaadc1ae1`).
+The first: E001-SC1 stress-tested the adaptive controller across six failure patterns it had never seen. In three of them the controller recognized it was outside its calibrated experience, 104 times, and each time it recorded an abstention: a logged "I do not know" plus a fallback to the safe baseline, instead of a guess. The persisted conclusion is `abstain_without_policy_claim`. The system declined to claim a win it could not support. That refusal is the result, and it is the most honest thing in this repository.
 
-E002-PW1 completed its frozen 32-run factorial and is preserved at
-`experiments/e002-power-waveform-shaping/results/checkpoint-power-v1.json`
-(`aff76946b26876820cdaa4ca43d0b6160cdc18b2f4c5bacd053cfe92f529d4f5`).
-Its conclusion is `measurement_invalid`, not a causal or candidate result.
+The second: E002-PW1 completed all 32 runs and then invalidated itself, because its power meter turned out to sample 25 times slower than requested. The favorable-looking raw numbers were thrown out as inadmissible instead of being quietly kept. The rerun with a valid meter, PW2, is the result that counts.
 
-E002-PW2 completed the same frozen factorial with a valid cumulative-energy
-meter at
-`experiments/e002-power-waveform-shaping/results/checkpoint-energy-v2.json`
-(`cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`).
-
-E001-SC1 then completed the software-first semantic-consistency loop: 20
-calibration runs, 30 executable held-out runs, and six hindsight-envelope
-records. Calibration selected `periodic_local`. Adaptive switching failed the
-held-out learning, WAN-payload, modeled-completion, and envelope-regret gates,
-while every run preserved exact work and optimizer lineage. The result is
-`experiments/e001-beyond-one-datacenter/results/semantic-consistency-v1.json`
-(`e4bb8023145bdb21e97b9a5d295dc778f58adccc452d2bd9d3e4a599bf53bbc7`).
-
-E002-PW3 remains an executable optional physical rack experiment: a
-dependency-safe phase scheduler, distributed four-job/eight-GPU runtime,
-UUID-bound GPU plus rack/storage/cooling telemetry, hash-chained raw evidence,
-and a three-depth observatory projection. No PW3 result exists yet because
-this machine has one GPU and no direct rack boundary meters. It does not gate
-GPUSTACK's software research loop.
-
-## The Next-Work Compass
-
-The continuation compass now scans executable research artifacts, experiments,
-persisted results, the deployable observatory, and the symbolic graph:
-
-```bash
-python -m gpu_stack.cli next-work
-```
-
-The highest-impact section now follows the E001-SC1 result. The next research
-action is E001-SC2: freeze a policy-risk predictor on calibration, then test
-whether it predicts learning penalty and modeled time/WAN consequences across
-a wholly held-out model or optimizer family. `periodic_local` stays the
-default baseline, and SC1's six evaluation families do not become tuning data.
-E002-PW3 is shown only as optional boundary calibration. Pythia closure and
-root-debt ranking remain under `Legacy diagnostics (not scientific
-priorities)` so maintenance does not quietly become the roadmap again.
-
-`next-work --json` preserves the established three-key wire shape.
+Every number behind those stories, with intervals, artifact paths, and content hashes, lives in the [results log](docs/research/results-log.md). The log exists so any claim above can be checked against the exact artifact that produced it.
 
 ## Design Rules
 
@@ -380,12 +312,12 @@ These rules keep the package honest:
 
 1. Only universal physics constants are `Constant`s.
 2. Everything else is a `Variable`, including clocks, voltages, tensor shapes, GPU counts, tariffs, and optimizer hyperparameters.
-3. Every scope self-registers on import.
+3. Every scope self-registers on import: loading a domain module is what adds its variables and equations to the registry, so nothing exists off the books.
 4. `gpu_stack.scopes.SCOPE_MODULES` is the authoritative load order.
 5. The project is symbolic first. It is a graph of definitions, constraints, approximations, variants, iterative updates, and stochastic relations.
 6. A root input is visible modeling debt. It should be decomposed, sourced, or intentionally left as a scenario boundary.
 7. Observations, scenario assumptions, modeled values, priors, and unmeasured claims are different artifact classes.
-8. Calibration and evaluation IDs may not overlap.
+8. Calibration and evaluation IDs may not overlap: nothing used to tune the model is allowed to grade it.
 9. A policy sees deployable observable state, never hidden simulator truth or future traces.
 10. A virtual screen can reject a mechanism. It cannot validate a real datacenter claim by itself.
 11. A result with missing evidence stays inconclusive even when one numerical threshold looks favorable.
@@ -395,16 +327,10 @@ These rules keep the package honest:
 
 - Recording immutable measured observations with instrumentation uncertainty and provenance.
 - Enforcing calibration/evaluation separation and reporting residuals, interval coverage, configuration ranking, and decision regret.
-- Replaying causally ordered compute, collective, state-transfer, checkpoint,
-  outage, facility-power, cooling, and grid events across multiple sites.
-- Executing four matched recovery policies through explicit failure,
-  preemption, checkpoint restore, replay, membership rejoin, and durable
-  frontier recovery with exact work conservation.
+- Replaying causally ordered compute, collective, state-transfer, checkpoint, outage, facility-power, cooling, and grid events across multiple sites.
+- Executing matched recovery policies through explicit failure, preemption, checkpoint restore, replay, membership rejoin, and durable frontier recovery with exact work conservation.
 - Applying observable-only membership, cadence, parallelism, configuration, migration, and power-cap interventions at explicit decision epochs.
-- Producing content-addressed E001 v1, recovery-v2, LC1, LC2 protocol, LC3
-  equal-work, E001-SC1 semantic-consistency, E002-PW1 measurement-invalid,
-  and E002-PW2 valid local artifacts while keeping measured, modeled, assumed,
-  prior, inadmissible, and unmeasured quantities distinct.
+- Producing content-addressed experiment artifacts while keeping measured, modeled, assumed, prior, inadmissible, and unmeasured quantities distinct.
 - Reporting site base plus accelerator-compute energy while explicitly excluding unmodeled network, checkpoint, storage, host, and cooling energy.
 - Inspecting symbolic dependencies across hardware, software, thermal, and economic layers.
 - Writing and checking new equations in a single registry.
@@ -418,108 +344,11 @@ These rules keep the package honest:
 
 This is the part where the README earns the numbers above.
 
-GPUSTACK is not yet a calibrated digital twin or training-cost oracle. Recovery
-v2 executes preemption, lost work, checkpoint restore, replay, and reactive
-membership for four matched policies. LC1 and LC3 measure learning under
-matched interruptions on one local small-model workload. They do not establish
-frontier-scale transfer, real multi-site concurrency, WAN or facility energy,
-topology changes, optimizer correction, or the full joint controller.
+GPUSTACK is not yet a calibrated digital twin, meaning a simulation validated to track a specific real facility, and it is not a training-cost oracle. The learning experiments so far ran on one local small-model workload. They do not establish frontier-scale transfer, real multi-site concurrency, WAN or facility energy, topology changes, optimizer correction, or the full joint controller.
 
-The recovery-v2 artifact records complete modeled traffic classes for its
-focused scenario. Adaptive reaches the same durable frontier as synchronous in
-1.536 rather than 1.584 seconds and moves 13.6 rather than 15.2 GB. Fixed-local
-is still faster and lower-traffic than adaptive, while adaptive loses much less
-work and uses less modeled energy. This Pareto split does not establish a
-globally superior controller.
+The adaptive recovery policy is genuinely better on some axes (much less lost work, less modeled energy) and worse on others (slower, more traffic) than the simple baselines. Nothing so far crowns a single winner, and the honest reading of LC1 through SC1 is that the boring baseline is hard to beat on this workload. The full numbers live in the [results log](docs/research/results-log.md).
 
-E001-LC1 completed 40 local GPU runs: 10 calibration observations and 30
-held-out evaluation observations. The frozen target was held-out NLL
-`3.13759109564126`, and every policy first crossed it at tick 32. The candidate
-was falsified on this small-model calibration: paired progress-per-FLOP `tau`
-had median `-7.19835770326443e-14` and a 90% interval
-`[-7.24876398177115e-14, -5.48204063742032e-14]`, while adaptive and fixed tied
-on time-to-target. Adaptive still ended better under interruption, at median
-NLL `2.314653009` versus `2.341145828` for fixed. Fixed attempted 12.5% less
-work and ended worse, but dividing from-scratch finite-horizon progress by its
-smaller attempted-work denominator made fixed look 12.7% better per FLOP.
-
-LC2 then tried to replace that invalid comparator with a warm-started
-quality-to-target endpoint. V1 stopped before held-out evaluation because the
-2,048-tick checkpoint was not late-stage: NLL improved
-`1.52376570366323 -> 1.43749829754233`, or `0.08626740612089634`, above the
-frozen `0.03` maximum. V2's 8,192-tick checkpoint passed with improvement
-`0.004534989595413208`, and fixed/adaptive calibration was exactly equivalent.
-But the frozen target `1.01961656101048` was first crossed at ticks 40 and 96,
-not inside the required 192 to 288 window, because late-stage NLL was
-non-monotonic. V1 concluded `protocol_failed_warm_start_not_late_stage`; V2
-concluded `protocol_failed_calibration_validity`. Neither result opened held-out
-evaluation, so neither ranks the policies.
-
-LC3 removed unstable first crossing and compared six untouched held-out pairs
-at exactly 524,288 canonical tokens. Adaptive passed learning noninferiority:
-adaptive-minus-fixed NLL had median `0.003338515292853117` and paired 90%
-interval `[0.0023927902802824974, 0.008503663819283247]`, below the frozen
-`0.01` upper margin. It saved a median `3.030303%` attempted work and 40
-opportunity ticks, and was earlier in all six schedules. It failed only the
-sampled device-energy gate: the adaptive/fixed ratio had median
-`1.0683917796356628` and interval
-`[1.0017954332700434, 1.134269402803286]`, above the frozen `1.05` bound.
-
-The persisted LC3 conclusion is `candidate_falsified_equal_canonical_work`.
-
-E002-PW1 then completed all 32 frozen factorial runs with exact warm-state
-binding. Its requested 20 ms logger had an effective 494.693 ms device-update
-period and selected `+250` ms lag at the frozen boundary. The result is
-`measurement_invalid` solely because evaluation arms and pooled cadence phases
-received too few independent power updates. The raw LC3-corner ratio was
-`0.789 [0.703, 0.923]`, so the prior penalty did not reproduce numerically. The
-raw sparse-continuation ratio was `0.823 [0.665, 1.019]`, with all non-energy
-gates passing. Both are inadmissible, and all three mechanism gates failed.
-
-E002-PW2 then completed all 32 cumulative-energy runs with exact warm binding,
-no invalidators, a 91.667 ms effective counter period, and 83 to 109 updates per
-held-out arm. The total interaction was
-`2.2416e-5 [2.1746e-6, 3.5305e-5] J/token`; checkpoint-group and snapshot
-interactions were also positive. All three mechanism gates passed.
-The sensitivity-only idle-subtracted interaction was
-`3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token` and crossed zero. The frozen raw
-cumulative primary passes, but the attribution is not baseline-insensitive.
-
-Sparse continuation passed all eight salvage gates: NLL delta median
-`0.0033385` and upper `0.0085037`, attempted-work saving `3.03%`, 40
-opportunity ticks saved, and energy ratio `0.96099` with upper `1.00319`. The
-conclusion is `checkpoint_cadence_attributed_sparse_continuation_survives`.
-
-E001-SC1 then ran 20 calibration arms, 30 executable held-out arms across six
-stress families, and six non-executable hindsight-envelope records.
-Calibration selected `periodic_local`. Adaptive switching had held-out NLL
-difference `+0.016659 [+0.001785, +0.042213]`, WAN-payload ratio
-`2.128x [1.556x, 2.552x]`, modeled-completion ratio
-`1.072x [0.986x, 1.099x]`, and hindsight-envelope regret
-`0.07155 [0.03349, 0.10056]`. Every frozen gate failed. The engine still
-completed equal work with zero divergence, sample-identity mismatch,
-optimizer-lineage violation, or work-contract violation.
-
-Three families produced 104 out-of-distribution abstention ticks, so the
-persisted conclusion is `abstain_without_policy_claim`. This is a valid
-negative controller result on one byte-level AdamW model, not evidence that
-`periodic_local` is universally optimal. Device-energy comparison was not
-available, and WAN plus completion time remain modeled.
-
-The next work is E001-SC2. Freeze a policy-risk predictor on calibration, keep
-`periodic_local` as the default baseline, and test its predicted learning
-penalty and modeled time/WAN consequence on a wholly held-out model or
-optimizer family. Do not retune it on SC1's six evaluation families. E002-PW3
-remains available as optional physical calibration for rack-power claims; it
-does not gate the software research loop.
-
-The symbolic resolver remains intentionally conservative. By default it does
-not solve simultaneous systems or switch relations when an approximation
-validity check fails; opt-in flags record those actions in the trace. Missing
-physical or economic quantities remain missing rather than becoming convenient
-defaults.
-
-The resolver is intentionally conservative. It propagates one selected defining relation per variable. Unassigned symbolic boundaries are reported as `missing`. Constraints and approximation-validity checks are surfaced instead of treated as decorative comments.
+The symbolic resolver remains intentionally conservative. It propagates one selected defining relation per variable, does not solve simultaneous systems by default, and does not switch relations when an approximation validity check fails; opt-in flags record those actions in the trace. Unassigned symbolic boundaries are reported as `missing` rather than becoming convenient defaults.
 
 Calibration presets are still skeletal. Some presets are exact composition fixtures. Some are regression anchors. Some are synthetic dense-training cost fixtures. They are useful because they are explicit, not because they are universal.
 
@@ -551,22 +380,13 @@ python -m pytest --collect-only -q
 
 ## Causal Observatory
 
-The observatory is the primary visual artifact, not an equal-weight dashboard.
-It keeps a plain question, causal mechanism, counterfactual regime, model,
-evidence, residual, provenance, event trace, and falsifier in one shareable
-state. Semantic depth changes explanation density, never values or conclusions.
+The observatory is the primary visual artifact, not an equal-weight dashboard. It keeps a plain question, causal mechanism, counterfactual regime, model, evidence, residual, provenance, event trace, and falsifier in one shareable state. Semantic depth changes explanation density, never values or conclusions: the Freshman view and the Full trace view describe the same result, one in plain language and one with every number exposed.
 
-The first screen is E001, Beyond One Datacenter. It retains the v1 mechanics,
-recovery-v2, LC1, and LC3 views, preserves PW1's measurement-invalid raw result,
-and adds PW2's valid local attribution without claiming facility transfer. The
-page makes the sequence legible at three depths: LC3 exposed the energy
-failure, PW1 rejected an undersampled meter, and PW2 attributed the supported
-local effect to checkpoint cadence while sparse continuation passed all gates.
-Researcher and Full trace views expose paired effects, support counts,
-falsifier outcomes, learning curves, work conservation, checkpoint overhead,
-source hashes, assumptions, and the observed/modelled evidence boundary.
+The first screen is E001, Beyond One Datacenter. It makes the experiment sequence legible at three depths: LC3 exposed the energy failure, PW1 rejected an undersampled meter, and PW2 attributed the supported local effect to checkpoint cadence while sparse continuation passed all gates. Researcher and Full trace views expose paired effects, support counts, falsifier outcomes, learning curves, work conservation, checkpoint overhead, source hashes, assumptions, and the observed/modeled evidence boundary.
 
 ## Core Types
+
+This section is for people writing code against the package. Skip it freely if that is not you.
 
 - `Variable`: identity, units, description, scope, symbol assumptions, metadata, and dependency back-references.
 - `Constant`: an immutable `Variable` with a fixed numeric value. This should stay rare.
@@ -578,16 +398,11 @@ source hashes, assumptions, and the observed/modelled evidence boundary.
 - `Registry`: the global lookup surface.
 - `Preset`: scenario assignments, variants, and target evaluation support.
 - `Observation`, `CalibrationSplit`, `EvaluationSplit`: measured evidence and leakage-safe partitions.
-- `PredictionRecord`, `ResidualMetrics`, `StratifiedIntervalCoverage`,
-  `KendallTauB`, `DecisionRegret`, `BenchmarkAggregation`: held-out error,
-  confidence-level coverage, ranking, replicated-panel aggregation, and the
-  consequence of decisions induced by the model.
+- `PredictionRecord`, `ResidualMetrics`, `StratifiedIntervalCoverage`, `KendallTauB`, `DecisionRegret`, `BenchmarkAggregation`: held-out error, confidence-level coverage, ranking, replicated-panel aggregation, and the consequence of decisions induced by the model.
 - `TemporalEvent`, `EventTimeline`, `VirtualDatacenter`: causal event and shared-resource mechanics.
 - `Intervention`, `Policy`, `VisibleDatacenterState`: observable-only control boundary.
 - `ExperimentProtocol`, `ExperimentRunArtifact`: frozen hypotheses, falsifiers, and evidence status.
-- `EvidenceRequirementSpec`, `EvidenceRequirementResult`: mandatory vector,
-  transfer, causal, accounting, and panel gates that cannot be omitted from a
-  run artifact just because they lack one honest scalar threshold.
+- `EvidenceRequirementSpec`, `EvidenceRequirementResult`: mandatory vector, transfer, causal, accounting, and panel gates that cannot be omitted from a run artifact just because they lack one honest scalar threshold.
 
 ## Inspect The Registry In Python
 
@@ -664,16 +479,16 @@ print(dot_text[:400])
 ├── README.md
 ├── PRODUCT.md
 ├── DESIGN.md
+├── RESEARCH.md
+├── ROADMAP.md
 ├── pyproject.toml
-├── docs/
-│   ├── assets/
-│   └── readme_fragments/
+├── docs/            GitHub Pages site, data, research notes
+├── experiments/     preregistered protocols and persisted results
+├── process/         agent-session ledgers, not reader-facing
 ├── tests/
 └── gpu_stack/
     ├── __init__.py
     ├── constants.py
-    ├── demo.py
-    ├── next_work.py
     ├── core/
     ├── presets/
     └── scopes/
@@ -681,15 +496,10 @@ print(dot_text[:400])
 
 ## Project Status Docs
 
-The README is the front door. The moving project ledger lives here:
+The README is the front door. The deeper records live here:
 
-- [`./IMPROVEMENT_MAP.md`](./IMPROVEMENT_MAP.md)
-- [`./ROADMAP.md`](./ROADMAP.md)
-- [`./HANDOFF.md`](./HANDOFF.md)
-- [`./CHANGELOG.md`](./CHANGELOG.md)
-- [`./SESSION_STATE.md`](./SESSION_STATE.md)
-- [`./VISIBLE_BACKLOG.md`](./VISIBLE_BACKLOG.md)
-- [`./archive/AGENT_DIARY.md`](./archive/AGENT_DIARY.md)
-- [`./archive/rest_breaks/README.md`](./archive/rest_breaks/README.md)
-
-The diary and break-room files are not part of the package API. They are archived under `archive/` for provenance; long-running work needs memory, and apparently so do the agents doing it.
+- [`RESEARCH.md`](./RESEARCH.md): the research program and its rules.
+- [`ROADMAP.md`](./ROADMAP.md): where the work is headed.
+- [`docs/research/results-log.md`](./docs/research/results-log.md): every completed run, every number, every hash.
+- [`CHANGELOG.md`](./CHANGELOG.md): version history.
+- [`process/`](./process/): session ledgers for the agent workflow that builds this. Continuity notes, not documentation.

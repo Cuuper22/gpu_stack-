@@ -1,3 +1,8 @@
+/* Motion layer. Everything here animates transform, opacity, background, or
+   filter only, on the CuperOS mechanical easing curves. No blur, no glass,
+   no springy overshoot: this OS moves like hardware with good bearings.
+   The whole file stands down under prefers-reduced-motion. */
+
 @keyframes trace-scan {
   0% {
     transform: translateX(-110%);
@@ -15,5 +20,227 @@
   }
   45% {
     filter: brightness(1.08);
+  }
+}
+
+/* Cascade entry: fresh panel content steps in row by row, top to bottom,
+   like a directory listing painting on a slow machine. Applied to elements
+   the JS re-renders; each child carries --i for its stagger slot. */
+@keyframes cascade-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dependency-row,
+.trace-node,
+.cone-row,
+.cone-notice {
+  animation: cascade-in 340ms var(--ease-mech) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+/* Deep cone expansions can insert 60 rows at once; cap the stagger so the
+   tail of a big listing never keeps the reader waiting. */
+.cone-row {
+  animation-delay: min(calc(var(--i, 0) * 70ms), 560ms);
+}
+
+/* Signal propagation: after a row lands, a gold pulse walks the chain in the
+   same order, so the dependency direction is something you watch, not read. */
+@keyframes signal-flash {
+  0%,
+  100% {
+    background: var(--button-face);
+  }
+  50% {
+    background: var(--gold-wash);
+  }
+}
+
+.dependency-row:not(.active) {
+  animation:
+    cascade-in 340ms var(--ease-mech) backwards,
+    signal-flash 520ms var(--ease-snap);
+  animation-delay:
+    calc(var(--i, 0) * 70ms),
+    calc(var(--i, 0) * 70ms + 340ms);
+}
+
+.dependency-row.active {
+  animation:
+    cascade-in 340ms var(--ease-mech) backwards,
+    trace-pulse 1800ms ease-out infinite;
+  animation-delay: calc(var(--i, 0) * 70ms), calc(var(--i, 0) * 70ms + 380ms);
+}
+
+/* Scroll reveal: sections rise 10px as they enter the viewport. The hidden
+   state only exists when JS has confirmed IntersectionObserver support and
+   motion is allowed (html.js-anim), so no-JS readers see everything. */
+html.js-anim .reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 560ms var(--ease-mech),
+    transform 560ms var(--ease-mech);
+  transition-delay: calc(var(--reveal-i, 0) * 60ms);
+}
+
+html.js-anim .reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Trace meter fills by transform, never width. */
+.meter-bar span {
+  transform-origin: left center;
+  transform: scaleX(var(--meter-scale, 1));
+  transition: transform 640ms var(--ease-mech);
+}
+
+/* Root-debt blast radius. Bars grow in when the section reveals; hovering a
+   family isolates it and pushes its bar to full brightness while the other
+   rows step back. Weight is the thing being felt, so weight is what moves. */
+.family-row {
+  transition: opacity 200ms var(--ease-snap), filter 200ms var(--ease-snap);
+}
+
+.family-row .impact-bar {
+  transition: transform 240ms var(--ease-snap), filter 240ms var(--ease-snap);
+}
+
+.root-family-list:hover .family-row:not(:hover),
+.root-family-list:focus-within .family-row:not(:focus-within) {
+  opacity: 0.55;
+}
+
+.family-row:hover .impact-bar,
+.family-row:focus-within .impact-bar {
+  filter: brightness(1.12);
+  transform: scaleY(1.35);
+}
+
+html.js-anim .reveal .impact-bar::after {
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 720ms var(--ease-mech);
+  transition-delay: calc(var(--reveal-i, 0) * 90ms + 220ms);
+}
+
+html.js-anim .reveal.in-view .impact-bar::after {
+  transform: scaleX(1);
+}
+
+/* Token journey: one square token walks the stations top of the page style,
+   each layer lights as the token passes, and the invoice at the end blinks
+   when the trip completes. One full trip runs 7.2 seconds and loops. */
+@keyframes journey-station-lit {
+  0%,
+  11%,
+  100% {
+    background: var(--pane-bright);
+    filter: brightness(1);
+  }
+  3%,
+  8% {
+    background: var(--gold-wash);
+    filter: brightness(1.04);
+  }
+}
+
+@keyframes journey-lamp {
+  0%,
+  11%,
+  100% {
+    background: var(--well-dark);
+  }
+  3%,
+  8% {
+    background: var(--accent-gold);
+  }
+}
+
+@keyframes journey-hop {
+  0%,
+  2%,
+  12%,
+  100% {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  5% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  9% {
+    opacity: 1;
+    transform: translateX(6px);
+  }
+}
+
+@keyframes journey-invoice {
+  0%,
+  71%,
+  100% {
+    background: var(--pane-bright);
+  }
+  75%,
+  82% {
+    background: var(--accent-gold);
+  }
+}
+
+.journey-station {
+  animation: journey-station-lit 7200ms linear infinite;
+  animation-delay: calc(var(--i, 0) * 1080ms);
+}
+
+.journey-lamp {
+  animation: journey-lamp 7200ms linear infinite;
+  animation-delay: calc(var(--i, 0) * 1080ms);
+}
+
+.journey-hop::after {
+  animation: journey-hop 7200ms linear infinite;
+  animation-delay: calc(var(--i, 0) * 1080ms);
+}
+
+.journey-invoice {
+  animation: journey-invoice 7200ms linear infinite;
+}
+
+/* Every animation in this layer is decorative. When the visitor asks for
+   reduced motion, the page holds still and stays fully readable. */
+@media (prefers-reduced-motion: reduce) {
+  .dependency-row,
+  .dependency-row:not(.active),
+  .dependency-row.active,
+  .trace-node,
+  .cone-row,
+  .cone-notice,
+  .primer-node.is-active,
+  .trace-node.active,
+  .journey-station,
+  .journey-lamp,
+  .journey-hop::after,
+  .journey-invoice {
+    animation: none;
+  }
+
+  .primer-beacon::after,
+  .trace-connector::after {
+    animation: none;
+    transform: translateX(0);
+  }
+
+  .meter-bar span,
+  .family-row,
+  .family-row .impact-bar {
+    transition: none;
   }
 }

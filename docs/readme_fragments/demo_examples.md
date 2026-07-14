@@ -15,15 +15,15 @@ Registry stats:
   systems        16
   variables      1517
   constants      24
-  equations      959
+  equations      950
   root_inputs    619
-  leaves         253
+  leaves         259
 
 Coverage:
   non_constant_variables         1493
   with_sp_units                  1428
   with_references                1324
-  equations                      959
+  equations                      950
   equations_with_references      878
   equations_with_unit_check      799
 ```
@@ -66,7 +66,7 @@ Observed summary:
 
 ```text
 Next work:
-  graph evidence: variables=1517 equations=959 root_inputs=619
+  graph evidence: variables=1517 equations=950 root_inputs=619
 
 Top 3 highest impact:
   1. Close the sourced Pythia cost frontier
