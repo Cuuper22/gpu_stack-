@@ -1,7 +1,7 @@
 /* CuperOS docs shell.
-   Three-font system per DESIGN.md: Pixelify Sans carries OS chrome and
-   headings, IBM Plex Sans carries reading copy, IBM Plex Mono carries
-   commands and registry output. */
+   Pixel-only type system per DESIGN.md: every rendered glyph comes from
+   the approved pixel set (Pixelify Sans for interface and reading, VT323
+   for commands, values, and registry output). No non-pixel faces load. */
 :root {
   color-scheme: light;
   --desktop-bg: oklch(0.45 0.10 195);
@@ -43,12 +43,12 @@
   --ease-mech: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
   --font-display: "Pixelify Sans", monospace;
-  /* Portfolio rule: Pixelify carries everything, including paragraphs;
-     mono is only for values, identifiers, and commands. --font-reading is
-     kept as a seam: point it back at IBM Plex Sans to soften long prose. */
-  --font-body: "Pixelify Sans", "IBM Plex Sans", system-ui, sans-serif;
-  --font-reading: "Pixelify Sans", "IBM Plex Sans", system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", "Courier New", monospace;
+  /* Portfolio law: only the approved pixel faces render, ever
+     (DotGothic16, Pixelify Sans, VT323, Handjet, Silkscreen). Pixelify
+     carries interface and reading; VT323 carries values and commands. */
+  --font-body: "Pixelify Sans", "VT323", monospace;
+  --font-reading: "Pixelify Sans", "VT323", monospace;
+  --font-mono: "VT323", "Pixelify Sans", monospace;
 }
 
 * {

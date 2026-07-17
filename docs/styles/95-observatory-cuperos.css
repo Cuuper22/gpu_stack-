@@ -20,7 +20,9 @@
   /* Pixelify carries everything here too, matching the portfolio and the
      index. --font-reading stays as the one-line seam to soften long prose
      back to Plex Sans if that ever becomes the call. */
-  --font-reading: "Pixelify Sans", "IBM Plex Sans", Arial, sans-serif;
+  --font-reading: "Pixelify Sans", "VT323", monospace;
+  --font-value: "VT323", "Pixelify Sans", monospace;
+  --font-identity: "Pixelify Sans", "VT323", monospace;
   --obs-paper: var(--window-body);
   --obs-paper-raised: var(--pane-bright);
   --obs-paper-deep: var(--chrome-well);
@@ -347,8 +349,8 @@ h1 {
 .rack-dephasing-insight > div:last-child strong,
 .checkpoint-energy-boundary p + p,
 .rack-dephasing-boundary p + p,
-.learning-paired-summary,
 .semantic-mode-label,
+.learning-paired-summary,
 .checkpoint-power-eyebrow,
 .checkpoint-energy-eyebrow,
 .learning-eyebrow,
@@ -363,6 +365,116 @@ h1 {
 .checkpoint-energy-effect-meaning,
 details p[role="status"] {
   font-family: var(--font-display);
+}
+
+/* ------------------------------------------------------------------ */
+/* Legibility floor: pixel faces break down under ~11px. The densest    */
+/* instrument details ran 9 to 10.5px; raise them to the floor. VT323   */
+/* is narrow, so these bumps do not threaten the layouts.               */
+/* ------------------------------------------------------------------ */
+
+.equal-work-eyebrow,
+.checkpoint-power-eyebrow,
+.checkpoint-energy-eyebrow,
+.learning-eyebrow,
+.rack-dephasing-eyebrow {
+  font-size: 0.78rem;
+}
+
+.checkpoint-power-plain-label,
+.checkpoint-energy-plain-label {
+  font-size: 0.74rem;
+}
+
+.equal-work-effect-status,
+.checkpoint-energy-gate-state,
+.equal-work-gate-state,
+.learning-gate-state {
+  font-size: 0.7rem;
+}
+
+.equal-work-effect-interval,
+.equal-work-effect-bound {
+  font-size: 0.72rem;
+}
+
+.equal-work-trace-table,
+.checkpoint-energy-trace-table,
+.checkpoint-power-trace-table,
+.learning-trace-table,
+.policy-comparison,
+.source-observations table,
+.decision-ledger table,
+.recovery-stack-legend span,
+.checkpoint-energy-run-selector select,
+.checkpoint-power-run-selector select,
+.rack-dephasing-controls select {
+  font-size: 0.72rem;
+}
+
+.checkpoint-power-run-selector label,
+.checkpoint-energy-run-selector label,
+.rack-dephasing-controls label,
+.timeline-controls > label {
+  font-size: 0.72rem;
+}
+
+.timeline-svg .axis-text,
+.timeline-svg .policy-label,
+.timeline-svg .event-label,
+.timeline-svg .empty-label,
+.timeline-svg text,
+.recovery-timeline-svg text,
+.semantic-ranking-tick,
+.semantic-ranking-label,
+.semantic-mode-label,
+.semantic-mode-event,
+.recovery-tick,
+.recovery-event-id,
+.residual-axis-labels,
+.residual-axis-labels text,
+.rack-dephasing-axis-label,
+.rack-dephasing-direct-label,
+.rack-dephasing-rail-label,
+.rack-dephasing-event-label {
+  font-size: 11px;
+}
+
+.equal-work-section-header > span,
+.checkpoint-power-section-header > span,
+.checkpoint-energy-section-header > span,
+.rack-dephasing-section-header > span,
+.semantic-consistency-evidence-grid dt,
+.evidence-key li b,
+.evidence-key li span,
+.wan-link-button span,
+.wan-link-button small,
+.site-outage-chip,
+.checkpoint-energy-raw-panel p,
+.checkpoint-power-raw-panel p {
+  font-size: 0.7rem;
+}
+
+.equal-work-trace pre,
+.checkpoint-energy-trace pre,
+.checkpoint-power-trace pre,
+.learning-trace pre,
+.raw-trace pre {
+  font-size: 0.72rem;
+}
+
+/* Unstyled <small> shrinks to ~0.83em of already-small parents; pin it
+   to the floor. Classed small rules above still win. */
+main small {
+  font-size: 0.7rem;
+}
+
+/* Hard legibility floor for chart text. The !important is deliberate:
+   90-observatory sets dozens of 0.56 to 0.6rem tick and annotation sizes
+   behind high-specificity scoped selectors, and pixel faces are simply
+   unreadable down there. Nothing in a chart may render below 11px. */
+main svg text {
+  font-size: 11px !important;
 }
 
 /* ------------------------------------------------------------------ */
@@ -481,7 +593,7 @@ body[data-depth="freshman"] .plain-words.has-text {
   padding: 2px 6px;
   border: 2px dashed oklch(0.52 0.12 88);
   color: oklch(0.45 0.09 88);
-  font: 700 10px/1.2 var(--font-value);
+  font: 700 11px/1.2 var(--font-value);
   text-transform: uppercase;
 }
 

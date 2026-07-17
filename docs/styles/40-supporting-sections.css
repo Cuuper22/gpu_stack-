@@ -12,7 +12,7 @@
   border: 2px inset var(--window-chrome);
   background: var(--pane-bright);
   padding: 10px;
-  font: 13px/1.35 "IBM Plex Mono", monospace;
+  font: 15px/1.35 var(--font-mono);
 }
 
 .family-row b {
@@ -62,7 +62,7 @@
   padding: 14px;
   overflow: auto;
   min-height: 194px;
-  font: 13px/1.55 "IBM Plex Mono", "Courier New", monospace;
+  font: 16px/1.5 var(--font-mono);
   white-space: pre;
 }
 

@@ -103,11 +103,13 @@ The palette is inherited from the portfolio OS: teal desktop, gray chrome, indig
 
 ## 3. Typography
 
-**Display and Interface Font:** Pixelify Sans with Plex Sans fallback, on everything: headings, buttons, labels, status lines, list facts, captions, and paragraphs. Per Cuper's direct call, there is no reading-copy exception.
+**The Font Law (portfolio-wide, per Cuper):** every rendered glyph, regardless of size or role, comes from the approved pixel set: DotGothic16, Pixelify Sans, VT323, Handjet, or Silkscreen. No other typeface ever renders. No exceptions for paragraphs, tables, code, or fine print.
 
-**Value/Mono Font:** IBM Plex Mono with Courier fallback, reserved for commands, identifiers, numeric values, intervals, and tables. This is the only text that escapes the pixel face.
+**Current mapping:** Pixelify Sans carries the interface and all prose (headings, buttons, labels, status lines, paragraphs). VT323, the terminal face, carries commands, identifiers, numeric values, intervals, tables, and console output. The other three approved faces are available but unused here.
 
-**Character:** The pixel face IS the voice of the OS. A `--font-reading` token exists in the stylesheets as a deliberate seam: it currently resolves to the Pixelify stack, and pointing it back at IBM Plex Sans is the one-line change if long prose ever needs softening. Do not make that change without Cuper asking for it.
+**Legibility floor:** pixel faces break down under ~11px, so nothing renders smaller. Dense instrument fine print sits at 0.7rem minimum, chart ticks at 11px.
+
+**Character:** The pixel face IS the voice of the OS, everywhere, at every size.
 
 ### Hierarchy
 - **Display** (700, `clamp(48px, 8vw, 98px)`, 1.05): page title and very large OS labels only.
