@@ -149,12 +149,17 @@
   border-right: 2px solid var(--inset-dark);
 }
 
-.eyebrow {
+/* Two-class selectors so paragraph rules like .section-copy p (0,1,1)
+   can never clobber the eyebrow face again. */
+.eyebrow,
+.section-copy .eyebrow,
+.primer-copy .eyebrow,
+.journey-head .eyebrow,
+.dialog-body .eyebrow {
   margin: 0 0 7px;
   /* Darker than --accent-cyan so 13px labels clear 4.5:1 on the pane. */
   color: var(--accent-cyan-deep);
-  font-size: 13px;
-  font-weight: 700;
+  font: 700 13px var(--font-display);
 }
 
 h2 {

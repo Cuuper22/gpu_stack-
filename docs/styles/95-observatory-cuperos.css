@@ -17,6 +17,10 @@
 /* ------------------------------------------------------------------ */
 
 :root {
+  /* Pixelify carries everything here too, matching the portfolio and the
+     index. --font-reading stays as the one-line seam to soften long prose
+     back to Plex Sans if that ever becomes the call. */
+  --font-reading: "Pixelify Sans", "IBM Plex Sans", Arial, sans-serif;
   --obs-paper: var(--window-body);
   --obs-paper-raised: var(--pane-bright);
   --obs-paper-deep: var(--chrome-well);
@@ -245,6 +249,120 @@ h1 {
 
 .obs-window-content p.plain-words.has-text {
   font-family: var(--font-reading);
+}
+
+/* ------------------------------------------------------------------ */
+/* Pixel sweep: 90-observatory used mono as its label-and-heading font. */
+/* Every heading, label, kicker, note, summary, and control flips to    */
+/* the pixel face (family only; sizes and weights stay). Mono remains   */
+/* on values, intervals, identifiers, tables, stamps, and small SVG     */
+/* plot annotations where pixel would be illegible.                     */
+/* ------------------------------------------------------------------ */
+
+.causal-reading h2,
+.evidence-key h3,
+.section-line-heading h2,
+.section-line-heading h3,
+.section-line-heading > span,
+.inspector-header h2,
+.inspector-section h3,
+.source-observations h3,
+.residual-panel h3,
+.decision-ledger h3,
+.equal-work-section-header h3,
+.equal-work-clue h3,
+.equal-work-boundary h3,
+.equal-work-policy-card h4,
+.equal-work-effect-card h4,
+.equal-work-bridge-columns h4,
+.checkpoint-power-section-header h3,
+.checkpoint-power-redirect h3,
+.checkpoint-power-boundary h3,
+.checkpoint-power-logger h4,
+.checkpoint-power-control-card h4,
+.checkpoint-power-contrast-card h4,
+.checkpoint-energy-section-header h3,
+.checkpoint-energy-boundary h3,
+.checkpoint-energy-effect-card h4,
+.checkpoint-energy-exploratory-grid h4,
+.checkpoint-energy-gate-groups h4,
+.learning-policy-card h3,
+.learning-figure h3,
+.learning-gates h3,
+.learning-boundary h3,
+.recovery-measure-heading h3,
+.recovery-learning-boundary h3,
+.recovery-measure-heading span,
+.transfer-boundary h4,
+.resolve-list h4,
+.semantic-consistency-evidence-grid h4,
+.rack-dephasing-section-header h3,
+.rack-dephasing-boundary h3 {
+  font-family: var(--font-display);
+}
+
+.skip-link,
+.causal-reading > ol li > span,
+.resolve-list li > span,
+.causal-reading > ol p,
+.causal-svg .node-title,
+.structured-fallback summary,
+.causal-fallback-button,
+.equal-work-plain-kicker,
+.checkpoint-power-plain-label,
+.checkpoint-energy-plain-label,
+.equal-work-metric dt,
+.equal-work-metric small,
+.checkpoint-power-arm-metrics dt,
+.learning-primary-metric dt,
+.learning-primary-metric small,
+.learning-supporting-metrics dt,
+.semantic-consistency-evidence-grid dt,
+.equal-work-gate-label,
+.checkpoint-energy-gate-label,
+.learning-gate-label,
+.equal-work-trace summary,
+.checkpoint-power-trace summary,
+.checkpoint-energy-trace summary,
+.learning-trace summary,
+.rack-dephasing-trace summary,
+.raw-trace summary,
+.checkpoint-power-run-selector label,
+.checkpoint-energy-run-selector label,
+.rack-dephasing-controls label,
+.timeline-controls > label,
+.timeline-control-row button,
+.event-legend,
+.evidence-key li,
+.recovery-measure-label,
+.recovery-stack-legend,
+.recovery-completion-note,
+.comparison-boundary,
+.empty-residual-message strong,
+.checkpoint-power-boundary-badge,
+.checkpoint-power-inadmissible,
+.checkpoint-power-insight > div:last-child strong,
+.checkpoint-energy-insight > div:last-child strong,
+.semantic-consistency-insight > div:last-child strong,
+.rack-dephasing-insight > div:last-child strong,
+.checkpoint-energy-boundary p + p,
+.rack-dephasing-boundary p + p,
+.learning-paired-summary,
+.semantic-mode-label,
+.checkpoint-power-eyebrow,
+.checkpoint-energy-eyebrow,
+.learning-eyebrow,
+.rack-dephasing-eyebrow,
+.event-legend li,
+.equal-work-bridge-class,
+.checkpoint-power-invalidator div,
+.checkpoint-power-invalidator strong,
+.checkpoint-power-contrast-warning,
+.checkpoint-power-contrast-warning strong,
+.checkpoint-power-trace-warning,
+.checkpoint-energy-effect-meaning,
+details p[role="status"] {
+  font-family: var(--font-display);
 }
 
 /* ------------------------------------------------------------------ */

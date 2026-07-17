@@ -26,7 +26,7 @@ typography:
     lineHeight: 1.6
     letterSpacing: "0"
   reading:
-    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
+    fontFamily: "Pixelify Sans, IBM Plex Sans, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 500
     lineHeight: 1.62
@@ -103,12 +103,11 @@ The palette is inherited from the portfolio OS: teal desktop, gray chrome, indig
 
 ## 3. Typography
 
-**Display and Interface Font:** Pixelify Sans with Plex Sans fallback. Matches the live portfolio, where Pixelify is the body default and carries headings, buttons, labels, status lines, list facts, captions, and every other piece of interface text.
+**Display and Interface Font:** Pixelify Sans with Plex Sans fallback, on everything: headings, buttons, labels, status lines, list facts, captions, and paragraphs. Per Cuper's direct call, there is no reading-copy exception.
 
-**Reading Font:** IBM Plex Sans with system fallback, reserved for multi-sentence explanation paragraphs only (the portfolio uses it the same way for its About prose).
-**Value/Mono Font:** IBM Plex Mono with Courier fallback, reserved for commands, identifiers, numeric values, intervals, and tables.
+**Value/Mono Font:** IBM Plex Mono with Courier fallback, reserved for commands, identifiers, numeric values, intervals, and tables. This is the only text that escapes the pixel face.
 
-**Character:** The pixel face IS the voice of the OS and should be everywhere the interface speaks. Plex Sans exists so dense multi-sentence explanations stay comfortable; it is the exception, not the default.
+**Character:** The pixel face IS the voice of the OS. A `--font-reading` token exists in the stylesheets as a deliberate seam: it currently resolves to the Pixelify stack, and pointing it back at IBM Plex Sans is the one-line change if long prose ever needs softening. Do not make that change without Cuper asking for it.
 
 ### Hierarchy
 - **Display** (700, `clamp(48px, 8vw, 98px)`, 1.05): page title and very large OS labels only.
