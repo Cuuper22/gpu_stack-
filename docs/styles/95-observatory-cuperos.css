@@ -193,6 +193,61 @@ h1 {
 }
 
 /* ------------------------------------------------------------------ */
+/* Portfolio type rule: Pixelify carries every label, control, and      */
+/* nav item. Plex Sans stays only on multi-sentence reading             */
+/* paragraphs; mono stays only on values, intervals, identifiers,       */
+/* and tables.                                                          */
+/* ------------------------------------------------------------------ */
+
+.obs-nav a {
+  font: 600 0.95rem var(--font-display);
+}
+
+.experiment-picker select {
+  font: 600 0.9rem var(--font-display);
+}
+
+.share-state {
+  font: 600 0.9rem var(--font-display);
+}
+
+.control-label {
+  font: 700 0.8rem/1.2 var(--font-display);
+  letter-spacing: 0.04em;
+}
+
+.experiment-kicker,
+.stage-boundary,
+.equal-work-eyebrow {
+  font-family: var(--font-display);
+}
+
+.obs-product {
+  font: 600 0.85rem var(--font-display);
+}
+
+.obs-footer,
+.obs-footer span {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+}
+
+.site-button .site-name,
+.site-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+/* Multi-sentence verdicts and translations follow the reading rule. */
+.plain-answer {
+  font-family: var(--font-reading);
+}
+
+.obs-window-content p.plain-words.has-text {
+  font-family: var(--font-reading);
+}
+
+/* ------------------------------------------------------------------ */
 /* Controls: OS buttons, not outline pills                              */
 /* ------------------------------------------------------------------ */
 

@@ -43,7 +43,10 @@
   --ease-mech: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
   --font-display: "Pixelify Sans", monospace;
-  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  /* Portfolio rule: Pixelify carries the interface; Plex Sans is only for
+     multi-sentence reading paragraphs; mono only for values and commands. */
+  --font-body: "Pixelify Sans", "IBM Plex Sans", system-ui, sans-serif;
+  --font-reading: "IBM Plex Sans", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", "Courier New", monospace;
 }
 

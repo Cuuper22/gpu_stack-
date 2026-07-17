@@ -95,7 +95,7 @@
   border: 2px inset var(--window-chrome);
   background: var(--pane-bright);
   padding: 10px;
-  font: 14px "IBM Plex Sans", system-ui, sans-serif;
+  font: 500 14px var(--font-body);
 }
 
 .timeline-row b {
@@ -140,14 +140,14 @@
 .journey-station b,
 .journey-invoice b {
   color: var(--title-bar);
-  font: 700 13px/1.2 "IBM Plex Mono", monospace;
+  font: 700 14px/1.2 var(--font-body);
   overflow-wrap: anywhere;
 }
 
 .journey-station span,
 .journey-invoice span {
   color: var(--text-soft);
-  font: 12px/1.35 "IBM Plex Sans", system-ui, sans-serif;
+  font: 500 13px/1.35 var(--font-body);
   overflow-wrap: anywhere;
 }
 

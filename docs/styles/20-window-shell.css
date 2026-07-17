@@ -196,8 +196,8 @@ h1 {
   margin: 12px 0 0;
   max-width: 58ch;
   color: var(--text-dark);
-  font: 500 16px "IBM Plex Sans", system-ui, sans-serif;
-  font: 500 clamp(16px, 1.8vw, 19px) "IBM Plex Sans", system-ui, sans-serif;
+  font: 500 16px var(--font-body);
+  font: 500 clamp(16px, 1.8vw, 19px) var(--font-body);
   line-height: 1.55;
   overflow-wrap: anywhere;
 }
@@ -225,7 +225,7 @@ h1 {
   grid-template-columns: 18px 1fr;
   gap: 8px;
   align-items: start;
-  font: 13px "IBM Plex Mono", monospace;
+  font: 500 14px var(--font-body);
   min-width: 0;
 }
 
@@ -276,6 +276,6 @@ h1 {
 
 .stat span {
   color: var(--text-soft);
-  font: 13px "IBM Plex Sans", system-ui, sans-serif;
+  font: 500 13px var(--font-body);
   line-height: 1.35;
 }

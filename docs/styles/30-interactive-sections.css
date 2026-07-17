@@ -77,21 +77,21 @@
 
 .primer-node small {
   color: var(--text-dark);
-  font: 700 11px/1.2 "IBM Plex Mono", monospace;
+  font: 700 12px/1.2 var(--font-body);
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
 
 .primer-node b {
   color: var(--title-bar);
-  font: 700 13px/1.2 "IBM Plex Mono", monospace;
+  font: 700 14px/1.2 var(--font-body);
   overflow-wrap: anywhere;
 }
 
 .primer-node span,
 .primer-status span {
   color: var(--text-soft);
-  font: 13px/1.42 "IBM Plex Sans", system-ui, sans-serif;
+  font: 500 14px/1.42 var(--font-body);
   overflow-wrap: anywhere;
 }
 
@@ -125,7 +125,7 @@
 
 .primer-status b {
   color: var(--title-bar);
-  font: 700 13px/1.25 "IBM Plex Mono", monospace;
+  font: 700 14px/1.25 var(--font-body);
   overflow-wrap: anywhere;
 }
 
@@ -176,10 +176,15 @@ h3 {
 .body-copy,
 .primer-copy p,
 .section-copy p,
-.note-list li,
 .dialog-body p {
-  font: 500 15px "IBM Plex Sans", system-ui, sans-serif;
+  font: 500 15px var(--font-reading);
   line-height: 1.62;
+  color: var(--text-dark);
+}
+
+.note-list li {
+  font: 500 15px var(--font-body);
+  line-height: 1.58;
   color: var(--text-dark);
 }
 
@@ -211,7 +216,7 @@ h3 {
 .caption {
   margin: 0;
   color: var(--text-soft);
-  font: 13px "IBM Plex Sans", system-ui, sans-serif;
+  font: 500 13px var(--font-body);
   line-height: 1.45;
 }
 
@@ -247,7 +252,7 @@ h3 {
 }
 
 .cone-layer span {
-  font: 12px/1.3 var(--font-mono);
+  font: 500 13px/1.3 var(--font-body);
   color: var(--text-soft);
   overflow-wrap: anywhere;
 }
@@ -285,7 +290,7 @@ h3 {
   border: 2px outset var(--button-face);
   background: var(--button-face);
   padding: 4px 8px;
-  font: 13px "IBM Plex Mono", monospace;
+  font: 500 14px var(--font-body);
 }
 
 .dependency-row.active {
@@ -351,14 +356,14 @@ h3 {
 
 .trace-node span {
   color: var(--text-soft);
-  font: 12px/1.35 "IBM Plex Sans", system-ui, sans-serif;
+  font: 500 13px/1.35 var(--font-body);
   /* Fixture values are long unbroken numbers; wrap them inside the node. */
   overflow-wrap: anywhere;
 }
 
 .trace-node small {
   color: var(--text-dark);
-  font: 700 11px/1.2 "IBM Plex Mono", monospace;
+  font: 700 12px/1.2 var(--font-body);
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
@@ -399,7 +404,7 @@ h3 {
 .trace-meter p,
 .glossary-term p {
   margin: 0;
-  font: 500 14px/1.52 "IBM Plex Sans", system-ui, sans-serif;
+  font: 500 14px/1.52 var(--font-reading);
 }
 
 .trace-meter {
@@ -549,7 +554,7 @@ h3 {
 /* Error/loading state */
 .cone-notice {
   padding: 14px;
-  font: 500 14px/1.55 "IBM Plex Sans", system-ui, sans-serif;
+  font: 500 14px/1.55 var(--font-reading);
   color: var(--text-soft);
   border: 2px inset var(--window-chrome);
   background: var(--pane-bright);

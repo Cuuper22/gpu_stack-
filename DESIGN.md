@@ -20,6 +20,12 @@ typography:
     lineHeight: 1.05
     letterSpacing: "0"
   body:
+    fontFamily: "Pixelify Sans, IBM Plex Sans, system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 500
+    lineHeight: 1.6
+    letterSpacing: "0"
+  reading:
     fontFamily: "IBM Plex Sans, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 500
@@ -97,12 +103,12 @@ The palette is inherited from the portfolio OS: teal desktop, gray chrome, indig
 
 ## 3. Typography
 
-**Display Font:** Pixelify Sans with monospace fallback
+**Display and Interface Font:** Pixelify Sans with Plex Sans fallback. Matches the live portfolio, where Pixelify is the body default and carries headings, buttons, labels, status lines, list facts, captions, and every other piece of interface text.
 
-**Body Font:** IBM Plex Sans with system fallback
-**Label/Mono Font:** IBM Plex Mono with Courier fallback
+**Reading Font:** IBM Plex Sans with system fallback, reserved for multi-sentence explanation paragraphs only (the portfolio uses it the same way for its About prose).
+**Value/Mono Font:** IBM Plex Mono with Courier fallback, reserved for commands, identifiers, numeric values, intervals, and tables.
 
-**Character:** Display type should feel like a desktop shell and a project file title. Body copy should stay readable and less gimmicky, because the equations are already dense enough.
+**Character:** The pixel face IS the voice of the OS and should be everywhere the interface speaks. Plex Sans exists so dense multi-sentence explanations stay comfortable; it is the exception, not the default.
 
 ### Hierarchy
 - **Display** (700, `clamp(48px, 8vw, 98px)`, 1.05): page title and very large OS labels only.
@@ -113,7 +119,7 @@ The palette is inherited from the portfolio OS: teal desktop, gray chrome, indig
 
 ### Named Rules
 
-**The Pixel Display Rule.** Pixelify Sans carries chrome, titles, buttons, and labels. It must not be forced onto long paragraphs.
+**The Pixel Display Rule.** Pixelify Sans carries chrome, titles, buttons, labels, and all interface copy, exactly like the portfolio. Only two things escape it: multi-sentence reading paragraphs (Plex Sans) and data values, commands, and identifiers (Plex Mono).
 
 **The No Negative Tracking Rule.** Letter spacing stays at `0`.
 
