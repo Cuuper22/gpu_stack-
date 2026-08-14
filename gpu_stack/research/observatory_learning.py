@@ -1,4 +1,10 @@
-"""Compact observatory projection for the measured E001-LC1 sidecar."""
+"""Observatory projection for E001-LC1, the measured learning-calibration sidecar.
+
+Verifies the LC1 result artifact's content hash, then condenses it into a
+compact UI payload: per-arm medians, learning curves, paired effects, and
+falsifier results. The source conclusion and evidence boundary pass through
+unchanged, and the output carries its own SHA-256.
+"""
 
 from __future__ import annotations
 
@@ -197,7 +203,7 @@ def build_e001_learning_observatory_artifact(
     *,
     source_uri: str | None = None,
 ) -> dict[str, Any]:
-    """Project the measured LC1 sidecar into a compact explanatory artifact."""
+    """Condense a verified LC1 result into the observatory payload."""
 
     _validate_source(result)
     runs = _evaluation_runs(result)

@@ -2,7 +2,12 @@
 scopes/physical_lithography_medium_intercomponent_binding.py
 ============================================================
 
-Screened Coulomb binding relation for imaging-medium intercomponents.
+Screened Coulomb binding energy of the A-B pair in the imaging medium.
+The bond is modeled as two effective point charges separated by the
+intercomponent distance, with the surrounding medium screening the
+interaction through a relative permittivity. This ionic-style binding
+energy is the chemical-scale counterpart of the nuclear binding terms and
+enters the formula-unit energy accounting.
 """
 
 import sympy as sp

@@ -1,9 +1,10 @@
 """Machine-readable preregistrations for GPUSTACK research programs E001-E006.
 
-The Markdown experiment documents remain the human-readable source of truth.
-This module makes their scalar and structured evidence gates available to
-runners without converting qualitative transfer, vector, accounting, or causal
-claims into invented numerical thresholds.
+The Markdown experiment documents stay the human-readable source of truth.
+This module mirrors just their scalar and structured evidence gates so
+runners can check them in code. Qualitative claims — transfer, vector,
+accounting, causal — are deliberately not converted into invented numerical
+thresholds; a gate exists here only if the document really states one.
 """
 
 from __future__ import annotations

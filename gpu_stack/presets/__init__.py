@@ -2,13 +2,14 @@
 gpu_stack.presets
 =================
 
-Named, provenanced scenario presets.
+Concrete, named scenario presets with provenance.
 
-Presets bundle scenario assignments so a resolver call can evaluate a target
-variable without the caller rediscovering every input by hand. The framework
-lives in `gpu_stack.core.presets`; this package holds concrete instances
-organized by domain: hardware, workload, economics, materials, lithography,
-nuclear calibration scaffolding, and combined scenarios.
+A preset is a bundle of variable assignments: it fills in every input a
+resolver call needs to evaluate a target, so callers do not have to
+rediscover each number by hand. The machinery for building presets lives in
+`gpu_stack.core.presets`; this package holds the actual instances, grouped
+by domain: hardware, workload, economics, materials, lithography, nuclear
+calibration scaffolding, and combined scenarios.
 
 Current inventory:
 
@@ -52,9 +53,9 @@ Current inventory:
   `econ.cost.per_token` resolves as electricity-only run cost, not fully
   allocated datacenter TCO.
 
-Each instance carries a `source` string so downstream auditing knows where
-the numbers came from. Presets without a cited source are marked as
-assumptions and should not be treated as authoritative.
+Every instance carries a `source` string, so an audit can trace each number
+back to where it came from. A preset without a cited source is labeled an
+assumption and should not be treated as authoritative.
 """
 
 from . import dgx_h100_tco, economics, hardware, lithography, materials, nuclear, scenarios, workload

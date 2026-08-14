@@ -2,7 +2,14 @@
 scopes/physical_lithography_plasma_focus_beam.py
 ================================================
 
-Beam-quality and focusing-optic relations for the source-plasma drive focus.
+Beam quality and focusing optics for the drive. The focusing optic pupil
+radius and focal length give an acceptance half-angle, numerical aperture,
+and f-number. A real beam is worse than the Gaussian ideal: its beam
+parameter product (waist radius times divergence half-angle) cannot fall
+below the diffraction limit lambda / pi, and the ratio of the two is the
+beam-quality factor that inflates the focused spot. Constraints keep the
+divergence inside the acceptance cone and the drive photon below the
+ionization-edge resonance.
 """
 
 import sympy as sp

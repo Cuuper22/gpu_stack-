@@ -2,12 +2,14 @@
 scopes/physical_lithography_nuclear_binding_coefficients.py
 ===========================================================
 
-Shared semi-empirical liquid-drop calibration coefficients.
-
-These are the current nuclear binding calibration boundary for the lithography
-source and imaging-medium component nuclei. Source and medium-specific
-coefficient variables alias these shared roots before isotope-specific terms
-apply proton, neutron, mass-number, and pairing structure.
+Shared semi-empirical liquid-drop calibration coefficients: volume,
+surface, Coulomb, asymmetry, and pairing. These five numbers are the
+nuclear-binding calibration boundary for every nucleus in the lithography
+model -- the source isotope and both imaging-medium components. Each
+consumer aliases these shared roots into its own coefficient variables
+before applying its isotope-specific proton, neutron, mass-number, and
+pairing structure. Calibrating once here keeps all nuclei on the same
+footing.
 """
 
 from ..core import Reference, VariableKind, var

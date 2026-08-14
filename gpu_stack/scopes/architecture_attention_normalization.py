@@ -1,5 +1,14 @@
 """
-LayerNorm and RMSNorm architecture formulas.
+LayerNorm and RMSNorm: the formulas that keep activations well-scaled.
+
+Deep transformers only train stably if the activations entering each block
+stay at a predictable scale, so every block normalizes its input. LayerNorm
+subtracts the mean and divides by the standard deviation (variance plus a
+small epsilon for numerical safety); RMSNorm skips the mean subtraction and
+divides by the root-mean-square alone, which is cheaper and now the common
+choice. This module states both transforms symbolically. The parameter and
+FLOP cost of normalization is counted in the embeddings and FFN modules; here
+we only pin down what the operation actually computes.
 """
 
 import sympy as sp

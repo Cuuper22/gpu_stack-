@@ -2,11 +2,12 @@
 scopes/physical_lithography_plasma_state.py
 ===========================================
 
-Compatibility shim for the lithography source plasma operating-state closure.
-
-The implementation is split into pulse/gas/geometry drive, overlap,
-absorption, and electron-state helper modules. This module preserves the
-historical public surface imported by the electronic-structure source layer.
+Compatibility shim for the complete source-plasma operating state. The
+implementation is split into drive (pulse, energy, column), focus, overlap,
+absorption, and electron-state helper modules; this module re-exports the
+whole closure in registry order and preserves the historical public surface
+that the electronic-structure source layer imports. Read the sibling
+modules for the physics; read this one to see the assembly order.
 """
 
 from ..core import Approximation

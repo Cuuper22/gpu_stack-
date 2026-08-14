@@ -2,8 +2,12 @@
 core
 ====
 
-Re-exports the core framework. Scope files use `from ..core import ...` and
-remain unchanged.
+The engine of the model: variables, equations, units, and graph resolution.
+
+This package is the single import surface for that engine. Scope files (the
+files that declare actual hardware and workload quantities) write
+`from ..core import ...` and never reach into submodules, so the internal
+layout can change without breaking them.
 
 Public surface:
   Registry
@@ -55,16 +59,17 @@ from .units import UnitError, check_dimensional_consistency, infer_expr_units
 
 def var(name: str, symbol: str, units: str, description: str,
         scope: str = "unknown", **kwargs) -> Variable:
-    """Shorthand for creating a Variable. Extra kwargs forwarded."""
+    """Shorthand for creating a Variable. Extra kwargs are forwarded unchanged."""
     return Variable(name, symbol, units, description, scope, **kwargs)
 
 
 def eq(name, lhs, rhs, description, references=None, check_units=False,
        role=None, variant=None) -> Equation:
     """
-    Shorthand for creating an (algebraic) Equation. `role` and `variant` are
-    forwarded to the Equation constructor so variant tagging stays ergonomic
-    in scope files that otherwise use this factory.
+    Shorthand for creating an algebraic Equation. `role` and `variant` pass
+    straight through to the Equation constructor, so scope files that use
+    this factory can still tag variant relations without switching to the
+    full class.
     """
     return Equation(name, lhs, rhs, description, references, check_units,
                     role=role, variant=variant)

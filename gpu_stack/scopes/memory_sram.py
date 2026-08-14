@@ -2,11 +2,22 @@
 scopes/memory_sram.py
 =====================
 
-SRAM cell family: 6T, 8T, and 10T variants.
+Facade for the SRAM bitcell family: 6T, 8T, and 10T.
 
-Exposes transistor counts, read-port counts, area estimates, access-time
-decomposition, read and write energy, leakage power, read disturb, SNM,
-write internal node, WNM, and the two SRAM margin constraint inequalities.
+An SRAM cell stores a bit in two cross-coupled inverters and reads or
+writes it through access transistors. The classic 6T cell is smallest;
+8T and 10T variants spend extra transistors on separate read ports,
+trading area for read stability and multi-port access. Three concerns
+describe any of them: variants (transistor count, read ports, area),
+operating behavior (access time, read/write energy, leakage), and margins
+(read disturb versus static noise margin, write margin, and the two
+inequalities that say the cell reads without flipping and writes without
+sticking).
+
+Each concern is split into a declarations module and an equations module;
+this facade re-exports all six and assembles the combined variable and
+equation lists the memory_cell aggregator registers. The memory_subsystem
+scope builds register files, SMEM, and caches from these cells.
 """
 
 import sympy as sp

@@ -2,17 +2,23 @@
 core/variable.py
 ================
 
-Variable and Constant classes.
+A Variable is one named quantity in the model: a clock frequency, a die
+area, a token count. It owns a SymPy symbol, human-readable metadata
+(units, description, scope), and two lists of back-references that wire it
+into the dependency graph: the equations that define it and the equations
+that use it. Everything else in core — graph traversal, resolution, unit
+checks — is built on those back-references.
 
-Extensions over the original:
-  * `value_range`: optional (min, max) tuple for physical/engineering bounds.
-  * `kind`: VariableKind enum (ROOT_INPUT, DERIVED, MEASURED, DEFINITIONAL).
-  * `extensivity`: INTENSIVE or EXTENSIVE or NONE (for aggregation semantics).
-  * `shape`: tuple for tensor-valued quantities; None for scalars.
-  * `sp_units`: optional sympy dimensional expression for unit checking.
-  * `references`: structured `Reference` list.
-  * `Constant`: locked AND its value immutable; also comes with a numeric
-    value helper that returns a sympy Float for use in substitutions.
+Beyond the basics, a Variable can carry:
+  * `value_range`: optional (min, max) bounds from physics or engineering.
+  * `kind`: VariableKind (ROOT_INPUT, DERIVED, MEASURED, DEFINITIONAL).
+  * `extensivity`: whether the quantity scales with system size.
+  * `shape`: tensor shape for non-scalar quantities; None for scalars.
+  * `sp_units`: optional SymPy dimensional expression for unit checking.
+  * `references`: structured `Reference` list for provenance.
+
+`Constant` is a Variable for universal physics constants: it refuses any
+defining equation, and its numeric value cannot be changed after creation.
 """
 
 from __future__ import annotations
@@ -53,9 +59,10 @@ class Reference:
 
 class Variable:
     """
-    A quantity in the model.
+    One named quantity in the model.
 
-    Construct once; registered globally; lifetime = program lifetime.
+    Construct it once. The constructor registers it in the global Registry,
+    and it lives for the rest of the program.
 
     Parameters
     ----------
@@ -318,9 +325,12 @@ class Variable:
 
 class Constant(Variable):
     """
-    A universal physics constant.
-      * Locked against further definition.
-      * Numeric value immutable (enforced via __setattr__).
+    A universal physics constant, such as the speed of light.
+
+    Two guarantees a plain Variable does not make:
+      * No equation may define it: `defined_by` raises.
+      * Its numeric `value` and `source` cannot change after construction
+        (enforced in `__setattr__`).
     """
 
     def __init__(
@@ -353,7 +363,6 @@ class Constant(Variable):
         )
 
     def __setattr__(self, key, val):
-        # After construction, block mutation of value/source
         if getattr(self, "_locked", False) and key in ("value", "source"):
             raise AttributeError(f"Constant {self.name} is immutable")
         object.__setattr__(self, key, val)

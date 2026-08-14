@@ -2,12 +2,20 @@
 scopes/cluster_rack.py
 ======================
 
-Rack-level aggregation.
+The rack: nodes sharing power distribution and a top-of-rack switch.
 
-A rack bundles several compute nodes behind shared power distribution and a
-top-of-rack switch. This file lifts per-node aggregates up to rack scale,
-wires the intra-rack fabric balance through NVLink, and records the
-rack-level power-domain failure unit that reliability modeling consumes.
+A rack bundles several compute nodes behind shared power gear and one or
+more top-of-rack (ToR) switches, and two new physical limits appear at this
+scale. First, off-rack bandwidth: traffic leaving the rack is bounded by the
+minimum of node NIC injection, ToR downlink capacity, and ToR uplink
+capacity, and the downlink-to-uplink ratio is the oversubscription factor —
+above 1 means the rack can generate more traffic than it can export. Second,
+the shared power domain: one failed power unit can take out many nodes at
+once, which the reliability scope treats as a correlated failure unit.
+
+Beyond that, rack FLOPs, HBM, storage, and power are straight linear rollups
+of node aggregates, and a FLOPs-per-intra-rack-byte ratio measures how well
+the NVLink fabric is balanced against the rack's compute.
 """
 
 import sympy as sp

@@ -4,16 +4,16 @@ gpu_stack.presets.hardware
 
 Hardware-layer presets.
 
-`demo_rack` is a small self-consistent bundle drawn directly from
-`gpu_stack.demo`: 9 nodes per rack, 8 GPUs per node, and 15 PFLOP/s per GPU
-at the `gpu.peak_flops` level. The H100/DGX H100 presets below are narrower
-calibrated vendor-specification bundles: they assign only values that map
-cleanly onto existing registered variables and cite the official NVIDIA
-source strings in `source` and `notes`.
+`demo_rack` is a tiny self-consistent bundle taken straight from
+`gpu_stack.demo`: 9 nodes per rack, 8 GPUs per node, 15 PFLOP/s per GPU at
+`gpu.peak_flops`. It exists as a regression anchor, not as real hardware
+data. The H100 and DGX H100 presets are the opposite: narrow vendor-spec
+bundles that assign only values mapping cleanly onto registered variables,
+with the official NVIDIA source text cited in `source` and `notes`.
 
-Add new hardware presets as separate module-level `Preset` instances
-with concrete `source` strings citing a vendor datasheet or technical
-report. Do not fabricate numbers.
+To add a hardware preset, create a new module-level `Preset` with a
+concrete `source` string citing a vendor datasheet or technical report.
+Never invent numbers.
 """
 
 from ..core.presets import Preset

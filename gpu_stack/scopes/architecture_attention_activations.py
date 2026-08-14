@@ -1,5 +1,14 @@
 """
-Pointwise activation functions used by architecture blocks.
+Pointwise activation functions used inside transformer blocks.
+
+An activation is the nonlinear function applied element-by-element between
+linear layers; without it, stacked matrix multiplies would collapse into one.
+This module writes down the exact forms of sigmoid, GeLU, SiLU, and SwiGLU —
+the gated variant that splits the FFN input into a gate and a value path.
+The FFN scope uses which activation is chosen to decide parameter counts
+(a GLU layer carries three weight matrices instead of two), and the
+arithmetic scope cares because these functions run on the SFU, not the
+Tensor Cores.
 """
 
 import sympy as sp

@@ -1,4 +1,10 @@
-"""E002-PW2 cumulative-energy repeat of the frozen cadence factorial."""
+"""E002-PW2: the cumulative-energy repeat of the frozen cadence factorial.
+
+PW1 ran the right 2x2 comparison (checkpoint cadence x continuation) but its
+board-power sensor updated too slowly to admit the energy readings. PW2
+reruns the identical frozen design, this time reading a monotonic cumulative
+energy counter, so the energy comparison can finally be measurement-valid.
+"""
 
 from __future__ import annotations
 

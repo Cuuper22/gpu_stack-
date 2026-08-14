@@ -2,7 +2,16 @@
 scopes/memory_sram_variant_equations.py
 =======================================
 
-Topology and area equations for SRAM 6T, 8T, and 10T variants.
+The fixed facts of each SRAM topology: transistors, ports, area.
+
+These equations pin down what each variant is by construction. A 6T cell
+uses six transistors and shares its single port between read and write;
+an 8T cell spends two more transistors on a decoupled read port, so reads
+no longer disturb the stored bit; a 10T cell adds another pair for a
+second independent read port. Area follows directly: transistor count
+times per-transistor area, inflated by a layout overhead factor for
+wiring and spacing. These constants are why register files (which need
+many ports) and caches (which need density) choose different cells.
 """
 
 from ..core import eq

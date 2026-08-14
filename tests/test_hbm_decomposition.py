@@ -1,9 +1,14 @@
-"""
-tests/test_hbm_decomposition.py
-================================
+"""Verifies HBM capacity and bandwidth are derived from stack geometry.
 
-HBM regressions for stacked-die capacity, channelized bandwidth, and
-supply-side effective bandwidth losses.
+HBM (high-bandwidth memory) is physically a stack of DRAM dies wired
+through parallel channels, and the model keeps that structure: stack
+capacity comes from die count, die capacity, and a spare-die fraction; pin
+count from channels times pins per channel; bandwidth from pins, pin rate,
+and protocol efficiency; and effective bandwidth from the spec number
+degraded by refresh, bank conflicts, controller efficiency, and thermal
+derating. Each test pins a variable's dependency set and resolves a
+hand-checkable case — for example 8 dies of 16 GB with 12.5% spare gives
+112 GB per stack — and the equations must all carry unit checks.
 """
 
 import pytest

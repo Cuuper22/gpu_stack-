@@ -4,14 +4,16 @@ Status: implementation brief, July 12, 2026.
 
 ## Product job
 
-The observatory lets one person move from a plain question to the complete
-research record without changing the underlying answer. The first implemented
-surface is E001, Beyond One Datacenter:
+The observatory is a web surface that shows one experiment's evidence. Its job
+is to let one person start from a plain question and drill all the way down to
+the complete research record, while the answer itself never changes along the
+way. The first implemented surface is E001, Beyond One Datacenter:
 
 > Can one training run use three intermittently powered datacenters without
 > giving up the learning efficiency of one tightly synchronized cluster?
 
-The surface must make three boundaries impossible to miss:
+Three boundaries limit what this surface may claim, and it must make all three
+impossible to miss:
 
 1. the current output is a **virtual screen**, not a real-cluster result;
 2. the timing, traffic, power, and failure traces come from the virtual
@@ -21,8 +23,8 @@ The surface must make three boundaries impossible to miss:
 
 ## Primary screen
 
-The native desktop concept is a complete 1600 by 1000 application surface,
-not a marketing page and not a grid of unrelated dashboard cards.
+The native desktop concept is one complete 1600 by 1000 application surface.
+It is not a marketing page, and it is not a grid of unrelated dashboard cards.
 
 ### Quiet header
 
@@ -42,7 +44,8 @@ not a marketing page and not a grid of unrelated dashboard cards.
 
 ### Causal field
 
-The center is one open causal canvas, not a set of cards. It contains:
+The center of the screen is the causal field: one open canvas that draws the
+cause-and-effect structure of the experiment, not a set of cards. It contains:
 
 - West, Central, and East sites with accelerator count and allocated power;
 - WAN links with 25 Gbit/s assumed payload bandwidth and 20 ms latency;
@@ -56,7 +59,8 @@ The center is one open causal canvas, not a set of cards. It contains:
   addition to color;
 - direct labels for essential values so hover is never required.
 
-The causal reading order is visible as a restrained numbered spine:
+The reader should be able to follow the causal story in order. A restrained
+numbered spine makes that order visible:
 
 1. an assumed site interruption delays a modeled operation;
 2. reactive membership remains unimplemented and visibly unmeasured;
@@ -68,8 +72,9 @@ The causal reading order is visible as a restrained numbered spine:
 
 ### Evidence inspector
 
-Selecting any site, link, event, decision, metric, or falsifier opens one fixed
-inspector on desktop and a bottom sheet on mobile. It contains:
+The inspector is the panel that explains whatever the user has selected. Select
+any site, link, event, decision, metric, or falsifier and one fixed inspector
+opens on desktop, or a bottom sheet on mobile. It contains:
 
 - plain-language meaning;
 - exact value and unit;
@@ -86,16 +91,17 @@ screening assumption.
 
 ### Aligned experiment timeline
 
-The lower third aligns the synchronous, fixed-local, and adaptive policy tracks
-against shared time. It includes compute, collective, checkpoint, failure, and
-recovery records plus their modeled resource allocations. Scrubbing the
-timeline updates the causal field and inspector. The selected time remains
-readable and keyboard accessible.
+The lower third of the screen is a timeline. It lines up the synchronous,
+fixed-local, and adaptive policy tracks against one shared clock, so the same
+moment can be compared across policies. It includes compute, collective,
+checkpoint, failure, and recovery records plus their modeled resource
+allocations. Scrubbing the timeline updates the causal field and inspector.
+The selected time remains readable and keyboard accessible.
 
 ### Policy and falsifier comparison
 
-The comparison is a compact open table aligned to the timeline, not a row of
-score cards. Columns are:
+The comparison shows how the three policies stack up. It is a compact open
+table aligned to the timeline, not a row of score cards. Columns are:
 
 - policy;
 - local steps or policy decision;
@@ -114,7 +120,8 @@ missing. It may not say `validated`, `proved`, or `works`.
 
 ## Semantic depth
 
-The depth control changes explanatory density, not the answer.
+Semantic depth is how much explanation the reader sees, not how much truth.
+The depth control changes explanatory density; the answer stays the same.
 
 - **Freshman:** one sentence per mechanism, human units, causal spine, no
   symbols unless selected.
@@ -125,7 +132,7 @@ The depth control changes explanatory density, not the answer.
 
 ## Visual direction
 
-Evolve the existing GPUSTACK illustration world rather than replacing it with
+GPUSTACK already has an illustration world. Evolve it; do not replace it with
 generic SaaS chrome:
 
 - scientific field notebook crossed with a precise mission-control instrument;
@@ -151,16 +158,16 @@ At 390 by 844, the reading order becomes:
 5. vertically stacked policy comparison;
 6. horizontally scrubbed timeline.
 
-All hover interactions have tap, focus, and keyboard equivalents. Essential
+Every hover interaction has a tap, focus, and keyboard equivalent. Essential
 values stay on-screen. Dense raw trace content can expand, but it cannot be the
 only route to the conclusion.
 
 ## Copy and data lock
 
-The implemented screen consumes generated experiment artifacts. It must not
-invent metric values in HTML or JavaScript. Until a verified E001 artifact is
-generated, result cells display `not run` or `unmeasured`. Scenario facts that
-are safe to display before execution are:
+The implemented screen reads its numbers from generated experiment artifacts.
+It must not invent metric values in HTML or JavaScript. Until a verified E001
+artifact is generated, result cells display `not run` or `unmeasured`. The
+only scenario facts safe to display before execution are:
 
 - three sites, 256 H100 accelerators per site;
 - assumed sustained rate of 500 TFLOP/s per accelerator;

@@ -1,4 +1,11 @@
-"""Physical scope export propagation import tests."""
+"""Runs the physical-scope export-propagation checks as pytest tests.
+
+The real assertions live in ``tests/helpers`` — they verify that each
+lithography submodule's exports reappear, as the same objects, in the
+parent lithography module and the top-level physical scope. This module is
+the thin pytest wrapper: one test function per helper, so each surface
+shows up as its own pass or fail in the report.
+"""
 
 from tests.helpers.import_physical_lithography_exports import (
     assert_absorption_edge_exports_propagate_through_physical_surface,

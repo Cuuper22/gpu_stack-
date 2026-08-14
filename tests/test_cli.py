@@ -1,4 +1,10 @@
-"""CLI parser and registry smoke tests."""
+"""Smoke tests for the CLI entry point.
+
+Two cheap checks that catch total breakage fast: the argument parser builds
+at all (its program name is ``gpu-stack``), and the ``stats`` command runs
+and prints the published registry variable count. If either fails, every
+other CLI test will fail too, and these point to the root cause first.
+"""
 
 from gpu_stack.cli import build_parser, main
 from tests.helpers.cli import captured_stdout

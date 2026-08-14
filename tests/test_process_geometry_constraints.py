@@ -1,4 +1,19 @@
-"""Process-geometry feasibility constraints and diagnostics."""
+"""Tests for process-geometry feasibility constraints and their diagnostics.
+
+Every derived process dimension — gate length, contact width, metal pitch,
+node length, channel length — must be positive (or, for the gate-contact
+spacing, at least zero) to describe a buildable chip. The graph states each
+requirement as a named ``Inequality`` with the CONSTRAINT role, attached to
+its variable and backed by a reference.
+
+These tests check three things. The constraints exist in exactly that
+explicit form, as real symbolic relations rather than pre-simplified truths.
+When upstream inputs (a large negative bias, say) drive a derived dimension
+negative, resolving it reports the matching constraint as failed instead of
+silently returning a nonsense geometry. And the node-length equation keeps a
+symbolic validity condition on its input pitches, so validity is evaluated
+per scenario rather than assumed.
+"""
 
 import pytest
 import sympy as sp

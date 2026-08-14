@@ -2,13 +2,18 @@
 tests/test_metadata.py
 ======================
 
-Phase 2 metadata coverage checks.
-
-The registry auto-classifies root-input Variables with `kind=ROOT_INPUT`
-after all scopes load. These tests lock that behavior in, exercise the
-new `Registry.by_kind` / `by_extensivity` / `coverage` query helpers,
-and guard against regressions where a Variable with a defining relation
-silently loses its classification.
+After every scope module loads, the registry classifies each variable by
+kind: a variable with no defining equation becomes ROOT_INPUT, physics
+constants stay DEFINITIONAL, and anything with a defining relation is
+derived. These tests lock in the rules that make the classification
+trustworthy. Constraints do not count as definitions — a variable with
+only inequality constraints (like thermal.t_ambient with its ASHRAE inlet
+bounds) is still a root input, and its constraints create dependencies
+only when you explicitly ask for them. The query helpers must partition
+cleanly: by_kind and by_extensivity together cover every variable exactly
+once, stats and coverage agree with direct counts, and running
+auto_classify_kinds a second time changes nothing — classification is
+idempotent, so re-importing scopes cannot corrupt the registry.
 """
 
 import gpu_stack

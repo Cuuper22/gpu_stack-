@@ -1,4 +1,22 @@
-"""Contracts for held-out residual, ranking, regret, and attribution metrics."""
+"""Contract tests for the prediction-evaluation metrics.
+
+This module tests the arithmetic that decides whether a model's predictions
+can be trusted. A prediction is compared to its held-out observation, giving
+a residual (signed error plus absolute and relative forms). Residuals roll
+up into interval coverage — did observations land inside the predicted
+intervals as often as the nominal confidence promised? — and into ranking
+quality (Spearman and tie-aware Kendall tau-b), decision regret (the cost of
+picking the configuration the model preferred), and residual attribution
+(splitting an error into named causes with an explicit remainder).
+
+The tests insist the metrics refuse to flatter. No fake ratios when the
+observed value is zero. No mixing nominal confidence levels in one coverage
+summary — stratify by panel instead, and the panel map must partition the
+predictions exactly. Tau-b goes undefined (None) when every pair is jointly
+tied rather than pretending correlation. Unit mismatches, wrong observation
+links, duplicate ids, and serialized derivatives that contradict their
+inputs all raise. Every metric object round-trips through JSON unchanged.
+"""
 
 from datetime import datetime, timezone
 

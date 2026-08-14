@@ -1,10 +1,11 @@
 """Leakage-safe held-out benchmarks for GPUSTACK prediction backends.
 
-The benchmark layer measures the thing the research program actually needs:
-whether a model predicts unseen configurations well enough to choose the right
-intervention.  It keeps calibration observations out of evaluation, reports
-residual and interval behavior, and makes ranking error and decision regret
-first-class outputs rather than treating a resolved number as success.
+A benchmark here measures the thing the research program actually needs:
+does a model predict unseen configurations well enough to choose the right
+intervention? Leakage-safe means the observations used to calibrate a model
+are strictly separated from the ones used to evaluate it. Beyond residuals
+and interval coverage, ranking error and decision regret are first-class
+outputs — merely producing a resolved number does not count as success.
 """
 
 from __future__ import annotations
@@ -469,7 +470,12 @@ def run_benchmark(
     *,
     model_id: str | None = None,
 ) -> BenchmarkReport:
-    """Run a backend only on the preregistered evaluation partition."""
+    """Run one backend over the benchmark's held-out cases and score everything.
+
+    The model sees only the preregistered evaluation partition; calibration
+    observations never appear in the requests. The report bundles residuals,
+    interval coverage, ranking correlation, and decision regret.
+    """
 
     observations = tuple(observations)
     aggregation = definition.aggregation

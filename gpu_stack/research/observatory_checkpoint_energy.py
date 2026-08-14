@@ -1,4 +1,12 @@
-"""Three-depth observatory projection for the valid E002-PW2 result."""
+"""Observatory projection for E002-PW2, the cumulative-energy re-measurement.
+
+PW2 repeats PW1's frozen 2x2 design but reads a cumulative energy counter
+instead of the too-slow board-power sensor, so its result is measurement-valid.
+This module verifies the result artifact's content hash and emits two
+payloads: a raw artifact with the counter traces, and a three-depth
+observatory artifact (freshman / researcher / full-trace views), each
+stamped with its own SHA-256.
+"""
 
 from __future__ import annotations
 

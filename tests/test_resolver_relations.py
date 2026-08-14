@@ -1,5 +1,12 @@
-"""
-Special relation subclass resolver coverage.
+"""Tests for the special relation subclasses the resolver must support.
+
+Beyond plain equations, the registry holds piecewise equations (conditional
+branches), stochastic relations (distribution-valued results), differential
+equations, and iterative equations. These tests verify the resolver evaluates
+piecewise conditions with real inputs, returns stochastic results as symbolic
+distribution calls rather than fake numbers, and that every subclass accepts
+the same role/variant machinery as a plain Equation, so any of them can serve
+as a selectable variant.
 """
 
 import sympy as sp

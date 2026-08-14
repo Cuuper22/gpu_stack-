@@ -1,4 +1,11 @@
-"""Root-debt ranking commands and formatters for the gpu_stack CLI."""
+"""The `root-debt` subcommand of the gpu_stack CLI.
+
+A root input is a variable with no defining equation: someone must supply
+its value. "Root debt" ranks those unresolved roots by how many variables
+depend on them, so the biggest modelling gaps surface first. Rows can also
+be grouped into boundary families to show which kind of missing data (a
+vendor datasheet, a facility measurement, a price) closes the most graph.
+"""
 
 from __future__ import annotations
 

@@ -2,8 +2,22 @@
 scopes/parallelism_zero_fsdp.py
 ===============================
 
-ZeRO-1, ZeRO-2, and ZeRO-3 per-GPU memory breakdowns, CPU and NVMe
-offload transfer-time models, and FSDP all-gather buffer sizing.
+ZeRO and FSDP: stop replicating training state, shard it instead.
+
+Plain data parallelism keeps a full copy of parameters, gradients, and
+optimizer state on every GPU — pure waste, since the copies are
+identical. ZeRO removes the redundancy in stages: ZeRO-1 shards only the
+optimizer state across the shard group, ZeRO-2 also shards gradients, and
+ZeRO-3 (equivalently FSDP) shards the parameters too, leaving each GPU
+one slice of everything plus its activations. The per-GPU memory formulas
+here show each stage dividing another term by the shard factor.
+
+The costs of sharding appear alongside. FSDP must all-gather each layer's
+parameters just before use, so a transient buffer holds the live fraction
+of unsharded weights. And when even sharded state does not fit, offload
+moves bytes to CPU DRAM or NVMe — a bandwidth-limited transfer whose time
+sits on the critical path, priced with the link speeds from the
+memory-subsystem scope.
 """
 
 import sympy as sp

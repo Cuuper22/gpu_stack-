@@ -2,8 +2,16 @@
 tests/test_material_routing_physics.py
 ======================================
 
-Regressions for the next physical-decomposition layer: material resistivity,
-routing span, and interconnect capacitance density.
+The wires. This module verifies the layer that turns material and geometry
+inputs into interconnect electrical properties: resistivity scales with
+temperature around a reference point and with a size factor for thin wires;
+route span is simply hop count times pitch (5 hops * 2.0 = 10.0);
+capacitance per unit length comes from the dielectric permittivity and the
+width-to-spacing geometry with a fringe factor; and the dielectric
+permittivity itself is relative permittivity times the vacuum constant, so
+it is derived, not typed in. For each quantity we pin the exact dependency
+set, resolve a hand-checkable case, and finally confirm every equation in
+this layer keeps its unit check on.
 """
 
 import pytest

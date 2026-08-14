@@ -1,4 +1,11 @@
-"""Focused import smoke tests for high-churn physical scope modules."""
+"""Imports the high-churn physical scope modules in a clean subprocess.
+
+The lithography plasma, species, medium, and nuclear modules change often,
+and an import error there can hide inside a test session that already
+loaded half the package. This test imports each module in a fresh Python
+process — no cached modules, no import order luck — so a circular import
+or a missing name fails loudly with the subprocess's own traceback.
+"""
 
 import json
 import subprocess

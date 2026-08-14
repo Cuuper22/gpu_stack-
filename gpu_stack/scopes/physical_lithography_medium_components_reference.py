@@ -2,7 +2,10 @@
 scopes/physical_lithography_medium_components_reference.py
 ==========================================================
 
-Shared provenance reference for lithography imaging-medium components.
+The single provenance Reference shared by every imaging-medium component
+declaration. Stating the modeling source once here keeps the component
+variable and equation modules free of repeated citations and lets them
+import it without importing each other.
 """
 
 from ..core import Reference

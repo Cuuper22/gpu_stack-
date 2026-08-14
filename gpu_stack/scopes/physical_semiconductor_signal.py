@@ -2,7 +2,12 @@
 scopes/physical_semiconductor_signal.py
 =======================================
 
-Speed-of-signal floor declarations for physical paths.
+The speed-of-signal floor. An electrical signal propagates as an
+electromagnetic wave at c divided by the effective refractive index of the
+surrounding dielectric, not at the drift speed of electrons -- so a link of
+given length has a hard minimum time of flight regardless of how good the
+drivers are. These two relations put that floor into the graph for any
+physical path.
 """
 
 import sympy as sp

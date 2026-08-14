@@ -1,13 +1,21 @@
-"""
-Tests for the DGX H100 power BOM preset and the full TCO assumption closure.
+"""Tests for the two presets that close the DGX H100 total cost of ownership.
 
-The dgx_h100_node_power_bom preset provides sourced CPU, NIC, and storage
-power roots. The pythia_70m_dgx_h100_run_closure_assumption preset supplies
-the remaining assumption-labeled economic and thermal roots needed to close
-econ.cost.per_token for the single-node Pythia-70M DGX H100 scenario.
+TCO — total cost of ownership — needs every root input filled in before
+``econ.cost.per_token`` resolves to a number. Two presets do that job:
 
-Together they compose the
-pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption scenario pack.
+- ``dgx_h100_node_power_bom`` supplies sourced hardware power roots (Intel
+  Xeon 8480C CPU, ConnectX-7 NICs, NVMe drives), each traceable to a
+  vendor datasheet.
+- ``pythia_70m_dgx_h100_run_closure_assumption`` supplies the remaining
+  economic and thermal roots, labeled as assumptions and cited to NIST,
+  EPA, and DOE figures.
+
+Composed, they form the
+``pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption`` scenario
+pack. The tests check each preset's provenance and value ranges, then run
+the composed pack end to end: no missing inputs, a positive finite cost per
+token that exceeds the electricity-only energy floor, and results that
+agree with the original sourced pack wherever inputs are shared.
 """
 
 from __future__ import annotations
@@ -142,9 +150,10 @@ class TestPythiaDgxH100RunClosureAssumption:
         )
         covered = bom_assignments | assumption_assignments
 
-        # Every original missing root must be in one of the two new presets
-        # OR must be a symbolic boundary resolved by assigned primitive roots.
-        # The full_tco pack resolves cleanly; this confirms closure.
+        # Closure means: every root the original pack was missing is either
+        # assigned by one of the two new presets or is a symbolic boundary
+        # that now resolves from assigned primitive roots. The proof is that
+        # the full_tco pack resolves with nothing missing.
         full_result = FULL_TCO_PACK.resolve("econ.cost.per_token")
         assert not full_result.missing, (
             "full_tco pack still has missing roots: "

@@ -2,11 +2,12 @@
 scopes/physical_lithography_medium_intercomponent.py
 ====================================================
 
-Compatibility surface for lithography imaging-medium intercomponent closure.
-
-The variable declarations, charge-transfer relations, geometry relations, and
-screened Coulomb binding relation live in focused sibling modules. This module
-preserves the historical public imports and registry ordering.
+Compatibility surface for the imaging-medium intercomponent closure -- the
+chemical-scale bond between components A and B, as opposed to the nuclear
+physics inside each component. The variable declarations, charge-transfer
+relations, geometry relations, and the screened Coulomb binding relation
+live in focused sibling modules. This module preserves the historical
+public imports and registry ordering.
 """
 
 import sympy as sp

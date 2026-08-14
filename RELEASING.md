@@ -1,8 +1,10 @@
 # Releasing gpu_stack
 
-This document describes how to cut a release.
+This document describes how to cut a release. The short version: you bump the version, tag the commit, and push the tag. CI does the building and publishing. Everything below is the detail behind that sentence.
 
 ## Prerequisites (one-time setup)
+
+These steps happen once, before the first release. They let GitHub Actions publish to PyPI without anyone handling an API token.
 
 1. Create the project on PyPI at https://pypi.org/manage/projects/ using the
    name `gpu_stack`.
@@ -54,6 +56,8 @@ sequence:
   completed before this job can succeed.
 
 ## Building locally (optional)
+
+You do not need this for a normal release, but it is the fastest way to check that the package builds before tagging:
 
 ```
 pip install -e ".[release]"

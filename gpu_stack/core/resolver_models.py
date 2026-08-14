@@ -1,4 +1,11 @@
-"""Private helpers for :mod:`gpu_stack.core.resolver`."""
+"""
+The resolver's vocabulary: its error types and result dataclasses.
+
+Everything the resolver raises (ResolverError and its subclasses) and
+everything it returns (ResolverResult and the records inside it) is defined
+here, with no logic attached. Keeping the shapes in one dependency-free
+module lets every resolver_* module share them without import cycles.
+"""
 
 from __future__ import annotations
 
@@ -43,7 +50,7 @@ class InvalidVariantSelector(ResolverError):
 
 @dataclass
 class TraceStep:
-    """One equation application step."""
+    """One step of the resolution: which equation gave which variable its value."""
     variable: str
     equation: str
     role: RelationRole

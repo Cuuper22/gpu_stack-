@@ -1,4 +1,10 @@
-"""Three-depth observatory projection for the physical E002-PW3 result."""
+"""Observatory projection for E002-PW3, the physical rack-dephasing experiment.
+
+Verifies the PW3 result artifact's content hash and required sections, then
+condenses it into a three-depth payload (freshman / researcher / full-trace
+views) for the UI. Values and verdicts pass through from the source
+artifact unchanged; the output is stamped with its own SHA-256.
+"""
 
 from __future__ import annotations
 

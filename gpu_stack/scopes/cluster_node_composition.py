@@ -1,5 +1,12 @@
 """
-Node composition and local-storage input declarations.
+What is inside one node: the bill-of-materials input variables.
+
+These are pure inputs, not derived quantities — you read them off the server
+spec sheet: GPUs per node, host CPUs, CPU-side DRAM capacity and bandwidth,
+and the local SSD count with per-drive capacity and bandwidth. Everything
+else the node scope computes (aggregates, power, NIC injection) is built
+from these counts, so this file is where a new server configuration enters
+the model.
 """
 
 from .cluster_node_common import BPS, DIMENSIONLESS, byte, node_composition_var

@@ -2,11 +2,12 @@
 scopes/physical_lithography_medium_composition.py
 =================================================
 
-Composition-side aggregator for lithography imaging media.
-
-The component isotope, liquid-drop binding, intercomponent binding, and
-formula-unit mass layers live in focused sibling modules; this module preserves
-the historical public import surface.
+Composition-side aggregator for the imaging medium. It stitches together
+the chain that runs from isotopes to bulk matter: component isotope
+descriptors, liquid-drop nuclear binding, intercomponent (chemical-scale)
+binding, and the formula-unit mass closure. Each layer lives in a focused
+sibling module; this module preserves the historical public import
+surface.
 """
 
 from .physical_lithography_medium_binding import *

@@ -2,7 +2,11 @@
 scopes/physical_interconnect_refs.py
 ====================================
 
-Shared references for physical interconnect declarations.
+Shared Reference objects for the interconnect modules. Every interconnect
+variable and equation cites one of these provenance records, so the source
+of a modeling choice is stated once here rather than repeated at each
+declaration. A separate module lets the variable and equation files import
+the references without importing each other.
 """
 
 from ..core import Reference

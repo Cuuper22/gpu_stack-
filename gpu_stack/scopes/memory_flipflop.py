@@ -2,10 +2,21 @@
 scopes/memory_flipflop.py
 =========================
 
-Register bit (flip-flop) timing and metastability.
+The flip-flop: the clocked bit that sets every pipeline's timing rules.
 
-Exposes setup, hold, and clock-to-Q decomposition along with the standard
-metastability failure-rate and MTBF equations.
+A flip-flop captures its input on a clock edge, and three times define its
+contract: setup (how long the input must be stable before the edge), hold
+(how long after), and clock-to-Q (how long until the output is valid).
+Each decomposes into intrinsic latch terms — aperture, regeneration, and
+output buffering — and together they bound how fast a pipeline stage can
+be clocked.
+
+Violate the setup/hold window and the latch can hang between 0 and 1:
+metastability. The standard model says the failure rate is clock frequency
+times data rate times an aperture term times exp(-t_resolve/tau), so every
+extra resolution time buys an exponential reliability gain; its reciprocal
+is the synchronizer MTBF. This is the physics behind clock-domain-crossing
+design rules everywhere in the die.
 """
 
 import sympy as sp

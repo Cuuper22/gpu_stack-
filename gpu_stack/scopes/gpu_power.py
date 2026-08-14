@@ -2,9 +2,22 @@
 scopes/gpu_power.py
 ===================
 
-GPU package power: compute, memory, and fabric power terms, total package
-power, TDP headroom, piecewise throttle factor, HBM sweep time,
-FLOPs-per-joule, bytes-per-joule, and roofline balance points.
+The GPU's power budget, and what happens when compute outruns it.
+
+Package power has three parts: compute logic (gate-level power from the
+physical scope, scaled by equivalent gate counts per SM and in the
+uncore), HBM traffic (energy per byte times bytes moved), and fabric
+traffic (energy per byte over NVLink and the NIC). Their sum meets the
+TDP — the thermal design power the package may sustain — and the gap is
+headroom. When the sum exceeds TDP, a piecewise throttle factor scales
+performance down, producing the power-limited peak FLOPs that the cluster
+scope rolls up instead of the nominal figure.
+
+From the same inputs come the efficiency metrics — FLOPs per joule, its
+reciprocal, HBM bytes per joule, and the HBM sweep time (how long one full
+pass over HBM takes at effective bandwidth) — and the roofline balance
+point: the bytes-per-FLOP ratio at which a kernel shifts from
+memory-bound to compute-bound. The kernel scope uses that as its pivot.
 """
 
 import sympy as sp

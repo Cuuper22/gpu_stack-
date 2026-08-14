@@ -2,9 +2,9 @@
 
 ## 1. Compact Diagnosis
 
-The current README is technically credible and brutally complete, but it reads like the registry exported its own autobiography. The useful signal is there: 16 systems, 1517 variables, 959 equations, 0 cycles, unit checks, scenario tooling, graph consistency, real tests. The problem is that the human entry point arrives too late.
+The current README is technically credible and brutally complete, but it reads like the registry exported its own autobiography. The useful signal is all there: 16 systems, 1517 variables, 959 equations, 0 cycles, unit checks, scenario tooling, graph consistency, real tests. The problem is simpler: the human entry point arrives too late.
 
-The opening should not start by proving the package is serious. It should start with the question that made the project inevitable: what actually happens between "I trained a model" and the physics bill arriving? The current text has the rigor, but it buries the curiosity under a wall of implementation detail. It needs a visual-first mental model, then the graph, then the audit numbers.
+The opening should not begin by proving the package is serious. It should begin with the question that made the project inevitable: what actually happens between "I trained a model" and the physics bill arriving? The current text has the rigor but buries the curiosity under a wall of implementation detail. The fix is ordering: a visual-first mental model, then the graph, then the audit numbers.
 
 The best version should feel like Cuper writing a Medium article for technical people: reflective, specific, a little dry, allergic to hype, and willing to admit that modeling the GPU stack from quarks to cost per token is a deeply unreasonable thing to do. Not impossible. Just the kind of unreasonable that becomes useful once it is made explicit.
 

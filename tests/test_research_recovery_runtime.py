@@ -1,3 +1,30 @@
+"""Tests for the recovery runtime — the event engine behind failure recovery.
+
+The ``RecoveryRuntime`` replays a fixed failure trace over a set of sites
+and advances in discrete decision batches: each call to
+``advance_to_decision`` drains every boundary due at the next timestamp
+(attempt completions, checkpoint commits, failure observations, physical
+recoveries) into one atomic snapshot a policy could act on. Ordering within
+a batch is part of the contract — completions and checkpoint commits land
+before a same-time failure, and a new failure precedes an old failure's
+physical recovery at the same nanosecond.
+
+The tests pin the invariants that make the simulation trustworthy. Work is
+conserved: attempted work always equals committed plus lost, replay work is
+tracked separately, and a preempted attempt loses exactly the work it had
+done. Checkpoints are atomic — a manifest commits only if every shard byte
+sums, every member site contributed to the step, the step is not ahead of
+the proven frontier, and no failure lands first; otherwise it aborts.
+Recovery is explicit restore-then-replay: a site stays out of the effective
+membership until replay completes, replay attempts can only come from the
+runtime itself, and a recovery plan binds to the exact work-ledger digest
+it was planned against, so a forged ledger is rejected. Repeated failures
+during restore, fixed restart, or replay cancel the stale stages and record
+the interrupted bytes and lost work precisely. Snapshots serialize
+canonically, and forged serialized fields (duplicate failure ids, future
+cutoffs, inconsistent flags) are rejected on the way back in.
+"""
+
 from dataclasses import replace
 
 import pytest

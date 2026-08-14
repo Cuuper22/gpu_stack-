@@ -1,4 +1,10 @@
-"""Shared helpers for the gpu_stack CLI facade."""
+"""Helpers shared by the gpu_stack CLI subcommand modules.
+
+Covers preset discovery and lookup, key=value argument parsing, and the
+diagnostic printers for unresolved inputs, missing-input families, and
+violated constraints. Each cli_*.py module imports from here so the
+subcommands print diagnostics in one consistent format.
+"""
 
 from __future__ import annotations
 

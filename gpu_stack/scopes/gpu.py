@@ -2,12 +2,18 @@
 scopes/gpu.py
 =============
 
-Aggregator for the gpu scope.
+Aggregator for the gpu scope: one whole GPU package, seen as a device.
 
-The original gpu file carried SM counts, die-level compute aggregates,
-on-chip and HBM memory bandwidth, host and fabric link aliases, and full
-package-level power in one slab. It has been split into focused helpers
-and re-exported here so public imports stay stable.
+Lower scopes describe pieces — one SM's arithmetic, one HBM stack, one
+memory array. This scope assembles them into the device a programmer or
+cluster planner sees: how many SMs fit on the die and the peak FLOPs they
+deliver (gpu_compute), the total on-chip and HBM capacity and bandwidth
+(gpu_memory), the PCIe, NVLink, and NIC links at the package boundary
+(gpu_io), and the power budget that ties them together — compute, memory,
+and fabric power against TDP, with the throttle and efficiency figures
+that follow (gpu_power). The node and kernel scopes both build directly on
+these package-level numbers. This file re-exports the four helpers so
+public imports stay stable.
 """
 
 from ..core import System

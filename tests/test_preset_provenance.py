@@ -1,5 +1,12 @@
-"""
-Focused provenance helpers for the core Preset framework.
+"""Tests for the Preset provenance helpers.
+
+Provenance means knowing where a number came from. A ``Preset`` carries an
+optional ``source`` string for exactly that, and three helpers make it
+enforceable: ``has_source()`` is true only for non-blank sources (whitespace
+does not count), ``require_source()`` returns the preset itself or raises
+``ValueError`` when the source is missing, and ``source_summary()`` reports
+the stripped source alongside assignment, variant, and note counts so audits
+can be automated. These tests pin each of those behaviors.
 """
 
 import pytest

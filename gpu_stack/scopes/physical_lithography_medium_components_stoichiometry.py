@@ -2,7 +2,11 @@
 scopes/physical_lithography_medium_components_stoichiometry.py
 ==============================================================
 
-Stoichiometric component counts for lithography imaging media.
+Stoichiometric counts for the imaging medium: how many atoms of component
+A and component B make up one formula unit of the compound. These two
+integers are the recipe of the medium. The formula-unit layer multiplies
+them by per-component nucleon and electron counts to get totals, and the
+density layer multiplies by particle mass to reach bulk properties.
 """
 
 import sympy as sp

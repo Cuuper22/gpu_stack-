@@ -1,4 +1,19 @@
-"""Core process-geometry model relationships."""
+"""Tests for the core process-geometry model.
+
+Process geometry connects lithography optics to transistor dimensions in
+small, physical steps. Lithography resolution plus a bias gives each drawn
+feature (gate length, contact width, metal width and spacing). Features
+combine into pitches: contacted gate pitch is gate plus contact plus spacing,
+metal pitch is width plus spacing. Pitches combine into a node length, and
+node length plus a scale and bias gives the channel length — which the graph
+marks as an APPROXIMATION, since node names only loosely track real gate
+lengths.
+
+Each test pins one link in this chain: the exact dependency set of the
+derived variable, and a numeric resolve against a hand-computed value. The
+first test also checks the plasma expansion-speed chain resolves through the
+species particle mass built from nuclear counts, in the expected trace order.
+"""
 
 import pytest
 

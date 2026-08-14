@@ -1,7 +1,21 @@
 """Tests for the mechanics-only multi-site virtual datacenter.
 
-Every number below is a synthetic round-number fixture.  The tests establish
-simulation semantics, not claims about a real accelerator, facility, or WAN.
+The ``VirtualDatacenter`` simulates training across sites joined by WAN
+links: compute events occupy accelerators, collectives occupy fabric or WAN
+bandwidth, outages take sites offline, power caps limit how many
+accelerators can run, and a policy may intervene between decision epochs.
+"Mechanics-only" means it models time, bytes, and watts — never loss or
+convergence, and the artifact tests confirm those claims are excluded.
+
+Every number in this file is a synthetic round-number fixture. The tests
+establish simulation semantics, not claims about any real accelerator,
+facility, or WAN. The semantics they pin: resources serialize honestly
+(shared fabric and shared links slow overlapping work), failure traces are
+fixed inputs that delay work rather than move, intervention batches apply
+atomically or roll back entirely, a policy sees only a frozen observable
+state and its choices take effect next epoch, accounting boundaries
+(checkpoint vs. transfer vs. collective bytes) never blur, and serialized
+results are canonical and independent of input ordering.
 """
 
 from __future__ import annotations

@@ -2,11 +2,22 @@
 scopes/optimizer_second_order.py
 ================================
 
-Second-order and matrix-structured optimizers.
+Optimizers that treat the update as a matrix, not a bag of scalars.
 
-This helper defines Muon with its Newton-Schulz orthogonalization iteration,
-the MuonClip QK rescaling, global-norm gradient clipping, and the Shampoo
-preconditioner state that the distributed sharding helper amortizes.
+First-order rules scale each parameter independently; the optimizers here
+exploit the fact that a weight tensor is a matrix. Muon takes the momentum
+matrix and orthogonalizes it — every singular value pushed toward one —
+using a Newton-Schulz iteration: a cheap matrix polynomial with fixed
+coefficients a, b, c, repeated a few times, with a residual measuring how
+close to orthogonal the result is. The effect is equalizing the update
+across directions instead of coordinates.
+
+MuonClip adds a guard for attention training: when the maximum QK logit
+exceeds a threshold, the projection weights are rescaled to pull it back,
+alongside ordinary global-norm gradient clipping. Shampoo is the
+heavyweight cousin — per-block row and column preconditioners whose state
+grows with rows plus columns per block; the sharding helper amortizes that
+state across ranks.
 """
 
 import sympy as sp

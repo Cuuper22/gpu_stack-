@@ -4,15 +4,15 @@ gpu_stack.presets.workload
 
 Workload-layer presets.
 
-The most common workload knob is the dense-vs-MoE variant selector across
-training throughput and scaling-law variables. The two presets here pin
-that selector one way or the other so a resolver call can evaluate a
-training-level target without spelling out every variant selection
-by hand.
+One preset here carries numbers: `pythia_70m_dense_training`, the sourced
+Pythia-70M model shape and training facts. The rest are variant selectors.
+A variant selector assigns no numbers at all; it just pins a choice the
+resolver cannot make on its own — dense vs. MoE equations, which MFU
+formulation to use, AdamW vs. Muon — so a resolver call does not have to
+spell out every such choice by hand.
 
-These presets carry no numeric assignments; they only set variant keys.
-Combine them with a hardware preset and scenario-specific overrides
-using `gpu_stack.core.combine_presets` to build a full scenario.
+Combine these with a hardware preset and scenario-specific overrides via
+`gpu_stack.core.combine_presets` to build a full scenario.
 """
 
 from ..core.presets import Preset

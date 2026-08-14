@@ -1,5 +1,12 @@
 """
-Node compute, HBM, and local-storage aggregate declarations.
+What one node can do: aggregate compute, HBM, and local-storage variables.
+
+These are the node's headline capabilities — peak FLOPs (both nominal and
+power-limited), usable HBM capacity and bandwidth, and local SSD capacity
+and bandwidth. Each is simply the per-GPU or per-drive figure times the
+count in the chassis; the actual products live in cluster_node_equations.
+This module only declares the variables so the rack and site scopes have
+stable symbols to roll up.
 """
 
 from .cluster_node_common import BPS, FLOPS, byte, node_aggregation_var

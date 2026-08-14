@@ -1,4 +1,12 @@
-"""CLI audit command tests."""
+"""Tests for the ``audit`` CLI command, the model's own health check.
+
+``audit`` scans the registry for integrity problems: equations that
+collapsed to a trivial identity, raw SymPy symbols with no registered
+variable behind them, orphan value equations, and source files grown past
+the size threshold. These tests verify a clean model audits clean, that the
+report names each counter, and that deliberately planted defects flip the
+exit code to 1 and appear in the details.
+"""
 
 import sympy as sp
 
@@ -31,8 +39,8 @@ def test_audit_large_project_files_scan_core_and_tests_after_cli_split():
 
     assert not any(name.startswith("gpu_stack/cli") for name in large_files)
     assert "gpu_stack/core/equation.py" not in large_files
-    # After the CLI split, no single CLI test shard should stay above the
-    # large-file audit threshold.
+    # The CLI tests were split into shards precisely to get under the
+    # large-file audit threshold; no shard may grow back past it.
     assert not any(name.startswith("tests/test_cli") for name in large_files)
     assert not any(
         name.startswith("tests/test_process_geometry") for name in large_files

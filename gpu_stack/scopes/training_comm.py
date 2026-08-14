@@ -2,12 +2,14 @@
 scopes/training_comm.py
 =======================
 
-Training communication terms.
-
-Data-parallel gradient synchronization, tensor-parallel and expert-parallel
-exposed communication aggregated across layers, context-parallel overlap,
-and offload critical-path time. Adds these up into the exposed-communication
-time that the overhead helper consumes.
+Communication time in a training step -- specifically the part that is
+exposed, meaning not hidden behind compute. Data-parallel gradient
+synchronization follows an alpha-beta (latency plus bytes-over-bandwidth)
+model across buckets; tensor-parallel and expert-parallel exposed times are
+aggregated across layers; context parallelism contributes what its overlap
+fraction fails to hide; and parameter offload adds critical-path transfer
+time. Their sum is the exposed-communication time that the overheads
+module adds into the nominal step time.
 """
 
 import sympy as sp
@@ -39,7 +41,7 @@ TRAINING_COMM_REF = Reference(
 
 
 # ---------------------------------------------------------------------------
-# Communication terms
+# Each parallelism axis contributes its own exposed time; the sum is what compute cannot hide
 # ---------------------------------------------------------------------------
 
 dp_alpha = var(

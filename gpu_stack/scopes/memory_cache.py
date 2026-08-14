@@ -2,9 +2,21 @@
 scopes/memory_cache.py
 ======================
 
-L1 and L2 cache organization. Covers bytes, line size, associativity,
-sets, partitions, miss penalty, and the average global-load latency
-assembly from cache hit rates.
+The GPU's caches, and what a global load costs on average.
+
+Between the SMs and HBM sit two caches. L1 lives inside each SM (carved
+from the same pool as shared memory); L2 is one large cache shared by the
+whole die, physically split into partitions near the memory controllers.
+Each is described by the classic geometry — capacity, line size,
+associativity, and set count, where sets equal capacity over line size
+times associativity.
+
+The payoff is the average global-load latency: a probability-weighted walk
+down the hierarchy. A load pays L1 latency on an L1 hit, falls through to
+L2 with its own latency on a miss, and pays the HBM miss penalty when both
+miss, with address-translation latency from the virtual-memory helper
+added on top. That single average is what the kernel occupancy model must
+hide with warps.
 """
 
 import sympy as sp

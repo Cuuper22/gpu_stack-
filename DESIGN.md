@@ -69,9 +69,9 @@ components:
 
 **Creative North Star: "A project window inside CuperOS"**
 
-The GitHub Pages site must feel like it belongs to Cuper's live portfolio, not like a separate AI-generated landing page. The surface is a retro desktop app: teal dotted desktop, zero-radius window chrome, indigo title bars, pixel icons, inset content panes, taskbar, and project-copy voice that sounds human, technical, and slightly amused.
+The idea is simple. Cuper's portfolio site is styled as a retro operating system called CuperOS. The GitHub Pages site for this project must look like one window inside that OS, not like a separate AI-generated landing page. That means a teal dotted desktop, zero-radius window chrome, indigo title bars, pixel icons, inset content panes, a taskbar, and project copy that sounds human, technical, and slightly amused.
 
-The README remains a GitHub-rendered article, but any browser page for the project should inherit the CuperOS design language. The page can be visual and interactive, but it should do that as an OS control surface, not as a full-bleed marketing hero.
+The README stays a GitHub-rendered article. But any browser page for the project inherits the CuperOS design language. The page can be visual and interactive, as long as it behaves like an OS control surface and never like a full-bleed marketing hero.
 
 **Key Characteristics:**
 - Pixel OS chrome first, modern landing-page composition never.
@@ -81,7 +81,7 @@ The README remains a GitHub-rendered article, but any browser page for the proje
 
 ## 2. Colors
 
-The palette is inherited from the portfolio OS: teal desktop, gray chrome, indigo title bars, off-white document panes, and small utility accents.
+The palette comes straight from the portfolio OS: teal desktop, gray chrome, indigo title bars, off-white document panes, and small utility accents. Nothing here is new.
 
 ### Primary
 - **CuperOS Indigo** (`title-bar`, `title-bar-end`): title bars, selected controls, primary project identity.
@@ -97,17 +97,17 @@ The palette is inherited from the portfolio OS: teal desktop, gray chrome, indig
 
 ### Named Rules
 
-**The No New Brand Rule.** Do not invent a separate gpu_stack palette. The project page is a child window inside CuperOS.
+**The No New Brand Rule.** Do not invent a separate gpu_stack palette. The project page is a child window inside CuperOS, so it uses the parent's colors.
 
-**The Small Accent Rule.** Gold, green, and red are status lights, not brand washes. Use them as signals, not backgrounds.
+**The Small Accent Rule.** Gold, green, and red are status lights, not brand washes. Use them as signals, never as backgrounds.
 
 ## 3. Typography
 
-**The Font Law (portfolio-wide, per Cuper):** every rendered glyph, regardless of size or role, comes from the approved pixel set: DotGothic16, Pixelify Sans, VT323, Handjet, or Silkscreen. No other typeface ever renders. No exceptions for paragraphs, tables, code, or fine print.
+**The Font Law (portfolio-wide, per Cuper):** every rendered glyph, at every size and in every role, comes from the approved pixel set: DotGothic16, Pixelify Sans, VT323, Handjet, or Silkscreen. No other typeface ever renders. No exceptions for paragraphs, tables, code, or fine print.
 
 **Current mapping:** Pixelify Sans carries the interface and all prose (headings, buttons, labels, status lines, paragraphs). VT323, the terminal face, carries commands, identifiers, numeric values, intervals, tables, and console output. The other three approved faces are available but unused here.
 
-**Legibility floor:** pixel faces break down under ~11px, so nothing renders smaller. Dense instrument fine print sits at 0.7rem minimum, chart ticks at 11px.
+**Legibility floor:** pixel faces break down under about 11px, so nothing renders smaller. Dense instrument fine print sits at 0.7rem minimum, chart ticks at 11px.
 
 **Character:** The pixel face IS the voice of the OS, everywhere, at every size.
 
@@ -126,7 +126,7 @@ The palette is inherited from the portfolio OS: teal desktop, gray chrome, indig
 
 ## 4. Elevation
 
-Depth is not blur, glass, or soft shadow. It is the retro OS physical model: `2px outset` for buttons and frames, `2px inset` for content wells, and a crisp `2px 2px 0` shadow behind windows.
+Depth here is not blur, glass, or soft shadow. It is the physical model of a retro OS: `2px outset` for buttons and frames, `2px inset` for content wells, and a crisp `2px 2px 0` shadow behind windows. A surface looks raised or sunken because its border says so.
 
 ### Shadow Vocabulary
 - **Pixel Window Shadow** (`2px 2px 0 oklch(0.08 0.004 250)`): top-level windows only.
@@ -135,7 +135,7 @@ Depth is not blur, glass, or soft shadow. It is the retro OS physical model: `2p
 
 ### Named Rules
 
-**The Chrome Is Structure Rule.** If an element needs hierarchy, give it a real OS affordance: title bar, inset pane, status light, or taskbar. Do not fake hierarchy with decorative cards.
+**The Chrome Is Structure Rule.** If an element needs hierarchy, give it a real OS affordance: a title bar, an inset pane, a status light, or a taskbar entry. Do not fake hierarchy with decorative cards.
 
 ## 5. Components
 

@@ -2,7 +2,15 @@
 scopes/physical_semiconductor_transport.py
 ==========================================
 
-Carrier transport, resistance, and lumped continuity declarations.
+Carrier transport: the microscopic origin of resistance. Current is
+carrier density times charge times drift velocity through a cross section;
+drift velocity is mobility times electric field. From these, Ohm-style
+relations give resistivity and resistance, with a temperature coefficient
+around a reference point (hotter metal scatters more) and a size factor for
+the resistivity rise in very narrow wires where surfaces and grain
+boundaries dominate scattering. A lumped continuity relation ties current
+in and out of a node. The interconnect and MOSFET layers both stand on
+these declarations.
 """
 
 import sympy as sp

@@ -2,7 +2,15 @@
 tests/test_lithography_medium_intercomponent_boundaries.py
 ==========================================================
 
-Focused boundary coverage for lithography imaging-medium intercomponent roots.
+Each intercomponent variable of the imaging medium has a domain — the set of
+values that make physical sense. A gap fraction cannot be negative; a
+separation, permittivity, or charge-transfer count must be strictly
+positive. This module checks both halves of that contract. First, that the
+domains are declared: each variable's assumptions carry the right flag
+(positive or nonnegative) and cite references. Second, that they are
+enforced: assigning a boundary-violating value still resolves to that value
+(the resolver never silently rewrites inputs) but reports the matching
+domain constraint as violated.
 """
 
 import pytest

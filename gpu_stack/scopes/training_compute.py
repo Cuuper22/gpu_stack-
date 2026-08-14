@@ -2,12 +2,16 @@
 scopes/training_compute.py
 ==========================
 
-Training compute foundation.
-
-Step FLOPs for dense and MoE paths, recomputation and optimizer-overhead
-multipliers, executed chip FLOPs, peak FLOPs run aggregates, compute time,
-achieved FLOPs, MFU, HFU, and FLOPs per token. Other training helpers
-import shared time variables from this module.
+The FLOP accounting at the heart of the training model. Two counts must
+not be confused: model FLOPs (what the math of the model requires per
+step, dense or MoE) and executed chip FLOPs (what the hardware actually
+performs, inflated by recomputation and optimizer-side work). Dividing
+FLOPs by aggregate peak throughput -- raw, effective, or power-limited,
+each being GPU count times the per-GPU figure -- gives ideal and actual
+compute times. MFU is delivered model FLOPs over raw peak; HFU is
+delivered chip FLOPs over power-limited effective peak, so MFU charges you
+for recomputation while HFU forgives it. Other training helpers import the
+shared step-time variables declared here.
 """
 
 import sympy as sp
@@ -41,7 +45,7 @@ TRAINING_COMPUTE_REF = Reference(
 
 
 # ---------------------------------------------------------------------------
-# Step time decomposition
+# Step time skeleton: compute, exposed communication, and memory-bound time sum to T_step
 # ---------------------------------------------------------------------------
 
 T_compute = var(
@@ -75,7 +79,7 @@ T_step = var(
 
 
 # ---------------------------------------------------------------------------
-# FLOP accounting
+# FLOP accounting: model FLOPs vs executed chip FLOPs, and the MFU/HFU ratios built on them
 # ---------------------------------------------------------------------------
 
 flops_step = var(

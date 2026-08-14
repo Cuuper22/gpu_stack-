@@ -1,4 +1,10 @@
-"""Constraint-style relation subclasses."""
+"""
+Inequality: a relation that bounds a variable without defining it.
+
+An identity says what a variable *is*; an inequality says where it must
+*stay*. The resolver never computes a value from an inequality — it only
+checks the finished scenario against it and reports violations.
+"""
 
 from __future__ import annotations
 
@@ -13,12 +19,13 @@ from .equation_types import EquationKind, RelationRole
 
 class Inequality(Equation):
     """
-    lhs <op> rhs where op is one of <, <=, >, >=.
+    ``lhs <op> rhs`` where op is one of <, <=, >, >=.
 
-    Inequalities are stored structurally, not eagerly evaluated. SymPy's
-    default constructor resolves ``positive_symbol >= 0`` to True at
-    construction time, which erases the constraint. ``as_sympy()`` uses
-    ``evaluate=False`` to preserve the relational object.
+    Inequalities are stored structurally, never eagerly evaluated. This
+    matters: SymPy's default constructor resolves ``positive_symbol >= 0``
+    to plain True at construction time, which would erase the constraint
+    before anyone could check it. ``as_sympy()`` therefore always builds
+    the relational object with ``evaluate=False``.
     """
 
     kind = EquationKind.INEQUALITY
@@ -65,10 +72,9 @@ class Inequality(Equation):
 
     def is_trivially_true(self) -> bool:
         """
-        Evaluate the relation under current symbol assumptions.
-
-        True means SymPy can prove the constraint is vacuous. False means the
-        constraint is nontrivial or at least not provably vacuous.
+        True when SymPy can prove the constraint from symbol assumptions
+        alone — meaning it is vacuous and adds no information. False means
+        the constraint is nontrivial, or at least not provably vacuous.
         """
         return self._REL_CLS[self.op](self.lhs, self.rhs) is sp.S.true
 

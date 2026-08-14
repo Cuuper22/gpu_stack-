@@ -1,8 +1,10 @@
-"""Preregistered E001 recovery-v2 protocol, separate from the v1 runner.
+"""The preregistered E001 recovery-v2 protocol, kept apart from the v1 runner.
 
-The full protocol remains broader than the focused four-policy recovery run.
-Existing E001 v1 mechanics and persisted artifacts retain their original
-protocol and interpretation.
+Preregistered means the policies, metrics, falsifiers, and evidence gates
+were fixed before running, so results cannot quietly redefine success. The
+full protocol here is broader than the focused four-policy recovery run
+that has actually executed. E001 v1 mechanics and their persisted artifacts
+keep their original protocol and interpretation untouched.
 """
 
 from __future__ import annotations

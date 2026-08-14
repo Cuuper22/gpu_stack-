@@ -1,4 +1,18 @@
-"""Lithography source quantum numeric closure coverage."""
+"""The quantum source chain, checked with actual numbers.
+
+Its sibling module (test_lithography_source_quantum_chain) checks the shape
+of the graph; this one checks that resolving through it produces the right
+values. The test coefficients are chosen so expected results are clean: an
+oxygen-like Z=8, N=8 nucleus gives a pairing reference mass number of 16, a
+helium-4 case makes the full liquid-drop sum easy to write out by hand, and
+the pairing sign flips as parity dictates (+1 even-even, -1 odd-odd, 0
+mixed). It also verifies override behavior — assigning the pairing
+reference mass number directly must skip the equation that would derive it —
+and the electronic side: partition ratios, Saha ion charge state, shell
+occupancies, and the screening constant all hit their hand-computed values.
+The finale resolves photon energy and wavelength end to end from the case's
+root assignments and checks lambda = h*c/E.
+"""
 
 import pytest
 

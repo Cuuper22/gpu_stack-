@@ -2,11 +2,23 @@
 scopes/kernel_roofline.py
 =========================
 
-Kernel bytes and arithmetic intensities at HBM, L2, shared memory, and
-register levels. Generalized roofline as the minimum of compute and
-per-level bandwidth ceilings. Lower bounds on time from compute, HBM,
-L2, SMEM, and register bandwidth. Foundation helper for the kernel
-scope.
+The roofline: a kernel can go no faster than its tightest ceiling.
+
+The roofline model reduces kernel performance to one ratio: arithmetic
+intensity, the FLOPs a kernel performs per byte it moves. Multiply that
+intensity by a memory level's bandwidth and you get the FLOP rate that
+level can sustain; the kernel's attainable rate is the minimum of those
+bandwidth ceilings and the compute peak. Low intensity means memory-bound,
+high intensity means compute-bound, and the crossover sits where intensity
+times bandwidth equals peak FLOPs.
+
+This module generalizes the classic HBM-only picture to the whole
+hierarchy: a kernel has separate byte counts, intensities, and ceilings at
+HBM, L2, shared memory, and the register file, because any level can be
+the bottleneck. Each ceiling also yields a lower bound on runtime (work
+divided by that ceiling's rate); the occupancy helper adds the latency
+bound and takes the overall maximum. This is the foundation helper of the
+kernel scope.
 """
 
 import sympy as sp

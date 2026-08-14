@@ -1,8 +1,12 @@
 """
 scopes/physical_lithography_source_variables.py
-================================================
+===============================================
 
-Variables and shared reference for the lithography exposure source closure.
+Variable declarations and the shared reference for the exposure-source
+closure: photon energy; the nuclear side (binding energy and its five
+liquid-drop terms, mass number, neutron excess, pairing sign, nuclear mass,
+reduced mass and its ratio); and the transition energy. The equations
+connecting them live in the sibling nuclear and transition modules.
 """
 
 import sympy as sp

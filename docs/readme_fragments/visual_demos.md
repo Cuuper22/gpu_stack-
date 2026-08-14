@@ -1,8 +1,9 @@
 # Causal Observatory README Fragments
 
-Use these fragments when the README needs a compact visual explanation of the
-research loop. The observatory is the primary visual artifact. The dependency
-cone remains useful as the symbolic ancestry view inside that larger system.
+These are ready-made fragments for when the README needs a compact visual
+explanation of the research loop. The observatory is the primary visual
+artifact. The dependency cone stays useful as the symbolic ancestry view
+inside that larger system.
 
 ## Opening Visual
 
@@ -43,8 +44,9 @@ evidence class, or conclusion.
 | Unmeasured | Required for the claim, but absent from the artifact. |
 ```
 
-The legend is a scientific boundary, not a color theme. A favorable modeled
-mechanics result cannot turn an unmeasured learning outcome into evidence.
+The legend is a scientific boundary, not a color theme. However favorable a
+modeled mechanics result looks, it cannot turn an unmeasured learning outcome
+into evidence.
 
 ## E001 Demo
 

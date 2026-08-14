@@ -1,4 +1,21 @@
-"""Lithography optics coverage for process geometry."""
+"""Tests for the lithography optics model behind process geometry.
+
+Feature size on a chip comes down to optics: a photon's transition energy
+sets its frequency and wavelength (E = h*f, lambda = c/f), and the numerical
+aperture — how wide a cone of light the lens can gather, NA = n*sin(theta) —
+sets how sharply that light can be focused. The graph derives every one of
+these from physical constants and lower-level roots rather than accepting
+them as free numbers.
+
+These tests pin the derivation chains and their guardrails. Dependency sets
+match the physics. Non-positive energies and frequencies fail their domain
+constraints. The Lorentz-Lorenz permittivity formula flags its bad branch as
+an approximation-validity failure instead of returning a silent nonsense
+value. The acceptance half-angle is bounded by the forward half-space
+(theta <= pi/2), NA is bounded by the medium's refractive index, and the
+resolution equation keeps its validity condition symbolic so it is judged
+per scenario.
+"""
 
 import pytest
 import sympy as sp

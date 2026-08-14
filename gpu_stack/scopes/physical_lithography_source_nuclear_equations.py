@@ -2,8 +2,14 @@
 scopes/physical_lithography_source_nuclear_equations.py
 =======================================================
 
-Nuclear binding, mass-defect, and reduced-mass relations for the lithography
-source isotope.
+Nuclear relations for the source isotope. Mass number is Z + N, neutron
+excess is N - Z, and the pairing sign follows nucleon parity; these feed
+the liquid-drop binding-energy terms. The nuclear mass is constituent
+masses minus binding energy over c^2 -- the mass defect. From nuclear and
+electron mass comes the reduced mass, and its ratio to the electron mass is
+the small correction the hydrogenic transition energy applies. This is why
+lithography here reaches nuclear physics: the photon energy depends,
+weakly, on how heavy the nucleus is.
 """
 
 import sympy as sp

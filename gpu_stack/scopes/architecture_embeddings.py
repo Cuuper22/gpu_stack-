@@ -2,9 +2,21 @@
 scopes/architecture_embeddings.py
 =================================
 
-Core transformer dimensions, step tokenization, embeddings, and block-level
-parameter counts. These definitions are the shared vocabulary that the other
-architecture helpers import from.
+The shared vocabulary of a transformer: its dimensions and parameter counts.
+
+A transformer's shape is a handful of integers — layers, model width d_model,
+FFN width d_ffn, attention heads, KV heads, head dimension, vocabulary size,
+batch and sequence length. This module defines those integers once so every
+other architecture helper can import them instead of redeclaring them.
+
+From the shape it derives the parameter counts: the token embedding table
+(vocab times d_model), the optional untied output projection, the four
+attention projections Q/K/V/O, the FFN matrices (with MLP and gated-GLU
+variants), and the small normalization vectors. Summing per-layer counts over
+layers plus embeddings gives the dense total that FLOP accounting, memory
+sizing, and economics all build on. It also fixes step tokenization — tokens
+per step is batch sequences times sequence length — and small derived ratios
+like the GQA head ratio and the 1/sqrt(head_dim) attention scale.
 """
 
 import sympy as sp

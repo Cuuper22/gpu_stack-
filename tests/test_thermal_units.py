@@ -1,8 +1,11 @@
-"""
-tests/test_thermal_units.py
-===========================
+"""Metadata coverage tests for the thermal scope.
 
-Thermal scope metadata coverage for water/environment and facility power.
+Every thermal variable (water usage, environment limits, facility power)
+must declare SymPy units and cite references, and every thermal relation must
+carry provenance. Where the graph has enough unit information for a
+dimensional check to be meaningful, the relation must opt into unit checking.
+Without this coverage, a new thermal variable could enter the graph with no
+units and no source, and a dimensionally wrong equation could pass unnoticed.
 """
 
 from gpu_stack import Registry

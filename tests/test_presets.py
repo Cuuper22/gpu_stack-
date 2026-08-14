@@ -1,4 +1,16 @@
-"""Core contracts for the scenario-preset framework."""
+"""Core contracts for the scenario-preset framework.
+
+A ``Preset`` bundles two kinds of choices: assignments, which give root
+inputs concrete values, and variants, which pick one formula out of a family
+(dense vs. MoE FLOPs, AdamW vs. Muon updates). These tests pin the rules that
+keep presets safe to compose. Construction validates every name — unknown
+variables, non-variant selectors, and typoed variant keys all raise
+``ValueError`` at build time, not resolve time. Inputs are copied and frozen,
+so mutating the dicts you passed in cannot change a preset after the fact.
+``combine_presets`` merges left to right with the later preset winning on
+collisions, and ``with_overrides`` returns a new revalidated instance instead
+of mutating the original.
+"""
 
 import pytest
 

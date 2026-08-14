@@ -2,8 +2,14 @@
 scopes/physical_lithography_electronic_structure_ionization.py
 ==============================================================
 
-Ionization-edge, Saha-balance, and bound-electron equations for the
-lithography source electronic-structure model.
+Ionization balance for the source ion. Two things are computed here.
+First, the ionization edge: the energy needed to remove the active
+electron, from a screened hydrogenic model with an effective nuclear
+charge. Second, the Saha balance: given the plasma electron temperature and
+density, statistical mechanics fixes the population ratio of adjacent
+charge states, and from that the equilibrium ionization fraction and
+bound-electron count. This is how the model decides which charge state
+actually emits, rather than assuming one.
 """
 
 import sympy as sp

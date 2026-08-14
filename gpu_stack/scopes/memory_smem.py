@@ -2,8 +2,20 @@
 scopes/memory_smem.py
 =====================
 
-Shared memory (SMEM) and Tensor Memory (TMEM). Covers banked bandwidth,
-L1 / SMEM carveout math, and TMEM service throughput.
+Shared memory and Tensor Memory: the SM's programmer-visible scratchpads.
+
+Shared memory (SMEM) is on-SM SRAM that a thread block manages explicitly —
+the staging area where tiled kernels keep the data they reuse. It shares
+one physical pool with the L1 cache, so L1 capacity is simply the pool
+minus the SMEM carveout. Like the register file, SMEM is banked: peak
+bandwidth is bank count times bank width times ports times the array
+clock, and a conflict factor derates it when threads collide on a bank.
+
+Tensor Memory (TMEM) is the newer dedicated SRAM that holds Tensor Core
+accumulators, with its own capacity, banked bandwidth, and an MMA write
+latency for results landing in it. The gpu_memory helper multiplies all
+of these per-SM figures by SM count, and the kernel roofline uses the
+bandwidths as intermediate ceilings between registers and L2.
 """
 
 import sympy as sp

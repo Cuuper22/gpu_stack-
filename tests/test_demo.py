@@ -1,11 +1,10 @@
-"""
-tests/test_demo.py
-==================
+"""Runs the demo end to end and checks it exits cleanly.
 
-Run the demo as a subprocess to confirm `python -m gpu_stack.demo` exits
-cleanly. The demo also exercises graph health, topological sort, and
-symbolic substitution, so a failure here catches integration regressions
-that the other smoke tests may not surface.
+``python -m gpu_stack.demo`` is launched as a real subprocess, the same way
+a user runs it. The demo touches graph health, topological sort, and
+symbolic substitution in one pass, so this single test catches integration
+breakage — a bad import, a cycle, a crash on startup — that narrower unit
+tests can miss.
 """
 
 import subprocess

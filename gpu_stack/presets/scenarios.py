@@ -2,12 +2,13 @@
 gpu_stack.presets.scenarios
 ===========================
 
-Small end-to-end scenario fixtures and sourced scenario packs.
+End-to-end scenario fixtures and sourced scenario packs.
 
-The dense-training cost fixture is synthetic, not historical measurement or a
-vendor specification. Sourced scenario packs compose narrower presets so a
-caller can feed a compact scenario into the existing resolver without copying
-domain-specific root assignments by hand.
+A scenario pack composes narrower presets (hardware + workload + power price
++ run closures) into one bundle, so a caller can hand the resolver a
+complete scenario without copying domain-specific root assignments by hand.
+One caveat up front: the dense-training cost fixture is synthetic — round
+numbers for deterministic tests, not measurements or vendor specs.
 """
 
 from __future__ import annotations
@@ -339,7 +340,7 @@ SCENARIO_TARGET_SETS = MappingProxyType(
 
 
 def scenario_targets_for(preset_or_name: Preset | str) -> ScenarioTargetSet:
-    """Return advertised labeled resolver targets for a scenario preset."""
+    """Look up the advertised (label, variable) targets for one scenario preset."""
     return targets_for(SCENARIO_TARGET_SETS, preset_or_name)
 
 

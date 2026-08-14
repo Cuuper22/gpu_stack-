@@ -1,5 +1,7 @@
 """Pure fail-stop preemption, lost-work, and checkpoint-recovery semantics.
 
+Fail-stop means a failing site simply stops — it never emits corrupt work.
+
 The complete :class:`FailureTrace` is environment state.  A policy receives
 only :class:`FailureObservation` values returned by ``visible_at``.  In
 particular, an active failure observation never carries the fixed future

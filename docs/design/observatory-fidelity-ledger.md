@@ -1,6 +1,8 @@
 # Causal Observatory fidelity ledger
 
-Verified 2026-07-12 in the Codex in-app browser against the persisted E001 observatory artifact.
+This ledger records how faithfully the built observatory follows its design
+concepts, commitment by commitment. Verified 2026-07-12 in the Codex in-app
+browser against the persisted E001 observatory artifact.
 
 ## Review sources
 

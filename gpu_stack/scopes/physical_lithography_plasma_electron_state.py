@@ -2,8 +2,11 @@
 scopes/physical_lithography_plasma_electron_state.py
 ====================================================
 
-Compatibility shim for confinement, free-electron inventory, and electron-state
-quantities in the lithography source plasma.
+Compatibility shim for the source-plasma electron state: the free
+electrons whose temperature and density decide which ion charge states
+exist and how strongly the plasma absorbs. Confinement, inventory, and
+variable declarations live in focused sibling modules; this module
+re-exports them and preserves the historical public surface.
 """
 
 from .physical_lithography_plasma_electron_state_variables import (

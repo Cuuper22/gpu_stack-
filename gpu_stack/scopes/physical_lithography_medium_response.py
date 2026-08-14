@@ -2,7 +2,14 @@
 scopes/physical_lithography_medium_response.py
 ==============================================
 
-Count and energy boundary layer for lithography imaging-medium response.
+Which electrons in the imaging medium actually respond to light. Of all
+formula-unit electrons, only a fraction is polarizable at the exposure
+frequency, and of those only a dominant-oscillator subset carries most of
+the oscillator-strength sum rule. This module declares those counts and
+fractions, the dominant resonance energy, and the ratio of resonance to
+source frequency. That ratio is the key dial: the closer the exposure
+frequency sits below the resonance, the stronger the polarizability and the
+higher the refractive index the optics layer computes.
 """
 
 import sympy as sp

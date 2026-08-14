@@ -4,10 +4,12 @@ gpu_stack.presets.nuclear
 
 Guardrails for nuclear calibration presets.
 
-The SEMF/liquid-drop coefficients are empirical calibration roots. This
-module intentionally ships no numerical defaults: callers may construct a
-Preset only by providing explicit source text plus assignments to the
-registered SEMF root variables in SI joules.
+The SEMF (semi-empirical mass formula, the liquid-drop model of nuclear
+binding energy) coefficients are empirical fit parameters, so this module
+ships no numerical defaults of its own. To build a calibration Preset a
+caller must supply explicit source text plus assignments to the registered
+SEMF root variables, in SI joules. The one sourced table we do wrap is
+Krane (1988), via `krane_semf_calibration_preset`.
 """
 
 from __future__ import annotations
@@ -49,10 +51,10 @@ _SOURCE_NOTE = (
 
 def semf_calibration_root_inventory() -> tuple[dict[str, object], ...]:
     """
-    Return the SEMF calibration roots without attaching numerical values.
+    List the SEMF calibration roots, with metadata but no numbers.
 
-    The inventory is deliberately metadata-only so a caller can inspect which
-    roots need sourced calibration while keeping the graph free of implicit
+    A caller uses this to see which roots still need sourced calibration.
+    Leaving `preset_value` as None keeps the graph free of implicit
     coefficient defaults.
     """
     out: list[dict[str, object]] = []
@@ -75,11 +77,11 @@ def semf_calibration_root_inventory() -> tuple[dict[str, object], ...]:
 
 def mev_to_joule(value_mev: float) -> float:
     """
-    Convert a caller-cited MeV energy value to SI joules.
+    Convert an energy from MeV to SI joules, exactly.
 
-    This is an exact unit conversion through the SI elementary charge. It does
-    not decide whether a source value is the right SEMF coefficient or pairing
-    semantic for a graph root.
+    The conversion goes through the exact 2019 SI elementary charge. It is
+    pure arithmetic: it does not judge whether the value is the right SEMF
+    coefficient or pairing quantity for any graph root.
     """
     if isinstance(value_mev, bool) or not isinstance(value_mev, Real):
         raise ValueError("MeV energy values must be finite real numbers")
@@ -91,13 +93,13 @@ def mev_to_joule(value_mev: float) -> float:
 
 def semf_pairing_gap_reference_energy_semantics() -> dict[str, object]:
     """
-    Return metadata for the shared pairing-gap calibration root.
+    Explain what the pairing-gap calibration root means, as metadata.
 
-    The graph root is a reference energy Delta_pair_ref. A liquid-drop pairing
-    coefficient a_pair is a derived calibration scale in this model:
-    a_pair = Delta_pair_ref * sqrt(A_ref). A cited a_pair value therefore is
-    not directly assignable to the pairing-gap root without a cited reference
-    mass-number convention.
+    The graph root is a reference energy, Delta_pair_ref. Textbooks instead
+    quote a pairing coefficient a_pair, related by
+    a_pair = Delta_pair_ref * sqrt(A_ref). So a cited a_pair cannot be
+    assigned to this root directly — you first need the source's reference
+    mass-number convention A_ref.
     """
     variable = Registry.variables[NUCLEAR_PAIRING_GAP_REFERENCE_ENERGY_ROOT]
     return {
@@ -200,9 +202,9 @@ def semf_calibration_preset(
     """
     Build a sourced SEMF calibration Preset from caller-supplied values.
 
-    Values must already be expressed in SI joules. The function does not
-    convert MeV or publish a reference table because those choices belong with
-    the cited calibration source, not in an unsourced default layer.
+    Values must already be in SI joules. The function deliberately does not
+    convert MeV or supply a reference table — those choices belong with the
+    cited calibration source, not with an unsourced default layer.
     """
     clean_name = _clean_required_text("name", name)
     clean_description = _clean_required_text("description", description)

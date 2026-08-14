@@ -2,7 +2,11 @@
 scopes/physical_lithography_plasma_absorption_path.py
 =====================================================
 
-Drive frequency and path-geometry equations for source-plasma absorption.
+Path geometry for drive absorption. The drive-beam angular frequency
+follows from its wavelength and the vacuum light speed. The absorption path
+runs through the plasma column at an angle set by the focusing optics, so a
+direction cosine and shape factor stretch the column length into the
+effective path length the optical-depth relation uses.
 """
 
 import sympy as sp

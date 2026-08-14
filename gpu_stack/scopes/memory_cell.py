@@ -2,11 +2,20 @@
 scopes/memory_cell.py
 =====================
 
-Aggregator for the memory_cell scope.
+Aggregator for the memory_cell scope: how a single bit is stored.
 
-The original memory_cell file carried SRAM variants, DRAM cells, and
-flip-flops in one slab. It has been split into focused helpers and
-re-exported here so public imports stay stable.
+Every byte in the machine ultimately lives in one of three cell types,
+each a different trade of speed, size, and upkeep. SRAM holds a bit in a
+cross-coupled latch of six or more transistors — fast and stable but big,
+so it fills caches and register files. DRAM holds a bit as charge on a
+capacitor behind one transistor — tiny and dense but leaky, so it needs
+refresh and fills HBM. A flip-flop is a clocked latch pair — the register
+bit inside logic pipelines, with setup/hold timing and metastability risk.
+
+The three cell models live in focused helper modules and are re-exported
+here so public imports stay stable. The memory_subsystem scope builds
+arrays out of these cells; the physical scope supplies their transistor
+parameters.
 """
 
 from ..core import System

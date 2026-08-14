@@ -1,4 +1,15 @@
-"""EUV tin-120 sourced-scenario contracts."""
+"""Contract tests for the EUV tin-120 sourced scenario pack.
+
+This pack composes two existing presets — the tin-120 material composition
+and the public ASML EUV tin-LPP context — into one assumption-labeled
+scenario. The word "assumption" is load-bearing: choosing tin-120 is a
+scenario-layer modeling choice, not an isotope measurement, and the pack must
+say so in its name, description, and source text. These tests verify that
+composition, check the pack never smuggles in SEMF calibration roots or
+unsourced plasma-drive values, and confirm every advertised target resolves
+to its exact expected number (50 protons, 70 neutrons, the ASML repetition
+rate).
+"""
 
 import pytest
 

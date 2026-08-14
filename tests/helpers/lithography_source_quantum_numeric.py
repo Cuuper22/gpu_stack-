@@ -1,4 +1,13 @@
-"""Numeric lithography source quantum fixture setup."""
+"""Builds one self-consistent numeric case for the source quantum tests.
+
+The lithography source model ties together pulse timing, beam focus, plasma
+column geometry, absorption, and energy balance. To test it numerically we
+need input values that actually satisfy every equation at once. This module
+starts from a few chosen roots (a hydrogen-like source, a 1 ns pulse period,
+a 10000 K electron temperature) and derives every other quantity with the
+same formulas the model uses. ``source_quantum_numeric_case()`` returns all
+of these values plus the ready-made assignment dicts on one namespace.
+"""
 
 from __future__ import annotations
 

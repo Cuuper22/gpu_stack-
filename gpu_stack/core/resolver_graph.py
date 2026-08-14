@@ -1,4 +1,12 @@
-"""Private helpers for :mod:`gpu_stack.core.resolver`."""
+"""
+Graph work for the scenario resolver: what to compute, and in what order.
+
+`_resolution_cone` decides *what*: the set of variables actually needed to
+reach the target, treating assigned variables as boundaries and refusing to
+expand subtrees that could only produce giant symbolic expressions.
+`topo_order_restricted` decides *in what order*: a topological sort over
+just that set, following each variable's selected equation.
+"""
 
 from __future__ import annotations
 

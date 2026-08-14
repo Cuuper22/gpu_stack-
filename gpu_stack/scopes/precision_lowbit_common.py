@@ -2,7 +2,9 @@
 scopes/precision_lowbit_common.py
 =================================
 
-Shared references and metadata helpers for low-bit precision declarations.
+Shared Reference objects and metadata helpers for the low-bit precision
+modules, declared once so the formats, training, and transforms modules
+cite the same provenance without importing each other.
 """
 
 import sympy as sp

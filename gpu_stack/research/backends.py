@@ -1,10 +1,15 @@
 """Composable prediction backends for the GPUSTACK virtual datacenter.
 
-GPUSTACK should not reimplement every specialist simulator.  This module gives
-the research layer a strict adapter boundary for operator simulators, measured
-surrogates, grid solvers, learning-dynamics models, and future live telemetry
-services.  Routing is explicit: overlapping backends are an error unless the
-caller supplies a target route.
+GPUSTACK should not reimplement every specialist simulator. Instead, this
+module defines a strict adapter boundary: a backend declares what targets it
+can predict (its capability), receives one `PredictionRequest` at a time, and
+returns a `PredictionEstimate` that carries its assumptions and provenance.
+Operator simulators, measured surrogates, grid solvers, learning-dynamics
+models, and future live telemetry can all plug in behind the same interface.
+
+Routing between backends is explicit on purpose. If two backends both claim
+a target, that is an error unless the caller names a route — silent
+tie-breaking would hide which model produced a number.
 """
 
 from __future__ import annotations
@@ -21,7 +26,7 @@ def _frozen_mapping(values: Mapping[str, Any]) -> Mapping[str, Any]:
 
 
 def _finite_float(value: object, field_name: str) -> float:
-    """Return a finite real while rejecting bool's integer masquerade."""
+    """Coerce to a finite float, rejecting bool (which Python counts as an int)."""
     if isinstance(value, bool) or not isinstance(value, Real):
         raise TypeError(f"prediction {field_name} must be a real number")
     result = float(value)
@@ -32,7 +37,7 @@ def _finite_float(value: object, field_name: str) -> float:
 
 @dataclass(frozen=True)
 class BackendCapability:
-    """A backend's declared modeling boundary."""
+    """What one backend claims it can model: its targets, inputs, and fidelity."""
 
     targets: Tuple[str, ...]
     supports_temporal: bool = False
@@ -56,7 +61,7 @@ class BackendCapability:
         object.__setattr__(self, "fidelity", str(self.fidelity).strip())
 
     def handles(self, target: str) -> bool:
-        """Return true for exact targets or a declared ``prefix.*`` family."""
+        """True if `target` matches an exact declaration or a ``prefix.*`` family."""
         return any(
             target == declared
             or (declared.endswith(".*") and target.startswith(declared[:-1]))
@@ -119,7 +124,7 @@ class PredictionRequest:
 
 @dataclass(frozen=True)
 class PredictionEstimate:
-    """A backend estimate with its epistemic boundary attached."""
+    """One backend answer: a value plus the assumptions and bounds behind it."""
 
     target: str
     value: float
@@ -203,7 +208,12 @@ class BackendRoutingError(RuntimeError):
 
 @dataclass(frozen=True)
 class CompositeWorldModel:
-    """Explicit router across complementary virtual-datacenter backends."""
+    """Routes each prediction request to exactly one backend, never silently.
+
+    A request goes to the backend named in `routes` if one is given;
+    otherwise exactly one backend must declare the target. Zero candidates
+    or two-plus candidates without a route is a `BackendRoutingError`.
+    """
 
     backends: Tuple[WorldModelBackend, ...]
     routes: Mapping[str, str] = field(default_factory=dict)

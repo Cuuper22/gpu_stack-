@@ -1,9 +1,12 @@
-"""
-tests/test_clock_timing.py
-==========================
+"""Verifies that clock frequency is derived from gate timing, not assumed.
 
-Clock frequency should not be an irreducible primitive. The physical scope now
-models a timing-limited maximum clock and a derated operating clock.
+In this model, clock frequency must not be a root input you simply type in.
+The physical scope derives it: the Elmore delay of the critical path sets a
+maximum timing frequency, and a derate factor turns that into the operating
+clock. These tests confirm the variable is non-root, its approximation
+equation and dependency chain exist, a hand-checkable case resolves to the
+expected number (delay 2.0, derate 0.8 gives 0.4), and the timing equations
+carry dimensional unit checks.
 """
 
 import pytest

@@ -1,9 +1,13 @@
-"""
-tests/test_root_debt_physical_boundaries.py
-===========================================
+"""Cross-layer tests for physical boundary-hardening constraints.
 
-Cross-layer checks that physical boundary-hardening constraints are visible
-from the registry graph, root-debt output, and audit-style equation invariants.
+A boundary-hardening constraint is an inequality that fences a primitive root
+into its physically meaningful range (for example, a partial pressure must be
+positive). The same constraint must be visible from three angles at once: as
+a CONSTRAINT-role inequality in the registry graph, as extra dependent weight
+in the root-debt ranking when ``--include-constraints`` is passed, and as a
+relation that passes the audit's equation invariants. These tests check all
+three views agree, and that derived variables with constraints never
+masquerade as root debt.
 """
 
 from __future__ import annotations

@@ -2,12 +2,17 @@
 scopes/optimizer_first_order.py
 ===============================
 
-Public facade for first-order optimizer foundations.
+Public facade for first-order optimizers — the ones that use only gradients.
 
-The declaration groups live in focused helpers so the shared optimizer state,
-AdamW moments, first-order update variants, and EMA weights can be read
-independently. Import order is intentionally stable because the registry keeps
-insertion order.
+A first-order optimizer sees nothing but the gradient and its own running
+statistics; everything from plain SGD to AdamW and Lion fits that mold.
+The declarations live in focused helpers: shared state (parameters,
+gradient, learning rate, weight decay, step index), AdamW's moment
+estimates, the variant family (SGD momentum, RMSProp, LAMB, Lion), and
+the EMA weights kept for deployment. This facade re-exports them in a
+deliberate order — the registry preserves insertion order, so the import
+sequence here is part of the public contract — and assembles the combined
+variable and equation lists the optimizer aggregator registers.
 """
 
 import sympy as sp

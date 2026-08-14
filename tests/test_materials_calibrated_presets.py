@@ -2,7 +2,19 @@
 tests/test_materials_calibrated_presets.py
 ==========================================
 
-Focused guardrails for sourced material preset expansion.
+Material presets name real substances — hydrogen-1, oxygen-16, tin-120,
+and H2O built from the first two — and each may assign only what a cited
+reference actually states: composition roots (proton count, neutron count,
+stoichiometry) and nothing else. This module locks that down. Every
+preset's assignments must match an expected dictionary exactly, target only
+root inputs, and contain no name touching density, binding, plasma, drive,
+optical, or response — those are derived physics, not composition facts.
+Provenance is enforced too: each source string must carry its specific
+reference tokens (IUPAC nuclide notation, the ASML tin claim, the CIAAW
+abundance figure, the NIST water entry, with URLs). Two builder guardrails
+round it out: trying to assign the derived medium mass density raises
+"root inputs only", and a provenance note with zero references raises
+"requires references".
 """
 
 import pytest

@@ -1,10 +1,12 @@
-"""Experiment E001: adaptive training beyond one datacenter.
+"""Experiment E001: can adaptive training survive beyond one datacenter?
 
-This is a virtual mechanics-screening environment. Timing, traffic, power, and
-failure behavior come from explicit virtual-datacenter events. The current
-learning response is an unfitted sensitivity prior seeded by observations, so
-learning and time-to-target falsifiers remain unresolved. A virtual result is
-not validation.
+This is a virtual mechanics screen, not a real training run. Timing,
+traffic, power, and failure behavior all come from explicit
+virtual-datacenter events, so the engine can compare synchronization
+policies mechanically. What it cannot do is measure learning: the learning
+response is an unfitted sensitivity prior seeded by observations, which
+leaves the learning and time-to-target falsifiers unresolved. A virtual
+result is not validation.
 """
 
 from __future__ import annotations

@@ -1,4 +1,11 @@
-"""Research artifacts for measured validation of the GPUSTACK world model."""
+"""The research layer: tools for testing the GPUSTACK world model against evidence.
+
+This package holds everything the experiments need — prediction backends,
+observation records, evaluation metrics, experiment protocols, the virtual
+multi-site datacenter, and the concrete E001/E002 experiment engines with
+their observatory projections. The common thread is honesty about evidence:
+every result carries its assumptions, provenance, and unresolved gaps.
+"""
 
 from .backends import (
     BackendCapability,

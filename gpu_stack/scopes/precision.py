@@ -2,13 +2,13 @@
 scopes/precision.py
 ===================
 
-Aggregator for the precision scope.
-
-The original precision file carried IEEE-754 structure, quantization and
-rounding, microscaling, block floating point, low-bit formats, loss
-scaling, and the Random Hadamard Transform in one slab. It has been
-split into focused helpers and re-exported here so public imports stay
-stable.
+Aggregator for the precision scope: what numbers a format can represent
+and what errors it makes. The original file carried IEEE-754 structure,
+quantization and rounding statistics, microscaling and block floating
+point, low-bit storage formats, loss scaling, and the Random Hadamard
+Transform in one slab; it is now split into focused helpers and
+re-exported here so public imports stay stable. The training scope consumes
+these formats through bytes-per-value and error terms.
 """
 
 from ..core import System

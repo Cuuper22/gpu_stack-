@@ -2,7 +2,13 @@
 scopes/physical_lithography_optical_core.py
 ===========================================
 
-Exposure wavelength, photon frequency, and optical-source frequency bridge.
+The optical root of the lithography model: exposure wavelength, photon
+frequency, and source angular frequency, tied together by nu = c / lambda
+and omega = 2 pi nu. The wavelength is not a free knob -- it is fixed by
+the photon energy of the source-plasma emitting transition, which is why
+the frequency bridge to the source layer exists. The numerical aperture is
+also declared here so the objective and medium layers can both close over
+it.
 """
 
 import sympy as sp

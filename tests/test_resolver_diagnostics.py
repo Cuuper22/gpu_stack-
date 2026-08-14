@@ -1,11 +1,13 @@
-"""
-tests/test_resolver_diagnostics.py
-==================================
+"""Tests for the diagnostics the resolver attaches to incomplete results.
 
-Focused coverage for scenario diagnostics layered on top of the resolver.
-The core resolver still owns resolution; these tests make sure missing
-scenario inputs and violated feasibility checks carry enough metadata for the
-CLI to tell a user what to fix next.
+When a resolve stops short, the user needs to know what to fix next. The
+resolver classifies each unresolved input: a primitive root (a leaf with no
+defining equation — assign it a value), a symbolic boundary (a derived
+variable whose own inputs are missing — assign it or resolve deeper), or a
+variant family (multiple candidate equations — pick one). These tests check
+that each diagnostic carries the right category, family grouping, units, and
+dependents, and that violated constraints report the actual evaluated inputs
+so the CLI can print an actionable message.
 """
 
 import contextlib

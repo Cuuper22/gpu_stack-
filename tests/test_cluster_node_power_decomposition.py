@@ -1,8 +1,13 @@
-"""
-tests/test_cluster_node_power_decomposition.py
-==============================================
+"""Verifies node non-GPU power is decomposed into a bill of materials.
 
-Node non-GPU power should be symbolic BOM structure, not five opaque roots.
+A server node's power beyond the GPUs — CPU, RAM, NICs, SSDs, misc — must
+not be five opaque root numbers. Each total is derived from BOM inputs
+(count times power-per-unit), so the model can answer "what if we add a
+NIC?" instead of just restating a guess. These tests pin the decomposition:
+each component total depends on exactly its BOM inputs, the per-unit
+coefficients stay roots, hand-checkable cases resolve correctly (for
+example 2 CPUs at 320 W gives 640 W), the node total of 6738.96 W traces
+through every component equation, and no dependency cycles appear.
 """
 
 import pytest

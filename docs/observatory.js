@@ -256,11 +256,11 @@
     return String(value || "not reported").replaceAll("_", " ");
   }
 
-  // Freshman translation layer. Artifact wording stays verbatim everywhere it
-  // is quoted; these are clearly marked plain-language companions keyed on the
-  // persisted conclusion string, shown only at freshman depth. A conclusion
-  // without an entry simply shows no companion. Values and verdicts are never
-  // changed here, only restated.
+  // Freshman translation layer. Each entry is a plain-language companion for
+  // one persisted conclusion string, shown only at freshman depth and clearly
+  // marked as a companion. The artifact wording itself stays verbatim
+  // everywhere it is quoted. A conclusion without an entry simply shows no
+  // companion. Nothing here changes a value or a verdict; it only restates.
   const PLAIN_WORDS = {
     abstain_without_policy_claim:
       "We stress-tested the controller in conditions it had never seen. It noticed it was out of its depth, logged an honest fallback 104 times, and declined to call itself the winner. That refusal is the result, and it is the most trustworthy behavior a controller can show.",

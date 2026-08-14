@@ -2,11 +2,14 @@
 scopes/physical_local_thermal.py
 ================================
 
-Local semiconductor thermal boundary and self-heating relations.
-
-This is the layer between process geometry and temperature-sensitive
-transport. It deliberately stays below the package/facility thermal scopes so
-the physical scope remains acyclic.
+Local self-heating of the semiconductor: how much hotter the device sits
+than its surroundings. Power from a cluster of cells crosses a thin
+boundary layer of finite thermal conductivity, so heat flux times the
+boundary thermal resistance (with a spreading factor for non-uniform flow)
+gives a temperature rise above ambient. The resulting local temperature
+feeds temperature-sensitive transport, notably resistivity. This layer
+deliberately sits below the package and facility thermal scopes -- it knows
+nothing about coolant or chillers -- so the physical scope stays acyclic.
 """
 
 import sympy as sp

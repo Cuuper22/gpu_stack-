@@ -2,22 +2,22 @@
 scopes/economics.py
 ===================
 
-Aggregator for the economics scope.
+Aggregator for the economics scope: what a training run actually costs.
 
-The original economics file carried GPU amortization, site capex, tariffs,
-opex rates, run-level rollups, NPV discounting, and inference-token recovery
-in one slab. That grew past 800 lines and made every change a cross-topic
-review. Economics is now split into focused helpers and re-exported here so
-public imports stay stable.
+Every scope below this one measures seconds, bytes, and watts; economics
+converts them to dollars. Two kinds of money flow in. Capex is what you pay
+once — GPUs, servers, switches, the building — and then depreciate over a
+useful life. Opex is what you pay continuously — electricity under real
+tariffs, water, maintenance, staff, network transit, carbon. Allocate both
+to one job by its share of the cluster and its wall-clock time, and you get
+the run cost, which divides into cost per step, per token, and per FLOP.
 
-The helpers in dependency order:
-
-* capex  - node, rack, cluster, and facility capex, site rollups, job share.
-* opex   - tariffs, demand charges, water, maintenance, staff, transit,
-           carbon, allocated power cost, and run-level power cost.
-* finance- utilization, allocation, WACC, run discount factor.
-* recovery - run cost rollups, cost per step or token or FLOP, NPV, and the
-             inference-token recovery target.
+The helpers, in dependency order: capex (node, rack, cluster, and facility
+capital plus job share), opex (tariffs, demand charges, and the other
+operating rates), finance (utilization, allocation, WACC, run discount
+factor), and recovery (the run-cost rollup, unit costs, NPV, and how many
+inference tokens must be sold to earn the run back). This file re-exports
+all of them so public imports stay stable.
 """
 
 from ..core import System

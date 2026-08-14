@@ -2,9 +2,15 @@
 scopes/thermal_package.py
 =========================
 
-Package-level thermal path: die-attach, TIM, spreader, cold plate, and fluid
-film resistances, case and junction temperatures, radiation, required heat
-removal, heat-removal capacity, and thermal headroom for one package.
+The thermal path out of one GPU package. Heat flows from the junction
+through die attach, thermal interface material, heat spreader, cold plate,
+and the fluid boundary film -- a series chain of thermal resistances, each
+in kelvin per watt, that sum to the junction-to-coolant resistance.
+Junction temperature is then coolant temperature plus power times that
+resistance, with a small radiative term in parallel. Comparing required
+heat removal against heat-removal capacity at the maximum allowed junction
+temperature gives the thermal headroom that decides whether the package
+can run at full power or must throttle.
 """
 
 import sympy as sp
@@ -27,7 +33,7 @@ THERMAL_PACKAGE_REF = Reference(
 
 
 # ---------------------------------------------------------------------------
-# Package thermal path, per GPU
+# Series resistances junction-to-coolant; each temperature is the one below plus Q times theta
 # ---------------------------------------------------------------------------
 
 theta_die_attach = var(

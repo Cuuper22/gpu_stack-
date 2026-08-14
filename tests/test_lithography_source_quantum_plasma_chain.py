@@ -1,4 +1,19 @@
-"""Lithography source quantum plasma-chain structure coverage."""
+"""The wiring of the plasma half of the quantum source chain.
+
+These tests never compute a number. They pin down structure: for each
+plasma variable — drive timing and intensity, focus optics, plasma column
+geometry, absorption physics, spatial and temporal overlap, and the
+electron energy balance ending at temperature and Debye length — the direct
+dependency set must match exactly what the defining equation uses. Exact
+set equality matters here: a dependency that appears from nowhere or
+quietly disappears means the physics was rewired. The tests also verify
+which convention equations back the defaultable factors (circular spot,
+full-area fill, ideal column, coaxial pointing, synchronized timing, each
+an approximation with the expected constant right-hand side) and that the
+two diffraction floors — on the beam parameter product and the beam quality
+factor — are properly registered inequalities with references and unit
+checks.
+"""
 
 import sympy as sp
 

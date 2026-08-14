@@ -2,10 +2,21 @@
 scopes/kernel_occupancy.py
 ==========================
 
-CTA resource accounting from threads, registers, and shared memory.
-Active-block and occupancy formulas. Latency-hiding factor from active
-warps per SM. Combines the bandwidth and latency lower bounds into the
-full kernel body and wall-clock time.
+Occupancy: whether enough warps are resident to hide memory latency.
+
+A GPU tolerates slow memory by oversubscription — while one warp (a group
+of 32 threads) waits on a load, the scheduler runs another. That only
+works if enough warps are resident, and residency is a resource problem:
+each block (CTA) claims threads, registers, and shared memory from the
+SM's fixed budgets, and the tightest of the three limits caps how many
+blocks fit. Active warps over the maximum is the occupancy.
+
+The latency-hiding factor compares active warps against the full-hide
+point; below it, part of every global-load latency is exposed and becomes
+a latency-bound time term. The kernel's body time is then the maximum of
+that term and the compute and bandwidth bounds from the roofline helper,
+and wall-clock time adds launch overhead. Achieved FLOPs — kernel FLOPs
+over wall-clock time — is the number to compare against peak.
 """
 
 import sympy as sp

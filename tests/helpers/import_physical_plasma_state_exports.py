@@ -1,4 +1,12 @@
-"""Expected import surfaces for the source-plasma state compatibility shim."""
+"""Pins the exact public surface of the source-plasma state compatibility shim.
+
+The ``physical_lithography_plasma_state`` module is a shim: it re-exports the
+plasma-state variables and equations that other modules (electronic structure,
+plasma species) build on. This helper lists every expected export by name —
+attribute names, registry names, and ``__all__`` order — and asserts the shim
+matches exactly. The lists are long on purpose: any rename, drop, or reorder
+in the shim shows up as a precise diff instead of a distant import error.
+"""
 
 
 def assert_plasma_state_shim_preserves_public_surface():

@@ -2,11 +2,22 @@
 scopes/memory_dram.py
 =====================
 
-DRAM cell and sense path.
+The DRAM bit: charge on a capacitor, read by a race against leakage.
 
-Exposes the 1T1C storage cell, charge sharing onto the bitline, sense
-amplifier offset, gain, and resolve time, a log-normal retention-time
-distribution, and the lower-tail refresh guard inequality.
+A DRAM cell is one transistor and one capacitor (1T1C): the bit is simply
+charge, and it leaks away, which is why DRAM must be refreshed — the
+refresh period is the stored charge divided by the leakage current.
+Reading is destructive and delicate. Opening the access transistor shares
+the cell's charge with a much larger bitline capacitance, so the sense
+amplifier sees only a small voltage step; it must overcome its own input
+offset, then regenerate exponentially with gain and time constant until
+the signal reaches logic level — that is the resolve time.
+
+Retention is statistical, not uniform: cell retention times follow a
+log-normal distribution, so the refresh interval must be guard-banded
+several sigma below the median to cover the leakiest cells. The refresh
+guard inequality checks exactly that. HBM inherits all of this — its
+refresh overhead in memory_hbm is this physics at package scale.
 """
 
 import sympy as sp

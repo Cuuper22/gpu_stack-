@@ -1,6 +1,6 @@
 # README QA Checklist
 
-Prepared 2026-05-11 18:11 America/Los_Angeles for a README rewrite into a Medium-style Cuper article. Scope: preserve technical correctness while letting the prose become sharper, more narrative, and less registry dump.
+Prepared 2026-05-11 18:11 America/Los_Angeles for a README rewrite into a Medium-style Cuper article. The scope is simple to state: keep every technical claim correct while the prose becomes sharper, more narrative, and less of a registry dump.
 
 ## 1. Factual Claims To Preserve Or Reverify
 

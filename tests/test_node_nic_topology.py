@@ -1,10 +1,14 @@
-"""
-tests/test_node_nic_topology.py
-================================
+"""Regression tests for node scale-out NIC bandwidth.
 
-Node scale-out NIC regressions. Node bandwidth is bounded by installed NICs,
-ports, port rates, and node-level protocol efficiency, not by multiplying a
-per-GPU value by GPU count.
+A node's network bandwidth is set by its physical hardware: how many NICs
+(network interface cards) are installed, how many ports each NIC has, and how
+fast each port runs. Raw bandwidth is simply NICs x ports x port rate, and
+effective bandwidth is that raw number times a node-level protocol efficiency.
+
+An older model got this wrong by multiplying a per-GPU bandwidth by GPU count,
+which invents ports that do not exist. These tests pin the correct dependency
+graph: bandwidth depends only on the physical port inventory, never on GPU
+count, and the equations carry unit checks so a mismatched unit fails loudly.
 """
 
 import pytest

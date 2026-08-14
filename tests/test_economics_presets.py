@@ -1,8 +1,12 @@
-"""
-tests/test_economics_presets.py
-===============================
+"""Tests for the electricity-price presets and their provenance.
 
-Focused provenance and resolver coverage for economics power-price presets.
+Each preset encodes one flat power tariff from EIA (the U.S. Energy
+Information Administration) 2024 data — for example 0.0813 USD/kWh for U.S.
+industrial customers. A price without a citation is just a guess, so the
+tests check three things: every preset cites its EIA source with the exact
+cents/kWh figure, every preset assigns exactly the three power-price roots
+and nothing else, and the resolver turns each flat tariff into the blended
+kWh price and the per-watt-second price (divide by 3,600,000).
 """
 
 import pytest

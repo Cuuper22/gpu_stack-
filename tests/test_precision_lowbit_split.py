@@ -1,5 +1,15 @@
-"""
-Precision low-bit declaration layer regressions.
+"""Regression test for the precision low-bit module split.
+
+The low-bit precision declarations were split into three submodules —
+formats, training, and transforms — while the umbrella module
+``precision_lowbit`` re-exports them as single tuples. Registration order
+matters: variables and equations enter the registry in declaration order,
+so a reshuffle would silently change the public ordering downstream code
+sees.
+
+This test pins both facts: the umbrella tuples are exactly the three
+submodule tuples concatenated in formats-training-transforms order, and the
+resulting name sequences match the published order element by element.
 """
 
 

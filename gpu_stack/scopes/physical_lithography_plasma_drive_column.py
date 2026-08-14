@@ -2,7 +2,13 @@
 scopes/physical_lithography_plasma_drive_column.py
 ==================================================
 
-Active-column expansion and geometry for the lithography source plasma.
+Geometry of the plasma column during the drive pulse. Once heated, the
+plasma expands radially at roughly the species acoustic speed (a multiplier
+on the thermal speed), so the column radius is the drive spot radius grown
+by an expansion factor. An aspect ratio derived from the focused-beam
+confocal length sets the column length, and an active-volume fraction says
+how much of that column actually holds the emitting, free-electron-bearing
+plasma. That active volume is the denominator behind electron density.
 """
 
 import sympy as sp

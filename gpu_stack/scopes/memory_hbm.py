@@ -2,8 +2,22 @@
 scopes/memory_hbm.py
 ====================
 
-HBM organization, usable bandwidth, and capacity after stacked-die
-organization, channel geometry, refresh, ECC overhead, and memory compression.
+HBM: stacked DRAM dies, and the gap between datasheet and usable numbers.
+
+High-bandwidth memory earns its bandwidth from geometry: DRAM dies are
+stacked and wired to the GPU through thousands of pins — stacks times
+channels per stack times pins per channel — each signaling at the pin
+rate. Multiplying that out gives the headline bandwidth; capacity is
+similarly dies per stack times die capacity, less a spare-die fraction
+for yield.
+
+Neither headline survives contact with reality, and this module prices the
+gap. Bandwidth is derated by protocol efficiency, refresh overhead (the
+DRAM cells below still need refreshing), bank conflicts, controller
+efficiency, and thermal derating. Capacity loses an ECC fraction, then
+optionally gains it back through memory compression. The effective figures
+that survive are what the gpu scope exposes and every roofline uses; the
+latency and energy-per-byte constants feed the cache and power models.
 """
 
 import sympy as sp

@@ -1,4 +1,13 @@
-"""Private helpers for :mod:`gpu_stack.core.resolver`."""
+"""
+Diagnostics for the scenario resolver: turning failures into guidance.
+
+When resolution leaves gaps, the caller needs more than a set of missing
+names. These helpers classify each unresolved input (is it a root input, a
+variant family with no selector, or just an unresolved subtree?), bucket
+long variable names into short families for reporting, and build the
+messages and metadata that Underdetermined errors and constraint-violation
+reports carry.
+"""
 
 from __future__ import annotations
 

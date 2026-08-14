@@ -2,12 +2,19 @@
 scopes/cluster.py
 =================
 
-Aggregator for the cluster scope.
+Aggregator for the cluster scope: from one server to a fleet of sites.
 
-The original cluster file carried node, rack, site, storage, scheduler,
-reliability, and hyperscaler content in one slab. That grew past 1100 lines
-and made every change a cross-topic review. Cluster is now split into
-focused helpers and re-exported here so public imports stay stable.
+The cluster scope answers the scaling question: if one GPU delivers some
+compute, memory, and network capability, what does a node of eight deliver, a
+rack of many nodes, a site of many racks, and a hyperscaler of many sites?
+Most of the math is deliberate linear rollup — multiply by the count at each
+level — plus the things that only appear at scale: top-of-rack switches and
+oversubscription, shared storage feeding the data pipeline, job schedulers,
+and reliability (failure rates, checkpoints, lost work).
+
+The content lives in focused helpers for node, rack, site, storage, and
+reliability. This file re-exports them all so public imports stay stable and
+registers the combined lists under one System.
 """
 
 from ..core import System

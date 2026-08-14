@@ -2,18 +2,13 @@
 scopes/physical_lithography_species.py
 ======================================
 
-Isotope composition variables for lithography source species.
-
-The calibration boundary for the source isotope is the proton count Z and
-neutron count N. These are the standard isotope identifiers (AME/IUPAC
-nuclide notation). Valence quark counts follow from the proton uud and
-neutron udd quark model identities:
-
-  U = 2*Z + N   (each proton contributes 2 up quarks, each neutron 1)
-  D = Z + 2*N   (each proton contributes 1 down quark, each neutron 2)
-
-This decomposition is a real physics identity, not an approximation. Quark
-counts are derived from Z and N; they are not primitive roots.
+Isotope composition of the source species. The calibration boundary is
+the proton count Z and neutron count N, the standard nuclide identifiers
+(AME/IUPAC notation). Valence quark counts follow from the proton uud and
+neutron udd quark content: U = 2Z + N and D = Z + 2N. This is an exact
+identity for any nucleus, not an approximation, so the quark counts are
+derived quantities rather than primitive roots, and the atomic number is
+recovered as an alias of Z.
 """
 
 import sympy as sp

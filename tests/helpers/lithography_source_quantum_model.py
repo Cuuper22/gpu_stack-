@@ -1,4 +1,12 @@
-"""Symbolic lithography source quantum registry lookups."""
+"""Short-name handles for the lithography source quantum variables.
+
+The registry stores these variables under long dotted names like
+``physical.lithography.source_plasma_electron_temperature``. Tests would
+drown in those. This module maps each one to a short attribute name
+(``plasma_temperature``) grouped by physics area — nuclear, plasma drive,
+plasma column, absorption, energy balance, electronic structure — and
+``source_quantum_model()`` returns them all on one namespace object.
+"""
 
 from __future__ import annotations
 

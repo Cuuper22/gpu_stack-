@@ -2,8 +2,13 @@
 scopes/physical_lithography_plasma_focus_spot.py
 ================================================
 
-Spot-size, Rayleigh-range, and illuminated-area relations for the
-source-plasma drive focus.
+The focused drive spot. Spot radius scales as waist coefficient times
+f-number times wavelength times beam quality -- a slower (higher f-number)
+or dirtier (higher M-squared) beam focuses to a bigger spot. The Rayleigh
+range says how far from focus the beam stays tight, and twice that, the
+confocal length, sets the useful interaction length for the plasma column.
+Spot radius with an elliptical shape factor gives the illuminated area that
+divides pulse energy into fluence.
 """
 
 import sympy as sp

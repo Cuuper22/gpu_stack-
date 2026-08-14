@@ -1,5 +1,12 @@
-"""
-Tests for gpu_stack.uncertainty -- Monte Carlo propagation.
+"""Tests for ``gpu_stack.uncertainty`` — Monte Carlo propagation.
+
+Instead of one number per input, the caller gives a distribution (uniform,
+normal, or lognormal); the propagator draws samples, resolves the target for
+each, and reports mean, std, and quantiles. These tests cover the guardrails
+(distributions must respect a variable's positivity assumption, duplicate
+uncertain inputs are rejected), seeded determinism, quantile ordering, exact
+agreement with the analytic mean and std on a hand-checkable linear case,
+and honest failure accounting when a sample makes the model blow up.
 
 All uncertain ranges used here are SYNTHETIC FIXTURES chosen for
 deterministic testability; they are not historical data, vendor

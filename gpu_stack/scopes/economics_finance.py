@@ -2,12 +2,21 @@
 scopes/economics_finance.py
 ===========================
 
-Financing and allocation primitives for the economics scope.
+How fixed costs and the time value of money reach one training job.
 
-This helper holds site utilization, the fixed-cost allocation factor, the
-allocated job capex rate, the annual WACC, the run discount factor, and the
-NPV container. The NPV equation itself lives in the recovery helper where the
-run cost is assembled.
+Two financial facts connect a cluster's books to a single run. First,
+allocation: a site is never 100% busy, so its fixed costs must be spread
+over only the productive fraction — the allocation factor is the job's
+share of the cluster divided by site utilization, and multiplying it into
+the cluster capex rate gives the job's capex rate. Idle time makes every
+productive hour dearer.
+
+Second, discounting: money spent during a months-long run is worth more
+than the same amount later, so an annual WACC (weighted average cost of
+capital, the firm's hurdle rate) becomes a discount factor over the run's
+wall-clock duration. This helper declares the NPV container; the NPV
+equation itself lives in the recovery helper, where the run cost is
+assembled.
 """
 
 import sympy as sp

@@ -2,7 +2,18 @@
 scopes/interconnect_nvlink.py
 =============================
 
-NVLink-tier fabric relations and rack-domain aggregation.
+The NVLink tier: the fast fabric among GPUs in one rack domain.
+
+NVLink is the short-reach fabric that connects GPUs directly or through
+NVSwitch within a rack-scale domain. Its defining traits are few hops and
+high bandwidth, so its alpha (average hops times per-hop latency plus
+flight time) is microseconds and its beta comes from the effective per-GPU
+payload bandwidth imported from the gpu scope. This module instantiates
+the generic link template with those values and adds the rack-domain
+rollup: GPUs per rack times per-GPU bandwidth, scaled by a bisection
+factor, gives the rack's aggregate NVLink bandwidth. Collectives use this
+tier for their intra-node phase; the rack scope checks it against compute
+for fabric balance.
 """
 
 from ..core import eq, var

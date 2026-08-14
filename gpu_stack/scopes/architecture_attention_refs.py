@@ -1,5 +1,13 @@
 """
-Shared references for architecture attention helper modules.
+Shared citation objects for the attention helper modules.
+
+The attention math is split across three files (core, activations,
+normalization), but they cite the same handful of sources: the original
+Transformer attention form, dense and sparse FLOP accounting conventions,
+and KV-cache bookkeeping. Defining each Reference once here keeps the
+citations identical everywhere they appear and avoids circular imports
+between the helpers. The DIMENSIONLESS constant lives here for the same
+reason: it is the unit tag every helper needs.
 """
 
 import sympy as sp

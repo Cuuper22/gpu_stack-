@@ -2,9 +2,19 @@
 scopes/gpu_io.py
 ================
 
-GPU-level aliases for PCIe, CXL, NVLink, and NIC bandwidth. Raw and
-effective NVLink and NIC bandwidths, lane counts, protocol efficiencies,
-utilizations, and actual transmit bandwidth.
+Every wire out of the GPU package, and what each can really carry.
+
+A GPU has three kinds of exits: the host links (PCIe, and CXL for pooled
+memory), the NVLink fabric to nearby GPUs, and the NIC path into the
+scale-out network. For the host links this module just re-exposes the
+lower-scope bandwidths at GPU scope. For NVLink and the NIC it applies the
+same two-stage derating everywhere: lanes times per-lane rate gives raw
+bandwidth, protocol efficiency cuts it to effective payload bandwidth, and
+a utilization factor cuts that to the bandwidth actually transmitted.
+
+The transmit figures matter downstream twice: the interconnect and
+collective scopes use them to time communication, and gpu_power charges
+energy per byte actually moved across the package boundary.
 """
 
 import sympy as sp

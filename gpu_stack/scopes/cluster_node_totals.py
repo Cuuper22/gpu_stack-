@@ -1,5 +1,11 @@
 """
-Node-level total declarations that depend on prior node sections.
+Node grand totals — declared last because they sum everything before them.
+
+Today this holds one variable: total node power, the sum of GPU power and
+every non-GPU subtotal from the power bill of materials. It lives in its own
+module because it depends on all the other node sections, and keeping it
+separate preserves a clean import order among the helpers. The rack scope
+multiplies this figure by nodes per rack.
 """
 
 from .cluster_node_common import WATT, node_power_var

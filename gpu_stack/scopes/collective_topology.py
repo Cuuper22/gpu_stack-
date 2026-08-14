@@ -2,7 +2,16 @@
 scopes/collective_topology.py
 =============================
 
-Shared collective topology and payload metadata.
+Who is talking and how much data moves: shared inputs for every collective.
+
+Every collective algorithm needs the same handful of facts before any
+formula applies: how many ranks participate, how many of them share a fast
+intra-node fabric (which fixes the node count), and how many payload bytes
+must move. From these come the purely structural quantities — ring step
+count 2*(p-1), tree depth log2(p), and per-rank payload share — plus the
+latency-bandwidth crossover: the payload size alpha/beta at which
+per-message latency stops dominating and per-byte cost takes over. The
+algorithm modules import these symbols instead of redeclaring them.
 """
 
 import sympy as sp

@@ -1,16 +1,24 @@
-"""
-tests/test_relation_roles.py
-============================
+"""Regression tests for relation roles — the Phase 0 semantic fixes.
 
-Regression coverage for the Phase 0 semantic fixes.
+Every relation in the graph carries a role saying what kind of statement it
+is: an IDENTITY (exact definition), a CONSTRAINT (feasibility bound), an
+APPROXIMATION (model, not law), or a VARIANT (one of several selectable
+formulas). Two failure modes motivated these tests.
 
-Covers:
-  * Inequality preservation. The two SRAM margin constraints must keep their
-    Relational structure in `as_sympy()` and must not report as trivially
-    true under current symbol assumptions.
-  * Role-filtered defining-equation access. Each audited
-    multi-definition variables from IMPROVEMENT_MAP.md must decompose
-    cleanly into identities, constraints, approximations, and variants.
+First, SymPy can silently simplify an inequality to ``True`` when symbol
+assumptions (like "this symbol is positive") make it vacuous. A constraint
+that collapses to True checks nothing. The SRAM margin tests, and the sweep
+over every registered inequality, guarantee ``as_sympy()`` keeps a real
+Relational.
+
+Second, a variable with several defining equations is only usable if each
+equation's role is known. The audited table from IMPROVEMENT_MAP.md pins the
+exact identity/constraint/approximation/variant counts per multi-definition
+variable, checks the role accessors partition all defining equations with
+none unclassified, and requires distinct variant keys. Constructor tests
+close the loopholes: a VARIANT needs a key, non-variants may not carry one,
+value-defining relations need a bare-variable left side, and inequalities
+must use the CONSTRAINT role.
 """
 
 import pytest

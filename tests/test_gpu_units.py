@@ -1,12 +1,12 @@
-"""
-tests/test_gpu_units.py
-=======================
+"""Checks unit and reference metadata for the GPU scope.
 
-GPU-scope metadata coverage regressions.
-
-The GPU split is where package-level compute, HBM, IO, and power paths meet.
-These checks keep that surface covered with concrete unit metadata, structured
-provenance, and dimensional checks on equations whose dependencies are unitful.
+The GPU scope is where compute (FLOPS), HBM memory (bytes and bits per
+second), interconnect IO, and power (watts) all meet in one package, so it
+mixes more unit families than any other scope. These tests require every
+GPU variable (at least 74 of them) to declare a unit and a reference,
+spot-check representative variables against their expected units — die
+area in m², balance point in FLOPS per BPS — and require the curated
+equations to carry references and dimensional unit checks.
 """
 
 import sympy as sp

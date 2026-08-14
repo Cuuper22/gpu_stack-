@@ -1,4 +1,12 @@
-"""Live evidence collection for next-work reports."""
+"""Live evidence collection for next-work reports.
+
+Everything the next-work compass says must be backed by something it can
+observe right now: registry stats, scenario resolutions, persisted result
+artifacts, and the symbols actually defined in the shipped package. This
+module gathers all of that into one frozen `_Evidence` snapshot. Collection
+is cached on file mtimes and registry stats so repeated calls in one session
+stay cheap.
+"""
 
 from __future__ import annotations
 

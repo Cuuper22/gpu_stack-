@@ -2,7 +2,16 @@
 scopes/optimizer_first_order_ema.py
 ===================================
 
-EMA deployment-weight declarations.
+EMA weights: a smoothed shadow copy of the model for deployment.
+
+Training weights jitter step to step, and the checkpoint you happen to
+stop at may sit in a noisy spot. An exponential moving average fixes that
+cheaply: keep a shadow copy updated as decay times the old shadow plus
+(1 - decay) times the fresh weights, with decay near 1 so the shadow
+trails the training trajectory smoothly. The averaged weights often
+evaluate better than the raw ones and are what gets shipped. The cost is
+one extra full copy of the parameters — a memory line item the sharding
+helper's state multiplier can include.
 """
 
 from ..core import eq, var

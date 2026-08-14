@@ -1,8 +1,12 @@
-"""
-tests/test_resolver.py
-======================
+"""Tests for the core resolver in ``gpu_stack.core.resolver``.
 
-Core scenario resolver coverage for `gpu_stack.core.resolver`.
+The resolver takes a target variable and a set of assignments, walks the
+dependency graph, and substitutes equations until it reaches a number or a
+symbolic boundary (an unassigned input it leaves as a symbol rather than
+expanding further). These tests pin down the selection rules — an identity
+beats an approximation, variant families demand an explicit selector, and bad
+selectors fail loudly — plus the trace order and how missing inputs are
+reported.
 """
 
 import pytest

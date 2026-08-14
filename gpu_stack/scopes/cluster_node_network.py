@@ -1,5 +1,14 @@
 """
-Node scale-out NIC topology declarations.
+How fast one node can inject traffic into the scale-out network.
+
+A node talks to other nodes through its NICs (network interface cards), and
+its injection bandwidth is a hardware ceiling set before any software runs:
+NIC count, ports per NIC, and per-port line rate multiply to a raw figure,
+then protocol efficiency — the fraction of line rate left after link,
+transport, and host overhead — cuts it to what payloads actually see. This
+module declares those variables. The collective scope cares because
+cross-node AllReduce and all-to-all time is bounded by this injection rate,
+however fast the switches beyond it may be.
 """
 
 from .cluster_node_common import BPS, DIMENSIONLESS, node_nic_topology_var

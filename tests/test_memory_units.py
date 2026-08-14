@@ -2,7 +2,18 @@
 tests/test_memory_units.py
 ==========================
 
-Focused unit/provenance coverage for the memory-owned scope modules.
+Every variable in the six memory scopes — register file, shared memory,
+cache, HBM, SRAM cell, DRAM cell — must declare SymPy units, because a
+variable without units is invisible to dimensional analysis and any
+equation using it can be dimensionally wrong without anyone noticing. This
+module sweeps all six variable groups for missing units, then spot-checks
+representative quantities against their expected dimensions: bandwidth in
+bits per second, bank width and capacity in bytes (expressed as BPS *
+SECOND), latency in seconds, energy per byte in joules per byte, SRAM
+static noise margin in volts, and DRAM stored charge in joules per volt
+(that is, farad-volts — coulombs). It also requires every memory equation
+to carry provenance references and the curated core equations to keep
+their unit checks enabled.
 """
 
 from gpu_stack import Registry

@@ -2,13 +2,14 @@
 gpu_stack.presets.economics
 ===========================
 
-Historical economics presets for power-price roots.
+Power-price presets built from historical EIA data.
 
-These presets intentionally use annual-average EIA retail electricity prices
-as flat tariffs. They are not live procurement quotes, utility rate schedules,
-or time-of-use tariffs. Demand-charge roots are left unassigned so callers do
-not accidentally double count charges already blended into average retail
-prices.
+Each preset takes one annual-average EIA retail electricity price and
+assigns it as a flat tariff: the same price for peak and off-peak. These
+are deliberately not live procurement quotes, utility rate schedules, or
+time-of-use tariffs. Demand-charge roots stay unassigned on purpose —
+average retail prices already blend those charges in, and assigning them
+too would double count.
 """
 
 from __future__ import annotations

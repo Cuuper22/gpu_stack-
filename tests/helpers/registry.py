@@ -1,4 +1,10 @@
-"""Registry state isolation helpers for tests that mutate global registries."""
+"""Snapshot-and-restore helpers for tests that mutate the global Registry.
+
+The Registry is process-wide state: variables, equations, systems, and a
+symbol cache. A test that adds or edits entries would leak them into every
+later test. These helpers copy that state before the test runs and put it
+back afterward, so each test sees a clean registry.
+"""
 
 from __future__ import annotations
 

@@ -2,7 +2,17 @@
 tests/test_materials_preset_provenance.py
 =========================================
 
-Focused provenance and strict-assignment coverage for material presets.
+The H2O preset describes water as two hydrogen-1 atoms (Z=1, N=0) and one
+oxygen-16 atom (Z=8, N=8) — and it may assign only those six composition
+roots, because that is all its cited sources (NIST Chemistry WebBook,
+IUPAC/CIAAW nuclide notation) actually state. This module checks the
+preset's source string names those references and isotopes, that its notes
+say the formula-unit counts are derived from Z and N rather than assigned,
+and that no derived name (formula-unit totals, mass density, number
+density, resonance) sneaks into the assignments. It then resolves the
+formula-unit counts through the graph and confirms the physics does the
+counting: 10 protons, 8 neutrons, 10 electrons per H2O unit, each arriving
+with a nonempty derivation trace.
 """
 
 import pytest

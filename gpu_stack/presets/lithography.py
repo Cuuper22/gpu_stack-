@@ -2,13 +2,14 @@
 gpu_stack.presets.lithography
 =============================
 
-Lithography source-plasma preset scaffolding.
+Presets for the EUV lithography source plasma.
 
-These presets are intentionally narrow. Public ASML material describes the
-EUV source context, but it does not publish enough operating detail to close
-fluence, plasma thermodynamics, focusing geometry, or conversion efficiency in
-this graph. Values below either come directly from cited public context or are
-marked as modelling assumptions.
+These are deliberately narrow. ASML's public material tells us the general
+EUV source setup — tin droplets, laser pulses, 50 kHz cadence — but not
+enough to close fluence, plasma thermodynamics, focusing geometry, or
+conversion efficiency in this graph. So every value here is either taken
+directly from cited public context or explicitly labeled a modelling
+assumption; nothing is invented to fill the gaps.
 """
 
 from __future__ import annotations
@@ -214,11 +215,11 @@ asml_euv_tin_lpp_public_context = Preset(
 
 def asml_euv_public_context_inventory() -> tuple[dict[str, object], ...]:
     """
-    Return ASML public EUV facts and their graph-assignment status.
+    List each public ASML EUV fact with its graph-assignment status.
 
-    This is metadata-only except for the one fact that this preset actually
-    assigns: ASML's 50 kHz public source cadence mapped to the graph's pulse
-    period root. All other rows explain why the fact stays provenance-only.
+    Only one fact is actually assigned: ASML's 50 kHz source cadence, mapped
+    to the graph's pulse-period root. Every other row is provenance-only and
+    carries a `withholding_reason` explaining why it stays unassigned.
     """
     assignments = asml_euv_tin_lpp_public_context.assignments
     out: list[dict[str, object]] = []

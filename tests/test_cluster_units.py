@@ -1,8 +1,12 @@
-"""
-tests/test_cluster_units.py
-===========================
+"""Checks unit and reference metadata for the cluster scope.
 
-Focused cluster metadata and unit-check coverage.
+The cluster scope spans very different quantities — power in watts,
+bandwidth in bits per second, storage in bytes, failure rates in 1/s. These
+tests require every cluster variable to have a unit and a reference, every
+equation to be referenced and dimensionally checked (the unchecked set is
+pinned empty), and a representative sample of variables to carry the right
+unit. Mixed-up units across such different dimensions would go unnoticed
+otherwise.
 """
 
 import sympy as sp
@@ -13,7 +17,8 @@ from gpu_stack.scopes import cluster
 
 DIMENSIONLESS = sp.Integer(1)
 
-# Every cluster equation now opts into dimensional checking.
+# Empty on purpose: every cluster equation opts into dimensional checking.
+# Adding a name here is an explicit, reviewable exemption.
 UNCHECKED_CLUSTER_EQUATIONS = set()
 
 

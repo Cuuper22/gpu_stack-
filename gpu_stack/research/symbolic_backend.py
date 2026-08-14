@@ -1,4 +1,11 @@
-"""Adapter from the existing symbolic resolver to the research backend API."""
+"""Adapter that lets the symbolic resolver act as a research prediction backend.
+
+The research code talks to "backends" through the small API in
+:mod:`gpu_stack.research.backends`. This module wraps the registry resolver
+in that API: a preset plus extra assignments go in, and each prediction runs
+one resolver call. Any dishonest outcome — missing inputs, violated
+constraints, non-finite values — raises instead of returning a number.
+"""
 
 from __future__ import annotations
 
@@ -23,7 +30,14 @@ class SymbolicPredictionError(RuntimeError):
 
 @dataclass(frozen=True)
 class SymbolicResolverBackend:
-    """Expose a :class:`Preset` and the registry resolver as a world-model backend."""
+    """A world-model backend backed by a :class:`Preset` and the registry resolver.
+
+    The preset supplies baseline assignments and variants; per-instance
+    `assignments`/`variants` override them. Prediction requests may add
+    further inputs on top. The backend is static: it refuses temporal or
+    intervention requests, and by default rejects any result with violated
+    constraints or approximation-validity checks.
+    """
 
     preset: Optional[Preset] = None
     assignments: Mapping[str, float] = field(default_factory=dict)

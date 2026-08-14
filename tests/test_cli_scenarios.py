@@ -1,4 +1,13 @@
-"""CLI scenario report and audit command tests."""
+"""Tests for the ``scenario-report`` and ``scenario-audit`` CLI commands.
+
+A scenario pack bundles preset assignments with named target variables.
+``scenario-report`` runs one pack and reports each target's status — its
+value, missing inputs, and violated constraints. ``scenario-audit`` runs
+every registered pack and rolls the results into one health summary. These
+tests pin both the human-readable text and the JSON contract, the
+missing-families grouping, preset and target selectors, and the
+``--fail-on-issues`` exit codes.
+"""
 
 import json
 

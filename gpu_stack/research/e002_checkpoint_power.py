@@ -1,9 +1,11 @@
-"""E002-PW1 checkpoint-cadence x survivor-continuation power experiment.
+"""E002-PW1: the checkpoint-cadence x survivor-continuation power experiment.
 
-This runner deliberately keeps the LC3 learning frontier fixed.  Its new
-information is causal: it crosses checkpoint cadence with failure behavior and
-attributes one continuous local GPU-board power trace to exclusive execution
-phases.  Facility quantities remain an explicitly modeled bridge.
+This runner keeps the LC3 learning frontier fixed on purpose; its new
+information is causal. It crosses checkpoint cadence with failure behavior
+in a 2x2 factorial and attributes one continuous local GPU-board power
+trace to exclusive execution phases, asking which factor drives the energy
+cost. Facility-level quantities remain an explicitly modeled bridge, not a
+measurement.
 """
 
 from __future__ import annotations

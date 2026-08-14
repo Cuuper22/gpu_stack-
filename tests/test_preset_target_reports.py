@@ -1,4 +1,20 @@
-"""Contracts for Preset.evaluate_targets report artifacts."""
+"""Contract tests for the ``Preset.evaluate_targets`` report artifact.
+
+``evaluate_targets`` takes labeled target variables, resolves each one under
+a preset's assignments, and returns a structured report. Each target lands in
+one of three states: "ok" (resolved, with a trace), "issues" (inputs missing
+or constraints violated, with per-variable diagnostics and per-family
+summaries of what is missing), or "error" (the target name is not even a
+registered variable).
+
+These tests pin the report's contract: diagnostics classify each missing
+input by family and boundary category; the report-level missing-family
+summaries deduplicate names shared across targets while per-target counts
+stay exact; all counts and label tuples agree between the object and its
+``to_dict()`` export; and a fully-resolvable preset yields empty summaries.
+The ``_field``/``_optional_field`` helpers read both dict and attribute
+styles so the implementation can pick either representation.
+"""
 
 from gpu_stack.presets import hardware, scenarios
 

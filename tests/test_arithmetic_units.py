@@ -1,11 +1,12 @@
-"""
-tests/test_arithmetic_units.py
-==============================
+"""Checks metadata on the arithmetic scope: the SM's raw math primitives.
 
-Arithmetic-scope metadata coverage regressions.
-
-These checks keep the SM arithmetic primitives covered with concrete unit
-metadata, provenance, and dimensional checks for the throughput identities.
+The arithmetic scope models what one streaming multiprocessor (SM) can
+compute per cycle — FMA and MMA instructions, tensor-core throughput, DP4A
+integer ops, SFU ops. These tests pin three properties: every variable has
+a unit and a reference, representative variables have the *right* unit
+(FLOP vs FLOPS vs seconds vs dimensionless), and the throughput identities
+carry references and pass dimensional unit checks. A wrong or missing unit
+here would silently corrupt every roofline number built on top.
 """
 
 import sympy as sp

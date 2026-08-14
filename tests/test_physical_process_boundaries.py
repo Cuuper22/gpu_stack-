@@ -1,13 +1,15 @@
-"""
-tests/test_physical_process_boundaries.py
-=========================================
+"""Boundary tests for process geometry dimensions.
 
-Focused boundary tests for process geometry dimensions.
+Process dimensions — gate length, metal pitch, contact spacing, and so on —
+are normally derived by the graph. But a scenario may pin any one of them
+directly, treating it as a known boundary value. When the pinned value is
+physically impossible (a zero-length gate, a negative spacing), the resolver
+must not crash and must not invent new equations. It should report the one
+existing feasibility constraint for that dimension, exactly once.
 
-The process dimensions here are derived in the graph, but scenario assignment
-can intentionally pin any one of them as a process-root boundary. Invalid
-assigned values should report the existing feasibility constraint exactly once
-without adding duplicate process equations.
+These tests cover both sides: each dimension's constraint is registered a
+single time in the graph, and each invalid assignment produces exactly one
+violation diagnostic naming the right constraint with the offending value.
 """
 
 import pytest

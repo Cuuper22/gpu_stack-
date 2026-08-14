@@ -2,11 +2,20 @@
 core/resolver.py
 ================
 
-Scenario resolver public facade.
+The scenario resolver: given a target variable and a set of input values,
+compute the target by chaining equations through the dependency graph.
 
-The implementation is split into small private modules for equation selection,
-graph ordering, diagnostics, and relation evaluation. This module keeps the
-historical import surface stable and owns the high-level resolution flow.
+The flow is simple to state. Find the cone of variables the target depends
+on, stopping at anything the caller assigned. Order that cone so
+dependencies come first. Walk the order, picking one defining relation per
+variable and substituting known values. What cannot be computed is
+reported as missing, and the finished scenario is checked against every
+constraint and approximation-validity predicate in reach.
+
+This module owns that high-level flow and the stable import surface. The
+machinery — equation selection, graph ordering, diagnostics, relation
+evaluation, and the opt-in extensions — lives in the private resolver_*
+modules.
 """
 
 from __future__ import annotations

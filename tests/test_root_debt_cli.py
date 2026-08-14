@@ -1,10 +1,12 @@
-"""
-tests/test_root_debt_cli.py
-===========================
+"""Tests for the ``root-debt`` CLI command.
 
-Focused checks for the root-debt CLI table. These keep the highest-impact
-root list machine-parseable and provide a small family grouping helper for
-making physical root-debt progress easier to inspect.
+Root debt is the backlog of primitive roots — variables with no defining
+equation that a user must assign by hand. The command ranks them by dependent
+count so effort goes where it pays off most. These tests keep the text table
+machine-parseable, the JSON output stable and complete, the ranking
+deterministic (a smaller ``--limit`` is always a prefix of a larger one), and
+the ``--families`` grouping consistent with the per-root rows. A local
+grouping helper mirrors the family logic for physical lithography prefixes.
 """
 
 from __future__ import annotations

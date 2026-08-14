@@ -1,10 +1,17 @@
-"""
-Contract tests for sourced/calibrated scenario packs.
+"""Contract tests for sourced scenario packs, and the shared markers they use.
 
-These tests intentionally do not duplicate ``tests/test_scenarios.py``.  The
-existing dense-training cost fixture is synthetic; this file defines the
-behavior expected from future presets that combine cited hardware, workload,
-and economics assumptions into a user-facing scenario.
+A "sourced" pack is a preset whose numbers trace to citable documents. That
+label is easy to fake, so this file defines the discovery rules and enforces
+them: a pack with a synthetic or demo marker in its name or source text is
+excluded even if it also cites a URL or a vendor, every accepted pack must
+carry an official-or-cited source token, advertise registered targets, and —
+for training-economics packs — cover hardware, workload, and economics
+assignments with explicit dense/moe variant choices.
+
+These tests intentionally do not duplicate ``tests/test_scenarios.py``. The
+dense-training cost fixture there is synthetic; this file specifies what any
+future cited pack must satisfy. The marker tuples and helper functions here
+are also imported by the per-pack contract test modules.
 """
 
 from __future__ import annotations

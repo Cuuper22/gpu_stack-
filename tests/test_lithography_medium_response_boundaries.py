@@ -2,7 +2,18 @@
 tests/test_lithography_medium_response_boundaries.py
 ====================================================
 
-Focused boundary coverage for lithography imaging-medium response roots.
+The imaging medium's optical response is modeled with electron counts and
+fractions, and simple accounting rules must hold: you cannot polarize more
+electrons than the formula unit contains, a fraction can never exceed 1, and
+the medium's resonance energy must sit strictly above the source photon
+energy (a resonance at or below the drive energy would make the transparency
+model invalid). This module verifies those rules three ways. It checks the
+inequalities exist with the exact operator and right-hand side. It assigns
+values that break each rule and confirms the matching constraint is reported
+as violated — while exact boundary values like fraction = 1.0 pass cleanly.
+And it checks propagation: violating an upstream count also flags the
+downstream fraction and marks the fraction equation's validity as failed,
+so a bad input cannot hide behind a derived value.
 """
 
 import pytest

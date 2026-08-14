@@ -2,9 +2,20 @@
 scopes/architecture_moe.py
 ==========================
 
-Mixture-of-experts routing and sparsity. Covers expert counts, router and
-shared-expert parameters, capacity factors, auxiliary balancing losses, and
-per-step active FLOPs.
+Mixture-of-experts: many parameters stored, few used per token.
+
+A mixture-of-experts (MoE) layer replaces one FFN with many parallel expert
+FFNs plus a small router that sends each token to only a few of them. That
+splits parameter accounting in two: total instantiated parameters (what you
+must store) versus active parameters (what one token actually touches). The
+ratio of active to total is the sparsity, and training FLOPs follow the
+active count, not the total — that is the whole economic point of MoE.
+
+This module also models the routing machinery: shared experts that every
+token visits, the capacity factor that bounds how many tokens one expert may
+receive, and the auxiliary load-balance and router z-losses that keep the
+router from collapsing onto a few experts. The parallelism and collective
+scopes pick up these counts to size expert-parallel all-to-all traffic.
 """
 
 import sympy as sp

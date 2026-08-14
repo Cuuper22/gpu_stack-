@@ -2,7 +2,16 @@
 scopes/collective_overlap.py
 ============================
 
-Collective and compute overlap relations.
+Overlap: communication hidden behind compute costs nothing.
+
+A collective only slows training by the part of its duration that the GPU
+spends idle waiting for it — the exposed time. If a kernel runs for T_c
+while the collective takes T_comm, the overlap fraction is the share of
+T_comm hidden under T_c (capped at 1 when compute fully covers it), and
+the exposed time is what remains. This is the arithmetic behind async
+tensor parallelism and similar schemes that break a matmul into tiles so
+communication for one tile rides under compute for the next. The training
+scope charges only the exposed time against the step.
 """
 
 import sympy as sp

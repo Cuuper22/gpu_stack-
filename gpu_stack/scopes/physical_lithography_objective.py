@@ -2,7 +2,14 @@
 scopes/physical_lithography_objective.py
 ========================================
 
-Objective acceptance cone, numerical aperture, and Rayleigh-style dimensions.
+The objective: the lens system that focuses the exposure light onto the
+wafer. Its pupil radius and focal length set an acceptance half-angle, and
+the numerical aperture is the medium index times the sine of that angle --
+the wider the cone of light collected, the finer the interference pattern
+it can form. The Rayleigh-style resolution relations then give the smallest
+printable gate, contact, metal-width, and metal-spacing dimensions as
+k1 * lambda / NA with feature-specific k1 factors. These critical
+dimensions are the output the process scope consumes.
 """
 
 import sympy as sp

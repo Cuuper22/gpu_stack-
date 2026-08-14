@@ -2,13 +2,13 @@
 scopes/physical_lithography_medium_components_isotope_state.py
 ==============================================================
 
-Isotope composition variables for lithography imaging-medium components.
-
-The calibration boundary for each component is the proton count Z and
-neutron count N. These are the standard isotope identifiers (AME/IUPAC
-nuclide notation). Valence quark counts U = 2Z + N and D = Z + 2N are
-derived from this basis via the proton uud and neutron udd quark model
-identities and are no longer primitive roots.
+Isotope composition variables for the two imaging-medium components. The
+calibration boundary per component is the proton count Z and neutron count
+N, the standard nuclide identifiers (AME/IUPAC notation). Everything else
+is derived: mass number A = Z + N, atomic number, and the valence quark
+counts U = 2Z + N and D = Z + 2N from the proton uud and neutron udd
+identities. The quark counts used to be primitive roots; they are now
+derived so a scenario cannot specify an inconsistent nucleus.
 """
 
 import sympy as sp

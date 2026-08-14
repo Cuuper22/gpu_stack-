@@ -2,12 +2,12 @@
 gpu_stack.presets.materials
 ===========================
 
-Composition-layer material presets.
+Material presets that describe composition and nothing else.
 
-These presets intentionally stop at exact isotope/count assignments. They do
-not assign binding calibration coefficients, density, or optical-response
-values. Those remain explicit scenario roots until sourced material data is
-added.
+Each preset here assigns exact isotope identities and counts — protons,
+neutrons, stoichiometry — and deliberately stops there. Binding calibration
+coefficients, density, and optical response are left as explicit scenario
+roots, because we have no sourced data for them yet and refuse to guess.
 """
 
 from ..core import Reference

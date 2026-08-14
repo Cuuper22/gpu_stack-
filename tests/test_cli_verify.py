@@ -1,4 +1,12 @@
-"""CLI verify command tests."""
+"""Tests for the ``verify`` CLI command, the project's gate runner.
+
+``verify`` runs a profile of gates — audit, core tests, syntax, demo,
+docs-stats — as subprocesses and summarises pass or fail. Real gates are
+slow, so these tests monkeypatch the gate runner with a fake and check the
+orchestration around it: which gates run per profile, the fast profile's
+core-test file list, read-only mode (no bytecode, no pytest cache), tail
+truncation on failure, and how timeouts turn into a distinct return code.
+"""
 
 from types import SimpleNamespace
 

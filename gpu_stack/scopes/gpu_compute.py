@@ -2,10 +2,22 @@
 scopes/gpu_compute.py
 =====================
 
-GPU-die compute aggregation. SM count, Tensor Core count per package, and
-raw, effective, sparse, and power-limited GPU peak FLOPs. GPU-level DP4A,
-DP2A, and SFU throughput aggregated from per-SM arithmetic paths. This is
-the foundation helper for the gpu scope.
+From die area to peak FLOPs: how many SMs fit and what they deliver.
+
+The SM count is a floorplanning outcome, not a free choice. The die has a
+fixed area; a fraction of it is budgeted for SMs; each SM tile has an area
+built up from its parts (Tensor Cores, register file, shared memory,
+scheduler, local wiring) plus layout overhead. Dividing the SM budget by
+the tile area gives how many SMs fit, less a redundancy fraction reserved
+for yield.
+
+Multiply the surviving SM count by the per-SM throughputs from the
+arithmetic scope and you get the die-level peaks: raw Tensor Core FLOPs,
+the effective figure after issue efficiency, the sparse dense-equivalent
+figure, and the DP4A, DP2A, and SFU rates. A separate power-limited peak
+acknowledges that the power budget, not the floorplan, may be the real
+ceiling — gpu_power supplies that equation. This is the foundation helper
+the rest of the gpu scope builds on.
 """
 
 import sympy as sp

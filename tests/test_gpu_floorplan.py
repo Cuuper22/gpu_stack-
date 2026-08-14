@@ -1,10 +1,13 @@
-"""
-tests/test_gpu_floorplan.py
-===========================
+"""Verifies SM count has a floorplan model behind it, not just a spec number.
 
-The GPU scope should not treat SM count as an irreducible primitive. It can
-still be assigned directly in scenarios, but the graph also exposes a deeper
-floorplanning approximation from die area and per-SM tile area.
+The SM (streaming multiprocessor) count of a GPU is usually copied from a
+datasheet. Scenarios may still assign it directly, but the graph also
+offers an approximation that derives it from die area, the fraction of the
+die given to SM tiles, a redundancy fraction, and the area of one SM tile.
+These tests confirm ``gpu.n_sms`` is not a root input, that its single
+approximation equation reaches those area inputs, that a hand-checkable
+case resolves to 36 SMs, and that the area capacity equation carries unit
+metadata.
 """
 
 import pytest

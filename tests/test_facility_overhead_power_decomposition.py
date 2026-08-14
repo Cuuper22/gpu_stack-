@@ -1,9 +1,13 @@
-"""
-tests/test_facility_overhead_power_decomposition.py
-===================================================
+"""Verifies facility overhead power is built from auditable primitives.
 
-Facility non-cooling overhead power should be decomposed into narrow,
-auditable primitives instead of opaque site-power roots.
+A data center draws power beyond IT and cooling: UPS conversion loss,
+transformer loss, lighting, and miscellaneous loads. Rather than one opaque
+overhead number, each term is derived from a narrow primitive — a loss
+fraction of IT power, or lighting watts per rack. The tests pin each term's
+dependency set, keep the coefficients as root inputs, resolve
+hand-checkable cases (1 MW of IT power at a 0.04 UPS loss fraction gives
+40 kW), and confirm the data-center total of 1,252,000 W flows through all
+four overhead equations without introducing cycles.
 """
 
 import pytest

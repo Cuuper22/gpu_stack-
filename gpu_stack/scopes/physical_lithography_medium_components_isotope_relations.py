@@ -2,19 +2,15 @@
 scopes/physical_lithography_medium_components_isotope_relations.py
 ==================================================================
 
-Relations that derive lithography imaging-medium component isotope descriptors.
-
-The calibration boundary is the proton count Z and neutron count N for each
-component. Valence quark counts follow from the proton uud and neutron udd
-quark model identities:
-
-  U = 2*Z + N   (each proton contributes 2 up quarks, each neutron 1)
-  D = Z + 2*N   (each proton contributes 1 down quark, each neutron 2)
-
-This decomposition is a real physics identity, not an approximation. It holds
-for any nucleus regardless of binding energy or nuclear model. The total quark
-count U + D = 3*(Z + N) = 3*A is always divisible by 3 (baryon number
-conservation).
+Relations that derive imaging-medium component isotope descriptors from
+the calibration boundary, which is the proton count Z and neutron count N
+of each component. Valence quark counts follow from the proton uud and
+neutron udd quark content: U = 2Z + N (each proton carries 2 up quarks,
+each neutron 1) and D = Z + 2N (each proton 1 down quark, each neutron 2).
+This is an exact identity, not an approximation -- it holds for any nucleus
+regardless of binding energy or nuclear model, and the total U + D =
+3(Z + N) = 3A is always divisible by 3 (baryon number conservation). The
+atomic number is likewise recovered as an alias of Z.
 """
 
 import sympy as sp

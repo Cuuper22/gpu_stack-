@@ -1,4 +1,18 @@
-"""Lithography source quantum-chain structure coverage."""
+"""The structure of the quantum model behind the lithography light source.
+
+The source's photon energy is not a number someone types in — it is derived
+from first principles, starting at proton and neutron counts and climbing
+through nuclear binding (liquid-drop terms), nuclear and reduced mass,
+plasma operating conditions, Saha ionization, shell occupancy, screening,
+and finally the electronic transition energy. This module tests the shape
+of that chain, not its numbers. First it walks every variable in the model
+and asserts which side of the root/derived line it sits on: only the
+physical knobs (particle counts, shared calibration coefficients, and the
+plasma operating inputs) are roots, and everything else must be computed.
+Then it pins each derived variable's direct dependencies to the exact set
+its defining equation uses, so a rewiring of the graph — even one that
+still resolves to the same values — cannot slip through unnoticed.
+"""
 
 from gpu_stack import Registry
 from gpu_stack.core import RelationRole

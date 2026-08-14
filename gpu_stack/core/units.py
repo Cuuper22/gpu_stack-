@@ -2,12 +2,15 @@
 core/units.py
 =============
 
-Lightweight dimensional analysis on top of sympy.physics.units.
+Dimensional analysis: checking that both sides of an equation measure the
+same kind of thing. An equation that sets watts equal to meters is wrong no
+matter what the numbers are, and this module catches that class of mistake
+at construction time, built on sympy.physics.units.
 
-We don't force every Variable to carry a sympy dimensional expression (that
-would be annoying for things like "tokens" or "experts" that aren't SI). But
-when units ARE given as sympy expressions, we support consistency checks on
-equations.
+The checks are opt-in. Not every Variable has an SI dimension — "tokens" and
+"experts" are counts, not physical units — so forcing a dimensional
+expression on everything would be noise. When a Variable does carry one
+(via `sp_units`), equations can ask for a consistency check.
 
 Usage
 -----
@@ -16,8 +19,8 @@ Usage
 
     Equation(..., lhs=v, rhs=other_expr, check_units=True)
 
-If check_units=True and the dimensional analysis fails, the equation raises
-a UnitError at construction time.
+With check_units=True, a dimensional mismatch raises UnitError the moment
+the equation is constructed, not later at evaluation time.
 """
 
 from __future__ import annotations
@@ -25,7 +28,10 @@ from __future__ import annotations
 from typing import Mapping, Optional
 import sympy as sp
 
-# SymPy's physics.units package has full SI + derived units support.
+# Import real SI units when sympy.physics.units is available. When it is not
+# (or a specific unit is missing in this SymPy version), fall back to plain
+# symbols so scope modules can still declare unit metadata without crashing;
+# _UNITS_AVAILABLE records which world we are in.
 try:
     from sympy.physics.units import (
         meter, second, kilogram, ampere, kelvin, mole, candela,  # base SI
@@ -108,15 +114,18 @@ def check_dimensional_consistency(
     equation_name: str = "",
 ) -> None:
     """
-    Raise UnitError if lhs_units and rhs_units aren't dimensionally compatible.
-    Silently passes if either is None (opt-in consistency).
+    Raise UnitError when lhs_units and rhs_units measure different dimensions.
+
+    Passes silently when either side is None: unit checking is opt-in, and a
+    missing dimension means "not declared", not "wrong".
     """
     if not _UNITS_AVAILABLE or lhs_units is None or rhs_units is None:
         return
     try:
         _assert_equivalent_units(lhs_units, rhs_units, equation_name)
     except Exception as e:
-        # Don't fail the whole build if sympy can't decide
+        # A genuine mismatch propagates; anything else means SymPy could not
+        # decide, and an undecidable check should not fail the whole build.
         if isinstance(e, UnitError):
             raise
 
@@ -127,12 +136,16 @@ def infer_expr_units(
     equation_name: str = "",
 ) -> Optional[sp.Expr]:
     """
-    Infer an expression's unit structurally from symbol unit metadata.
+    Infer an expression's unit by walking its structure, not by substitution.
 
-    This intentionally handles addition before substitution. If both terms in
-    `G - R` carry identical units, direct unit substitution would simplify to
-    zero and lose the dimension. The structural walk checks every additive term
-    against the first one and returns that shared unit.
+    Why structural? Substituting units directly into `G - R`, where both
+    terms carry the same unit, would simplify to zero and the dimension
+    would vanish. Walking the tree instead, we check every additive term
+    against the first and return the shared unit. Along the way we also
+    enforce the usual rules: exponents and transcendental-function arguments
+    must be dimensionless, and Min/Max arguments must agree.
+
+    Returns None when the unit cannot be determined.
     """
     expr = sp.sympify(expr)
     if expr.is_Number:

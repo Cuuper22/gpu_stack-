@@ -1,4 +1,9 @@
-"""Formatting helpers for next-work evidence."""
+"""Formatting helpers that turn next-work evidence into compact text.
+
+Each helper renders one kind of evidence (root-debt rows, boundary families,
+capability symbols, oversized files) as a short comma- or semicolon-joined
+summary, truncating long lists with an explicit "N more" count.
+"""
 
 from __future__ import annotations
 

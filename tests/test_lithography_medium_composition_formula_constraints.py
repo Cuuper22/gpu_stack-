@@ -2,7 +2,18 @@
 tests/test_lithography_medium_composition_formula_constraints.py
 ================================================================
 
-The imaging medium formula unit should expose feasibility constraints directly.
+A formula unit is the smallest repeating recipe of the imaging medium: so
+many atoms of component a, so many of component b. Not every recipe is
+physically possible, so the graph attaches inequality constraints to the
+formula-unit variables. This module verifies that those constraints exist as
+real Inequality objects with the right operator and right-hand side, and that
+they actually fire: each stoichiometric count must be at least 1, the packing
+fill factor at most 1, the packing length scale factor at least 1, and the
+number of electrons transferred between components can never exceed either
+component's total electron inventory (stoichiometric count times proton
+count). For each rule we resolve once with a legal value and once with an
+illegal one, and confirm the constraint check flips from satisfied to
+violated.
 """
 
 import sympy as sp

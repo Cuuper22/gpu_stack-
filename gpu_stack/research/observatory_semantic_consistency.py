@@ -1,9 +1,10 @@
-"""Three-depth observatory projection for E001-SC1.
+"""Observatory projection for E001-SC1, the semantic-consistency experiment.
 
-The experiment runner owns training, accounting, comparator selection, paired
-intervals, and falsifier outcomes.  This module turns that persisted evidence
-into two browser artifacts: a compact explanation and a separately loaded raw
-optimizer-commit trace.  The browser never recomputes a scientific result.
+The experiment runner owns training, accounting, comparator selection,
+paired intervals, and falsifier outcomes. This module only repackages that
+persisted evidence into two browser artifacts: a compact three-depth
+explanation and a separately loaded raw optimizer-commit trace. The browser
+never recomputes a scientific result.
 """
 
 from __future__ import annotations

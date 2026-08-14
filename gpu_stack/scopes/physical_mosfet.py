@@ -2,10 +2,11 @@
 scopes/physical_mosfet.py
 =========================
 
-Compatibility surface for MOSFET electrostatics and current regimes.
-
-The declarations now live in focused helper modules, but this module keeps the
-original import surface stable for downstream physical scope consumers.
+Compatibility surface for the MOSFET model: the transistor whose
+electrostatics and current regimes everything above is built on. Variable
+declarations, equations, and shared references live in focused sibling
+modules; this module re-exports them so the original import surface stays
+stable for downstream physical scope consumers.
 """
 
 import sympy as sp

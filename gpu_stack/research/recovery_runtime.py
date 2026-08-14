@@ -1,12 +1,13 @@
 """Deterministic transition runtime for fail-stop recovery semantics.
 
-The runtime advances one decision boundary at a time.  Its private transition
-queue contains the complete exogenous failure trace, while public snapshots
-contain only failure transitions already processed.  Events use half-open
-intervals.  At one timestamp, operation, checkpoint, restore, and
-reconfiguration completions are processed before failure observations, so
-work and control transitions ending exactly when a failure starts are durable.
-The whole timestamp is emitted as one immutable decision batch.
+The runtime advances one decision boundary at a time. Its private transition
+queue holds the complete exogenous failure trace, but public snapshots show
+only failures already processed — so a policy can never peek at the future.
+Events use half-open intervals, and within a single timestamp the order is
+fixed: operation, checkpoint, restore, and reconfiguration completions are
+processed before failure observations. That ordering means work or control
+transitions ending exactly when a failure starts still count as durable.
+Each timestamp is emitted as one immutable decision batch.
 """
 
 from __future__ import annotations

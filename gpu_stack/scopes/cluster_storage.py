@@ -2,12 +2,18 @@
 scopes/cluster_storage.py
 =========================
 
-Storage path and data-ingest limits.
+Can storage feed the GPUs? The data-ingest limit of a training run.
 
-Training throughput depends on feeding samples into the pipeline as fast as
-the devices can consume them. This file models the bytes-per-sample footprint,
-the efficiency factor that turns raw local-storage bandwidth into sustained
-loader bandwidth, and the stall fraction implied when demand outruns supply.
+A training step consumes samples, and those samples must stream off storage
+at least as fast as the GPUs chew through them — otherwise the cluster
+stalls, waiting on data. The model is a simple supply-versus-demand check.
+Supply: aggregate local SSD bandwidth, derated by a loader efficiency that
+accounts for decompression, shuffling, and preprocessing, divided by bytes
+per sample to give a maximum sample rate. Demand: the sample rate the
+training step actually requires. Their ratio is the pipeline utilization,
+and whenever demand exceeds supply the shortfall shows up as a stall
+fraction — wall-clock time bought and wasted. The training scope folds that
+stall into step time.
 """
 
 import sympy as sp

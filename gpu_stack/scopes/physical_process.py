@@ -2,11 +2,14 @@
 scopes/physical_process.py
 ==========================
 
-Process geometry anchors for the physical scope.
-
-This module consumes lithographic critical dimensions and turns them into
-front-end/back-end pitch abstractions used by local thermal and semiconductor
-transport models.
+Process geometry: the step from what lithography can print to the pitches
+a chip is actually built on. Printed critical dimensions plus etch and
+overlay biases give the drawn gate length and channel length, contact
+widths and enclosure margins give the contacted gate pitch, and printed
+metal width and spacing give the minimum metal pitch. These pitches are the
+currency of everything above: transistor density, wire geometry for the
+interconnect model, and the heat-source cell area the local thermal layer
+uses.
 """
 
 import sympy as sp

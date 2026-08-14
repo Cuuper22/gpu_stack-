@@ -2,7 +2,12 @@
 scopes/physical_lithography_plasma_species.py
 =============================================
 
-Source-species gas inventory and thermal scales for the lithography plasma.
+The source gas before it becomes plasma. Partial pressure and gas
+temperature give the neutral number density through the ideal-gas law;
+isotope mass gives the particle mass; and mass with temperature gives the
+thermal speed. Density feeds the absorption optical depth, and the thermal
+speed sets the scale for both column expansion and electron energy-loss
+transport.
 """
 
 import sympy as sp

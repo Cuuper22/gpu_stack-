@@ -2,12 +2,15 @@
 scopes/physical_lithography_shielding.py
 ========================================
 
-Coarse source shielding factors for lithography electronic structure.
-
-The factors here are deliberately limiting approximations rather than fitted
-Slater coefficients: inner shells fully screen by enclosed charge, while a
-same-shell electron is radially inside the transitioning electron half the
-time under an exchange-symmetric ordering assumption.
+Coarse screening factors for the source ion. When one electron drops
+between shells, the others partially hide the nuclear charge from it; how
+much depends on where they sit. The factors here are deliberately limiting
+approximations, not fitted Slater coefficients: an inner-shell electron
+screens fully (it is always radially inside, so it cancels one unit of
+charge), while a same-shell electron screens half (under an
+exchange-symmetric ordering it is inside the transitioning electron half
+the time). These two factors feed the effective nuclear charge in the
+hydrogenic transition energy.
 """
 
 import sympy as sp

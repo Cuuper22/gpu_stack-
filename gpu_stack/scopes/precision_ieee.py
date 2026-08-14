@@ -2,13 +2,15 @@
 scopes/precision_ieee.py
 ========================
 
-IEEE-754 structural foundation.
-
-Sign, exponent, mantissa bit counts, total width and bytes per value,
-exponent bias and unbiased exponent limits, smallest normal and subnormal
-values, largest normal, dynamic range, machine epsilon, ULP at one, the
-subnormal-enabled flag, NaN and infinity code counts, and the piecewise
-minimum-nonzero model that distinguishes subnormal support from flush-to-zero.
+Anatomy of an IEEE-754 floating-point format. A value is a sign bit, an
+exponent field, and a mantissa (fraction) field; the exponent bias centers
+the representable range, and the bit counts fix everything else: smallest
+and largest normal values, subnormals (the gradual-underflow values below
+the smallest normal), dynamic range, machine epsilon, and the ULP at one.
+NaN and infinity burn a slice of the code space, and a piecewise
+minimum-nonzero model distinguishes hardware with subnormal support from
+flush-to-zero hardware. Every derived format in the low-bit and
+microscaling modules is a specialization of this structure.
 """
 
 import sympy as sp
@@ -33,7 +35,7 @@ def _annotate_variables(variables, sp_units, references):
 
 
 # ---------------------------------------------------------------------------
-# Generic floating-point format
+# One parameterized format: choose sign, exponent, and mantissa bits; the rest follows
 # ---------------------------------------------------------------------------
 
 n_sign = var(

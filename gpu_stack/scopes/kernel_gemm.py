@@ -2,9 +2,22 @@
 scopes/kernel_gemm.py
 =====================
 
-Tiled GEMM tile-count, traffic, and arithmetic-intensity formulas.
-Covers naive and CTA-tiled HBM byte counts and the corresponding
-arithmetic intensities.
+The tiled matmul: how blocking turns a memory-bound GEMM compute-bound.
+
+A dense M x N x K matmul always performs 2*M*N*K FLOPs; what tiling
+changes is how many bytes cross HBM to do them. The naive kernel reads A
+and B and writes C once each — but only if everything fits in cache,
+which it never does at training sizes. The CTA-tiled kernel gives each
+thread block one tile_m x tile_n patch of C and sweeps the K dimension in
+tile_k chunks: each A and B element is now reloaded once per tile it
+contributes to, so total traffic depends on the tile grid, not just the
+matrix sizes.
+
+This module counts the tiles, the naive and tiled byte totals, and the
+arithmetic intensity of each. Bigger tiles mean more reuse and higher
+intensity — the reason GEMMs can approach peak FLOPs while untiled code
+cannot — bounded by the shared-memory and register budgets that the
+occupancy helper tracks.
 """
 
 import sympy as sp

@@ -1,8 +1,13 @@
-"""
-tests/test_parallelism_units.py
-================================
+"""Metadata coverage for the parallelism scope.
 
-Focused parallelism metadata and dimensional-check coverage.
+The parallelism scope models how training work splits across GPUs: data,
+tensor, and pipeline parallel degrees, per-GPU memory footprints, and the
+communication traffic each strategy generates. These tests demand full
+metadata — every variable has units and a reference, every equation has a
+reference and an active unit check — then spot-check representative variables
+to confirm the units mean what they should: degrees and batch counts are
+dimensionless, memory footprints are bytes, link speeds are bytes per second,
+and exposed times are seconds.
 """
 
 import sympy as sp

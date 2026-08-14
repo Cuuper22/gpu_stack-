@@ -232,7 +232,6 @@ def _parse_readme_snapshot_table(text: str) -> Dict[str, str]:
         if "## Current Snapshot" in line:
             in_section = True
             continue
-        # Stop at the next ## heading
         if in_section and line.startswith("## "):
             break
         if not in_section:

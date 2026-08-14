@@ -4,20 +4,21 @@ scopes/interconnect.py
 
 Aggregator for GPU-to-GPU communication fabrics.
 
-The old file stopped at one generic alpha-beta equation and a rack-level
-bandwidth ratio. That throws away the actual structure that determines how
-collectives behave in practice:
+Moving a message between GPUs costs a fixed setup time plus a per-byte
+time — the alpha-beta model that every collective formula is built on.
+This scope derives those two constants from physical structure rather than
+asserting them: packet headers eat a fraction of the raw line rate,
+propagation and switch hops add latency, and congestion or
+oversubscription cuts usable bandwidth further.
 
-  * packet efficiency from payload bytes versus headers
-  * propagation and switch-hop latency
-  * congestion and oversubscription loss
-  * the fact that NVLink and scale-out links are different fabrics with
-    different alpha and beta terms
-
-This scope now exposes those quantities directly so later collective and
-training scopes can wire them in instead of treating communication as one
-opaque tax. The implementation is split into focused helper modules and
-re-exported here so public imports stay stable.
+It matters that a cluster contains two distinct fabrics. NVLink joins the
+GPUs inside a rack — few hops, low alpha, high beta-bandwidth — while the
+scale-out network (InfiniBand or Ethernet through NICs and switches) joins
+racks, with more hops, host-stack latency, and oversubscription. Each gets
+its own alpha and beta so the collective scope can price intra-node and
+inter-node phases separately. The implementation is split into focused
+helper modules (generic link, NVLink tier, scale-out tier) and re-exported
+here so public imports stay stable.
 """
 
 import sympy as sp

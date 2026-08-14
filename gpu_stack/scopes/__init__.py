@@ -2,12 +2,17 @@
 scopes
 ======
 
-Each module in this package represents one physical or logical scope of the
-training stack. Importing a scope module registers its Variables and
-Equations with the global Registry.
+One module per scope of the GPU training stack, from transistor to dollar.
 
-Load order (smallest to largest scale). Scopes later in the list can depend
-on earlier ones; never the reverse.
+A scope is one slice of the stack — transistor physics, SRAM cells, a single
+GPU, the interconnect, a whole cluster, the economics of a run. Each module
+defines the Variables and Equations for its slice, and simply importing the
+module registers them with the global Registry.
+
+The list below is the authoritative load order, sorted smallest scale to
+largest. A scope may reference symbols from scopes loaded before it, never
+after: arithmetic builds on physical, gpu builds on arithmetic and memory,
+cluster builds on gpu, economics sits on top of nearly everything.
 """
 
 # Authoritative load order; the top-level gpu_stack/__init__.py iterates this.

@@ -1,8 +1,10 @@
-"""
-Public import-surface smoke tests.
+"""Smoke tests for the package's public import surface.
 
-These tests keep the package-level import checks separate from the larger
-registry snapshot and physical export propagation coverage.
+These check the basics a user hits first: ``import gpu_stack`` works, the
+resolver API names are exported in ``__all__``, the preset package exposes
+its key modules, and every scope module actually loaded. They are kept
+separate from the heavier registry-snapshot and export-propagation tests
+so a plain import break is reported on its own.
 """
 
 import gpu_stack

@@ -2,11 +2,11 @@
 scopes/physical_lithography_plasma_absorption.py
 ================================================
 
-Optical-depth absorption and electron-channel power coupling for the
-lithography source plasma.
-
-This compatibility surface preserves the historical public imports while the
-implementation lives in focused absorption helper modules.
+Compatibility surface for source-plasma drive absorption: how much of the
+drive-beam power the plasma actually swallows, and how much of that reaches
+the free electrons that do the heating. The implementation is split into
+path-geometry, resonance/optical-depth, and post-overlap electron-channel
+helper modules; this module preserves the historical public imports.
 """
 
 from .physical_lithography_plasma_absorption_variables import *

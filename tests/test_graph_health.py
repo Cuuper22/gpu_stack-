@@ -1,10 +1,11 @@
-"""
-tests/test_graph_health.py
-==========================
+"""Basic structural health checks for the whole dependency graph.
 
-The package ships without cycles and with a topological order that covers
-every Variable. These tests fail fast if a scope change reintroduces the
-old thermal cycle or breaks acyclicity in any other way.
+The entire model rests on the graph being a DAG — a directed graph with no
+cycles — because resolution walks dependencies to a fixed bottom. These
+tests fail fast if any scope change breaks that: no cycles anywhere (the
+old thermal cycle is the historical culprit), a topological sort that
+covers every variable, and root/leaf counts that agree with the registry's
+own statistics.
 """
 
 import gpu_stack

@@ -2,7 +2,12 @@
 scopes/memory_sram_common.py
 ============================
 
-Shared SRAM reference metadata and unit helpers.
+The one Reference and unit constant every SRAM helper shares.
+
+All six SRAM helper modules cite the same bitcell literature, so the
+Reference object lives here — defined once, imported everywhere — along
+with the DIMENSIONLESS unit tag. Being a leaf module with no scope
+imports, it can be pulled in by any helper without creating a cycle.
 """
 
 import sympy as sp

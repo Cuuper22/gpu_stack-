@@ -2,7 +2,12 @@
 scopes/physical_lithography_plasma_electron_state_variables.py
 ==============================================================
 
-Electron-state variables for the lithography source plasma.
+Variable declarations for the source-plasma electron state: loss-path
+direction cosine, path factor, path length, loss speed, and confinement
+time; the charge fraction and per-particle electron yield behind the
+free-electron count; stored internal energy, electron temperature, number
+density, mean kinetic energy, and Debye length. The relations live in the
+sibling confinement and inventory modules.
 """
 
 import sympy as sp

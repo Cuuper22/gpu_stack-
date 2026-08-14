@@ -1,8 +1,14 @@
-"""
-tests/test_kernel_latency_hiding.py
-===================================
+"""Tests the occupancy-driven latency-hiding model for kernels.
 
-Regression coverage for occupancy-driven latency hiding.
+A GPU hides memory latency by switching between warps: with enough
+resident warps (occupancy), loads overlap and cost nothing extra; with too
+few, the SM stalls. The model captures this as latency_hiding_factor =
+min(1, occupancy / full_hide_occupancy). These tests pin that exact
+formula — including its direction, since the inverted form is a plausible
+bug — check the (0, 1] domains, show halving occupancy doubles
+latency-bound time (100 to 200 time units), confirm the factor saturates
+at 1 above the full-hide point, and verify zero occupancy trips the domain
+constraints.
 """
 
 import pytest

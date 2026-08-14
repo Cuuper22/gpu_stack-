@@ -1,3 +1,20 @@
+"""Tests for the E001 recovery observatory projection.
+
+The observatory artifact is the human-facing view of a recovery result: it
+reorganizes a result artifact into runs, a causal graph, and three semantic
+depths (freshman, researcher, full_trace) without recomputing anything. A
+projection must therefore be faithful — every metric, work disposition, and
+comparison value in the observatory equals the source value — and it must
+keep the learning boundary honest: with no held-out learning observation,
+the held-out-learning status is False and the learning node's evidence
+class stays "unmeasured".
+
+The builder is also a tamper check. The source result carries a canonical
+SHA-256 over its own payload; editing any field without re-hashing is
+rejected, and a source missing required projected fields (here, a run's
+link segments) is rejected even when its hash is internally consistent.
+"""
+
 import hashlib
 import json
 

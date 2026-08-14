@@ -1,8 +1,10 @@
-"""Measured small-model learning calibration for E001 recovery policies.
+"""E001-LC1: measured small-model learning calibration for the recovery policies.
 
-This module is intentionally optional-runtime code.  Importing GPUSTACK does
-not require PyTorch, PyArrow, or NVML; the LC1 command loads them only when the
-real training experiment is executed.
+This is where the recovery comparison first touches real training: a small
+model is actually trained under each policy so learning progress becomes a
+measurement instead of a prior. The module is intentionally optional-runtime
+code — importing GPUSTACK does not require PyTorch, PyArrow, or NVML; the
+LC1 command loads them only when the real experiment executes.
 """
 
 from __future__ import annotations

@@ -2,8 +2,13 @@
 scopes/physical_lithography_plasma_drive_pulse.py
 =================================================
 
-Pulse timing, pulse fractions, and incident intensity for the lithography
-source-plasma drive.
+Timing and intensity of the drive pulse train. The pulse period and its
+inverse, the repetition rate, set how often the plasma is re-lit; a duty
+fraction gives the effective pulse duration inside each period. Within a
+pulse, ramp-up, plateau, and ramp-down fractions define a trapezoidal
+shape whose temporal shape factor maps peak intensity to delivered energy.
+Fluence (energy per illuminated area) and peak incident intensity are the
+quantities the absorption and column-expansion layers care about.
 """
 
 import sympy as sp

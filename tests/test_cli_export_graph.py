@@ -1,4 +1,11 @@
-"""Tests for the export-graph-json CLI subcommand."""
+"""Tests for the ``export-graph-json`` CLI subcommand.
+
+The subcommand walks the dependency cone — every variable and equation a
+set of target variables depends on — and serialises it as JSON for external
+tools. These tests pin the contract those tools rely on: the schema (top
+level keys, node fields, edges that name real nodes), deterministic sorted
+output so diffs stay clean, size bounds, file output, and custom targets.
+"""
 
 from __future__ import annotations
 

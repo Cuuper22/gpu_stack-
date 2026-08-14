@@ -2,7 +2,18 @@
 scopes/memory_sram_margin_equations.py
 ======================================
 
-SRAM read-disturb, static-noise margin, and write-margin constraints.
+The equations that decide whether an SRAM cell reads and writes safely.
+
+Reading an SRAM cell is a controlled disturbance: the access transistor
+pulls the internal node up through a conductance divider against the
+pull-down, and the read-disturb voltage is that divider's output. The
+read static noise margin (SNM) is the inverter trip point minus that
+excursion — if the disturbance reaches the trip point, reading flips the
+bit. Writing is the opposite fight: the access transistor must drag the
+internal node below the trip point against the pull-up, and the write
+noise margin (WNM) measures the headroom. The two closing inequalities
+demand both margins stay positive; process scaling squeezes exactly these
+margins, which is why 8T cells add a separate read port.
 """
 
 from ..core import Inequality, eq

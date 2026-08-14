@@ -2,8 +2,14 @@
 scopes/physical_interconnect_equations.py
 =========================================
 
-Equations and feasibility constraints for physical interconnect geometry,
-distributed RC delay, high-frequency resistance, and capacitive crosstalk.
+Equations for on-chip wire behavior. Geometry comes first: route length
+from span and detour, then width, thickness, and spacing from the metal
+pitch, aspect ratio, and fill factor. Resistance per length follows from
+resistivity and cross section, capacitance from parallel-plate plus fringe
+terms, and neighboring wires add capacitive crosstalk. The payoff is the
+distributed RC delay of the line, which grows with length squared, and the
+high-frequency resistance rise when skin effect confines current to the
+conductor surface. Feasibility constraints keep the geometry realizable.
 """
 
 import sympy as sp

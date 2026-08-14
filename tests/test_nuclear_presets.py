@@ -1,8 +1,19 @@
-"""
-tests/test_nuclear_presets.py
-=============================
+"""Guardrails for SEMF calibration preset scaffolding.
 
-Focused guardrails for SEMF calibration preset scaffolding.
+The SEMF (semi-empirical mass formula) estimates nuclear binding energy from
+five fitted coefficients. Those coefficients are measurements, not facts the
+model can derive, so the ``nuclear`` preset module refuses to ship default
+values. Instead it offers a factory, ``semf_calibration_preset``, that builds
+a preset only when the caller supplies cited source text along with the
+numbers.
+
+These tests enforce that discipline. The module must export zero ready-made
+presets. The factory must reject blank names, missing sources, empty or
+non-numeric assignments, NaN/infinity, unknown variable names, and any
+variable outside the SEMF calibration roots. Values must arrive already
+converted to SI joules — ``mev_to_joule`` exists for that, built on the exact
+2019 SI elementary charge — and every assignment in a preset shares the one
+cited source.
 """
 
 import pytest

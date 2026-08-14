@@ -2,12 +2,23 @@
 scopes/parallelism.py
 =====================
 
-Parallelism strategies and their memory and communication cost models.
+Aggregator for parallelism: how a model too big for one GPU gets split.
 
-The old file had the names of the dimensions, one FSDP memory formula, and two
-pipeline bubble sketches. That was not enough to reason about actual training
-plans. This version adds batch decomposition, activation memory, ZeRO stage
-breakdowns, offload paths, and explicit TP, EP, and CP traffic formulas.
+A training plan splits work along up to six axes — data parallel (copies
+of the model on different batches), tensor parallel (one layer's matrices
+split across GPUs), sequence parallel (nested in TP), pipeline parallel
+(consecutive layers on different GPUs), expert parallel (MoE experts
+spread out), and context parallel (the sequence itself split). The product
+of the degrees is the GPU count, and every choice trades memory against
+communication.
+
+The helpers price both sides. Batching decomposes the global batch and
+counts parameter, gradient, optimizer, and activation memory per GPU;
+zero_fsdp shards that state and models CPU/NVMe offload; pipeline gives
+the bubble fraction of each schedule; moe covers TP, EP, and CP traffic.
+The collective scope prices the resulting messages, and training folds
+everything into step time. This file re-exports the four helpers so
+public imports stay stable.
 """
 
 from ..core import System

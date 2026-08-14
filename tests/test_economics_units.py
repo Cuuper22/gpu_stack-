@@ -1,8 +1,11 @@
-"""
-tests/test_economics_units.py
-=============================
+"""Checks unit and reference metadata for the economics scope.
 
-Focused economics metadata and unit-check coverage.
+Economics mixes awkward unit families — USD per watt-second, kilograms of
+CO2 per kWh, USD per byte of network egress — where a silent unit slip
+changes an answer by orders of magnitude. These tests require every opex
+and finance variable to declare a unit and a reference, pin the exact
+curated sets of unit-checked equations, and spot-check representative
+variables against their expected composite units.
 """
 
 from gpu_stack.scopes import economics as econ

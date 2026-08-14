@@ -2,9 +2,19 @@
 scopes/architecture_ffn.py
 ==========================
 
-Dense-model FLOP counts and the encoder-decoder parameter split. Ties together
-the attention and FFN per-layer costs into per-token and per-step totals, and
-extends the dense parameter accounting to encoder-decoder models.
+Total compute per token for a dense transformer, and encoder-decoder totals.
+
+This module turns the per-layer pieces defined elsewhere into the numbers
+people actually quote: FLOPs per token and FLOPs per training step. The FFN
+term comes from its parameter count (each parameter costs a multiply and an
+add per token), attention FLOPs come from the attention module, and a
+miscellaneous term catches normalization and other small work. Divide the
+full-sequence layer cost by sequence length, sum over layers, multiply by
+tokens per step, and you have the compute bill the training and kernel
+scopes must pay.
+
+It also extends dense parameter accounting to encoder-decoder models, where
+each decoder layer adds a cross-attention block on top of the ordinary stack.
 """
 
 import sympy as sp

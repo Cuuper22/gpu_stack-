@@ -1,4 +1,11 @@
-"""Focused scenario-audit text-mode missing-family coverage."""
+"""Tests for the ``--missing-families`` text output of ``scenario-audit``.
+
+A scenario with dozens of missing roots is hard to fix one variable at a
+time. The ``--missing-families`` flag groups the missing inputs by family
+(their shared name prefix) so a user can close a whole cluster of gaps at
+once. This test pins the exact text format: per-family lines with boundary
+category, count, and names, replacing the flat unresolved-inputs listing.
+"""
 
 import contextlib
 import io

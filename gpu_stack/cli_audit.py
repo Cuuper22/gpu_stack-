@@ -1,4 +1,10 @@
-"""Stats and graph-integrity audit commands for the gpu_stack CLI."""
+"""The `stats` and `audit` subcommands of the gpu_stack CLI.
+
+`stats` prints registry counts and metadata coverage. `audit` adds
+graph-integrity signals — cycles, collapsed equations, unresolved raw
+symbols, orphan value equations, oversized files — and can return nonzero
+so CI can gate on a broken graph.
+"""
 
 from __future__ import annotations
 

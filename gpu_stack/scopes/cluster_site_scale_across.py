@@ -1,8 +1,15 @@
 """
-Hyperscaler and scale-across WAN-link declarations.
+Many sites acting as one machine: hyperscaler totals and WAN limits.
 
-This helper aggregates one site into uniform-site hyperscaler totals and
-models inter-site bandwidth and latency for scale-across communication.
+When one building cannot hold a training run, you span several — that is
+scale-across. This helper does two things. It rolls a uniform site up into
+hyperscaler totals (GPUs, peak FLOPs, power, HBM, storage across all
+sites), and it models the wide-area links that stitch the sites together:
+long-haul link count per site, payload bandwidth per link, and transport
+efficiency give an inter-site bandwidth, while one-way latency and message
+size give a transfer time. WAN latency is milliseconds where NVLink is
+microseconds, so these numbers decide which parallelism strategies can
+cross a site boundary at all.
 """
 
 from ..core.units import BPS, FLOPS, SECOND, WATT, byte

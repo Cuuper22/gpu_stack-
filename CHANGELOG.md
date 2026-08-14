@@ -8,51 +8,57 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
 
 ## Current physical deepening notes
 
-* Completed E002-PW2 with the supported cumulative-energy counter. All 32
-  frozen factorial runs completed with exact warm binding, measurement validity
-  passed, and no invalidators fired. Effective counter period was 91.667 ms;
-  held-out arms contained 83 to 109 updates. Snapshot support was 59.30 sparse
-  and 110.06 dense; checkpoint-group support was 124.56 and 176.94. Total
-  interaction was `2.2416e-5 [2.1746e-6, 3.5305e-5] J/token`, checkpoint group
-  `5.8845e-6 [3.0774e-6, 8.9671e-6]`, and snapshot
-  `4.9917e-6 [2.8497e-6, 7.4481e-6]`. All 3 mechanism gates passed. The
-  sensitivity-only idle-subtracted interaction was
+* Completed E002-PW2. This run used the supported cumulative-energy counter,
+  the energy source PW1 selected after its own counter proved too coarse. All
+  32 frozen factorial runs finished with exact warm binding, measurement
+  validity passed, and no invalidators fired. The counter updated every
+  91.667 ms on average; each held-out arm contained 83 to 109 updates.
+  Snapshot support was 59.30 sparse and 110.06 dense; checkpoint-group support
+  was 124.56 and 176.94. Total interaction was
+  `2.2416e-5 [2.1746e-6, 3.5305e-5] J/token`, the checkpoint group
+  `5.8845e-6 [3.0774e-6, 8.9671e-6]`, and the snapshot
+  `4.9917e-6 [2.8497e-6, 7.4481e-6]`. All 3 mechanism gates passed. One
+  caveat: the sensitivity-only idle-subtracted interaction was
   `3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token` and crossed zero, so the frozen
   raw-cumulative primary passes without establishing baseline insensitivity.
-  Sparse continuation passed all 8 gates with NLL upper `0.0085037`, 3.03% attempted-
-  work saving, 40 opportunity ticks saved, and energy-ratio upper `1.00319`.
-  Conclusion: `checkpoint_cadence_attributed_sparse_continuation_survives`;
+  Sparse continuation passed all 8 gates with NLL upper `0.0085037`, a 3.03%
+  attempted-work saving, 40 opportunity ticks saved, and energy-ratio upper
+  `1.00319`. Conclusion:
+  `checkpoint_cadence_attributed_sparse_continuation_survives`;
   artifact
   `cfbca215878629bc416f169e5ded80684151d9b2a621548c7fef08207c41f8ee`.
-  Next is E002-PW3 multi-GPU/rack dependency-safe dephasing with simultaneous
+  Next is E002-PW3: multi-GPU/rack dependency-safe dephasing with simultaneous
   per-GPU cumulative, rack-PDU, storage, and cooling telemetry. Rare
   restore/rejoin estimates remain exploratory; no facility transfer is claimed.
 
-* Executed E002-PW1's frozen 2x2 checkpoint-cadence by survivor-continuation
-  factorial: all 32 runs completed and the LC3 warm-state binding matched
-  exactly. The result is preserved as `measurement_invalid`, artifact
+* Ran E002-PW1, the frozen 2x2 checkpoint-cadence by survivor-continuation
+  factorial. All 32 runs completed and the LC3 warm-state binding matched
+  exactly, but the energy measurement itself failed. The result is preserved
+  as `measurement_invalid`, artifact
   `aff76946b26876820cdaa4ca43d0b6160cdc18b2f4c5bacd053cfe92f529d4f5`.
-  Requested 20 ms instantaneous-power polling produced a 494.693 ms effective
-  device-update period with selected +250 ms lag at the frozen boundary. The
-  only active invalidators are `insufficient_evaluation_power_updates` and
+  We requested 20 ms instantaneous-power polling, but the device only updated
+  every 494.693 ms in practice, with a selected +250 ms lag at the frozen
+  boundary. The only active invalidators are
+  `insufficient_evaluation_power_updates` and
   `insufficient_pooled_cadence_phase_updates`. Raw LC3-corner energy was
   `0.789 [0.703, 0.923]`; raw sparse salvage was
   `0.823 [0.665, 1.019]`, with all non-energy gates passing. Both are
-  inadmissible, and all three mechanism gates failed. That failure selected the
-  locally supported cumulative-energy counter for E002-PW2. Its capability observation
-  recorded 880 polls, 40 counter changes, an 88.44 ms median gap, and 26,920 mJ
-  cumulative delta. PW2 kept the factorial frozen and produced the valid result
-  recorded above.
+  inadmissible, and all three mechanism gates failed. That failure is what
+  selected the locally supported cumulative-energy counter for E002-PW2. Its
+  capability observation recorded 880 polls, 40 counter changes, an 88.44 ms
+  median gap, and 26,920 mJ cumulative delta. PW2 kept the factorial frozen
+  and produced the valid result recorded above.
 
-* Executed the LC2-to-LC3 research redirect without overwriting failed
-  protocols. LC2 v1 persisted `protocol_failed_warm_start_not_late_stage`; LC2
-  v2 established a valid 8,192-tick late-stage checkpoint and exact no-failure
-  equivalence, then persisted `protocol_failed_calibration_validity` before
-  held-out evaluation. LC3 replaced raw NLL first crossing with an exact
-  524,288-canonical-token frontier and completed 12 held-out observations. The
-  candidate passed learning noninferiority, attempted-work saving, and
-  opportunity-tick saving, but failed solely on sampled device energy: median
-  adaptive/fixed 1.068 and paired 90 percent upper bound 1.134 versus the
+* Ran the LC2-to-LC3 research redirect. Failed protocols were kept on record,
+  not overwritten. LC2 v1 persisted
+  `protocol_failed_warm_start_not_late_stage`; LC2 v2 established a valid
+  8,192-tick late-stage checkpoint and exact no-failure equivalence, then
+  persisted `protocol_failed_calibration_validity` before held-out evaluation.
+  LC3 replaced raw NLL first crossing with an exact 524,288-canonical-token
+  frontier and completed 12 held-out observations. The candidate passed
+  learning noninferiority, attempted-work saving, and opportunity-tick saving,
+  but failed on one thing: sampled device energy. Its median adaptive/fixed
+  ratio was 1.068 and its paired 90 percent upper bound was 1.134, above the
   frozen 1.05 ceiling. The persisted conclusion is
   `candidate_falsified_equal_canonical_work`; the result and compact
   observatory sidecar preserve all gates and the measured/modeled boundary.
@@ -63,36 +69,36 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
 * Completed E001-LC1 with 40 real RTX 3060 Laptop GPU runs: 10 calibration and
   30 held-out evaluation observations. The frozen conclusion is
   `candidate_falsified_small_model_calibration` with
-  `candidate_survives_lc1=False`. Adaptive interrupted reached better median
-  final held-out NLL, 2.31465 versus fixed restart's 2.34115, but fixed did
-  exactly 12.5 percent less attempted work. The finite-horizon progress-per-
-  FLOP objective therefore favored fixed at worse quality, and every policy
-  crossed the calibration target at the first 32-tick observation. The result,
-  compact learning sidecar, and observatory preserve the hard split, paired
-  interval, falsifier outcomes, measured device boundary, and provenance.
-  The LC1 wave set package version 0.26.0 and selected late-stage fixed-target
-  E001-LC2, followed by an explicit bridge from observed learning curves to
-  modeled datacenter mechanics. That historical decision is preserved by the
-  later LC2 and LC3 records above.
+  `candidate_survives_lc1=False`. The adaptive interrupted policy reached a
+  better median final held-out NLL, 2.31465 versus fixed restart's 2.34115,
+  but fixed did exactly 12.5 percent less attempted work. So the
+  finite-horizon progress-per-FLOP objective favored fixed even at worse
+  quality, and every policy crossed the calibration target at the first
+  32-tick observation. The result, compact learning sidecar, and observatory
+  preserve the hard split, paired interval, falsifier outcomes, measured
+  device boundary, and provenance. The LC1 wave set package version 0.26.0
+  and selected late-stage fixed-target E001-LC2, followed by an explicit
+  bridge from observed learning curves to modeled datacenter mechanics. That
+  historical decision is preserved by the later LC2 and LC3 records above.
 
-* Prior wave: executed the first recovery-backed E001 research loop. A
-  transition-driven runner now compares synchronous wait/restore, fixed-local
-  checkpoint restart, adaptive recovery, and a future-trace oracle on one
-  matched two-failure scenario. All policies reach durable frontier 8 with
-  exact work conservation.
-  Adaptive beats synchronous on completion time and modeled inter-site bytes,
-  while fixed-local beats adaptive on time and bytes and adaptive beats
-  fixed-local on lost work and modeled energy. The content-addressed result and
-  observatory artifacts preserve the `inconclusive_frontier_hypothesis` status
-  because learning remains a shared declared prior. The observatory renders the
-  four-policy failure clock, recovery episodes, work accounting, byte classes,
-  and missing learning evidence at Freshman, Researcher, and Full trace depth.
-  End-of-feature read-only verification passed all five pytest, syntax, audit,
-  demo, and docs-stats gates in `290.16s`.
+* Prior wave: ran the first recovery-backed E001 research loop. A
+  transition-driven runner now compares four recovery policies — synchronous
+  wait/restore, fixed-local checkpoint restart, adaptive recovery, and a
+  future-trace oracle — on one matched two-failure scenario. All policies
+  reach durable frontier 8 with exact work conservation. No policy wins
+  everything: adaptive beats synchronous on completion time and modeled
+  inter-site bytes, fixed-local beats adaptive on time and bytes, and adaptive
+  beats fixed-local on lost work and modeled energy. The content-addressed
+  result and observatory artifacts keep the `inconclusive_frontier_hypothesis`
+  status because learning remains a shared declared prior. The observatory
+  renders the four-policy failure clock, recovery episodes, work accounting,
+  byte classes, and missing learning evidence at Freshman, Researcher, and
+  Full trace depth. End-of-feature read-only verification passed all five
+  pytest, syntax, audit, demo, and docs-stats gates in `290.16s`.
 
-* Integrated the ten-step expansion wave (nine of ten branches; the SEMF
-  plus quark-decomposition branch remains a draft pending test
-  reconciliation). New surfaces: a sourced DGX H100 power BOM with an
+* Integrated the ten-step expansion wave. Nine of ten branches landed; the
+  SEMF plus quark-decomposition branch remains a draft pending test
+  reconciliation. New surfaces: a sourced DGX H100 power BOM with an
   assumption-labeled full-TCO pack that resolves econ.cost.per_token end
   to end (3.738e-9 at the EIA 2024 industrial tariff, missing=0,
   75 trace steps); sourced Pythia-160M and commercial-tariff packs
@@ -106,27 +112,27 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   and a closed metadata tail (with_sp_units 1428 to 1493,
   with_references 1324 to 1493, equations_with_references 878 to 959,
   equations_with_unit_check 799 to 893). The docs-stats gate caught all
-  ten stale README/site coverage numbers at integration and they were
-  refreshed from live output. Scenario-audit now reports 99 issues
-  across 8 packs by design: three open sourced cost frontiers each keep
-  their ~33 missing economics roots visible while the closure pack
-  resolves 4 of 4 targets. Full pytest passed `841 passed in 256.30s`
+  ten stale README/site coverage numbers at integration, and we refreshed
+  them from live output. Scenario-audit now reports 99 issues
+  across 8 packs, and that is deliberate: three open sourced cost
+  frontiers each keep their ~33 missing economics roots visible while the
+  closure pack resolves 4 of 4 targets. Full pytest passed `841 passed in 256.30s`
   (one expected RuntimeWarning from the uncertainty failure-count
   test); full verifier passed `5/5 gates passed in 260.02s`; read-only
   full verifier passed `5/5 gates passed in 262.07s`; audit gate PASS;
   impeccable detect on docs/ reports only the known CLI-flag em-dash
   false positive.
 
-* Finalized the portfolio form-and-deliverable polish wave. The docs site
+* Finished the portfolio form-and-deliverable polish wave. The docs site
   moved to the three-font system from `DESIGN.md` (IBM Plex Sans reading
   copy, Pixelify Sans chrome and headings, IBM Plex Mono commands), gained
   absolute Open Graph metadata plus `og:url`, `og:type`, and `twitter:card`,
   converted leaked markdown backticks into real `code` elements, removed the
   dead empty `docs/styles.css`, null-guarded `docs/app.js` panel renders,
   and darkened eyebrow labels to clear 4.5:1 contrast. The impeccable static
-  detector now reports only a known false positive on `docs/` (it counts the
-  seven CLI `--flag` tokens in the console sample as em-dashes; prose has
-  none). README example fixes: the dependency-cone snippet sorts roots by
+  detector now reports only one known false positive on `docs/`: it counts
+  the seven CLI `--flag` tokens in the console sample as em-dashes; the prose
+  has none. README example fixes: the dependency-cone snippet sorts roots by
   name instead of comparing `Variable` objects, and `evaluate_targets`
   targets `training.tokens_per_sec`; both re-ran successfully. Ledger
   reconciliation recorded the Pythia energy-floor wave end state: scope
@@ -134,7 +140,7 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   project files moved 7 to 0, and Pythia `cost_per_token` still reports 33
   missing inputs, so cost closure stays on the visible backlog. Full
   verifier passed `4/4 gates passed in 141.07s` on this base.
-* Finalized the live next-work compass and scenario-audit missing-family
+* Finished the live next-work compass and scenario-audit missing-family
   ergonomics wave. Added `gpu_stack.next_work` with `NextWorkPlan`,
   `NextWorkItem`, and `build_next_work_plan(...)`; added `next-work` and
   `next-work --json`; added aggregate
@@ -148,21 +154,21 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   `4/4 gates passed in 107.69s`; read-only full verifier passed
   `4/4 gates passed in 95.58s`; final source-clean check reported
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0 ruff_cache_dirs=0`.
-* Finalized the physical root-debt boundary hardening wave. Runtime capped
-  live workers at six, so bounded write lanes were tracked through a
+* Finished the physical root-debt boundary hardening wave. The runtime capped
+  live workers at six, so we tracked the bounded write lanes through a
   pseudo-git coordination ledger (now archived at `archive/AGENT_GITLOG.md`).
   MOSFET, interconnect, lithography source/species, and
-  medium-response source surfaces gained boundary hardening; process geometry,
-  SEMF/nuclear coefficients, source-plasma drive, medium intercomponent,
-  root-debt, import, CLI, and boundary index/smoke-pack coverage were added or
-  expanded. Focused parent pack passed `125 passed in 33.75s`; full pytest
+  medium-response source surfaces gained boundary hardening; we added or
+  expanded coverage for process geometry, SEMF/nuclear coefficients,
+  source-plasma drive, medium intercomponent, root-debt, import, CLI, and the
+  boundary index/smoke pack. Focused parent pack passed `125 passed in 33.75s`; full pytest
   passed `628 passed in 71.99s`; audit gate PASS reported 16 systems,
   1517 variables, 24 constants, 959 equations, 619 root inputs, 253 leaves,
   0 cycles, 0 hard failures, 0 large scope files, and 7 large project files;
   full verifier passed `4/4 gates passed in 73.38s`; read-only full verifier
   passed `4/4 gates passed in 75.17s`; final source-clean check reported
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0 ruff_cache_dirs=0`.
-* Finalized the scenario-audit selector/report ergonomics wave.
+* Finished the scenario-audit selector/report ergonomics wave.
   `SCENARIO_TARGET_SETS` and `scenario_targets_for(...)` centralize advertised
   scenario targets; `scenario-audit --preset` selects packs; `scenario-audit
   --target [LABEL=]VARIABLE` overrides advertised targets; `ScenarioReport`
@@ -175,7 +181,7 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   full verifier passed `4/4 gates passed in 72.95s`; read-only full verifier
   passed `4/4 gates passed in 80.75s`; final source-clean check reported
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0`.
-* Finalized the `scenario-audit` CLI wave over
+* Finished the `scenario-audit` CLI wave over
   `scenarios.SOURCED_SCENARIO_PACKS`. It evaluates advertised target sets via
   `Preset.evaluate_targets(...)`, supports text and `--json` output, and
   `--fail-on-issues` returns nonzero when any sourced scenario target has
@@ -189,7 +195,7 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   `4/4 gates passed in 70.64s`; read-only full verifier passed
   `4/4 gates passed in 76.89s`; final source-clean check reported
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0`.
-* Finalized the structured scenario-artifact wave:
+* Finished the structured scenario-artifact wave:
   `Preset.evaluate_targets(...)` returns a structured `ScenarioReport` with one
   `ScenarioTargetReport` per requested target; `MissingFamilySummary` captures
   grouped missing-family summaries; and `scenario-report --json` emits the
@@ -203,7 +209,7 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0`. SEMF numeric defaults remain
   blocked by source and semantics; cited scenario expansion and model expansion
   remain open.
-* Finalized the diagnostics / resolve-family / provenance wave:
+* Finished the diagnostics / resolve-family / provenance wave:
   user-visible surfaces include `root-debt --families`,
   `scenario-report --missing-families`, and `resolve --missing-families`
   missing-input grouping. Focused integration pack passed with
@@ -228,9 +234,9 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   leaving unsourced fluence, pressure, temperature, focusing, heating, and
   efficiency roots open. SEMF factory tests now reject empty, nonnumeric,
   boolean, unknown, non-root, and derived-alias assignments without publishing
-  coefficient defaults. Root-debt CLI determinism, gas/thermal feasibility,
-  medium-response domain propagation, and preset export/discovery tests were
-  added. Focused integration pack passed with 118 tests. Full pytest passed
+  coefficient defaults. We added tests for root-debt CLI determinism,
+  gas/thermal feasibility, medium-response domain propagation, and preset
+  export/discovery. Focused integration pack passed with 118 tests. Full pytest passed
   with 488 tests, full verifier passed 4/4 in 57.47s, read-only full verifier
   passed 4/4 in 62.22s, and the final source-clean check reports
   `cache_dirs=0 pyc_files=0 pytest_cache_dirs=0`.
@@ -263,8 +269,8 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   thermal-speed, and subluminal thermal-speed constraints; source valence quark
   roots are positive integer primitive boundaries; medium optical-response
   fractions/counts/resonance ratios gained structural constraints; shared SEMF
-  calibration roots gained focused boundary tests; and material preset
-  provenance scaffolding was extended without weakening composition-only
+  calibration roots gained focused boundary tests; and we extended material
+  preset provenance scaffolding without weakening composition-only
   caveats. Full pytest passed with 432 tests, full verifier passed 4/4 in
   48.41s, read-only full verifier passed 4/4 in 49.69s, and the final
   source-clean check reports `cache_dirs=0 pyc_files=0`.
@@ -791,8 +797,9 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   0 collapsed approximation-validity predicates, and 233 tests.
 * Added resolver domain-constraint and structural approximation-validity
   hardening:
-  approximation validity predicates that collapsed under positive SymPy
-  assumptions are now recovered into structural domain checks; resolver
+  approximation-validity predicates that used to collapse to a trivial answer
+  under positive SymPy assumptions are now recovered as structural domain
+  checks; resolver
   constraints also report declared variable domains for assigned and derived
   scenario values; `gpu-stack audit` now reports
   `collapsed_approximation_validity` as a hard-failure signal; and the fast
@@ -921,8 +928,8 @@ As of April 18, 2026 the user asked for roughly five files per response. Keep th
   and constraint helper evaluation respects selected variants.
 * Hardened expression-LHS constraints: relations such as `x + y <= z` now wire
   every registered LHS variable as a constraint owner, resolver diagnostics can
-  discover and evaluate them, and raw unregistered LHS symbols are surfaced by
-  audit instead of hiding outside RHS dependency scans.
+  discover and evaluate them, and audit now surfaces raw unregistered LHS
+  symbols instead of letting them hide outside RHS dependency scans.
 * Extended unit checking to expression-LHS relations: `check_units=True` now
   infers dimensional units on both sides when the LHS is not a bare registered
   variable, so constraints and equations like `x + y <= z` can be validated.
@@ -962,7 +969,7 @@ Split `core.py` into a `core/` package:
 * `core/__init__.py`: re-exports so `from ..core import var, eq, System`
   still works in scope files.
 
-Real bug caught immediately by the new cycle detection: thermal.dc.pue
+The new cycle detection immediately caught a real bug: thermal.dc.pue
 and thermal.dc.total_power define each other. Noted for pass 18.
 
 ## Pass 2: constants.py (DONE)
@@ -979,9 +986,10 @@ Expanded from 10 to 23 Constants. Added:
 * Math helpers (not Constants, but useful): LN_2, LN_10, PI, E_MATH,
   TWO_PI.
 
-All Constants now carry sp_units for the dimensional checker. Organized
-into labeled sections. Sources converted to structured Reference
-conceptually (kept source string for backwards compat).
+All Constants now carry sp_units for the dimensional checker, and the file
+is organized into labeled sections. Sources are treated as structured
+Reference objects conceptually, but we kept the source string for
+backwards compatibility.
 
 ## Pass 3: scopes/__init__.py (DONE)
 

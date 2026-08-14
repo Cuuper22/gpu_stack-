@@ -2,8 +2,12 @@
 scopes/physical_lithography_plasma_electron_state_confinement.py
 ================================================================
 
-Electron energy-loss path and confinement approximations for the lithography
-source plasma.
+How long absorbed energy stays in the electrons before leaking out. The
+loss path runs across the plasma column, stretched by a direction cosine
+into an effective path length; the loss speed is the species thermal speed
+scaled by an electron-to-species transport multiplier. Path length over
+speed gives the energy confinement time, the tau_E that converts absorbed
+power into stored electron energy in the inventory module.
 """
 
 import sympy as sp

@@ -2,7 +2,19 @@
 scopes/optimizer_first_order_variants.py
 ========================================
 
-SGD, Nesterov, RMSProp, LAMB, and Lion declarations.
+The first-order family tree beyond AdamW: SGD to Lion.
+
+Each variant here answers the same question — how to turn a gradient into
+a step — with a different bet. SGD with momentum accumulates a velocity
+so persistent directions build up speed; Nesterov looks ahead along that
+velocity before evaluating. RMSProp divides by a running average of
+squared gradients, adapting the step per coordinate (Adam without the
+first moment). LAMB rescales each layer's update by the ratio of weight
+norm to update norm — the trust ratio — which keeps huge-batch training
+stable. Lion keeps only one momentum buffer and steps by the sign of the
+update, trading precision for half the state memory. Comparing their
+buffer counts is what makes the optimizer-state multiplier in the
+sharding helper vary by choice of rule.
 """
 
 import sympy as sp

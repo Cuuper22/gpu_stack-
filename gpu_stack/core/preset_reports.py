@@ -1,9 +1,11 @@
 """
-Structured scenario evaluation report artifacts.
+Report artifacts produced when a Preset evaluates its targets.
 
-These dataclasses are deliberately small and JSON-friendly. They live outside
-``core.presets`` so the Preset class can focus on validation and resolver
-orchestration rather than report bookkeeping.
+A ScenarioReport wraps one ScenarioTargetReport per evaluated target, plus
+summaries of unresolved inputs grouped by family. All three dataclasses
+are frozen and JSON-friendly on purpose: reports get serialized, diffed,
+and asserted on. They live outside ``core.presets`` so the Preset class
+can focus on validation and resolver orchestration, not bookkeeping.
 """
 
 from __future__ import annotations

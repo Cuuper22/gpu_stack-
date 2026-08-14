@@ -2,8 +2,14 @@
 scopes/physical_lithography_plasma_electron_state_inventory.py
 ==============================================================
 
-Free-electron inventory, temperature, density, and Debye-length relations for
-the lithography source plasma.
+The free-electron inventory and its temperature. Each active source
+particle contributes electrons according to a charge fraction of its
+nuclear charge, giving the electron count; absorbed power times the
+confinement time gives the stored internal energy; energy per electron sets
+the electron temperature. Count over active plasma volume gives the number
+density, and temperature with density gives the Debye screening length.
+Temperature and density are exactly what the Saha ionization balance in the
+electronic-structure layer needs.
 """
 
 import sympy as sp

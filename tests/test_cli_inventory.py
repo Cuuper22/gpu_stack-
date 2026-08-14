@@ -1,4 +1,12 @@
-"""CLI inventory and next-work command tests."""
+"""Tests for the ``list-presets`` and ``next-work`` CLI commands.
+
+``list-presets`` enumerates the preset packs users can run, so we check
+that a representative sample from every family (hardware, materials,
+lithography, workload, economics, scenarios) shows up. ``next-work`` is the
+project compass — it reports graph size and ranked priorities — so we pin
+its section headings, its exact graph counts, and the JSON shape external
+tooling consumes.
+"""
 
 import json
 

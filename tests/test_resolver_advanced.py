@@ -1,14 +1,18 @@
-"""
-tests/test_resolver_advanced.py
-================================
+"""Tests for the three opt-in resolver extensions.
 
-Focused tests for the three opt-in resolver extensions:
-  (1) Validity-aware variant fallback (--fallback-on-violated-validity)
-  (2) Small simultaneous-system solving (--solve-systems)
-  (3) Selection explanation (--explain-selection)
+The resolver normally walks one equation per variable. These flags extend it:
 
-All tests use either synthetic variables via registry_snapshot or
-existing real-registry fixtures.
+  (1) --fallback-on-violated-validity: when the selected variant is an
+      approximation whose validity condition fails, switch to another variant
+      instead of silently using an out-of-regime formula.
+  (2) --solve-systems: solve small mutual-dependency cycles (up to 3
+      variables) as a simultaneous system instead of failing.
+  (3) --explain-selection: record on each trace step why that equation was
+      chosen.
+
+Each feature is opt-in, so these tests also verify that the default behavior
+is unchanged when the flag is off. All tests use either synthetic variables
+via registry_snapshot or existing real-registry fixtures.
 """
 
 from __future__ import annotations

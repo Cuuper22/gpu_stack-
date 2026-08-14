@@ -1,4 +1,12 @@
-"""Shared lithography setup and expectation helpers."""
+"""Shared building blocks for the lithography tests.
+
+Lithography tests keep assigning the same kinds of inputs — nucleon counts,
+liquid-drop coefficients, intercomponent bond parameters — and comparing
+against the same closed-form expectations. These helpers construct those
+assignment dicts and compute the expected values (for example the
+semi-empirical mass formula) in one place, so a test states only what is
+special about its case.
+"""
 
 from __future__ import annotations
 
@@ -8,10 +16,11 @@ from gpu_stack import Registry
 
 
 def source_quark_assignments(protons, neutrons):
-    """Return nucleon (proton/neutron) root assignments for the source species.
+    """Return the root assignments (proton and neutron counts) for the source species.
 
-    Quark counts are now DERIVED from proton/neutron counts via the identity
-    U = 2Z + N and D = Z + 2N, so proton and neutron counts are the roots.
+    Quark counts are derived quantities, not inputs: the graph computes them
+    from the identities U = 2Z + N and D = Z + 2N. So the roots we must
+    assign are the proton count Z and the neutron count N.
     """
     return {
         "physical.lithography.source_proton_count": protons,
@@ -27,10 +36,11 @@ def failed_constraint(result, equation):
 
 
 def medium_component_quark_assignments(component: str, protons: int, neutrons: int):
-    """Return nucleon (proton/neutron) root assignments for a medium component.
+    """Return the root assignments (proton and neutron counts) for a medium component.
 
-    Quark counts are now DERIVED from proton/neutron counts via the identity
-    U = 2Z + N and D = Z + 2N, so proton and neutron counts are the roots.
+    Same idea as :func:`source_quark_assignments`: quark counts are derived
+    from U = 2Z + N and D = Z + 2N, so only the proton count Z and neutron
+    count N are roots the test needs to set.
     """
     return {
         f"physical.lithography.medium_component_{component}_proton_count": protons,

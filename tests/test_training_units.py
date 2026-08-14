@@ -1,12 +1,11 @@
-"""
-tests/test_training_units.py
-============================
+"""Metadata coverage regressions for the training scope.
 
-Training-scope metadata coverage regressions.
-
-These checks keep the training split covered with concrete unit metadata,
-structured provenance, and curated dimensional checks where the current graph
-has enough unit information to make the check meaningful.
+Every training variable must declare concrete SymPy units and cite
+references, and every training equation must carry provenance. The counts
+here (at least 61 variables, 49 equations, 31 unit-checked) are floors: they
+stop coverage from silently shrinking when the graph changes. Representative
+spot checks pin exact units — seconds for step time, FLOP for work per step,
+watts for power — so a unit swap cannot hide inside an aggregate count.
 """
 
 import sympy as sp

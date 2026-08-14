@@ -2,11 +2,15 @@
 scopes/optimizer_first_order_common.py
 ======================================
 
-Shared first-order optimizer state.
+The symbols every first-order optimizer shares.
 
-These declarations provide the gradient, parameter, learning-rate, decay, step
-index, and optimizer-state byte handles used by every first-order optimizer
-family.
+Whatever the update rule, it manipulates the same cast: the current
+parameters and their successors, the gradient, the learning rate, the
+weight-decay coefficient, the step index, and the bytes of state stored
+per parameter. Declaring these once here — together with the Reference
+objects for each optimizer family — lets AdamW, the SGD variants, and EMA
+write their equations against common symbols instead of redeclaring them,
+and keeps the citations identical across files.
 """
 
 import sympy as sp

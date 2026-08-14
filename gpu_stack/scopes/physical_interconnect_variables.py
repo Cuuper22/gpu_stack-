@@ -2,8 +2,13 @@
 scopes/physical_interconnect_variables.py
 =========================================
 
-Variable declarations for on-chip interconnect geometry and distributed-line
-effects.
+Variable declarations for on-chip wires. A wire is described first by
+routing (span, detour factor, hop count), then by cross-section geometry
+(pitch, width, thickness, spacing set by aspect ratio and fill factor), and
+finally by electrical properties: resistance per length, dielectric
+permittivity with fringe and crosstalk factors, and the distributed RC
+quantities built on them. This file only declares symbols, units, and
+references; the relations live in the sibling equations module.
 """
 
 from ..core import var

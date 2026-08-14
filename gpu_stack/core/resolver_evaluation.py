@@ -1,4 +1,18 @@
-"""Private helpers for :mod:`gpu_stack.core.resolver`."""
+"""
+Numeric evaluation for the scenario resolver.
+
+Two jobs live here. The first is substitution: take an equation or a
+relation, replace each variable's symbol with its known value, and simplify
+— but only when the expression is small, because simplifying a huge
+partially-symbolic expression can take tens of seconds for no benefit.
+
+The second is checking: after the target resolves, evaluate every
+constraint, declared variable domain, and approximation-validity predicate
+that the scenario can reach, and record whether each one held. Constraints
+may need helper variables that sit outside the value-resolution cone
+(constraint edges do not define values), so a deliberately bounded local
+resolution fills those in without becoming a second full resolver pass.
+"""
 
 from __future__ import annotations
 

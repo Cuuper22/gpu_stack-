@@ -1,4 +1,19 @@
-"""Process-geometry resolver paths and unit-check flags."""
+"""Tests for the process-geometry resolver paths and their unit checks.
+
+Channel length — the physical length of a transistor's gate channel — can be
+resolved at three depths, depending on which inputs a scenario pins. Pin the
+node length directly and one equation finishes the job. Pin the drawn
+dimensions and the resolver goes through the pitch layer: contacted gate
+pitch and minimum metal pitch combine into node length first. Pin only
+photon energy and lens geometry and the resolver descends into lithography,
+deriving wavelength, numerical aperture, and the k1 process factor before
+any pitch exists. These tests exercise each path against hand-computed
+values and confirm the trace shows the expected equations.
+
+The remaining tests assert that the equations along these paths — down to
+the full nuclear, plasma, and medium chains — carry unit checks, so a
+dimensional mistake anywhere in the stack fails at registration.
+"""
 
 import pytest
 

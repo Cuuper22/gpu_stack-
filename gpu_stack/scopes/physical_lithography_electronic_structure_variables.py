@@ -2,12 +2,13 @@
 scopes/physical_lithography_electronic_structure_variables.py
 =============================================================
 
-Local variable declarations for lithography source electronic structure.
-
-The public electronic-structure module composes these with plasma, shielding,
-absorption-edge, and transition-step shims. Keeping the local declarations here
-makes the variable registry surface easy to audit without changing names,
-units, references, or public exports.
+Variable declarations for the source electronic structure: ion charge,
+ionization energy and its screening inputs, Saha-balance quantities, bound
+electron count, and the principal quantum numbers of the emitting
+transition. The public electronic-structure module composes these with the
+plasma, shielding, absorption-edge, and transition-step shims. Keeping the
+raw declarations in one file makes the registry surface easy to audit
+without touching names, units, references, or exports.
 """
 
 import sympy as sp

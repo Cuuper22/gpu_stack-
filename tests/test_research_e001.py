@@ -1,3 +1,24 @@
+"""Tests for the E001 screening experiment engine.
+
+E001 asks whether an adaptive checkpoint cadence beats a synchronous
+baseline when training spans sites that suffer outages. ``run_e001``
+replays a JSON scenario through three policies — synchronous, fixed-local,
+and adaptive-cadence — and emits comparison artifacts with falsifier
+verdicts.
+
+These tests guard the engine's honesty. The scenario keeps absolute outage
+times and an explicitly unfitted learning prior. Learning falsifiers stay
+unresolved (None) in a virtual screen, so the conclusion can be at best
+"inconclusive" — the engine may not synthesize progress or completion-time
+ratios it never measured. The event timeline is causal: every collective
+epoch starts exactly where a preceding compute epoch ended. Result identity
+binds protocol, scenario hash, engine source hash, and trace schema, and
+including traces changes the artifact hash. Finally, checkpoint cadence is
+a property of the scenario, not the policy — all three policies checkpoint
+at the same steps with the same bytes, so cadence can never be a hidden
+advantage.
+"""
+
 from dataclasses import replace
 from pathlib import Path
 

@@ -1,5 +1,15 @@
 """
-Structural relation and domain-validity helpers for equations.
+Builders for relations that must stay structural.
+
+SymPy likes to evaluate relations eagerly: given a symbol declared
+positive, ``sym >= 0`` collapses to True and the relation object is gone.
+Constraints and validity predicates need to survive as objects so the
+resolver can evaluate them against a specific scenario later. Every helper
+here builds its relation with ``evaluate=False`` for exactly that reason.
+
+The domain helpers translate a Variable's declared metadata (sign
+assumptions, value_range, integrality) into the same kind of structural
+relations, so declared domains can be checked like any other constraint.
 """
 
 from __future__ import annotations
@@ -46,7 +56,13 @@ def valid_all(*conditions: object) -> sp.Expr:
 
 
 def domain_relations_for_variable(var: Variable) -> List[Tuple[str, sp.Expr]]:
-    """Structural relations implied by a variable's declared domain metadata."""
+    """
+    Turn a variable's declared domain metadata into checkable relations.
+
+    Returns (suffix, relation) pairs: sign assumptions become inequalities
+    against zero, value_range becomes min/max bounds, and integrality
+    becomes a Mod-based equality or non-equality.
+    """
     relations: List[Tuple[str, sp.Expr]] = []
     sym = var.symbol
     assumptions = getattr(var, "assumptions", {})
@@ -90,7 +106,8 @@ def domain_relations_for_variable(var: Variable) -> List[Tuple[str, sp.Expr]]:
 
 
 def domain_validity_for_exprs(exprs: List[object]) -> List[sp.Expr]:
-    """Domain relations for registered variables appearing in expressions."""
+    """Collect domain relations for every registered variable in the given
+    expressions, deduplicated across expressions."""
     relations: List[sp.Expr] = []
     seen: Set[Tuple[str, str]] = set()
     for expr in exprs:

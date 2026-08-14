@@ -2,11 +2,11 @@
 scopes/physical_lithography_medium_binding.py
 =============================================
 
-Liquid-drop nuclear binding terms for lithography imaging-medium components.
-
-The coefficient calibration, component nuclear-state descriptors, and
-component binding-energy terms live in focused sibling modules; this module
-preserves the historical public import surface and registry ordering.
+Facade for imaging-medium component nuclear binding. The liquid-drop
+coefficient calibration, the per-component nuclear-state descriptors, and
+the per-component binding-energy terms live in focused sibling modules.
+This module re-exports them and preserves the historical import surface and
+registry ordering.
 """
 
 from .physical_lithography_medium_binding_coefficients import *

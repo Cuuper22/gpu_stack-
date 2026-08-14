@@ -1,10 +1,16 @@
-"""
-tests/test_next_work_continuation_contract.py
-==============================================
+"""Contract test for the next-work continuation surface.
 
-Contract test for the next-work continuation surface. The implementation may
-choose exact item wording, but the public builder should expose the active
-objective shape and the current graph snapshot that justifies it.
+A contract test pins down the shape of a public API without caring how it is
+built. Here the API is the plan builder in ``gpu_stack.next_work``: the module
+must export exactly one public builder, and the plan it returns must carry
+three fixed-size sections (3 highest-impact items, 4 implementation items,
+10 bug risks) plus a snapshot of the live dependency graph (1517 variables,
+950 equations, 619 root inputs) that justifies those items.
+
+We deliberately accept several field spellings for each section. That lets
+the implementation rename internals freely while the promise to callers —
+"these sections exist, with these sizes, backed by the current graph" —
+stays enforced.
 """
 
 from __future__ import annotations

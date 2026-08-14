@@ -1,3 +1,17 @@
+"""Tests for the E001 literature observation fixtures.
+
+The E001 experiment seeds its learning prior with three validation-loss
+numbers transcribed from a published paper (arXiv:2606.30634, SmolLM-360M
+with Muon under sync, async-one-step, and async-with-error-feedback). The
+paper reports values to three decimals, so the honest uncertainty is the
+rounding half-width: each fixture must carry bounds of +/-0.0005 around the
+printed value, with no invented standard deviation or confidence level.
+
+The observations live in two places — the research tree and the installed
+package data — because tools read whichever is available. The second test
+requires the two copies to match byte for byte, so they can never drift.
+"""
+
 from importlib import resources
 from pathlib import Path
 

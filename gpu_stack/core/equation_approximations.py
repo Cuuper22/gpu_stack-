@@ -1,4 +1,12 @@
-"""Approximation and piecewise equation subclasses."""
+"""
+Relations that hold only sometimes: approximations and piecewise equations.
+
+An Approximation is an equality with a stated region of validity; a
+PiecewiseEquation picks a different formula depending on which condition is
+true. Both subclass the base Equation and add their conditions to the
+dependency wiring so the graph knows about variables that appear only in
+the conditions.
+"""
 
 from __future__ import annotations
 
@@ -15,9 +23,13 @@ from .symbolic import ExprLike, to_expr
 
 class Approximation(Equation):
     """
-    lhs ~= rhs, valid when ``validity`` holds.
+    ``lhs ~= rhs``, trustworthy only while ``validity`` holds.
 
-    ``validity`` is a SymPy expression over Variables, for example x << 1.
+    ``validity`` is a SymPy predicate over Variables, for example x << 1.
+    The resolver evaluates it for each scenario and reports when a selected
+    approximation is being used outside its region of validity. Passing
+    ``validity=True`` means "valid on the variables' declared domains": the
+    domain relations of the RHS variables are recovered and used instead.
     """
 
     kind = EquationKind.APPROXIMATION
@@ -72,10 +84,12 @@ class Approximation(Equation):
 
 class PiecewiseEquation(Equation):
     """
-    lhs == Piecewise((expr1, cond1), (expr2, cond2), ..., (default_expr, True)).
+    ``lhs == Piecewise((expr1, cond1), ..., (default_expr, True))``.
 
-    Example: MOSFET drain current has different formulas in cutoff, triode,
-    and saturation.
+    Use this when one quantity obeys different formulas in different
+    regimes. Example: MOSFET drain current in cutoff, triode, and
+    saturation. Each piece's expression and condition both count as
+    dependencies, so regime-selecting variables stay visible in the graph.
     """
 
     kind = EquationKind.PIECEWISE

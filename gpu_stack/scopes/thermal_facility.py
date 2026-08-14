@@ -2,10 +2,17 @@
 scopes/thermal_facility.py
 ==========================
 
-Facility cooling plant and site power: fan power, chiller load and power,
-cooling-tower auxiliary power, heat reuse, wet-bulb-driven free-cooling
-piecewise logic, humidity-control power, total cooling power, PUE
-definition, and the component sum that gives DC total power.
+The facility cooling plant and site power balance. Heat arriving from the
+liquid loops must be rejected: below a wet-bulb threshold the cooling
+towers alone can do it (free cooling), above it the chiller runs and pays
+compressor power, decided by piecewise logic on the outdoor wet-bulb
+temperature. Fans, tower auxiliaries, humidity control, and pumps add
+their own draw, heat reuse subtracts what is sold or recycled, and
+non-cooling overheads (power distribution losses, lighting, offices)
+complete the picture. DC total power is the explicit sum of IT power plus
+all of these terms, and PUE is defined once as that total over IT power --
+a ratio computed from the sum, never the other way around. Sizing
+quantities for the capex scope close the module.
 """
 
 from ..core import Reference
@@ -44,7 +51,7 @@ facility_thermal_piecewise = referenced_piecewise(FACILITY_THERMAL_REF)
 
 
 # ---------------------------------------------------------------------------
-# Fans
+# Fans: air movers for the room and the tower, priced off their share of rejected heat
 # ---------------------------------------------------------------------------
 
 air_flow_rate = facility_thermal_var(
@@ -96,7 +103,7 @@ heat_to_reject = facility_thermal_var(
 
 
 # ---------------------------------------------------------------------------
-# Free cooling, chiller, and tower
+# Free cooling vs chiller: below the wet-bulb threshold the towers alone reject the heat
 # ---------------------------------------------------------------------------
 
 ambient_wet_bulb = facility_thermal_var(

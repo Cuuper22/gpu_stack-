@@ -13,27 +13,27 @@ The question was simple enough to be annoying: if frontier training is supposedl
 
 Not rhetorically. Physically.
 
-A token passes through model architecture, kernels, collectives, memory bandwidth, transistor switching, lithography, materials, thermals, power delivery, and eventually a cost line item that someone has to pay. The stack is usually explained in slices. I wanted the uncomfortable version where the slices have to talk to each other.
+A token passes through model architecture, kernels, collectives, memory bandwidth, transistor switching, lithography, materials, thermals, power delivery, and eventually a cost line item that someone has to pay. Each of those layers is usually explained on its own, in a slice. I wanted the version where the slices have to talk to each other.
 
 ## What This Is Now, And How It Got Here
 
-The project grew in three stages, and knowing the stages makes everything else legible.
+The project grew in three stages. Once you know the stages, everything else in this README makes sense.
 
-First it was an equation graph: thousands of physics and engineering relations wired together so that a question like "what does one token cost" could be traced all the way down instead of stopping at a vendor slide.
+First it was an equation graph: thousands of physics and engineering relations wired together, so that a question like "what does one token cost" could be traced all the way down instead of stopping at a vendor slide.
 
-Then the graph learned to move. Events, failures, checkpoints, power draw, multi-site traffic. A static graph became a small virtual datacenter that can replay what a training run does over time.
+Then the graph learned to move. Events, failures, checkpoints, power draw, multi-site traffic. The static graph became a small virtual datacenter that can replay what a training run does over time.
 
-Now it is a lab. The virtual datacenter runs preregistered experiments. Preregistered means the pass/fail line is frozen before the run starts, so I cannot move the goalposts after seeing the result. Measurements calibrate the engine, the engine powers the explanation, the explanation exposes its own assumptions, and experiments produce new measurements. That loop is the whole point now.
+Now it is a lab. The virtual datacenter runs preregistered experiments. Preregistered means the pass/fail line is frozen before the run starts, so I cannot move the goalposts after seeing the result. Measurements calibrate the engine. The engine powers the explanation. The explanation exposes its own assumptions. Experiments produce new measurements. That loop is the whole point now.
 
 So in one sentence: GPUSTACK is a virtual AI datacenter you can interrogate. It predicts what a training run does to time, power, and money, says how sure it is, and can show you what every one of its numbers is made of.
 
-If that sounds like a weird amount of effort to understand GPU training, yes. That is more or less how the project happened.
+That is a lot of machinery for one question about GPU training. It grew this way one honest step at a time, which is more or less how the project happened.
 
 ## The Shape Of The Stack
 
 ![Dependency cone from datacenter economics down through GPU systems, transistor physics, lithography, atoms, nucleons, quarks, and equations.](docs/assets/readme-equation-cone.svg)
 
-`gpu_stack` treats the training stack like one inspectable dependency cone. Start from a single number at the top, collect everything it depends on, and the shape that falls out is a cone: one question at the tip, hundreds of assumptions at the base.
+`gpu_stack` treats the training stack as one inspectable dependency cone. Pick a single number at the top, collect everything it depends on, and the shape that falls out is a cone: one question at the tip, hundreds of assumptions at the base.
 
 At the wide end are questions people actually ask:
 
@@ -48,7 +48,7 @@ At the narrow end are the things the model refuses to pretend away: how the chip
 
 Most tooling stops at the first satisfying number. `gpu_stack` keeps asking: what is that number made of?
 
-The answer can be an equation, a sourced scenario value, a universal constant, or a root input. A root input is a value the model needs but cannot yet derive, so it names it instead of hiding it. Root inputs are not a shame pile. They are visible modeling debt, which is much better than hidden modeling debt wearing a lab coat.
+The answer can be an equation, a sourced scenario value, a universal constant, or a root input. A root input is a value the model needs but cannot yet derive, so it names the value instead of hiding it. A root input is not a failure. It is modeling debt made visible, and visible debt is much safer than hidden debt.
 
 ## The Central Idea
 
@@ -103,7 +103,7 @@ The model spans:
 | Cluster and facility | nodes, racks, bisection, storage, reliability, power, cooling, PUE |
 | Economics | capex, opex, amortization, power cost, run cost, cost per token |
 
-MFU means Model FLOPs Utilization. HBM means High Bandwidth Memory. PUE means Power Usage Effectiveness. The README should not assume the reader was born knowing datacenter abbreviations. Sadly, many datacenter docs do. If half the other words in that table are new to you, that is fine. The table is a map of where things live, not a quiz.
+MFU means Model FLOPs Utilization. HBM means High Bandwidth Memory. PUE means Power Usage Effectiveness. You should not need to arrive already knowing datacenter abbreviations, so this README defines them. If half the other words in that table are new to you, that is fine. The table is a map of where things live, not a quiz.
 
 ## Try It Without Believing Me
 
@@ -189,11 +189,11 @@ total_weight  root_count  family                                      boundary_c
 
 Reading the columns: `total_weight` is how many downstream variables depend on the family's roots, `family` is the group of related roots, and `primitive_boundary` marks families sitting at the edge of what the model can currently derive. The live table also appends a `top_roots` column naming the heaviest individual roots per family, truncated here for line width.
 
-This is one of the more useful commands because it prevents the project from drifting into "add equations wherever it feels cool." The graph can tell which unknowns are currently expensive.
+This is one of the more useful commands, because it stops the project from adding equations wherever it feels interesting. The graph itself can tell you which unknowns are currently expensive.
 
 ## Scenario Reports
 
-Presets can evaluate named targets and return structured artifacts. A preset is a saved bundle of scenario assignments, so a run is reproducible instead of vibes.
+Presets can evaluate named targets and return structured artifacts. A preset is a saved bundle of scenario assignments, so a run is reproducible instead of a matter of memory.
 
 ```python
 from gpu_stack.presets import scenarios
@@ -247,7 +247,7 @@ econ.cost.per_token     = 3.000078e-06
 
 That last line reads as three millionths of a dollar per token: for this synthetic scenario, a million tokens costs about three dollars of datacenter.
 
-That fixture is synthetic. A fixture is a fixed test anchor: deterministic on purpose, not vendor truth, historical data, or a price recommendation. The distinction matters. Fake authority is how technical debt gets a haircut and calls itself strategy.
+That fixture is synthetic. A fixture is a fixed test anchor: deterministic on purpose, not vendor truth, historical data, or a price recommendation. The distinction matters. A synthetic number wearing the costume of a measurement is exactly the kind of hidden assumption this project exists to avoid.
 
 ## Resolver Workflows
 
@@ -298,9 +298,9 @@ In plain words, the six questions:
 
 A few experiment codes appear throughout the project: LC stands for learning calibration, PW for power waveform, SC for semantic consistency. E001-LC3 is just "the third learning-calibration run of experiment one."
 
-Two results are worth telling as stories, because they are the project behaving the way it was designed to.
+Two results are worth telling as stories, because they show the project behaving the way it was designed to.
 
-The first: E001-SC1 stress-tested the adaptive controller across six failure patterns it had never seen. In three of them the controller recognized it was outside its calibrated experience, 104 times, and each time it recorded an abstention: a logged "I do not know" plus a fallback to the safe baseline, instead of a guess. The persisted conclusion is `abstain_without_policy_claim`. The system declined to claim a win it could not support. That refusal is the result, and it is the most honest thing in this repository.
+The first: E001-SC1 stress-tested the adaptive controller across six failure patterns it had never seen. In three of them, the controller recognized it was outside its calibrated experience, 104 times, and each time it recorded an abstention: a logged "I do not know" plus a fallback to the safe baseline, instead of a guess. The persisted conclusion is `abstain_without_policy_claim`. The system declined to claim a win it could not support. That refusal is the result, and it is the most honest thing in this repository.
 
 The second: E002-PW1 completed all 32 runs and then invalidated itself, because its power meter turned out to sample 25 times slower than requested. The favorable-looking raw numbers were thrown out as inadmissible instead of being quietly kept. The rerun with a valid meter, PW2, is the result that counts.
 

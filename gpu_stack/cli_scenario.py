@@ -1,4 +1,10 @@
-"""Preset inventory and scenario-report commands for the gpu_stack CLI."""
+"""The `list-presets`, `scenario-report`, and `scenario-audit` subcommands.
+
+A preset is a named bundle of variable assignments and variant selections.
+These commands list the available presets, evaluate one (or a combination)
+against user-facing target variables, and audit every sourced scenario pack
+through its advertised targets so stale packs fail loudly.
+"""
 
 from __future__ import annotations
 

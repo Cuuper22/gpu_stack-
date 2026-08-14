@@ -11,14 +11,16 @@ Status: accepted implementation specification, July 12, 2026.
 - `causal-observatory-brief.md`: authoritative product behavior and copy
   boundary.
 
-The PNGs specify composition, hierarchy, palette, density, and component
-geometry. They are not production assets and must never be embedded as UI.
-HTML, CSS, SVG, and live experiment artifacts remain authoritative.
+The PNGs show what the surface should look like: composition, hierarchy,
+palette, density, and component geometry. They are references only. They are
+not production assets and must never be embedded as UI. HTML, CSS, SVG, and
+live experiment artifacts remain authoritative.
 
 ## Truth overrides for generated concepts
 
-Image generation introduced three text errors. Implementation must correct
-them even where this creates an intentional visual-reference deviation:
+The concept images were made with image generation, and that process introduced
+three text errors. Implementation must correct them even where the correction
+makes the build deviate from the visual reference on purpose:
 
 1. Published three-decimal losses use a rounding interval of plus or minus
    `0.0005`, not plus or minus `0.001`.
@@ -27,17 +29,18 @@ them even where this creates an intentional visual-reference deviation:
    membership decision. Omit the generated `after failure detected` row.
 3. The controlled validation requirement is `30B to 100B-plus`, not `160B`.
 
-Artifact values override all values visible in a generated concept. If an
+Artifact values win over anything visible in a generated concept. If an
 experiment artifact does not exist or does not report a field, the UI says
 `not run`, `unmeasured`, or `unresolved`.
 
 ## Visual idea
 
-The observatory is a scientific field notebook crossed with a precise mission
-control instrument. It is one continuous evidence surface, not a collection of
-dashboard cards. Fine rules, direct labels, aligned tables, and restrained
-registration marks carry density. Evidence class is visible through shape,
-line style, color, and text.
+The observatory looks like a scientific field notebook crossed with a precise
+mission control instrument. It is one continuous evidence surface, not a
+collection of dashboard cards. Density is carried by fine rules, direct
+labels, aligned tables, and restrained registration marks. Evidence class is
+visible through shape, line style, color, and text, so no single channel has
+to carry it alone.
 
 ## Tokens
 
@@ -60,7 +63,7 @@ line style, color, and text.
 --obs-focus: #f0a92f;
 ```
 
-`--obs-paper` is intentionally warm paper, not white. There are no gradients,
+`--obs-paper` is warm paper on purpose, not white. There are no gradients,
 glass surfaces, neon glows, or elevated card shadows.
 
 ### Typography
@@ -94,8 +97,8 @@ glass surfaces, neon glows, or elevated card shadows.
 | Prior | hexagon | solid | cobalt | `PRIOR · NOT FITTED` |
 | Unmeasured | diamond | dashed | red | `UNMEASURED` |
 
-Color is never the sole carrier. Every evidence-bearing component exposes an
-accessible text label and a screen-reader description.
+Color never carries the evidence class by itself. Every evidence-bearing
+component exposes an accessible text label and a screen-reader description.
 
 ## Desktop layout
 
@@ -109,8 +112,8 @@ The desktop surface uses five contiguous bands:
 4. Timeline band: three aligned policy tracks and direct legend.
 5. Comparison band: open table plus compact timeline controls.
 
-The research band must remain the visual center. The inspector is fixed on
-wide screens and never floats as a decorative card.
+The research band is the visual center and must stay that way. The inspector
+is fixed on wide screens and never floats as a decorative card.
 
 ## Mobile layout
 
@@ -127,8 +130,8 @@ At 760 pixels and below, the order becomes:
 8. Pannable aligned policy timeline and legend.
 9. Full-trace disclosure.
 
-Only the site strip, comparison table, and timeline may scroll horizontally.
-The page itself must not overflow.
+Exactly three things may scroll horizontally: the site strip, the comparison
+table, and the timeline. The page itself must not overflow.
 
 ## Component families
 

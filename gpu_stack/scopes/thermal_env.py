@@ -2,9 +2,15 @@
 scopes/thermal_env.py
 =====================
 
-Water usage and environmental envelope: evaporation, blowdown, drift,
-water-usage rate, WUE, dew-point headroom, condensation margin, and the
-ASHRAE-style inlet and humidity inequality constraints.
+Water use and the environmental envelope of the facility. Evaporative
+cooling works by paying latent heat: the evaporation rate is heat rejected
+over the latent heat of vaporization, blowdown discharges extra water to
+keep dissolved minerals in check (set by the cycles of concentration), and
+drift is the fine spray the tower loses. Their sum is the water-usage
+rate, and per unit of IT energy it is the WUE. The envelope side holds the
+ASHRAE-style inequality constraints on inlet temperature and relative
+humidity, plus dew-point headroom -- the margin that keeps cold surfaces
+above the temperature where condensation starts.
 """
 
 import sympy as sp
@@ -31,7 +37,7 @@ THERMAL_ENV_REF = Reference(
 
 
 # ---------------------------------------------------------------------------
-# Water usage
+# Water usage: evaporation does the cooling; blowdown and drift are the tax on top
 # ---------------------------------------------------------------------------
 
 water_latent_heat = var(

@@ -2,8 +2,14 @@
 scopes/physical_lithography_plasma_absorption_resonance.py
 ==========================================================
 
-Resonance, damping, oscillator, cross-section, and optical-depth equations
-for source-plasma drive absorption.
+Lorentz-oscillator absorption of the drive beam. The dominant source
+species resonance sits at a frequency set by a ratio to the drive
+frequency; collisions between particles damp it, giving a damping rate and
+quality factor. Oscillator strength times participating-electron fractions
+scales the classical cross section, and cross section times species density
+times path length gives the optical depth tau. The single-pass absorbed
+fraction is then 1 - exp(-tau): thin plasma absorbs little, thick plasma
+absorbs nearly everything.
 """
 
 import sympy as sp

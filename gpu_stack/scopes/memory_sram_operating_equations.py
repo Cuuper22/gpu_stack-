@@ -2,7 +2,17 @@
 scopes/memory_sram_operating_equations.py
 =========================================
 
-SRAM access, read/write energy, and leakage equations.
+Why an SRAM access takes the time and energy it does.
+
+Access time is a three-stage journey: raise the wordline, let the cell
+discharge the bitline through the access transistor (an RC delay, access
+resistance times bitline capacitance), then wait for the sense amplifier
+to resolve the small swing. Read energy is dominated by that bitline:
+charging capacitance C through a swing V costs C*V*V_supply-scale energy,
+plus the sense amplifier's share. Write energy adds the cost of forcing
+the internal node over. Leakage power is simply leak current times supply,
+paid continuously by every idle cell — which is why megabytes of on-chip
+SRAM show up in the die's static power budget.
 """
 
 import sympy as sp

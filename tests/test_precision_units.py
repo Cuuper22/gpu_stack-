@@ -1,8 +1,15 @@
-"""
-tests/test_precision_units.py
-=============================
+"""Metadata coverage for the precision scope.
 
-Precision-scope metadata coverage regressions.
+The precision scope models number formats (fp32 down to fp4, int8, int4,
+posits, log-number systems) and the machinery around them: quantization
+error, stochastic rounding, loss scaling. These tests keep the metadata
+honest. Every precision variable declares units and cites a reference; every
+equation cites a reference. Storage sizes carry real dimensions — bits or
+bytes — while probabilities and error variances are dimensionless.
+
+Unit checking here is curated rather than universal: at least 27 of the 47+
+equations must be checked, including a named core set, because some identities
+mix symbolic pieces that SymPy's unit checker cannot evaluate.
 """
 
 import sympy as sp

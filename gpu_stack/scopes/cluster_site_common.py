@@ -1,9 +1,12 @@
 """
-Shared declarations for site-level cluster helper modules.
+Shared References and declaration factories for the site-level helpers.
 
-The cluster site scope is split by model responsibility, but the references
-and declaration factories stay here so every helper uses the same source
-annotations and cluster scope wiring.
+The site scope is split into aggregation, scheduler, and scale-across
+modules, but they should all cite the same four References and declare
+through the same scope-tagged factories. Defining both here — one Reference
+per model responsibility, one var/eq factory pair per Reference — means a
+helper cannot accidentally register a variable with the wrong scope or a
+missing citation. This module creates no registry entries itself.
 """
 
 from ..core import Reference

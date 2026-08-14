@@ -1,4 +1,13 @@
-"""Base algebraic Equation implementation."""
+"""
+The base Equation class: an algebraic relation `lhs = rhs` over Variables.
+
+Constructing an Equation does three things beyond storing the expressions:
+it registers the equation globally, it wires back-references into every
+Variable it touches (who defines me, who uses me — the edges of the
+dependency graph), and it optionally checks that both sides carry the same
+physical units. All other relation kinds (inequalities, approximations,
+differential equations, ...) subclass this and override small hooks.
+"""
 
 from __future__ import annotations
 
@@ -25,9 +34,14 @@ from .variable import Reference, Variable
 
 class Equation:
     """
-    lhs = rhs, over Variable symbols.
+    An algebraic relation ``lhs = rhs`` over Variable symbols.
 
-    Subclasses override ``as_sympy()`` to return the right SymPy object kind.
+    The constructor registers the equation and wires it into each Variable's
+    back-references; if wiring fails, registration is rolled back so the
+    registry never holds a half-constructed equation. Subclasses override
+    ``as_sympy()`` to return the right SymPy object kind, and the private
+    ``_dependency_exprs``/``_bound_symbols`` hooks to declare which of their
+    extra expression fields carry real model dependencies.
     """
 
     kind: EquationKind = EquationKind.ALGEBRAIC

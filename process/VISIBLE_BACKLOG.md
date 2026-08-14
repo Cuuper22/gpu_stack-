@@ -2,7 +2,8 @@
 
 Updated: 2026-07-12 PDT.
 
-Purpose: compact recovery surface for the visible backlog.
+Purpose: a compact page a fresh session can read to recover the visible
+backlog.
 
 ## Active Research Wave: E002-PW3 After Valid Local PW2
 
@@ -23,8 +24,9 @@ The conclusion is
 - P2: advance E003 to E006 only when an earlier experiment yields a reusable
   mechanism or measurement need.
 
-Do not select new work from root-debt weight alone. Physical deepening needs an
-observed residual, decision-relevant uncertainty, or experiment dependency.
+Do not pick new work from root-debt weight alone. Physical deepening must be
+justified by an observed residual, a decision-relevant uncertainty, or an
+experiment dependency.
 
 ## Latest Verified Wave: Portfolio Form And Deliverable Polish
 

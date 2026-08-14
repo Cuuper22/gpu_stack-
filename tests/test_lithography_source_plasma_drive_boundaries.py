@@ -2,7 +2,20 @@
 tests/test_lithography_source_plasma_drive_boundaries.py
 ========================================================
 
-Focused invalid-assignment coverage for source-plasma drive boundary roots.
+The drive laser that ignites the source plasma is described by a handful of
+root inputs: pulse period, duty factor, fluence, pulse-shape fractions, the
+objective's pupil radius and focal length, the edge detuning ratio, and the
+beam's far-field divergence. Each has hard physical bounds — durations and
+lengths must be positive, factors like the duty cycle must sit inside the
+unit interval, the divergence must stay in the forward half space and inside
+the acceptance angle. This module assigns values that break each bound and
+verifies the resolver's contract: the raw value is still returned (nothing
+is silently clamped), the matching domain or named inequality is reported as
+violated, and the damage propagates downstream — a bad duty factor also
+flags the derived pulse duration, a bad fluence flags peak intensity, and
+the equations that used the bad input have their validity marked failed.
+It ends by confirming these roots stay pure assignment-only inputs with no
+defining equations beyond their own constraints.
 """
 
 import pytest

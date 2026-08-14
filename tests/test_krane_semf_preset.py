@@ -1,20 +1,23 @@
-"""
-tests/test_krane_semf_preset.py
-================================
+"""Tests for the Krane SEMF calibration preset factory.
 
-Verification tests for the Krane SEMF calibration preset factory.
+The SEMF (semi-empirical mass formula) treats a nucleus like a charged
+liquid drop and predicts its binding energy from five fitted coefficients.
+This factory encodes the coefficients from Krane, *Introductory Nuclear
+Physics* (1988), Table 3.2 — quoted in MeV, stored in SI joules. The tests
+check, in order:
 
-Checks:
-  (1) The factory correctly encodes Krane's Table 3.2 coefficients in SI joules.
-  (2) The resolver produces the expected binding energy for Sn-120 (the EUV tin
-      source context) within 1% of the experimental value from the AME.
-  (3) The resolver produces the expected binding energy for Fe-56 within a
-      justified SEMF tolerance (the liquid-drop formula has known ~1% RMS error
-      and does not account for magic-number shell corrections).
-  (4) The factory correctly converts the pairing coefficient as
-      Delta_pair_ref = aP / sqrt(A_ref).
-  (5) The preset carries full source provenance.
-  (6) The factory rejects invalid reference mass numbers.
+1. Each of the five coefficients converts to joules exactly.
+2. Sn-120 (the EUV tin source nucleus) resolves within 5 MeV of the
+   AME2020 experimental binding energy of 1020.588 MeV — a tight bound,
+   since the liquid drop works well for medium-heavy nuclei.
+3. Fe-56 resolves within 15 MeV of the experimental 492.274 MeV — looser
+   on purpose, because the SEMF has no magic-number shell corrections and
+   over-binds near closed shells by about 5.5 MeV here.
+4. The pairing term converts as Delta_pair_ref = aP / sqrt(A_ref), so it
+   scales with the chosen reference mass number.
+5. The preset cites Krane 1988 and assigns exactly the SEMF roots.
+6. The factory rejects invalid reference mass numbers (zero, negative,
+   NaN, infinity, strings, booleans).
 """
 
 import math

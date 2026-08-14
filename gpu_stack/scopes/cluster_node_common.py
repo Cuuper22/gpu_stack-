@@ -1,9 +1,13 @@
 """
-Shared declarations for node-level cluster helper modules.
+Shared plumbing for the node-level helper modules.
 
-The node scope is split by model responsibility, but references, declaration
-factories, and historically visible imported dependencies stay here so every
-helper uses the same source annotations and cluster scope wiring.
+The node scope is split across several files (composition, power, network,
+aggregation, equations), but they must all cite the same References, use the
+same declaration factories, and see the same GPU-scope symbols. Centralizing
+those here means each helper declares its variables through a factory that
+already carries the right scope tag and citation, so nothing can drift. This
+file also imports the per-GPU power, FLOPs, and HBM symbols from the gpu and
+memory_subsystem scopes — the quantities the node rolls up.
 """
 
 from ..core import Reference

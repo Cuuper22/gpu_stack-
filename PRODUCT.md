@@ -10,10 +10,11 @@ brand
 
 ## Product Purpose
 
-`gpu_stack` is a causal, uncertainty-aware virtual AI datacenter. It joins
-learning progress, training and inference execution, communication, memory,
-failures, power, cooling, grid behavior, and economics in one inspectable world
-model.
+`gpu_stack` is a causal, uncertainty-aware virtual AI datacenter. Causal means it
+models what drives what, not just what correlates. Uncertainty-aware means it
+says how sure it is. It joins learning progress, training and inference
+execution, communication, memory, failures, power, cooling, grid behavior, and
+economics in one inspectable world model.
 
 The same engine has three inseparable jobs:
 
@@ -24,14 +25,15 @@ The same engine has three inseparable jobs:
    a large AI datacenter to screen.
 
 The recursive physical graph remains valuable, but graph depth is not the
-objective. A deeper lithography or particle relation is research progress only
-when it improves an externally evaluated prediction, reduces decision-relevant
-uncertainty, explains a residual, or enables a falsifiable experiment.
+objective. A deeper lithography or particle relation counts as research
+progress only when it improves an externally evaluated prediction, reduces
+decision-relevant uncertainty, explains a residual, or enables a falsifiable
+experiment.
 
 Success means the engine transfers to held-out hardware and workloads, carries
 calibrated uncertainty, recommends interventions with low decision regret, and
-makes the causal reason visible. A simulation result is a hypothesis, not
-evidence about the real datacenter until measurements validate it.
+makes the causal reason visible. A simulation result is a hypothesis. It
+becomes evidence about the real datacenter only after measurements validate it.
 
 ## Brand Personality
 

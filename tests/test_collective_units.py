@@ -1,8 +1,10 @@
-"""
-tests/test_collective_units.py
-==============================
+"""Checks unit and reference metadata for the collective-communication scope.
 
-Focused collective metadata and dimensional-check coverage.
+Collectives (all-reduce, all-to-all) are modelled with payload sizes in
+bytes, times in seconds, and effective bandwidths in bits per second. These
+tests require every variable to declare a unit and a reference, and pin the
+exact set of equations exempt from dimensional checking to two named cases —
+so a new unchecked equation cannot slip in silently.
 """
 
 import sympy as sp

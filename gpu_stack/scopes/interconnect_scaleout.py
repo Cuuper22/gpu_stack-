@@ -2,8 +2,21 @@
 scopes/interconnect_scaleout.py
 ===============================
 
-Scale-out fabric relations: NIC rail aggregation, oversubscription, hop
-latency, bisection bandwidth, and the intra-tier bandwidth ratio.
+The scale-out tier: the switched network that joins racks together.
+
+Beyond the rack, GPUs communicate through NICs into a multi-stage switch
+fabric — the scale-out network. Per-GPU bandwidth starts as rails (parallel
+NIC paths) times effective NIC bandwidth from the gpu scope, then divides
+by the fabric's oversubscription ratio, since upper switch tiers are
+usually thinner than the edge. Latency stacks more parts than NVLink:
+flight time, several switch hops, and the host network stack, so alpha
+here is markedly larger.
+
+Two structural figures complete the tier: bisection bandwidth (switch
+radix and capacity determine how much traffic can cross the fabric's
+midline) and the intra-over-scale-out ratio — NVLink bandwidth divided by
+scale-out bandwidth per GPU — which quantifies why hierarchical
+collectives keep as much traffic as possible inside the rack.
 """
 
 from ..core import eq, var

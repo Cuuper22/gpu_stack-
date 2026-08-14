@@ -1,4 +1,11 @@
-"""Stochastic relation subclass."""
+"""
+StochasticRelation: a relation whose left-hand side is a random variable.
+
+Instead of a deterministic RHS, it records a distribution name and its
+parameters, plus optional mean and variance expressions. The parameters and
+moment expressions all count as dependencies, so randomness stays visible
+in the graph.
+"""
 
 from __future__ import annotations
 
@@ -13,10 +20,12 @@ from .symbolic import ExprLike, to_expr
 
 class StochasticRelation(Equation):
     """
-    Captures relationships where lhs is a random variable.
+    ``lhs`` is drawn from a named distribution rather than computed.
 
-    Carries a distribution name, distribution parameters, and optional
-    mean/variance expressions for graph diagnostics.
+    The RHS is a symbolic function call ``distribution(*parameters)``.
+    Optional ``mean`` and ``variance`` expressions are stored for graph
+    diagnostics; they count as dependencies but are not needed to state
+    the relation's value.
     """
 
     kind = EquationKind.STOCHASTIC

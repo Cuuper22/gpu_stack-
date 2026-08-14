@@ -1,3 +1,23 @@
+"""Tests for the experiment protocol and run-artifact framework.
+
+An ``ExperimentProtocol`` freezes a design before any run: metrics,
+falsifier gates, baselines, held-out dimensions, seed policy. Its hash and
+canonical JSON must be deterministic, because the hash is how a run proves
+which design it followed. ``build_run_artifact`` then scores a run against
+the frozen gates and assigns a conclusion.
+
+Most of these tests pin the conclusion logic, which is designed to resist
+wishful reporting. Passing every gate in a virtual run earns exactly
+"survived_virtual_screen" — never "validated". Declared evidence gaps
+demote a numerically clean run to "inconclusive", but a failed gate stays
+"failed_virtual_screen" — gaps cannot launder a failure. Calibration and
+evaluation observation sets may not overlap. An artifact must snapshot
+every preregistered falsifier — dropping one is a construction error. And
+mandatory structured evidence requirements default to UNRESOLVED (keeping
+the run inconclusive); claiming SATISFIED without the required panel
+results raises, while a complete panel result lets the run pass.
+"""
+
 from dataclasses import replace
 
 import pytest

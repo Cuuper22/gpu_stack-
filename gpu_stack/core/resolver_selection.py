@@ -1,4 +1,16 @@
-"""Private helpers for :mod:`gpu_stack.core.resolver`."""
+"""
+Equation selection for the scenario resolver.
+
+A variable can have several defining relations — one exact identity, a few
+approximations, or a family of tagged variants. The resolver must commit to
+exactly one before it can compute a value. The rule, implemented in
+`_select_equation`: a sole identity always wins; a variant family requires
+the caller to name a variant key; a sole approximation is the fallback.
+Any genuine tie raises AmbiguousVariant instead of guessing.
+
+The rest of this module normalizes assignment keys and validates variant
+selectors before resolution starts.
+"""
 
 from __future__ import annotations
 

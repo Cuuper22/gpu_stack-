@@ -2,11 +2,12 @@
 scopes/physical_interconnect.py
 ===============================
 
-Compatibility surface for on-chip interconnect geometry and distributed-line
-effects.
-
-The declarations live in focused helper modules, but this module keeps the
-original import surface stable for downstream physical scope consumers.
+Compatibility surface for on-chip interconnect: the wires between gates.
+A wire is not an ideal conductor -- it is a distributed RC line whose delay
+grows with the square of its length, which is why wire delay rather than
+gate delay dominates long routes on modern dies. The variables, equations,
+and references live in focused sibling modules; this module re-exports them
+so the original import surface stays stable for downstream consumers.
 """
 
 import sympy as sp

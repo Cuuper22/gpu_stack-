@@ -1,12 +1,14 @@
 """
 scopes/physical_lithography_medium_components.py
-=================================================
+================================================
 
-Compatibility surface for lithography imaging-medium component composition.
-
-The implementation lives in focused sibling modules for the shared reference,
-stoichiometric component counts, isotope descriptors, and isotope relations.
-This module preserves the historical public imports and registry ordering.
+Compatibility surface for imaging-medium composition. The imaging medium is
+modeled as a two-component compound: component A and component B, each a
+specific isotope, combined in fixed stoichiometric proportions. The shared
+provenance reference, the stoichiometric counts, the isotope descriptors,
+and the relations that derive quark counts from Z and N live in focused
+sibling modules; this module preserves the historical public imports and
+registry ordering.
 """
 
 from .physical_lithography_medium_components_reference import *

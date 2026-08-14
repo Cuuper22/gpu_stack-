@@ -3,13 +3,14 @@ constants.py
 ============
 
 Universal physics constants. These are the only non-Variables in the model.
-The principle: a Constant exists iff it is a constant in a fundamental
-physical law (or a dimensioned combination of other such constants).
-Anything engineering (clock speed, bit width, transistor count, voltage,
-even the speed of sound in air) is a Variable living in some scope.
+The rule for what belongs here: a Constant exists iff it is a constant in a
+fundamental physical law (or a dimensioned combination of other such
+constants). Anything engineering (clock speed, bit width, transistor count,
+voltage, even the speed of sound in air) can change with design choices, so
+it is a Variable living in some scope instead.
 
-CODATA 2018 unless noted. Those marked "exact" are exact by the 2019 SI
-redefinition.
+Values are CODATA 2018 unless noted. Those marked "exact" are exact by the
+2019 SI redefinition.
 """
 
 import sympy as sp
@@ -17,8 +18,8 @@ import sympy as sp
 from .core import Constant, Reference
 from .core.units import _UNITS_AVAILABLE
 
-# Units expressions for the new dimensional-consistency checking.
-# sympy.physics.units is optional; gracefully degrade if not available.
+# Unit expressions for dimensional-consistency checking.
+# sympy.physics.units is optional; fall back to None placeholders without it.
 if _UNITS_AVAILABLE:
     from sympy.physics.units import (
         meter, second, kilogram, ampere, kelvin, mole, candela,
@@ -319,8 +320,9 @@ ICE_POINT = Constant(
 # ---------------------------------------------------------------------------
 # Mathematical helpers frequently appearing in equations
 # ---------------------------------------------------------------------------
-# Not Constants in the gpu_stack sense. Exposed as sympy expressions for
-# equations that need them (prop delay uses ln 2, subthreshold slope uses ln 10).
+# These are not Constants in the gpu_stack sense; they carry no units or
+# provenance. They are plain sympy expressions for equations that need them
+# (propagation delay uses ln 2, subthreshold slope uses ln 10).
 
 LN_2 = sp.log(2)
 LN_10 = sp.log(10)

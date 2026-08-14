@@ -2,7 +2,14 @@
 scopes/precision_lowbit_formats.py
 ==================================
 
-Low-bit storage formats plus TF32, posit, and logarithmic number systems.
+Storage cost and structure of the low-bit numeric formats. Bytes per
+value for FP32, BF16, FP16, TF32, FP8, FP6, FP4, INT8, and INT4 are what
+the training memory model multiplies by parameter and activation counts.
+TF32 keeps FP32 range but only 10 mantissa bits. Two alternative systems
+are also declared: posits, whose useed = 2^(2^es) sets a tapered-accuracy
+regime scale, and the logarithmic number system, which stores log2 of the
+value and pays a fixed relative error per step instead of a fixed absolute
+one.
 """
 
 import sympy as sp

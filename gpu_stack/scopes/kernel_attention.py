@@ -2,9 +2,21 @@
 scopes/kernel_attention.py
 ==========================
 
-Attention-specific IO and arithmetic-intensity formulas. Contrasts
-naive attention, which materializes the score matrix, with
-FlashAttention-style tiled online softmax, which does not.
+Why FlashAttention wins: the byte counts of two attention kernels.
+
+Attention's FLOPs are fixed by the shape — batch-heads, sequence length,
+head dimension, and a causal factor — but its memory traffic is a choice.
+The naive kernel materializes the full seq-by-seq score matrix in HBM,
+so its bytes grow with sequence length squared and the kernel drowns in
+traffic. FlashAttention computes the same result with a tiled online
+softmax that keeps score tiles in on-chip memory, so HBM traffic stays
+essentially linear in sequence length.
+
+This module writes both byte counts, the resulting arithmetic intensity of
+the flash variant, and the IO-reduction ratio between them. Feed the flash
+intensity into the roofline helper and the speedup falls out: same FLOPs,
+far fewer bytes, so the kernel moves from memory-bound toward
+compute-bound.
 """
 
 import sympy as sp

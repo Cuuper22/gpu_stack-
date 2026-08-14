@@ -2,8 +2,17 @@
 scopes/architecture_positions.py
 ================================
 
-Positional encoding schemes. Covers sinusoidal encodings, RoPE, ALiBi, and a
-YaRN-style context-extension scale factor.
+How a transformer knows where each token sits in the sequence.
+
+Attention by itself is order-blind: it sees a set of tokens, not a sequence.
+Positional encodings inject order, and this module writes down the main
+schemes. Sinusoidal encoding adds fixed sine and cosine waves whose frequency
+falls geometrically across the embedding dimensions. RoPE (rotary position
+embedding) instead rotates each query-key pair by an angle proportional to
+position, so relative distance shows up directly in the dot product. ALiBi
+skips embeddings entirely and subtracts a per-head linear bias proportional
+to the query-key distance. Finally, a YaRN-style scale factor stretches RoPE
+frequencies to extend a model's context window beyond its training length.
 """
 
 import sympy as sp

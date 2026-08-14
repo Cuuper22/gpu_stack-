@@ -1,9 +1,11 @@
-"""Frozen identities for the published E001 v1 compatibility surface.
+"""Frozen SHA-256 identities for the published E001 v1 artifacts.
 
-These constants intentionally live outside :mod:`gpu_stack.research.e001` so
-recovery-v2 work cannot make a changed v1 protocol or engine self-authorizing.
-Changing any value requires an explicit v1 compatibility decision, not routine
-artifact regeneration.
+These hashes pin the v1 protocol, engine source, result artifacts, and
+scenario exactly as published. They live outside :mod:`gpu_stack.research.e001`
+on purpose: if the hashes sat next to the code they verify, recovery-v2 work
+could change both together and a modified v1 would silently authorize itself.
+Changing any value here must be an explicit v1 compatibility decision, never
+a side effect of regenerating artifacts.
 """
 
 E001_V1_FROZEN_PROTOCOL_SHA256 = (

@@ -2,7 +2,16 @@
 scopes/physical_mosfet_equations.py
 ===================================
 
-MOSFET equations and feasibility constraints.
+MOSFET equations, in two acts. Electrostatics first: gate capacitance
+density from oxide thickness (or its EOT equivalent), the thermal voltage
+kT/q, the subthreshold swing with its ~60 mV/decade floor at room
+temperature, and the effective threshold voltage shifted by body effect and
+drain-induced barrier lowering (DIBL). Then current: the triode regime
+where the channel acts like a gated resistor, saturation where current
+pinches off and flattens, and the subthreshold regime where current decays
+exponentially below threshold -- the leakage that static power comes from.
+Gate tunneling adds the oxide leakage that thin gate dielectrics pay.
+Feasibility constraints keep voltages and geometry in valid ranges.
 """
 
 import sympy as sp

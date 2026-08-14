@@ -2,7 +2,13 @@
 scopes/precision_lowbit_training.py
 ===================================
 
-Loss scaling and underflow avoidance declarations.
+Loss scaling: how FP16 training survives its narrow exponent range. Small
+gradients underflow to zero in FP16, so the loss is multiplied by a scale
+factor before backpropagation -- which multiplies every gradient by the
+same factor and lifts them above the minimum representable magnitude --
+and the gradients are divided by it again before the optimizer step. The
+minimum safe scale is the one that lifts the smallest gradient of interest
+above that floor.
 """
 
 from ..core import eq, var

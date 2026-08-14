@@ -2,10 +2,14 @@
 core/symbolic.py
 ================
 
-Small symbolic helpers used by the relation layer.
+Small SymPy helpers shared by the relation layer.
 
-The helpers here deliberately preserve SymPy relation structure where the
-model needs to inspect assumptions, constraints, and validity predicates.
+Two recurring jobs live here. First, coercion: model code hands us numbers,
+strings, Variables, or SymPy expressions, and `to_expr` turns any of them
+into a SymPy expression. Second, symbol classification: given an
+expression, separate the symbols that belong to registered model Variables
+from local binders and stray unregistered symbols, since only the former
+are real dependencies.
 """
 
 from __future__ import annotations
@@ -30,7 +34,13 @@ def to_expr(x: ExprLike) -> sp.Expr:
 
 
 def small_nonnegative_int(expr: sp.Expr, max_value: int = 32) -> Optional[int]:
-    """Return a bounded nonnegative int for concrete integer expressions."""
+    """
+    Extract a concrete int in [0, max_value] from an expression, else None.
+
+    Used to decide whether an iteration count is small enough to unfold
+    literally. Symbolic, negative, non-integer, or oversized values all
+    return None.
+    """
     expr = sp.sympify(expr)
     if getattr(expr, "free_symbols", set()):
         return None
@@ -56,7 +66,7 @@ def registered_free_variable_names(
     expr: sp.Expr,
     bound_symbols: Optional[Set[sp.Symbol]] = None,
 ) -> Set[str]:
-    """Registered model variables still present in an expression."""
+    """Names of registered model Variables still free in an expression."""
     bound_symbols = set(bound_symbols or set())
     return {
         v.name
@@ -69,7 +79,7 @@ def registered_variables_in_exprs(
     exprs: List[object],
     bound_symbols: Optional[Set[sp.Symbol]] = None,
 ) -> List[Variable]:
-    """Registered Variables referenced by expressions, preserving first sighting order."""
+    """Registered Variables referenced by the expressions, in first-seen order."""
     out: List[Variable] = []
     seen: Set[str] = set()
     bound_symbols = set(bound_symbols or set())
@@ -86,7 +96,13 @@ def raw_dependency_symbols_for_exprs(
     exprs: List[object],
     bound_symbols: Optional[Set[sp.Symbol]] = None,
 ) -> Set[sp.Symbol]:
-    """Unregistered non-Dummy symbols that remain in dependency-bearing fields."""
+    """
+    Symbols in dependency-bearing fields that map to no registered Variable.
+
+    These usually indicate a typo or a missing declaration, which is why
+    audits care about them. Dummy symbols are skipped: they are local
+    binders, not model quantities.
+    """
     raw: Set[sp.Symbol] = set()
     bound_symbols = set(bound_symbols or set())
     for expr in exprs:

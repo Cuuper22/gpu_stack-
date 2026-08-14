@@ -2,8 +2,12 @@
 scopes/physical_lithography_medium_formula_unit.py
 ==================================================
 
-Formula-unit composition counts and rest-mass closure for lithography imaging
-media.
+Formula-unit totals and rest mass for the imaging medium. Multiplying the
+stoichiometric counts by per-component values gives the total proton,
+neutron, and electron counts of one formula unit. The rest mass is not just
+the sum of constituent masses: nuclear binding energy is subtracted through
+the mass defect (E = mc^2 working in reverse), which is why the liquid-drop
+layer below exists. This mass feeds the density closure above.
 """
 
 import sympy as sp

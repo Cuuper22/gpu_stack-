@@ -1,9 +1,10 @@
-"""Evidence-preserving projection from experiment artifacts to the UI.
+"""Projects E001 experiment artifacts into a UI payload without losing evidence.
 
-The browser should never recalculate research results or invent a cleaner
-conclusion than the experiment artifact supports.  This module condenses E001
-into a deterministic causal graph, policy comparison, and event timeline while
-retaining evidence class, uncertainty boundary, falsifiers, and missing work.
+The browser must never recalculate research results or present a cleaner
+conclusion than the artifact supports. So this module does pure condensation:
+it turns a complete E001 comparison into a deterministic causal graph, policy
+comparison, and event timeline, and keeps every hedge intact — evidence class
+per node, uncertainty boundaries, falsifiers, and the list of missing work.
 """
 
 from __future__ import annotations
@@ -133,7 +134,12 @@ def build_e001_observatory_artifact(
     *,
     source_result: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
-    """Condense a complete E001 comparison without changing its conclusion."""
+    """Build the observatory payload from an E001 comparison, conclusion unchanged.
+
+    Verifies the source-result hashes match the comparison before condensing,
+    then stamps the payload with its own SHA-256 so downstream consumers can
+    detect tampering.
+    """
 
     if not isinstance(comparison, E001Comparison):
         raise TypeError("comparison must be an E001Comparison")

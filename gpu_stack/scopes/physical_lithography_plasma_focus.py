@@ -2,7 +2,10 @@
 scopes/physical_lithography_plasma_focus.py
 ===========================================
 
-Focused-beam geometry for the lithography source-plasma drive.
+Compatibility surface for the drive-beam focus: how tightly the drive can
+be concentrated onto the gas target. Beam-quality and optic relations,
+spot-size and Rayleigh-range relations, and the variable declarations live
+in focused sibling modules; this module re-exports them.
 """
 
 from .physical_lithography_plasma_focus_variables import *

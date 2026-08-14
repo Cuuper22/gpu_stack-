@@ -1,4 +1,11 @@
-"""Preregistered experiment protocols and falsification artifacts."""
+"""Preregistered experiment protocols and their falsification machinery.
+
+A protocol is the frozen contract for an experiment: which metrics it will
+report, which falsifier thresholds would kill the hypothesis, and which
+evidence requirements must be met — all fixed and hashed before any run.
+Results are then judged against that contract, so an experiment cannot
+quietly redefine success after seeing its data.
+"""
 
 from __future__ import annotations
 
