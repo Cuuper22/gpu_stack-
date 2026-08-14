@@ -2,7 +2,13 @@
 scopes/interconnect_refs.py
 ===========================
 
-Shared symbolic units and references for GPU fabric scopes.
+Shared References and the dimensionless unit for the interconnect helpers.
+
+The interconnect scope splits into a generic link module and two fabric
+tiers (NVLink and scale-out), and each cites one of the three model
+References defined here. Keeping the Reference objects and DIMENSIONLESS
+in this dependency-free leaf module lets every helper import them without
+cycles and guarantees the citations stay identical across files.
 """
 
 import sympy as sp

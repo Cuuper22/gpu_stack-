@@ -1,4 +1,10 @@
-"""Persisted research artifact for the focused E001 recovery comparison."""
+"""Builds the persisted result artifact for the focused E001 recovery comparison.
+
+Takes one runner execution (four policies on one failure trace), validates
+its shape, evaluates the candidate's preregistered falsifiers, and emits a
+content-addressed JSON payload: the whole record is hashed with SHA-256 so
+any later edit is detectable.
+"""
 
 from __future__ import annotations
 
@@ -80,7 +86,11 @@ def _execution_payload(execution: object) -> Mapping[str, Any]:
 
 
 def _unresolved_requirements() -> list[dict[str, object]]:
-    """Bind every preregistered gate without upgrading one trace to a panel."""
+    """Mark every preregistered evidence gate UNRESOLVED, with the honest reason.
+
+    One executed trace must not be promoted to a full requirement panel, so
+    each gate records why this focused run does not resolve it.
+    """
 
     reasons = {
         "e001-observable-failure-recovery-epochs": (
@@ -278,7 +288,7 @@ def _conclusion(comparison: Mapping[str, Any]) -> dict[str, object]:
 
 
 def build_e001_recovery_result(execution: object) -> dict[str, object]:
-    """Normalize one runner execution into the content-addressed result schema."""
+    """Turn one runner execution into the content-addressed result payload."""
 
     raw = _execution_payload(execution)
     scenario = _mapping(raw.get("scenario"), "scenario")

@@ -2,7 +2,19 @@
 tests/test_mosfet_constraints.py
 ================================
 
-Focused feasibility coverage for MOSFET boundary inputs and geometry closure.
+The MOSFET model has two layers of guard rails. Domain assumptions live on
+the variables themselves: widths, oxide thicknesses, and capacitances must
+be positive, the parallel channel count must be a nonnegative integer, and
+the gate-tunneling terms nonnegative. Named feasibility inequalities add
+the physics that assumptions cannot express: a transistor needs at least
+one channel, its total width must come out positive after the width bias,
+the ideality factor is at least 1, and the subthreshold swing can never
+drop below its thermodynamic floor of ~60 mV/decade at room temperature
+(here expressed against the swing-floor variable). This module verifies
+both layers exist with the right operators and bounds, feeds impossible
+assignments through resolve to confirm each violation is reported, and
+runs one case through the CLI to check strict mode prints the violated
+constraint and exits 1.
 """
 
 import contextlib

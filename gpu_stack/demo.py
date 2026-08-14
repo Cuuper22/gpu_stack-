@@ -1,5 +1,10 @@
 """
-Demo script for gpu_stack.
+Guided tour of the gpu_stack registry.
+
+Prints registry counts, loaded scopes, graph health, the physics constants,
+example dependency trees, a symbolic solve in two directions, and a concrete
+rack-scale FLOPs substitution. The full `verify` profile runs this module,
+so it also serves as an end-to-end smoke test.
 
 Run with:
     python -m gpu_stack.demo

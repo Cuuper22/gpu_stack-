@@ -1,11 +1,13 @@
-"""
-tests/test_device_interconnect_geometry.py
-==========================================
+"""Verifies device and interconnect geometry is derived, not hand-tuned.
 
-Device and interconnect geometry regressions.
-
-These tests keep the graph honest about replacing high-level geometry knobs
-with lower-level symbolic geometry variables rather than hard numbers.
+The temptation with geometry is to leave knobs like wire pitch, wire
+length, or MOSFET width as bare numbers. This module keeps them derived:
+pitch comes from process node length and metal pitch, wire length from
+route span times a detour factor, transistor width from replicated channel
+fins, oxide thickness from EOT and the dielectric ratio. Each test pins a
+variable's exact dependency set, resolves a hand-checkable numeric case,
+and checks that out-of-domain assignments (detour below 1, fractional hop
+counts, fill factor outside (0, 1]) produce named constraint diagnostics.
 """
 
 import pytest

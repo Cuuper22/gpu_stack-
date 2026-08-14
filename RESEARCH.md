@@ -14,16 +14,17 @@ GPUSTACK is one system with three expressions:
 - **Research lab:** an experimental environment for screening datacenter-scale
   ML systems hypotheses before asking for expensive real-world validation.
 
-These are a feedback loop, not three product tracks. Measurements calibrate the
-engine. The engine powers the visual explanation. The visual explanation makes
-the hypothesis and its assumptions inspectable. Experiments produce new
-measurements.
+These three are not separate product tracks. They form a feedback loop.
+Measurements calibrate the engine. The engine powers the visual explanation.
+The visual explanation makes the hypothesis and its assumptions inspectable.
+Experiments produce new measurements, and the loop repeats.
 
 ## Scientific Position
 
 Recent systems can already simulate operator timelines accurately, optimize
 individual serving mechanisms, switch parallelism online, or control facility
-power. The open problem is their interaction.
+power. Each does one of those things well. The open problem is how they
+interact.
 
 GPUSTACK should answer questions of this form:
 
@@ -33,7 +34,8 @@ GPUSTACK should answer questions of this form:
 > datacenter?
 
 The primary score is not equation count, root count, test count, or in-sample
-fit. The primary scores are:
+fit. In-sample fit means fitting the data you trained on, which any model can
+do. The primary scores are:
 
 - held-out predictive error and uncertainty coverage;
 - configuration-ranking and intervention decision regret;
@@ -70,7 +72,8 @@ symbolic registry:
 ## Visual Medium Contract
 
 The primary artifact is a causal observatory, not an equal-weight dashboard.
-Each result uses semantic zoom:
+Each result uses semantic zoom, meaning the reader can descend through five
+levels of the same result:
 
 1. **Question:** a plain-language claim and the immediate answer.
 2. **Mechanism:** the few causal paths responsible for the result.
@@ -187,25 +190,27 @@ The preregistered design is in
 
 ## Current Foundation And Next Research Order
 
-The repository now contains the observation and split contracts, held-out
-evaluation and replicated-panel aggregation, deterministic temporal and
-multi-site mechanics, observable-only interventions, six scalar-plus-structured
-protocols, E001 recovery mechanics, the artifact-driven causal observatory,
-three successive measured learning questions through E001-LC3, the completed
-E002-PW1 factorial preserved as measurement-invalid evidence, and E002-PW2's
-valid cumulative-energy mechanism and salvage result. E002-PW3 now has a
-frozen physical rack question, dependency-safe phase scheduler, distributed
-two-rank-job runtime, direct multi-boundary telemetry, compact-plus-chunked
-evidence artifact, and three-depth observatory projection. It does not yet have
-a physical result.
+Here is what the repository already contains: the observation and split
+contracts, held-out evaluation and replicated-panel aggregation, deterministic
+temporal and multi-site mechanics, observable-only interventions, six
+scalar-plus-structured protocols, E001 recovery mechanics, the artifact-driven
+causal observatory, three successive measured learning questions through
+E001-LC3, the completed E002-PW1 factorial preserved as measurement-invalid
+evidence, and E002-PW2's valid cumulative-energy mechanism and salvage result.
+E002-PW3 now has a frozen physical rack question, a dependency-safe phase
+scheduler, a distributed two-rank-job runtime, direct multi-boundary telemetry,
+a compact-plus-chunked evidence artifact, and a three-depth observatory
+projection. It does not yet have a physical result.
 
-LC2 preserved two protocol failures without opening held-out evaluation. V1's
-2,048-tick checkpoint was not late-stage: NLL improved `0.0862674` over its
-final 256 ticks against a frozen `0.03` ceiling. V2's 8,192-tick checkpoint
-passed that gate with `0.00453499` improvement and exact no-failure
-equivalence, but its target was crossed at ticks 40 and 96 rather than the
-frozen 192 to 288 window because late-stage NLL was non-monotonic. These
-results invalidate the protocol instances, not the recovery candidate.
+LC2 preserved two protocol failures without opening held-out evaluation. In
+plain terms: both attempts disqualified themselves before touching the
+evaluation data. V1's 2,048-tick checkpoint was not late-stage: NLL, the
+negative log-likelihood training loss, improved `0.0862674` over its final 256
+ticks against a frozen `0.03` ceiling. V2's 8,192-tick checkpoint passed that
+gate with `0.00453499` improvement and exact no-failure equivalence, but its
+target was crossed at ticks 40 and 96 rather than the frozen 192 to 288
+window, because late-stage NLL was non-monotonic. These results invalidate the
+protocol instances, not the recovery candidate.
 
 LC3 then compared fixed restart and adaptive continuation at the exact same
 524,288-token canonical frontier across six untouched held-out schedules.
@@ -213,19 +218,20 @@ Adaptive passed learning noninferiority: adaptive-minus-fixed NLL had median
 `0.0033385` and 90% interval `[0.00239279, 0.00850366]`, below the frozen
 `0.01` margin. It saved a median `3.0303%` attempted work and 40 opportunity
 ticks, and was earlier in all six schedules. The candidate was nevertheless
-falsified solely on measured training-device energy: the adaptive/fixed ratio
-had median `1.06839` and 90% interval `[1.001795, 1.134269]`, above the frozen
-`1.05` upper bound.
+falsified on a single measurement: training-device energy. The adaptive/fixed
+energy ratio had median `1.06839` and 90% interval `[1.001795, 1.134269]`,
+above the frozen `1.05` upper bound.
 
-This is measured small-model learning and sampled board energy from one local
-GPU. Opportunity ticks are simulated. Datacenter concurrency, WAN, storage,
-host, cooling, and facility-energy behavior remain modeled or unmeasured.
+Keep the scope of that result in view. It is measured small-model learning and
+sampled board energy from one local GPU. Opportunity ticks are simulated.
+Datacenter concurrency, WAN, storage, host, cooling, and facility-energy
+behavior remain modeled or unmeasured.
 
 E002-PW1 executed that frozen 2x2 with exact LC3 warm binding and all 32 arms
-complete. It did not produce an admissible attribution. Requested 20 ms NVML
-polling yielded an effective 494.693 ms update period; the selected +250 ms lag
-sat at the frozen boundary. The only active invalidators were
-`insufficient_evaluation_power_updates` and
+complete. It did not produce an admissible attribution, because its power meter
+could not keep up. Requested 20 ms NVML polling yielded an effective 494.693 ms
+update period; the selected +250 ms lag sat at the frozen boundary. The only
+active invalidators were `insufficient_evaluation_power_updates` and
 `insufficient_pooled_cadence_phase_updates`, so the result is
 `measurement_invalid`.
 
@@ -248,23 +254,23 @@ continuation passed all eight salvage gates with NLL upper bound `0.0085037`,
 ratio upper bound `1.00319`. The valid local conclusion is
 `checkpoint_cadence_attributed_sparse_continuation_survives`.
 
-The frozen primary uses raw cumulative energy over the complete run window.
-The idle-subtracted sensitivity was
+One caveat stands. The frozen primary uses raw cumulative energy over the
+complete run window. The idle-subtracted sensitivity was
 `3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token` and crossed zero, so PW2 does not
 show that its local attribution is insensitive to estimated idle-baseline
 treatment.
 
 PW3 packages the rack-transfer question as an optional executable physical
-calibration. At least
-four independent two-rank jobs execute the same useful work and failure
-windows under synchronized release, seeded legal jitter, storage-only pacing,
-static cohorts, and visible-telemetry feedback. Only dependency-safe timing of
-checkpoint capture/persist, state transfer, communicator rebuild, and rejoin
-may move. UUID-bound GPU telemetry is aligned with direct rack-PDU, storage
-activity, measured storage power, and cooling channels; missing boundaries
-produce `measurement_invalid` instead of a modeled substitute. The current
-machine cannot execute the claim because it has one GPU and no tenant-visible
-rack meters. That boundary does not block the software research program.
+calibration. At least four independent two-rank jobs execute the same useful
+work and failure windows under synchronized release, seeded legal jitter,
+storage-only pacing, static cohorts, and visible-telemetry feedback. Only
+dependency-safe timing of checkpoint capture/persist, state transfer,
+communicator rebuild, and rejoin may move. UUID-bound GPU telemetry is aligned
+with direct rack-PDU, storage activity, measured storage power, and cooling
+channels; missing boundaries produce `measurement_invalid` instead of a modeled
+substitute. The current machine cannot execute the claim because it has one GPU
+and no tenant-visible rack meters. That boundary does not block the software
+research program.
 
 E001-SC1 has since completed the software-first semantic-consistency loop.
 Calibration selected `periodic_local`; adaptive switching failed its learning,

@@ -1,12 +1,12 @@
-"""
-tests/test_units.py
-===================
+"""Unit metadata and dimensional-check regressions.
 
-Unit metadata and dimensional-check regressions.
-
-The important behavior is not merely that some fields are populated. The
-checker has to understand expressions structurally, especially sums where
-direct substitution can erase the dimension by cancellation.
+The unit checker must understand expressions structurally, not by plugging
+in unit values. The classic trap is subtraction: substituting AMPERE for
+both sides of ``x - y`` gives zero, which erases the dimension — the checker
+has to walk the expression tree instead. These tests cover that inference
+(sums, products, dimensionless function arguments, Mod), verify that unit
+checks run on expression left-hand sides of equations and inequalities, and
+confirm a failed check leaves nothing behind in the registry.
 """
 
 import pytest

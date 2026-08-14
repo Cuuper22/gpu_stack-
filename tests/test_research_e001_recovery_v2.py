@@ -1,3 +1,20 @@
+"""Tests for the E001-RECOVERY-V2 protocol definition.
+
+V2 is a new, preregistered protocol for the recovery experiment — not an
+edit of the persisted v1 screening protocol. These tests hold that line.
+The v1 observatory artifact on disk must keep its original protocol hash,
+and V2 must hash differently under its own experiment id.
+
+The rest pins the frozen experimental design. The six-policy panel names
+one candidate (adaptive-recovery), one oracle comparator that may peek at
+the failure trace, and four baselines; roles may not blur. The WAN gate
+judges total inter-site bytes, with the collective-payload fraction kept
+as a diagnostic — a non-primary metric — so the gate cannot be gamed by
+reclassifying traffic. And every evidence requirement freezes its exact
+panel list while excluding policy_decision_regret, which is undefined for
+this design.
+"""
+
 import json
 from pathlib import Path
 

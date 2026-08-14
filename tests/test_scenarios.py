@@ -1,5 +1,13 @@
-"""
-Coverage for end-to-end scenario presets in gpu_stack.presets.scenarios.
+"""End-to-end tests for the scenario presets in ``gpu_stack.presets.scenarios``.
+
+A scenario preset packages assignments, variant selections, and provenance so
+a user can resolve real targets (tokens per second, datacenter power, cost
+per token) without hand-assembling dozens of inputs. These tests exercise the
+whole path: the target registry stays complete with stable labels, the dense
+training cost fixture and the sourced Pythia DGX H100 packs resolve to exact
+expected values through the expected equations, overrides recompute results,
+and the energy-floor pack's provenance spells out the zero-capex assumptions
+that make it a floor rather than a fully allocated cost.
 """
 
 from math import isfinite

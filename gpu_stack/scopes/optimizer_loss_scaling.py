@@ -2,11 +2,19 @@
 scopes/optimizer_loss_scaling.py
 ================================
 
-Dynamic loss scaling for low-precision training.
+Dynamic loss scaling: keeping tiny gradients alive in FP16.
 
-This helper tracks the scaled loss, its observed gradient, the unscaled
-gradient used by the optimizer, overflow counting, the stable-step counter,
-and the piecewise rule that chooses the next loss scale.
+Half-precision floats cannot represent very small numbers, so during
+FP16 backpropagation the smallest gradients round to zero and vanish.
+The fix is to multiply the loss by a large scale before the backward
+pass — every gradient inherits the factor, lifting it into representable
+range — then divide it back out before the optimizer step. Too large a
+scale overflows to infinity instead, so the scale is tuned dynamically:
+on overflow, halve it and skip the step; after a set interval of stable
+steps, multiply by the growth factor. This helper declares the scaled and
+unscaled quantities, the overflow and stability counters, and the
+piecewise rule choosing the next scale. FP32 and BF16 training skip all
+this, having enough exponent range.
 """
 
 import sympy as sp

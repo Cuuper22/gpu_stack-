@@ -1,6 +1,7 @@
 # Verified demo examples
 
-These snippets were checked from `D:\GPUSTACK` on 2026-05-11 with Python 3.12.
+Every snippet below was actually run, not just written. They were checked from
+`D:\GPUSTACK` on 2026-05-11 with Python 3.12.
 
 ## Registry stats
 
@@ -28,7 +29,7 @@ Coverage:
   equations_with_unit_check      799
 ```
 
-Use this as a quick health check for the symbolic registry. The exact counts can change as new scopes and equations are added.
+This is a quick health check for the symbolic registry. The exact counts change as new scopes and equations are added.
 
 ## Root-debt ranking
 
@@ -54,7 +55,7 @@ total_weight  root_count  family                                      boundary_c
         1293           8  physical.process                            primitive-root     True
 ```
 
-This ranks unresolved root-input families by downstream impact. The full command also prints representative top roots for each family.
+This ranks unresolved root-input families by how much of the graph sits downstream of them. The full command also prints representative top roots for each family.
 
 ## Next-work compass
 
@@ -117,4 +118,4 @@ econ.run.power_cost     = 0.00078
 econ.cost.per_token     = 3.000078e-06
 ```
 
-Caveat: the fixture source says these are synthetic, round-number assumptions for deterministic tests. They are not historical data, vendor specifications, or price recommendations.
+Caveat: the fixture source says these are synthetic, round-number assumptions chosen so the tests are deterministic. They are not historical data, vendor specifications, or price recommendations.

@@ -1,4 +1,12 @@
-"""Expected import surfaces for lithography physical export shims."""
+"""Checks that lithography exports re-export cleanly up the physical scope chain.
+
+Each lithography submodule (absorption edge, medium response, density, k1)
+defines names that must also appear, as the very same objects, in the parent
+``physical_lithography`` module and the top-level ``physical`` scope. If a
+re-export shim drops or shadows a name, user code that imports from the
+top-level scope silently gets the wrong object. These helpers walk each
+export list and assert identity at every level.
+"""
 
 
 def assert_absorption_edge_exports_propagate_through_physical_surface():

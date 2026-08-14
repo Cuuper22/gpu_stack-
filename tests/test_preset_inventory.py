@@ -1,4 +1,15 @@
-"""Public preset inventory and material composition contracts."""
+"""Contracts for the public preset inventory and material compositions.
+
+A preset is a named bundle of root-input assignments with a cited source.
+These tests protect two promises. First, discoverability: each preset module
+publishes its expected names in ``__all__``, and the CLI's dynamic inventory
+finds every sourced preset under a unique dotted name, so nothing ships that
+users cannot list. Second, physical correctness: the material composition
+presets resolve to the right particle counts — hydrogen-1 is 1 proton and 0
+neutrons, oxygen-16 is 8 and 8, tin-120 is 50 protons and 70 neutrons (hence
+170 valence up quarks and 190 down), and an H2O formula unit totals 10
+protons, 8 neutrons, and 10 electrons.
+"""
 
 from gpu_stack.cli import _iter_presets
 from gpu_stack.presets import lithography, materials, nuclear, scenarios

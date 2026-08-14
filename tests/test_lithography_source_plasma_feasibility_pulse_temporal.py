@@ -1,5 +1,17 @@
 """
-Pulse-shape and temporal feasibility coverage for source plasma drives.
+A drive pulse is modeled as a trapezoid in time: a rise fraction, a flat
+top, and a fall fraction that must together fit inside one pulse. This
+module verifies the temporal bookkeeping. Under the symmetric-ramp
+approximation the fall copies the rise, so a rise fraction above 0.5 (its
+declared value range is 0.0 to 0.5) overfills the pulse: the fall equals
+0.6, the flat fraction goes negative, and both the ramp constraint and the
+symmetric-ramp equation's validity are flagged. Explicit fractions summing
+past 1 are caught the same way. Two normalization rules are also enforced:
+the temporal shape factor cannot exceed 1, and peak intensity can never be
+below the pulse-average intensity (fluence divided by duration). Finally,
+an underfilled pupil that would imply a beam better than the diffraction
+limit trips the beam-parameter-product floor and the beam-quality (M^2)
+limit.
 """
 
 import pytest

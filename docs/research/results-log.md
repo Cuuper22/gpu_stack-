@@ -70,9 +70,9 @@ meter at
 E002-PW3 remains an executable optional physical rack experiment: a
 dependency-safe phase scheduler, distributed four-job/eight-GPU runtime,
 UUID-bound GPU plus rack/storage/cooling telemetry, hash-chained raw evidence,
-and a three-depth observatory projection. No PW3 result exists yet because
-this machine has one GPU and no direct rack boundary meters. It does not gate
-GPUSTACK's software research loop.
+and a three-depth observatory projection. No PW3 result exists yet for a
+plain hardware reason: this machine has one GPU and no direct rack boundary
+meters. It does not gate GPUSTACK's software research loop.
 
 ## E001 detailed results
 
@@ -82,8 +82,9 @@ The recovery-v2 artifact records complete modeled traffic classes for its
 focused scenario. Adaptive reaches the same durable frontier as synchronous in
 1.536 rather than 1.584 seconds and moves 13.6 rather than 15.2 GB. Fixed-local
 is still faster and lower-traffic than adaptive, while adaptive loses much less
-work and uses less modeled energy. This Pareto split (no single policy wins on
-every axis at once) does not establish a globally superior controller.
+work and uses less modeled energy. So each policy wins on some axes and loses
+on others. That is a Pareto split (no single policy wins on every axis at
+once), and it does not establish a globally superior controller.
 
 ### LC1: learning calibration
 
@@ -94,14 +95,16 @@ was falsified on this small-model calibration: paired progress-per-FLOP `tau`
 had median `-7.19835770326443e-14` and a 90% interval
 `[-7.24876398177115e-14, -5.48204063742032e-14]`, while adaptive and fixed tied
 on time-to-target. Adaptive still ended better under interruption, at median
-NLL `2.314653009` versus `2.341145828` for fixed. Fixed attempted 12.5% less
-work and ended worse, but dividing from-scratch finite-horizon progress by its
-smaller attempted-work denominator made fixed look 12.7% better per FLOP.
+NLL `2.314653009` versus `2.341145828` for fixed. Notice the trap in the
+per-FLOP metric: fixed attempted 12.5% less work and ended worse, but dividing
+from-scratch finite-horizon progress by its smaller attempted-work denominator
+made fixed look 12.7% better per FLOP.
 
 ### LC2: quality-to-target protocol stages
 
 LC2 tried to replace that invalid comparator with a warm-started
-quality-to-target endpoint. V1 stopped before held-out evaluation because the
+quality-to-target endpoint. Both attempts failed their own protocol before any
+policy could be ranked. V1 stopped before held-out evaluation because the
 2,048-tick checkpoint was not late-stage: NLL improved
 `1.52376570366323 -> 1.43749829754233`, or `0.08626740612089634`, above the
 frozen `0.03` maximum. V2's 8,192-tick checkpoint passed with improvement
@@ -109,8 +112,8 @@ frozen `0.03` maximum. V2's 8,192-tick checkpoint passed with improvement
 But the frozen target `1.01961656101048` was first crossed at ticks 40 and 96,
 not inside the required 192 to 288 window, because late-stage NLL was
 non-monotonic. V1 concluded `protocol_failed_warm_start_not_late_stage`; V2
-concluded `protocol_failed_calibration_validity`. Neither result opened held-out
-evaluation, so neither ranks the policies.
+concluded `protocol_failed_calibration_validity`. Neither result opened
+held-out evaluation, so neither ranks the policies.
 
 ### LC3: equal canonical work
 
@@ -138,10 +141,11 @@ difference `+0.016659 [+0.001785, +0.042213]`, WAN-payload ratio
 completed equal work with zero divergence, sample-identity mismatch,
 optimizer-lineage violation, or work-contract violation.
 
-Three families produced 104 out-of-distribution abstention ticks, so the
-persisted conclusion is `abstain_without_policy_claim`. This is a valid
-negative controller result on one byte-level AdamW model, not evidence that
-`periodic_local` is universally optimal. Device-energy comparison was not
+Three families produced 104 out-of-distribution abstention ticks, meaning the
+controller saw states outside its calibrated support and declined to act. The
+persisted conclusion is therefore `abstain_without_policy_claim`. This is a
+valid negative controller result on one byte-level AdamW model, not evidence
+that `periodic_local` is universally optimal. Device-energy comparison was not
 available, and WAN plus completion time remain modeled.
 
 ## E002 detailed results
@@ -149,10 +153,11 @@ available, and WAN plus completion time remain modeled.
 ### PW1: checkpoint power attribution (measurement invalid)
 
 E002-PW1 completed all 32 frozen factorial runs with exact warm-state
-binding. Its requested 20 ms logger had an effective 494.693 ms device-update
-period and selected `+250` ms lag at the frozen boundary. The result is
-`measurement_invalid` solely because evaluation arms and pooled cadence phases
-received too few independent power updates. The raw LC3-corner ratio was
+binding. The measurement failed, not the experiment design: the requested
+20 ms logger had an effective 494.693 ms device-update period and selected
+`+250` ms lag at the frozen boundary. The result is `measurement_invalid`
+solely because evaluation arms and pooled cadence phases received too few
+independent power updates. The raw LC3-corner ratio was
 `0.789 [0.703, 0.923]`, so the prior penalty did not reproduce numerically. The
 raw sparse-continuation ratio was `0.823 [0.665, 1.019]`, with all non-energy
 gates passing. Both are inadmissible, and all three mechanism gates failed.

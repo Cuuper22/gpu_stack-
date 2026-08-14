@@ -1,4 +1,12 @@
-"""Shared enums for equation and relation semantics."""
+"""
+The two enums every relation carries.
+
+EquationKind says what mathematical shape a relation has (algebraic,
+inequality, differential, ...). RelationRole says what the relation is
+*for* — whether it defines a value, bounds one, approximates one, or is
+one of several alternatives. The resolver selects equations by role, not
+by kind.
+"""
 
 from __future__ import annotations
 

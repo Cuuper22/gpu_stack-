@@ -1,11 +1,16 @@
 """
 scopes/physical_noise.py
-=======================
+========================
 
-Noise floors relevant to transistor and wire behavior.
-
-These are not decorative terms. They set sensing limits, clock-jitter floors,
-and minimum reliable voltage margins.
+Noise floors under transistor and wire signals. Thermal noise comes from
+random carrier motion in any resistance (mean-square voltage 4kTRB over
+bandwidth B), shot noise from the granularity of charge crossing a barrier
+(2qI B), and flicker noise from slow trapping processes with a power
+spectral density rising as 1/f at low frequency. Their sum sets the total
+voltage noise on a sampled node. These are not decorative terms: they set
+sensing limits, clock-jitter floors, and the minimum reliable voltage
+margin -- the point where shrinking supply voltage stops saving power and
+starts corrupting bits.
 """
 
 import sympy as sp

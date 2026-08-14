@@ -2,11 +2,18 @@
 core/resolver_advanced.py
 =========================
 
-Opt-in resolver extensions: validity-aware variant fallback, small
-simultaneous-system solving, and selection-explanation trace enrichment.
+Opt-in resolver extensions. Three of them:
 
-All helpers here are called explicitly by the resolver when the caller
-opts in via keyword flags.  Default behavior (no flags) is unchanged.
+  * Validity-aware fallback: when a selected approximation is being used
+    outside its region of validity, try an alternative defining relation
+    instead of silently reporting the violation.
+  * Small-system solving: when 2-3 unresolved variables define each other
+    in a cycle, hand the group to SymPy and solve them simultaneously.
+  * Selection explanation: attach human-readable reasons ("sole identity
+    relation", "explicit variant selection") to trace steps.
+
+Each extension runs only when the caller passes the matching keyword flag
+to `resolve()`. With no flags, resolver behavior is exactly the default.
 """
 
 from __future__ import annotations
@@ -38,7 +45,10 @@ def _selection_reason_for_equation(
     system_peers: Optional[Tuple[str, ...]] = None,
 ) -> str:
     """
-    Return a human-readable explanation of why `eq` was chosen for `var`.
+    One sentence explaining why `eq` was chosen to define `var`.
+
+    System-solve and fallback origins take precedence; otherwise the reason
+    follows from the relation's role and how many alternatives existed.
     """
     if system_peers:
         peers = ", ".join(system_peers)
@@ -71,10 +81,10 @@ def _not_selectable_alternatives(
     values: Mapping[str, sp.Expr],
 ) -> Tuple[str, ...]:
     """
-    Return equation names that exist for `var` but were not selected.
+    Names of non-constraint equations for `var` that were not selected.
 
-    For missing variables, this shows what alternatives existed that
-    could not be used.
+    For a missing variable, this tells the caller what alternatives
+    existed but could not be used.
     """
     out: List[str] = []
     for eq in sorted(var.defining_equations, key=lambda e: e.name):
@@ -95,11 +105,11 @@ def _check_validity_violated(
     values: Mapping[str, sp.Expr],
 ) -> bool:
     """
-    Return True when `eq` is an Approximation whose validity predicate
-    evaluates to False under the current `values`.
+    True when `eq` is an Approximation whose validity predicate evaluates
+    to a definite False under the current `values`.
 
-    Returns False for any other equation kind, or when the validity is
-    unknown/symbolic (missing inputs).
+    Any other equation kind returns False, and so does a validity that
+    stays symbolic because inputs are missing: "unknown" is not "violated".
     """
     if not isinstance(eq, Approximation):
         return False
@@ -186,7 +196,6 @@ def try_fallback_for_step(
     if fallback_eq is None:
         return None
 
-    # Try to evaluate the fallback equation
     try:
         rhs_value = _equation_value(fallback_eq, values)
     except Exception:
@@ -223,16 +232,18 @@ def _find_small_cycles(
     variants: Mapping[str, str],
 ) -> List[List[Variable]]:
     """
-    Identify groups of 2-3 unresolved variables that form a mutual-dependency
-    cycle among themselves (all their selected-equation inputs are either
-    already-resolved or members of the same group).
+    Find groups of 2-3 unresolved variables that only depend on each other.
+
+    A group qualifies when every selected-equation input of every member is
+    either already resolved or another member of the same group — exactly
+    the situation where simultaneous solving can succeed.
 
     Returns a list of cycles, each a list of Variable objects.
     """
     unresolved_names: Set[str] = {v.name for v in unresolved}
     by_name = {v.name: v for v in unresolved}
-    # Build dependency map: for each unresolved variable, which other
-    # unresolved variables does its selected equation depend on?
+    # For each unresolved variable: which other unresolved variables does
+    # its selected equation depend on?
     deps: Dict[str, Set[str]] = {}
     eq_map: Dict[str, Equation] = {}
     for var in unresolved:
@@ -245,12 +256,10 @@ def _find_small_cycles(
         eq_map[var.name] = eq_obj
         from .resolver_graph import _value_dependencies
         dep_vars = _value_dependencies(eq_obj)
-        # deps that are still unresolved
         unresolved_deps = {
             d.name for d in dep_vars
             if d.name in unresolved_names and d.name != var.name
         }
-        # external deps that are NOT yet in values
         external_missing = {
             d.name for d in dep_vars
             if d.name not in unresolved_names
@@ -258,7 +267,8 @@ def _find_small_cycles(
             and not isinstance(d, Constant)
         }
         if external_missing:
-            # Cannot form a cycle here - external deps are missing
+            # An outside input is missing, so no cycle through this variable
+            # can be solved; drop its edges.
             deps[var.name] = set()
         else:
             deps[var.name] = unresolved_deps
@@ -291,11 +301,14 @@ def _build_scc(
     eq_map: Dict[str, Equation],
 ) -> Optional[List[str]]:
     """
-    Starting from `start`, follow dependency edges to find a minimal
-    strongly-connected component.  Returns None if `start` is not in a
-    non-trivial SCC.
+    Find the strongly connected component containing `start`, if any.
+
+    A strongly connected component (SCC) is a set of nodes that can all
+    reach each other — here, variables locked in mutual definition. Returns
+    None when `start` is not in an SCC of at least two members, or when a
+    member depends on an unresolved variable outside the SCC.
     """
-    # DFS to find which nodes are reachable from `start`
+    # Forward DFS: everything reachable from `start`.
     reachable: Set[str] = set()
     stack = [start]
     while stack:
@@ -307,7 +320,7 @@ def _build_scc(
             if dep in deps:  # dep is a candidate with an equation
                 stack.append(dep)
 
-    # Check if `start` is reachable from each reachable node (SCC)
+    # Keep only nodes that can also reach `start` back: those form the SCC.
     scc_members = []
     for node in reachable:
         back_reachable: Set[str] = set()
@@ -325,8 +338,8 @@ def _build_scc(
 
     if len(scc_members) < 2:
         return None
-    # Verify every member only has deps within the SCC (no external
-    # unresolved deps)
+    # Every member's unresolved deps must stay inside the SCC, or the
+    # group cannot be solved as a closed system.
     scc_set = set(scc_members)
     for node in scc_members:
         if not all(d in scc_set for d in deps.get(node, set())):
@@ -359,7 +372,6 @@ def _solve_small_system(
             return None
         if eq_obj is None:
             return None
-        # Substitute already-known values
         subs = _sym_subs(values)
         lhs = var.symbol
         rhs = eq_obj.rhs.subs(subs)
@@ -404,16 +416,13 @@ def _solution_consistent(
     variables: List[Variable],
 ) -> bool:
     """
-    Check that each value is consistent with the corresponding variable's
-    SymPy symbol assumptions (real, positive, etc.) and contains no free
-    symbols.
+    Check that each candidate value is fully numeric and does not contradict
+    its variable's SymPy assumptions (real, positive, integer, ...).
     """
     for val, var in zip(values, variables):
         expr = sp.sympify(val)
-        # Reject if still symbolic (unresolved)
         if expr.free_symbols:
             return False
-        # Check each assumption on the variable's symbol
         for key, expected in var.assumptions.items():
             if expected is None:
                 continue

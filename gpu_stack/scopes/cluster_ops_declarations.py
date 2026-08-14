@@ -1,9 +1,14 @@
 """
-Shared declaration helpers for cluster operations and facility scopes.
+Factory helpers that stamp scope and citation onto cluster declarations.
 
-These helpers keep scope files focused on model content. They do not create
-variables or equations on import, so registry side effects stay in the leaf
-scope modules that call them.
+Every variable and equation in the cluster and facility scopes should carry
+two labels: which scope it belongs to and which Reference backs it. Writing
+those by hand on hundreds of declarations invites drift, so this module
+provides factories — scoped_var, referenced_eq, referenced_piecewise — that
+bake the labels in once and return ordinary declaration functions. Importing
+this module creates nothing in the registry; only the leaf scope modules
+that call the factories produce registry entries, which keeps import side
+effects where they belong.
 """
 
 import sympy as sp

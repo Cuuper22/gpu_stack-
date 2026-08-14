@@ -2,12 +2,21 @@
 scopes/economics_opex.py
 ========================
 
-Operating-expenditure primitives for the economics scope.
+Opex: the meter that runs for as long as the cluster does.
 
-This helper covers the energy and tariff detail (peak and off-peak pricing,
-blended price, demand charges, peak demand), water cost, maintenance, staff,
-network transit, carbon intensity and cost rate, the allocated job power,
-and the run-level power cost that the recovery rollups consume.
+Operating expenditure is everything paid continuously, and electricity
+leads. Real tariffs are not one number: there is a peak and an off-peak
+price per kWh blended by the fraction of energy drawn at peak, plus a
+demand charge billed on peak kilowatts drawn rather than energy used. The
+model converts the blended price to USD per watt-second, takes the job's
+allocated share of data-center power from the thermal scope, and integrates
+over wall-clock time to get the run's power cost.
+
+Around the electricity sit the other meters, each expressed as a USD/s
+rate: water (usage times price per liter), maintenance (a yearly fraction
+of capex), staff, network transit (price per GB times egress rate), and
+carbon (grid intensity times emission price). The recovery helper sums all
+of these into the total run cost.
 """
 
 import sympy as sp

@@ -1,9 +1,10 @@
-"""One complete recovery-backed E001 mechanical experiment path.
+"""Runs one complete recovery-backed E001 mechanical experiment.
 
-The runner intentionally compares exactly four policies on one absolute-time
-failure trace and one terminal durable frontier.  Learning progress remains an
-explicit prior; recovery, work, communication, time, and energy accounting are
-emitted from the executed mechanics rather than inferred by the observatory.
+The runner deliberately compares exactly four policies on one absolute-time
+failure trace, all required to reach the same terminal durable frontier.
+Learning progress stays an explicit prior — it is never measured here.
+Recovery, work, communication, time, and energy accounting all come from
+the executed mechanics, so the observatory has nothing to infer.
 """
 
 from __future__ import annotations

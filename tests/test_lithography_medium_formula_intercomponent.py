@@ -1,4 +1,18 @@
-"""Intercomponent and Lorentz-Lorenz medium formula-unit coverage."""
+"""What holds the imaging medium's two components together, and how it screens.
+
+When component a hands electrons to component b, the two become oppositely
+charged and attract. This module verifies the chain that models that bond:
+the charge unit shared per pair, each component's effective charge number,
+how many a-b pairs a formula unit contains, and the geometry — effective
+radii scaled from nuclear radii, the gap between them, and the resulting
+separation. The Coulomb attraction is screened by the medium's own relative
+permittivity, computed from polarizability through the Lorentz-Lorenz
+relation (the classical link between microscopic polarizability and bulk
+permittivity). We first pin down each variable's exact dependency set, then
+resolve a reference case and check every value, including the degenerate
+check that zero polarizability gives a Lorentz-Lorenz factor of 0 and a
+relative permittivity of exactly 1 (vacuum-like, no screening).
+"""
 
 import pytest
 

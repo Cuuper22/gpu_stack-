@@ -1,4 +1,21 @@
-"""Lithography source quantum numeric plasma closure coverage."""
+"""Numeric checks for the plasma half of the quantum source chain.
+
+The shared numeric case (from tests.helpers.lithography_source_quantum)
+fixes every plasma root input and precomputes what each derived quantity
+should be. This module resolves those quantities one by one and compares:
+the drive side (power, pulse timing and shape, peak intensity, focus
+geometry from acceptance angle through spot radius, Rayleigh range, and
+beam quality), the absorption side (path lengths, resonance frequency,
+collision cross sections, damping, oscillator strength, optical depth, and
+the resulting absorption fraction and efficiency), and the transport side
+(thermal speeds, expansion, confinement time, free-electron inventory,
+electron temperature, and Debye length). One subtle behavior is verified
+directly: dropping the fill-factor, centroid-offset, and timing-offset
+assignments makes the resolver fall back to the ideal-column, coaxial, and
+synchronized convention equations, and the overlap factor scales exactly by
+1/fill_factor. A final test confirms a pulse duration longer than the pulse
+period is reported as a violated constraint.
+"""
 
 import pytest
 

@@ -1,9 +1,14 @@
 """
-Site rollups from rack-level quantities.
+Rack-to-site rollups under a uniform-rack planning model.
 
-This helper owns the uniform-rack aggregation model for compute, memory,
-local storage, site fabric bandwidth, IT power, and planning-stage total
-site power.
+Assume every rack in the building is identical; then site totals are just
+rack figures times the rack count — GPUs, peak FLOPs (nominal and
+power-limited), HBM capacity and bandwidth, local SSD totals, scale-out
+bisection bandwidth, and IT power. Two derived numbers matter beyond the
+sums: a planning-stage total power that multiplies IT power by a coarse
+facility overhead factor (a stand-in for PUE before the thermal scope
+refines it), and FLOPs per scale-out byte, which says whether the site's
+network is balanced against its compute.
 """
 
 from ..core.units import BPS, FLOPS, WATT, byte

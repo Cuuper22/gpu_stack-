@@ -2,7 +2,14 @@
 scopes/physical_lithography_source_transition_equations.py
 ==========================================================
 
-Hydrogenic source-transition and exposure-photon energy relations.
+The relations that finally produce the exposure photon. The transition
+energy follows the screened hydrogenic (Rydberg-like) formula: effective
+nuclear charge squared, times the reduced-mass correction, times the
+difference of inverse squared principal quantum numbers between the upper
+and lower shells. The exposure photon energy is then equated to that
+transition energy. Everything upstream -- plasma, ionization balance,
+shielding, nuclear mass -- exists to pin down the inputs of these two
+equations.
 """
 
 import sympy as sp

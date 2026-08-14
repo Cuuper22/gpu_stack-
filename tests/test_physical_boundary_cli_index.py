@@ -1,8 +1,14 @@
-"""
-tests/test_physical_boundary_cli_index.py
-=========================================
+"""Index test for physical-boundary CLI and strict-mode coverage.
 
-Lightweight index for physical-boundary CLI and strict-mode coverage.
+Some guarantees live not in one test but in a set of tests spread across
+modules: the CLI rejects invalid physical-boundary assignments, strict mode
+returns a nonzero exit code, boundary constraints are registered once, and
+so on. If one of those tests is renamed or deleted, the guarantee silently
+vanishes while the suite stays green.
+
+This module is the guard against that. It keeps an explicit map from module
+name to the test functions that must exist there, imports each module, and
+fails with the missing names if any indexed test has disappeared.
 """
 
 from __future__ import annotations

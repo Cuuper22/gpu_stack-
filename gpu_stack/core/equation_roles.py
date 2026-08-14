@@ -1,5 +1,11 @@
 """
-Role validation helpers for equation constructors.
+Guard rails for relation roles at construction time.
+
+Every relation carries a RelationRole (identity, constraint, approximation,
+variant). Some combinations are nonsense — a VARIANT with no variant key, an
+Inequality claiming to define a value. These helpers reject the nonsense
+combinations while the equation is being built, when the error message can
+still point at the offending name.
 """
 
 from __future__ import annotations
@@ -18,7 +24,7 @@ def validate_relation_variant(
     variant: Optional[str],
     variant_role: Any,
 ) -> None:
-    """Validate the relation role and variant-key pairing."""
+    """A VARIANT relation must carry a variant key, and only VARIANT relations may."""
     if role is variant_role and variant is None:
         raise ValueError(f"{name}: VARIANT relations require a variant key.")
     if role is not variant_role and variant is not None:

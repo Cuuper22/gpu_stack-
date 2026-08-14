@@ -2,11 +2,13 @@
 scopes/physical_lithography_absorption_edge.py
 ==============================================
 
-Ionization-edge closure for source-plasma absorption inputs.
-
-This bridge keeps the absorption resonance ratio and oscillator-strength
-fractions tied to electronic-shell structure without making the lower-level
-plasma absorption module import the electronic-structure layer.
+Bridge that ties source-plasma absorption inputs to electronic-shell
+structure. The plasma absorption model needs a resonance-frequency ratio and
+oscillator-strength fractions; physically these come from the ionization
+edge of the emitting ion, which the electronic-structure layer knows about.
+Making the low-level absorption module import the electronic-structure layer
+would create a cycle, so this module closes the loop from above instead,
+equating the absorption knobs to shell-derived quantities.
 """
 
 import sympy as sp

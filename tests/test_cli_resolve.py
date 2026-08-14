@@ -1,4 +1,13 @@
-"""CLI resolve command tests."""
+"""Tests for the ``resolve`` CLI command, the main way users query the graph.
+
+``resolve`` takes a target variable, walks its dependency graph, and prints
+a value — or, when inputs are missing, diagnostics that say exactly which
+root inputs to assign. These tests cover the whole contract: missing-input
+reports (``--missing`` and the grouped ``--missing-families`` view), preset
+loading, inline ``--assign`` values, variant selection, equation traces,
+constraint and approximation-validity reporting with their fail-on flags,
+and clean error messages for unknown names.
+"""
 
 import contextlib
 import io

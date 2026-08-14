@@ -1,5 +1,12 @@
 """
-Shared units and references for economics capex helpers.
+The dollar unit and shared References for the capex helpers.
+
+Money needs a unit the same way energy does, so this module defines USD as
+a symbolic unit that dimensional checks can carry through every cost
+equation. It also holds the two References the capex helpers cite — the
+bill-of-materials decomposition and the facility sizing-driver model —
+defined once so GPU-level and site-level files stay consistent and free of
+circular imports.
 """
 
 import sympy as sp

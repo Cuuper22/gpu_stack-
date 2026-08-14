@@ -1,5 +1,18 @@
 """
-Attention math, dense/sparse FLOP accounting, and KV-cache formulas.
+Attention math, dense and sparse FLOP accounting, and KV-cache sizing.
+
+This module answers two questions about attention. First, how much compute
+does one layer of attention cost? We split it into the learned projections
+(Q, K, V, output), the QK score matmul, and the attention-value matmul; the
+score and value terms scale with sequence length squared, which is why long
+context is expensive. A sparse variant caps each query at a fixed top-k of
+visited keys, breaking the quadratic.
+
+Second, how much memory does generation need? The KV cache stores key and
+value states for every past token, per layer. Grouped-query attention (fewer
+KV heads than query heads) and MLA (a compressed latent of width d_latent)
+both shrink the stored width, and the compression-ratio variable measures the
+saving. The gpu_memory and parallelism scopes consume these byte counts.
 """
 
 import sympy as sp

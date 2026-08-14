@@ -1,4 +1,14 @@
-"""CLI root-debt command tests."""
+"""Tests for the ``root-debt`` CLI command.
+
+"Root debt" is the count of unassigned root inputs, ranked by how many
+derived variables depend on each one — assigning the top-ranked roots pays
+down the most uncertainty per value. The big test here pins, name by name,
+which lithography variables are roots (they appear in the ranking) and
+which are derived (they must not). That split is the model's real structure:
+if a refactor turns a derived quantity back into a root, or vice versa,
+this test names the exact variable that moved. The others cover the scope
+filter and the ``--include-constraints`` toggle.
+"""
 
 from gpu_stack.cli import main
 from tests.helpers.cli import captured_stdout

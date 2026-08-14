@@ -2,8 +2,16 @@
 tests/test_lithography_k1_closure.py
 ====================================
 
-Lithography feature-family k1 factors can share the gate k1 baseline when a
-process deck has not provided separate contact or metal values.
+The k1 factor is the dimensionless process-difficulty number in the Rayleigh
+resolution formula (resolution = k1 * wavelength / NA). Each printed feature
+family — gate, contact, metal width, metal spacing — has its own k1 variable,
+but a process deck often only specifies the gate value. This module verifies
+the "closure" that fills that gap: when a contact or metal k1 is not assigned,
+the graph copies the gate k1 baseline instead of failing. It also checks that
+gate k1 itself can be built from four physical process factors, that an
+explicit feature k1 always beats the borrowed baseline, and that a negative
+k1 — physically meaningless — is flagged as a violated constraint rather than
+silently accepted.
 """
 
 import pytest

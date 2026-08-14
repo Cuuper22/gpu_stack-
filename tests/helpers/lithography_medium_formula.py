@@ -1,4 +1,14 @@
-"""Shared setup for lithography medium formula-unit tests."""
+"""Shared fixture for the lithography medium formula-unit tests.
+
+A "formula unit" is one repeating chemical unit of the resist medium — here
+two component-A atoms and one component-B atom. The tests need a fully
+worked numeric example: quark counts, liquid-drop binding energies, an
+intercomponent Coulomb bond, and the resulting formula mass and density.
+Building that example by hand in every test would be error-prone, so this
+module computes it once (from the registry's physical constants) and hands
+tests a frozen ``MediumFormulaCase`` with both the variable assignments and
+the expected results.
+"""
 
 from __future__ import annotations
 

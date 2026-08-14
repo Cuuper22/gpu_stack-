@@ -1,5 +1,13 @@
-"""
-Constraint and variable-domain resolver coverage.
+"""Tests for constraint and variable-domain checking during resolution.
+
+Constraints are inequalities attached to variables (for example, a clock
+period must exceed the gate delay). The resolver does not enforce them — it
+evaluates each one and reports satisfied, violated, or unresolved when inputs
+are missing. These tests verify that constraint evaluation follows variant
+selections, recurses through helper variables, stops cleanly at unresolved
+subtrees, and reaches every variable that appears on an expression left-hand
+side. Domain checks (like positivity declared on a variable) are reported the
+same way, even when the assigned value violates them.
 """
 
 import pytest

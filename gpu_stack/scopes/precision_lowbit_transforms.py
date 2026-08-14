@@ -2,7 +2,13 @@
 scopes/precision_lowbit_transforms.py
 =====================================
 
-Random Hadamard Transform declarations for microscaled low-bit formats.
+The Random Hadamard Transform used by microscaled low-bit formats. The
+transform multiplies a vector by a random diagonal of signs and then a
+Hadamard matrix, scaled by 1/sqrt(n): an orthogonal rotation, so norms are
+preserved exactly. Its point is outlier suppression -- a single large
+coordinate gets smeared evenly across all coordinates, so a per-block scale
+no longer has to stretch to cover one outlier and the rest of the block
+keeps its precision.
 """
 
 import sympy as sp

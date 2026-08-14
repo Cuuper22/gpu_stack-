@@ -1,9 +1,10 @@
-"""Held-out prediction evaluation for measured GPUSTACK observations.
+"""Scores predictions against held-out measured observations.
 
-The functions here deliberately operate on stable records and plain mappings.
-They do not know how a prediction was produced, so symbolic, learned-residual,
-and baseline models can be compared against the exact same observations and
-accounting boundaries.
+The functions here work only on stable records and plain mappings. None of
+them know how a prediction was produced — symbolic graph, learned residual,
+or naive baseline — so every model is judged against exactly the same
+observations and accounting boundaries. Outputs cover residuals, interval
+coverage, ranking correlation, and decision regret.
 """
 
 from __future__ import annotations

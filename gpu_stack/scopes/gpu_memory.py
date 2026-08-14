@@ -2,9 +2,21 @@
 scopes/gpu_memory.py
 ====================
 
-Aggregate on-chip and HBM memory capacity and bandwidth at GPU-die scope.
-Register files, shared memory, TMEM, and L2 are summed across all SMs,
-and HBM capacity and bandwidth are exposed as package-level views.
+The GPU's memory, totaled at package scope: on-chip SRAM and HBM.
+
+A GPU holds two very different kinds of memory. On-chip SRAM — register
+files, shared memory, and TMEM in every SM, plus the shared L2 — is small
+but enormously fast; this module multiplies the per-SM figures from the
+memory_subsystem scope by SM count to get die totals for both capacity and
+bandwidth. HBM is the opposite: large but roughly an order of magnitude
+slower per byte, so the ratio between on-chip and HBM bandwidth is what
+makes kernel tiling worthwhile.
+
+The HBM side is mostly package-level aliasing: effective bandwidth and
+usable capacity come from the lower-scope HBM model, and derived views —
+total pins, bandwidth per pin, per-stack averages — normalize them for
+comparison across GPU generations. The kernel roofline and the parallelism
+memory budget both read these numbers.
 """
 
 import sympy as sp

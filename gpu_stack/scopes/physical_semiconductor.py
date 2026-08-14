@@ -2,11 +2,11 @@
 scopes/physical_semiconductor.py
 ================================
 
-Compatibility surface for carrier transport, resistance, and
-speed-of-signal floors.
-
-Declarations live in focused helper modules, while this module preserves the
-original import surface for downstream physical scope consumers.
+Compatibility surface for semiconductor carrier transport: how charge
+actually moves, what resistance that motion implies, and the
+speed-of-signal floor no wire can beat. Declarations live in focused helper
+modules (transport, signal, references); this module re-exports them so
+the original import surface stays stable for downstream consumers.
 """
 
 import sympy as sp

@@ -2,8 +2,22 @@
 scopes/parallelism_pipeline.py
 ==============================
 
-Pipeline schedules. GPipe, 1F1B, interleaved, DualPipe, Chimera, and
-zero-bubble formulas, including pipeline bubble fractions.
+Pipeline schedules, ranked by how much idle bubble they leave.
+
+Pipeline parallelism puts consecutive layer groups on different GPUs, and
+its tax is the bubble: stages idle while the pipeline fills and drains.
+The baseline fraction is (stages - 1) / (microbatches + stages - 1) —
+GPipe and 1F1B share it, though 1F1B needs far less activation memory.
+More microbatches shrink the bubble, which is why gradient accumulation
+and pipelining go together.
+
+The refinements each attack the same fraction. Interleaving gives every
+GPU several virtual stages, dividing the bubble by that count. DualPipe
+and Chimera run two pipelines in opposite directions and overlap them,
+scaling the bubble by their overlap factors. Zero-bubble schedules split
+the backward pass into input-gradient and weight-gradient halves and
+reorder them to fill the gaps almost completely. This module states each
+schedule's bubble fraction so a training plan can compare them.
 """
 
 import sympy as sp

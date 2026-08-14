@@ -1,5 +1,15 @@
 """
-GPU-level capex, residual value, amortization, and rental markup.
+What one GPU costs per second of ownership.
+
+A GPU is bought once but used for years, so its cost must be spread over
+time. The pieces: purchase price, a useful life (the depreciation horizon,
+in seconds), and a residual fraction — the share of the price the GPU is
+still worth at end of life. Straight-line amortization spreads the
+depreciable part (price minus residual) evenly over the life, giving an
+hourly ownership cost in USD/s. Comparing that against a market rental
+price yields the rental markup, the premium a renter pays over bare
+amortization. The site-capex helper reuses the life and residual
+conventions for the rest of the cluster.
 """
 
 from ..core import eq, var

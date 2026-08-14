@@ -2,18 +2,22 @@
 scopes/collective.py
 ====================
 
-Aggregator for collective communication operations.
+Aggregator for collective communication: the cost of GPUs talking in groups.
 
-The older file encoded one ring formula per collective and then stopped.
-That misses the two things practitioners actually care about:
+A collective is an operation where every participating GPU (rank) exchanges
+data with the group at once — AllReduce to sum gradients, AllGather and
+ReduceScatter for sharded parameters, all-to-all for MoE token routing.
+Each is modeled in alpha-beta form: alpha is the fixed per-message latency,
+beta the per-byte time, taken from the interconnect scope for NVLink and
+scale-out paths.
 
-  * which algorithm wins in the current regime, ring versus tree versus
-    hierarchical intra-node plus inter-node decomposition
-  * how much of the collective can be hidden behind compute or, in the MoE
-    case, stretched by router imbalance
-
-This scope now exposes those choices directly. The declarations live in
-focused helper modules and are re-exported here so public imports stay stable.
+Two practical questions shape the scope. Which algorithm wins in the current
+regime — ring, tree, or a hierarchical intra-node-then-inter-node split —
+depends on payload size versus rank count. And how much of the cost is
+actually felt depends on overlap: communication hidden behind compute is
+free, and MoE all-to-all stretches with router imbalance. The declarations
+live in focused helper modules and are re-exported here so public imports
+stay stable.
 """
 
 import sympy as sp

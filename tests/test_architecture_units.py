@@ -1,8 +1,10 @@
-"""
-tests/test_architecture_units.py
-================================
+"""Checks that every architecture-scope quantity carries its metadata.
 
-Focused metadata coverage for architecture-scope model quantities.
+Each variable in the architecture scope (transformer parameter counts, KV
+cache sizes, FLOP counts) must declare a unit and cite a reference, and each
+equation must cite a reference and, where curated, pass a dimensional unit
+check. Without this metadata a resolved number is just a float with no way
+to tell what it measures or where its formula came from.
 """
 
 from gpu_stack import Registry

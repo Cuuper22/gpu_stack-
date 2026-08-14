@@ -1,5 +1,8 @@
 """
-Reference and metadata helpers for equation constructors.
+Reference normalization for equation constructors.
+
+Equation authors may pass citations as plain strings or as structured
+Reference objects; this module turns both into a uniform Reference list.
 """
 
 from __future__ import annotations
@@ -12,7 +15,7 @@ from .variable import Reference
 def normalize_references(
     refs: Optional[List[Union[str, Reference]]]
 ) -> List[Reference]:
-    """Return Reference objects while preserving input order."""
+    """Wrap bare strings as Reference objects, preserving input order."""
     if not refs:
         return []
     out: List[Reference] = []

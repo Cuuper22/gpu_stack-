@@ -2,20 +2,21 @@
 scopes/kernel.py
 =================
 
-Single-kernel performance models.
+Aggregator for the kernel scope: how long one GPU kernel actually takes.
 
-The old file had a toy roofline and one naive GEMM arithmetic-intensity
-formula. That is not enough. Real kernels are constrained by several
-ceilings at once:
+A kernel is one launched GPU program — a matmul, an attention pass — and
+its runtime is set by whichever ceiling it hits first. The roofline helper
+supplies the ceilings: peak compute, plus separate bandwidth limits at
+HBM, L2, shared memory, and the register file, chosen by the kernel's
+arithmetic intensity (FLOPs per byte moved). The occupancy helper covers
+the latency side: how many blocks fit on an SM given thread, register,
+and shared-memory budgets, and whether the resident warps can hide memory
+latency.
 
-  * compute issue efficiency
-  * HBM, L2, SMEM, and register bandwidth
-  * occupancy-driven latency hiding
-  * CTA resource limits from threads, registers, and shared memory
-  * tiling, which changes effective bytes and therefore arithmetic intensity
-
-This scope adds those missing pieces while keeping the original public
-variables alive.
+Two worked kernels close the loop. The GEMM helper shows how CTA tiling
+cuts HBM traffic and raises arithmetic intensity; the attention helper
+contrasts naive attention with FlashAttention's tiled online softmax. The
+training scope consumes these kernel times as the compute part of a step.
 """
 
 from ..core import System

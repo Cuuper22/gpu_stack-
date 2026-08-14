@@ -1,4 +1,11 @@
-"""Meta-smoke import coverage for the physical boundary smoke pack."""
+"""Import smoke test for the physical-boundary smoke pack.
+
+The smoke pack is the small set of test modules we run first to catch broken
+imports before the full suite spends time collecting. This test simply imports
+each module in the pack. Required modules must import; the two index modules
+are optional — if they exist they must import cleanly, but their absence is
+not an error, since they can be trimmed independently of the core pack.
+"""
 
 import importlib
 import importlib.util

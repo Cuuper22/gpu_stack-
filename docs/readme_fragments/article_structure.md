@@ -44,14 +44,14 @@ GPUSTACK is a causal, uncertainty-aware virtual AI datacenter, visual
 observatory, and ML systems research lab. Its SymPy registry remains the
 symbolic causal backbone rather than the research finish line.
 
-It is built around a plain claim: the cost and performance of frontier training are not properties of a GPU alone. They pass through many layers: semiconductor transport, lithography and process geometry, memory hierarchy, numeric formats, kernels, collectives, model architecture, optimizer state, cluster topology, thermal infrastructure, and run economics. Most tools cut that chain into separate calculators. `gpu_stack` keeps the chain in one inspectable equation graph.
+It is built around a plain claim: the cost and performance of frontier training are not properties of a GPU alone. They pass through many layers: semiconductor transport, lithography and process geometry, memory hierarchy, numeric formats, kernels, collectives, model architecture, optimizer state, cluster topology, thermal infrastructure, and run economics. Most tools cut that chain into separate calculators. `gpu_stack` keeps the whole chain in one equation graph you can inspect.
 
-The existing symbolic graph is now the causal ancestry layer inside a larger
-engine. The new research substrate records observations, separates calibration
-from evaluation, schedules causally ordered operations across sites, exposes an
-observable-only intervention boundary, and packages every result with its
-falsifiers and evidence gaps. If a quantity or mechanism is missing, the
-artifact reports that boundary instead of filling it with an invented number.
+The symbolic graph is now the causal ancestry layer inside a larger engine.
+The research substrate around it records observations, separates calibration
+from evaluation, schedules causally ordered operations across sites, exposes
+an observable-only intervention boundary, and packages every result with its
+falsifiers and evidence gaps. When a quantity or mechanism is missing, the
+artifact says so instead of filling the hole with an invented number.
 
 ### 2. Why This Exists
 
@@ -69,7 +69,7 @@ The core object is a registry-backed equation graph.
 
 Every scope self-registers when imported. Variables carry identity, units, descriptions, scope metadata, symbolic assumptions, and back-references for graph traversal. Equations define relations between variables. Constants are reserved for universal physics constants. Everything else, including clocks, voltages, tensor shapes, optimizer hyperparameters, GPU counts, tariffs, and facility assumptions, remains a variable.
 
-That choice matters. A variable with no defining value relation is not treated as an embarrassment to hide. It is a root input. Root inputs are visible modeling debt. Some roots should eventually be decomposed into lower-level physics. Some should remain scenario boundaries. Some require sourced calibration before the model is allowed to assign them.
+That choice matters. A variable with no defining value relation is not an embarrassment to hide. It is a root input: a place where the model stops and an assumption must enter. Root inputs are visible modeling debt. Some roots should eventually be decomposed into lower-level physics. Some should remain scenario boundaries. Some require sourced calibration before the model is allowed to assign them.
 
 This is why root count alone is not the score. Decomposing one vague root into several primitive roots can make the count rise while making the model more honest.
 
@@ -77,11 +77,11 @@ This is why root count alone is not the score. Decomposing one vague root into s
 
 Start with a target such as `econ.cost.per_token`.
 
-The model can walk backward from that target into the quantities required to define it: run cost, token count, site power, training throughput, step time, communication, kernels, GPU peak behavior, cluster composition, and lower physical assumptions. Where a selected relation is available, the resolver can propagate it. Where a symbolic boundary remains unassigned, the resolver reports what is missing.
+The model walks backward from that target into the quantities needed to define it: run cost, token count, site power, training throughput, step time, communication, kernels, GPU peak behavior, cluster composition, and lower physical assumptions. Where a selected relation exists, the resolver propagates it. Where a symbolic boundary is still unassigned, the resolver reports what is missing.
 
-For example, scenario artifacts use `Preset.evaluate_targets(...)` to evaluate named targets and return structured reports. The CLI equivalent, `scenario-report PRESET --target [LABEL=]VARIABLE --json`, emits the same shape for downstream tooling. Missing roots can be grouped by family, so an unresolved cost target does not just produce a long list of symbols. It can say which part of the model still needs closure.
+For example, scenario artifacts use `Preset.evaluate_targets(...)` to evaluate named targets and return structured reports. The CLI equivalent, `scenario-report PRESET --target [LABEL=]VARIABLE --json`, emits the same shape for downstream tooling. Missing roots can be grouped by family, so an unresolved cost target does not just dump a long list of symbols. It can say which part of the model still needs closure.
 
-That is the practical loop: choose a target, trace the dependency cone, assign or source the boundary conditions, evaluate what can be evaluated, then inspect what remains unresolved.
+That is the practical loop: pick a target, trace its dependency cone, assign or source the boundary conditions, evaluate what can be evaluated, then inspect what remains unresolved.
 
 ### 5. What Is Implemented Today
 
@@ -111,4 +111,4 @@ Target ratio for the rewritten README:
 | Stats and verification evidence | 20% | Keep the reader grounded in current scale, test status, audit health, and known gaps. |
 | API reference | 20% | Preserve GitHub README utility: core types, CLI surfaces, package entry points, and links to status docs. |
 
-The first screen should be mostly story plus one compact evidence block. The middle should alternate prose and runnable examples. The bottom can hold the denser reference material that current users still need.
+The first screen should be mostly story plus one compact evidence block. The middle should alternate prose with runnable examples. The bottom can hold the denser reference material that current users still need.

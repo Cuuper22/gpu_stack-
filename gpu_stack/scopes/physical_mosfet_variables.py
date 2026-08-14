@@ -2,7 +2,12 @@
 scopes/physical_mosfet_variables.py
 ===================================
 
-MOSFET variable declarations.
+MOSFET variable declarations, split the same way the physics splits.
+Electrostatics: terminal voltages, threshold voltage and its body-effect
+and DIBL modulation, channel geometry, oxide thickness and EOT, gate
+capacitance, and subthreshold swing. Current regimes: mobility-based drive
+current in triode and saturation, subthreshold leakage, and gate tunneling.
+The equations connecting them live in the sibling equations module.
 """
 
 import sympy as sp
@@ -13,7 +18,7 @@ from .physical_mosfet_refs import _DEVICE_GEOMETRY_REF, _MOS_TEXT
 
 
 # ---------------------------------------------------------------------------
-# Electrostatics and threshold modulation
+# Electrostatics: what gate voltage turns the channel on, and what shifts that threshold
 # ---------------------------------------------------------------------------
 
 V_gs = var(
@@ -188,7 +193,7 @@ subthreshold_swing = var(
 
 
 # ---------------------------------------------------------------------------
-# Current regimes
+# Current regimes: how much flows once it is on (triode, saturation, subthreshold, tunneling)
 # ---------------------------------------------------------------------------
 
 lambda_clm = var(

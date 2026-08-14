@@ -2,8 +2,12 @@
 scopes/physical_lithography_electronic_structure_shells.py
 ==========================================================
 
-Principal-shell capacity, occupancy, and transition-screening equations for
-the lithography source electronic-structure model.
+Shell capacity and occupancy for the source ion. A principal shell n holds
+at most 2n^2 electrons; summing the closed shells below the transition
+gives the inner-electron count that screens the nucleus. These equations
+turn the bound-electron total into per-shell occupancy and the screening
+constant seen by the transitioning electron, which the hydrogenic
+transition-energy relation then consumes.
 """
 
 import sympy as sp

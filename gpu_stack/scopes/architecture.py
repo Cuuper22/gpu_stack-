@@ -2,12 +2,18 @@
 scopes/architecture.py
 ======================
 
-Aggregator for the architecture scope.
+Aggregator for the architecture scope: the model itself, before any hardware.
 
-The original file carried embeddings, positional encoding, attention math,
-KV cache, activations, normalization, dense FLOP counts, encoder-decoder
-splits, and MoE routing in one slab. It has been split into focused helpers
-and re-exported here so public imports stay stable.
+The architecture scope answers one question: given a transformer's shape
+(layers, hidden width, heads, vocabulary), how many parameters does it hold
+and how many FLOPs does one token cost? Those two numbers drive everything
+downstream — memory scopes size the weights and KV cache, kernel scopes turn
+the FLOPs into runtime, and economics turns runtime into dollars.
+
+The math lives in focused helper modules — embeddings and dimensions,
+positional encodings, attention, FFN FLOP counts, and MoE routing. This file
+re-exports all of them so public imports stay stable, and registers the
+combined variable and equation lists under one System.
 """
 
 from ..core import System

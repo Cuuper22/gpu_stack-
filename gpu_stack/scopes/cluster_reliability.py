@@ -2,15 +2,22 @@
 scopes/cluster_reliability.py
 =============================
 
-Reliability, failure domains, and checkpoint optimization.
+Failures, checkpoints, and how much training time they really cost.
 
-Large distributed training runs fail often enough that the relevant question
-is not whether they fail but how much work is lost when they do. This file
-models exponential-failure hazard rates for nodes, rack infrastructure, and
-the site fabric, the checkpoint size and bandwidth that define recovery
-granularity, Young-style optimal checkpoint spacing, and the reliability-only
-availability estimate that rolls up checkpoint, lost-work, and recovery
-overhead into a single fraction.
+A large training run fails often enough that the right question is not
+whether it fails but how much work each failure destroys. This module models
+that in three steps. First, hazard rates: nodes, rack infrastructure (ToR
+switches, power domains), and the site fabric each fail at a rate of one
+over their MTBF, and summing the rates over the fleet gives a site-wide
+failure rate and MTBF. Second, checkpoints: writing model state of a known
+size at a known bandwidth takes a known time, and the Young rule — interval
+equal to sqrt(2 * checkpoint_time * MTBF) — spaces checkpoints so that time
+spent writing balances the work at risk between them.
+
+Third, the rollup: checkpoint overhead, expected lost work per failure, and
+recovery time combine into an availability estimate, the fraction of wall
+time that produces useful training. Training and economics scopes multiply
+by this fraction to price the interruptions.
 """
 
 import sympy as sp

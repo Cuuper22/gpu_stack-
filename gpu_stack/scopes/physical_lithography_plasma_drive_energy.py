@@ -2,7 +2,13 @@
 scopes/physical_lithography_plasma_drive_energy.py
 ==================================================
 
-Pulse energy and average drive power for the lithography source plasma.
+Energy bookkeeping for the plasma drive. Pulse energy is peak intensity
+times illuminated spot area times pulse duration times a temporal shape
+factor that accounts for the ramp-up, plateau, and ramp-down of a real
+pulse. Average drive power is pulse energy times repetition rate, and a
+constraint keeps the pulse duration inside the pulse period. The absorption
+chain multiplies this power by its efficiency factors to get plasma
+heating power.
 """
 
 from ..core import Approximation, Inequality

@@ -1,5 +1,18 @@
 """
-Node, rack, cluster, facility, and allocation capex primitives.
+The full capital bill of a cluster, from server parts to the building.
+
+This helper prices everything except the GPUs themselves (those come from
+the GPU-capex helper) and stacks the bill level by level. A node adds CPUs,
+DRAM, NICs, storage, and chassis to its GPUs; a rack adds switches and
+power distribution; the cluster adds spine network and shared storage. On
+top sits facility capex, sized by physical drivers from the thermal scope:
+floor area, electrical design capacity, and cooling design capacity, each
+times a unit cost.
+
+The totals then turn into rates: subtract residual value to get the
+depreciable base, divide by useful life for a cluster-wide capex rate in
+USD/s, and scale by a job's share of the cluster to charge one training run
+its fair slice. The finance and recovery helpers consume those rates.
 """
 
 from ..core import eq, var

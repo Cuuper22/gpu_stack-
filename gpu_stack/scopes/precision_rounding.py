@@ -2,11 +2,16 @@
 scopes/precision_rounding.py
 ============================
 
-Quantization and rounding behavior.
-
-Quantization step, round-to-nearest error variance and mean, directional
-rounding bias scales, stochastic-rounding probability and variance, and the
-two-point StochasticRelation whose mean matches the exact input.
+What quantization costs, statistically. A format can only represent a
+grid of values, and the gap between neighbors is the quantization step;
+any input lands between a lower and upper grid point. Round-to-nearest is
+unbiased with error variance step^2 / 12; round-toward-zero and the
+directional modes trade that for a systematic bias of order the step.
+Stochastic rounding rounds up with probability equal to the fractional
+position, which makes the expected value exactly the input -- the
+two-point StochasticRelation encodes that unbiasedness, at the price of a
+larger variance. These error terms are what low-bit training analyses
+build on.
 """
 
 import sympy as sp
@@ -37,7 +42,7 @@ def _annotate_variables(variables, sp_units, references):
 
 
 # ---------------------------------------------------------------------------
-# Quantization and rounding
+# The quantization grid first, then the error statistics of each rounding rule on it
 # ---------------------------------------------------------------------------
 
 x_in = var(

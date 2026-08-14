@@ -2,13 +2,16 @@
 scopes/physical_lithography.py
 ==============================
 
-Lithography source, imaging-medium, objective, and Rayleigh-style critical
-dimension relations for the physical scope.
-
-This module is the optical bridge between universal constants and the process
-geometry abstractions that consume patterned gate/contact/metal dimensions.
-It preserves the historical public import surface while the declarations live
-in focused sibling modules.
+Lithography: the optics that decide how small a printed feature can be.
+The physical_lithography_* family exists to answer one question from first
+principles: what critical dimension can the exposure tool print? The
+Rayleigh relation CD = k1 * lambda / NA needs three inputs -- the exposure
+wavelength (built up from the emitting source plasma and its atomic
+transitions), the numerical aperture (objective geometry times the imaging
+medium refractive index), and the k1 process factor. This module is the
+compatibility surface: declarations live in focused sibling modules, and it
+re-exports them so the historical import surface stays stable. The printed
+gate, contact, and metal dimensions feed the process scope above.
 """
 
 import sympy as sp

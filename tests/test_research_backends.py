@@ -1,3 +1,21 @@
+"""Tests for the research prediction-backend routing layer.
+
+A ``CompositeWorldModel`` holds several prediction backends and routes each
+``PredictionRequest`` to the one backend whose declared capability matches
+the target. Routing must be deterministic and honest: when two backends
+both claim a target, the model refuses with an "ambiguous" error unless an
+explicit route names the winner, and a backend never receives a request it
+declared it cannot serve (missing required inputs, unsupported
+interventions).
+
+The rest of the module pins the data contracts. A ``PredictionEstimate``
+must be internally consistent — intervals need both bounds, the value must
+sit inside them, confidence lives strictly in (0, 1) and requires an
+interval. Both request and estimate reject booleans posing as numbers,
+non-finite floats, and blank identity strings, and normalize integer inputs
+to floats. Strictness here keeps every downstream evaluation trustworthy.
+"""
+
 from dataclasses import dataclass
 
 import pytest

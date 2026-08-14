@@ -2,7 +2,14 @@
 scopes/physical_lithography_medium_binding_coefficients.py
 ==========================================================
 
-Shared liquid-drop nuclear binding coefficients for lithography media.
+Liquid-drop coefficients for the imaging-medium component nuclei. The two
+medium components need the same semi-empirical mass-formula machinery as
+the source nucleus, so their coefficient variables alias the shared
+calibration roots in physical_lithography_nuclear_binding_coefficients.
+As with the source, derived nuclear-matter fields follow: radius scale from
+the Coulomb coefficient, saturation number density from the radius, and
+bulk binding density, surface tension, and symmetry-energy density from the
+volume, surface, and asymmetry coefficients.
 """
 
 import sympy as sp

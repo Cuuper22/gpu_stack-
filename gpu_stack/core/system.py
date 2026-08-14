@@ -2,11 +2,13 @@
 core/system.py
 ==============
 
-System: a named collection of Variables and Equations at some scope.
+System: a named collection of Variables and Equations at one scope.
 
-Systems form a containment tree. Hyperscaler contains clusters, cluster
-contains racks, rack contains nodes, node contains GPUs, GPU contains SMs,
-and so on.
+Systems nest, forming a containment tree that mirrors the physical stack:
+a hyperscaler contains clusters, a cluster contains racks, a rack contains
+nodes, a node contains GPUs, a GPU contains SMs. `walk()` visits a system
+and everything under it, which is how `all_variables()` and
+`all_equations()` gather the contents of a whole subtree.
 """
 
 from __future__ import annotations

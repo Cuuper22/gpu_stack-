@@ -1,5 +1,12 @@
-"""
-Iterative-equation resolver coverage.
+"""Tests for how the resolver handles iterative equations.
+
+An IterativeEquation applies an update rule repeatedly (like the
+Newton-Schulz iteration in the Muon optimizer). Its iteration variable is a
+local binder — a name that exists only inside the loop, like the index in a
+sum. These tests verify the binder never leaks: assigning the same-named
+registry variable cannot hijack the loop, the binder never appears as a
+dependency, small numeric cases unfold to exact values, and symbolic cases
+stay wrapped in a bound ``iterate`` call with no dangling dummy symbols.
 """
 
 import sympy as sp

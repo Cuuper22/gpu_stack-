@@ -1,4 +1,12 @@
-"""Equal-canonical-work recovery experiment selected by the LC2 failures."""
+"""E001-LC3: the equal-canonical-work recovery experiment.
+
+Earlier comparisons let the two recovery policies finish with different
+amounts of completed work, which confounded every per-work metric. LC3
+removes that confound: both policies must reach exactly the same
+canonical-work frontier before learning, attempted work, opportunity ticks,
+and device energy are compared. Its failure schedules are the ones selected
+by the LC2 failures.
+"""
 
 from __future__ import annotations
 

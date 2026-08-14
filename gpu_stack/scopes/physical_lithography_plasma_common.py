@@ -2,7 +2,12 @@
 scopes/physical_lithography_plasma_common.py
 ============================================
 
-Shared builders for lithography source-plasma scope fragments.
+Shared builders for source-plasma declarations. Every plasma variable
+carries the same scope, reference, and metadata boilerplate, so these
+helpers construct them in one place: one builder for general plasma
+variables and one for dimensionless fractions with the usual zero-to-one
+bounds. Using the builders keeps the many plasma fragment modules short and
+guarantees their metadata cannot drift apart.
 """
 
 import sympy as sp

@@ -1,5 +1,14 @@
 """
-Node-level equations for composition, aggregation, NIC topology, and power.
+The equations that tie the node's declarations together.
+
+The other node helpers only declare variables; this module supplies the
+arithmetic. Aggregates are linear rollups — node FLOPs are GPUs per node
+times per-GPU FLOPs, node HBM is GPUs times per-GPU HBM, SSD totals are
+drive count times per-drive figures. NIC injection bandwidth is NICs times
+ports times port rate, derated by protocol efficiency. Node power sums a
+bill of materials: CPU sockets, DRAM by capacity, NICs and ports, drives,
+and fixed plus per-GPU chassis overhead. Keeping every equation in one file
+makes the node's full dependency graph readable at a glance.
 """
 
 from .cluster_node_common import (

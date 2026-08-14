@@ -2,12 +2,14 @@
 scopes/precision_microscaling.py
 ================================
 
-Microscaling, block floating point, and dynamic fixed-point.
-
-First-level and second-level microscale factors (MXFP4 / NVFP4 style),
-effective-bits-per-value accounting after amortizing scale metadata,
-block-floating-point shared-exponent overhead, and dynamic fixed-point
-scale.
+Microscaling and its relatives: sharing scale factors across small blocks
+of values. In MX-style formats a block of (say) 32 low-bit elements shares
+one scale factor, and NVFP4-style adds a second-level scale shared across
+many blocks; the effective bits per value is the element width plus the
+scale bits amortized over the block. Block floating point does the same
+with a shared exponent, and dynamic fixed point reduces the scale to a
+software-chosen fraction width. The effective-bits accounting is what lets
+the training memory model price these formats honestly.
 """
 
 import sympy as sp
@@ -43,7 +45,7 @@ def _annotate_variables(variables, sp_units, references):
 
 
 # ---------------------------------------------------------------------------
-# Microscaling, block floating point, and dynamic fixed point
+# One scale per block: element bits plus amortized scale metadata give the real cost per value
 # ---------------------------------------------------------------------------
 
 block_size = var(

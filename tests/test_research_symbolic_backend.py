@@ -1,3 +1,13 @@
+"""Tests for the symbolic resolver backend used by the research world model.
+
+The backend wraps the SymPy resolver so a prediction request like
+"econ.cost.per_token for scenario X" returns a concrete number with a trace.
+These tests check the honest-failure rules: a fully specified scenario
+resolves to a positive value with provenance, an underdetermined scenario
+raises instead of returning an unevaluated symbol, and interventions the
+backend cannot model are rejected rather than silently ignored.
+"""
+
 import pytest
 
 from gpu_stack.presets import scenarios

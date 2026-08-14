@@ -2,7 +2,13 @@
 scopes/physical_lithography_plasma_focus_variables.py
 =====================================================
 
-Variables for focused-beam geometry in the lithography source-plasma drive.
+Variable declarations for the drive-beam focus: drive wavelength and its
+detuning ratio to the ionization edge; focusing-optic pupil radius, focal
+length, acceptance half-angle, numerical aperture, and f-number; pupil-fill
+and divergence quantities behind the beam parameter product and beam
+quality; and the focused spot radius, Rayleigh range, confocal length,
+shape factors, and illuminated area. The relations live in the sibling beam
+and spot modules.
 """
 
 import sympy as sp

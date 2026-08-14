@@ -2,7 +2,12 @@
 scopes/physical_lithography_medium_intercomponent_charge.py
 ===========================================================
 
-Charge-transfer and pair-count relations for imaging-medium intercomponents.
+Charge bookkeeping for the A-B bond. A fixed number of electrons is
+transferred per formula unit; times the elementary charge this sets the
+charge unit, and spread over the stoichiometry it gives the effective
+charge numbers on components A and B (equal and opposite). The pair count
+says how many A-B contacts one formula unit contributes to the binding
+sum.
 """
 
 from ..core import Inequality, eq

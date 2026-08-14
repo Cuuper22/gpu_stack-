@@ -1,3 +1,13 @@
+"""Tests for the research CLI: experiment protocols and experiment runs.
+
+``experiment-protocol`` prints a preregistered protocol — falsifiers and a
+64-character SHA-256 hash fixed before any run, so results cannot quietly
+rewrite the plan. ``experiment-run`` executes a scenario and must write two
+artifacts: the full result and a causal-observatory summary whose hash
+points back at that result. These tests verify both commands keep those
+contracts.
+"""
+
 import json
 from pathlib import Path
 

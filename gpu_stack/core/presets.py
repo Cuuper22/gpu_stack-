@@ -2,18 +2,19 @@
 core/presets.py
 ===============
 
-Scenario-preset framework.
+The scenario-preset framework.
 
-A `Preset` is a named, frozen, provenanced bundle of scenario assignments
-(variable name to numeric value) plus variant selections. Presets are the
-standard way to feed a calibrated scenario into the resolver. The framework
-lives in core; concrete hardware, workload, and economic preset instances
-live under `gpu_stack.presets.*`.
+A `Preset` is a named, frozen bundle of scenario inputs: a mapping from
+variable name to numeric value, plus variant selections for variables that
+have more than one defining relation. It is the standard way to feed a
+calibrated scenario into the resolver. This module holds the framework;
+the concrete hardware, workload, and economic instances live under
+`gpu_stack.presets.*`.
 
-The framework intentionally refuses to invent numbers. Every Preset carries a
-`source` string and a `notes` list for audit. A Preset with no source is
-still legal for quick scratch use, but downstream code that wants auditable
-numbers should reject them.
+One rule shapes the design: never invent numbers silently. Every Preset
+carries a `source` string and a `notes` tuple for audit. A Preset without a
+source is still legal — scratch work needs that — but audit-sensitive
+callers can demand provenance with `require_source()` and reject the rest.
 """
 
 from __future__ import annotations
@@ -83,8 +84,8 @@ class Preset:
         variants = dict(self.variants)
         notes = tuple(self.notes)
 
-        # Catch typos in variable names early. A preset that references an
-        # unknown variable name is almost always a mistake.
+        # A preset that references an unknown variable name is almost always
+        # a typo; catch it at construction, not at resolve time.
         unknown = [k for k in assignments if k not in Registry.variables]
         if unknown:
             raise ValueError(
@@ -133,8 +134,8 @@ class Preset:
 
     def resolve(self, target: str) -> ResolverResult:
         """
-        Evaluate `target` using this preset's assignments and variant
-        selections. Thin wrapper around `core.resolver.resolve`.
+        Evaluate `target` under this preset's assignments and variant
+        selections. A thin wrapper around `core.resolver.resolve`.
         """
         return resolve(
             target,
@@ -144,10 +145,10 @@ class Preset:
 
     def evaluate_targets(self, targets: Iterable[Tuple[str, object]]) -> ScenarioReport:
         """
-        Evaluate labeled targets and return a deterministic scenario report.
+        Evaluate labeled targets and return one deterministic ScenarioReport.
 
-        Resolver failures are captured per target so one bad target does not
-        prevent callers from inspecting the rest of the scenario artifact.
+        Resolver failures are recorded per target rather than raised, so one
+        bad target never hides the results for the rest of the scenario.
         """
         target_reports = tuple(
             self._evaluate_target(label, target)
@@ -268,8 +269,10 @@ class Preset:
 
 def combine(*presets: Preset, name: str, description: str = "") -> Preset:
     """
-    Merge multiple presets into one. Later presets override earlier ones on
-    key collisions. The combined preset records each component source.
+    Merge presets into one, later presets winning on key collisions.
+
+    Notes concatenate, and the combined `source` lists every component's
+    source so provenance survives the merge.
     """
     if not presets:
         raise ValueError("combine() requires at least one preset")

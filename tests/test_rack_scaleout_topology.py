@@ -1,10 +1,19 @@
-"""
-tests/test_rack_scaleout_topology.py
-====================================
+"""Regression tests for rack scale-out network topology.
 
-Rack scale-out regressions. Rack bandwidth should distinguish node NIC
-injection from top-of-rack downlink, uplink, oversubscription, and usable
-off-rack bisection capacity.
+A rack's off-rack bandwidth is not one number. Nodes inject traffic through
+their NICs; top-of-rack (ToR) switches accept it on downlink ports and pass
+it upward on uplink ports. Downlink capacity usually exceeds uplink capacity
+— that ratio is the oversubscription — and the traffic that can actually
+leave the rack, the bisection bandwidth, is capped by the tightest of node
+injection, downlink, and uplink.
+
+These tests pin that structure into the graph. Per-switch capacities come
+from ports x rate x protocol efficiency; rack totals multiply by switch
+count; oversubscription is downlink over uplink; bisection takes the
+minimum of the three limits. Site bandwidth aggregates rack bisection —
+never raw injection, which would overstate what the fabric can carry — and
+the site FLOPs-per-byte balance uses that honest number. Every equation in
+the chain must carry a unit check.
 """
 
 import pytest

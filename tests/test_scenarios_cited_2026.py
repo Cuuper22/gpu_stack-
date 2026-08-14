@@ -1,11 +1,18 @@
-"""
-Tests for the new sourced scenario packs in scenarios_cited_2026.
+"""Tests for the sourced 2026 scenario packs in ``scenarios_cited_2026``.
 
-Covers:
-  - Pythia-160M on DGX H100 with U.S. 2024 industrial electricity price.
-  - Pythia-70M on DGX H100 with U.S. 2024 commercial electricity price.
+A sourced scenario pack bundles assignments whose numbers trace to named
+public documents (NVIDIA DGX H100 specs, EleutherAI Pythia configs, EIA
+electricity tariffs). These tests cover two families:
 
-Each pack family has a base power-cost pack and an energy-floor cost variant.
+  - Pythia-160M on DGX H100 with the U.S. 2024 industrial electricity price.
+  - Pythia-70M on DGX H100 with the U.S. 2024 commercial electricity price.
+
+Each family has a base power-cost pack, which deliberately leaves capex roots
+missing, and an energy-floor cost variant that closes them with explicitly
+labeled zero-cost assumptions. The tests check registration, provenance
+strings, exact resolved values, and cross-pack sanity: the larger 160M model
+runs slower and costs more than 70M on identical hardware, and the
+commercial-to-industrial cost ratio equals the tariff ratio.
 """
 
 from __future__ import annotations

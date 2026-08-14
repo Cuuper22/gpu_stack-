@@ -2,7 +2,19 @@
 scopes/collective_moe.py
 ========================
 
-All-to-all collectives and MoE router imbalance.
+All-to-all: the collective MoE routing lives and dies by.
+
+In an all-to-all, every rank sends a distinct piece to every other rank —
+exactly what happens when an MoE router scatters tokens to the experts that
+own them and gathers the results back. This module prices the exchange two
+ways: pairwise (each rank exchanges with each of the p-1 others directly)
+and hierarchical (aggregate within a node over NVLink, then exchange
+between nodes), using the alpha-beta costs from the interconnect scope.
+
+The MoE-specific twist is the imbalance factor: routers do not spread
+tokens evenly, and the collective finishes only when the most-loaded rank
+does, so the effective time stretches by the ratio of busiest to average
+load. The parallelism_moe scope supplies the payload this collective moves.
 """
 
 import sympy as sp

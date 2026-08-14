@@ -2,12 +2,16 @@
 scopes/economics_capex.py
 =========================
 
-Compatibility facade for capital-expenditure primitives.
+Facade for capex: the money spent before the first token is trained.
 
-The capex model is split into small helper modules by responsibility:
-references and units, GPU-level amortization, and site/component capex. This
-module keeps the historical import surface and registry lists stable for the
-rest of the economics scope.
+Capex (capital expenditure) is the up-front purchase cost of everything a
+cluster is made of, later recovered by depreciating it over a useful life.
+The model splits into three helpers: shared units and References, GPU-level
+amortization (purchase price, residual value, hourly cost, rental markup),
+and the site-level bill of materials that sums node, rack, network, storage,
+and facility capital into a cluster total. This module only re-exports
+those pieces, keeping the historical import surface and registry lists
+stable for the rest of the economics scope.
 """
 
 import sympy as sp

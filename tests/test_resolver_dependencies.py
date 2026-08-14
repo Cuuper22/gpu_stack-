@@ -1,5 +1,13 @@
-"""
-Resolver value-dependency extraction coverage.
+"""Tests for which inputs the resolver treats as value dependencies.
+
+A value dependency is a variable the resolver must obtain before it can
+compute an equation's number. Not every symbol in a relation qualifies: an
+approximation's validity predicate only gates trust in the result, so its
+inputs are excluded, while iterative fields, piecewise conditions, and
+stochastic distribution parameters all shape the computed value and must be
+included. These tests pin that boundary down, because a wrong dependency set
+either blocks resolution on inputs that do not matter or computes values from
+incomplete data.
 """
 
 from gpu_stack import Registry

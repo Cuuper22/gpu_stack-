@@ -1,3 +1,20 @@
+"""Tests for the E001 recovery result artifact builder.
+
+``build_e001_recovery_result`` turns a raw recovery-policy execution — four
+policy runs over the same failure trace, each with its work ledger and
+checkpoint manifests — into the schema-versioned result artifact that the
+experiment publishes. The artifact must carry a content hash so results are
+tamper-evident.
+
+The fixture here simulates one execution where the adaptive candidate beats
+the synchronous baseline on wall-clock time and inter-site bytes but attaches
+no held-out learning observation. The test then pins the honest verdict: the
+mechanics answer says the candidate won on this trace, the learning falsifier
+stays undecided (None, not passed), the evidence requirements read
+"unresolved", and the overall status is "inconclusive_frontier_hypothesis" —
+faster-without-learning-evidence must never be reported as a supported claim.
+"""
+
 from gpu_stack.research.e001_recovery_artifact import (
     E001_RECOVERY_RESULT_SCHEMA,
     build_e001_recovery_result,

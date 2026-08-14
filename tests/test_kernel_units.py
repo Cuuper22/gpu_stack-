@@ -1,8 +1,11 @@
-"""
-tests/test_kernel_units.py
-==========================
+"""Checks unit and reference metadata for the kernel scope.
 
-Focused kernel metadata and dimensional-check coverage.
+The kernel scope carries the roofline model (FLOPs, bytes, and arithmetic
+intensity in FLOP per byte), occupancy, tiled GEMM, and flash attention.
+These tests require all 66-plus kernel variables to declare units and
+references, pin the exact set of six equations exempt from dimensional
+checking (block-limit and tile-count relations, which are pure counts),
+and spot-check representative variables across all four sub-areas.
 """
 
 import sympy as sp

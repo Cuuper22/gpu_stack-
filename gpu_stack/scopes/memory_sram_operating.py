@@ -2,7 +2,16 @@
 scopes/memory_sram_operating.py
 ===============================
 
-Selected SRAM cell operating variables.
+Operating variables for the SRAM cell actually chosen for a design.
+
+Once a bitcell topology is selected, these are the numbers that describe
+running it: transistor count and area, access time and its ingredients
+(wordline delay, access resistance, bitline capacitance, sense time),
+read and write energy with the supply and swing voltages behind them,
+and leakage current — the price paid even when the cell does nothing.
+Only variables live here; the access-time and energy equations are in
+memory_sram_operating_equations, and the 6T/8T/10T alternatives being
+chosen among are in memory_sram_variants.
 """
 
 from ..core import var

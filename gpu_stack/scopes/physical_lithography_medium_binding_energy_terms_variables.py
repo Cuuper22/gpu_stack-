@@ -2,7 +2,11 @@
 scopes/physical_lithography_medium_binding_energy_terms_variables.py
 ====================================================================
 
-Variables for component liquid-drop binding-energy terms.
+Variables for the liquid-drop binding-energy terms of the two
+imaging-medium component nuclei: volume, surface, Coulomb, asymmetry, and
+pairing terms for components A and B, plus each component total binding
+energy. The equations that evaluate them from the shared coefficients live
+in the sibling equations module.
 """
 
 from ..core import var

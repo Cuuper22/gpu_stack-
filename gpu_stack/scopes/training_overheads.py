@@ -2,11 +2,13 @@
 scopes/training_overheads.py
 ============================
 
-Training overheads.
-
-Pipeline-bubble, straggler, restart, and evaluation overhead fractions,
-nominal step time as the sum of compute, exposed communication, and
-memory-bound auxiliary time, and the availability-adjusted step time.
+The taxes on a training step. The nominal step time is the sum of
+compute, exposed communication, and memory-bound time -- but real steps
+pay more: pipeline bubbles (idle ramp-in and ramp-out stages of pipeline
+parallelism), stragglers, restarts after failures, and evaluation pauses.
+Each is a fraction; together they form the overhead fraction that inflates
+the nominal step time into the availability-adjusted step time the wall
+clock is built on.
 """
 
 import sympy as sp
@@ -28,7 +30,7 @@ TRAINING_OVERHEADS_REF = Reference(
 
 
 # ---------------------------------------------------------------------------
-# Bubbles and overhead fractions
+# Overhead fractions: bubbles, stragglers, restarts, and eval inflate the nominal step time
 # ---------------------------------------------------------------------------
 
 T_step_nominal = var(

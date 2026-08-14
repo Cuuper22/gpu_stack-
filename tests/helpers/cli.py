@@ -1,4 +1,10 @@
-"""CLI test helpers and scenario-report selectors."""
+"""Helpers for CLI tests: capture printed output and pick apart scenario reports.
+
+The CLI writes to stdout and stderr, so tests need a way to grab that text.
+Scenario runs return lists of report dicts, so tests also need small selectors
+that find one report or one target by name and fail with a clear message when
+it is missing.
+"""
 
 from __future__ import annotations
 

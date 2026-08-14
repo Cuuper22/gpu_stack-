@@ -2,12 +2,22 @@
 scopes/arithmetic.py
 ====================
 
-Arithmetic units inside the SM.
+The arithmetic units inside one SM, and how fast each one can go.
 
-The original file stopped at one generic MMA shape and one scalar FMA count.
-That was not enough to reason about structured sparsity, integer dot-product
-paths, or SFU-limited kernels. This version keeps the generic Tensor Core path
-and adds the missing alternative datapaths.
+An SM (streaming multiprocessor) is the GPU's basic compute block, and it
+holds several distinct datapaths: scalar FMA lanes for ordinary math, Tensor
+Cores that execute whole matrix multiply-accumulate (MMA) tiles per
+instruction, integer dot-product units (DP4A/DP2A), and Special Function
+Units (SFUs) for transcendentals like exp and rsqrt. Peak throughput for each
+path follows the same recipe: units per SM, times work per instruction, times
+clock frequency from the physical scope.
+
+The Tensor Core path dominates training FLOPs — one MMA tile does
+2*M*N*K FLOPs — so we also model its issue efficiency and the 2:4
+structured-sparsity speedup that doubles dense-equivalent throughput. The
+SFU path matters because softmax and normalization can bottleneck on
+transcendentals even when Tensor Cores sit idle. The gpu scope multiplies
+these per-SM peaks by SM count to get die-level numbers.
 """
 
 import sympy as sp

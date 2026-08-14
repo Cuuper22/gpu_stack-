@@ -1,5 +1,14 @@
 """
-Node non-GPU power bill-of-materials declarations.
+The power the node burns besides its GPUs.
+
+GPUs dominate a training server's power, but they are not alone: host CPU
+sockets, installed DRAM, NIC cards and their active ports, local SSDs, and
+the chassis itself (fans, board losses) all draw watts around the clock.
+This module declares that bill of materials — a per-unit coefficient for
+each component (watts per socket, watts per byte of DRAM, watts per drive)
+plus the node-level subtotal each one rolls into. Getting this overhead
+right matters downstream: the thermal scope must remove it as heat and the
+economics scope pays for it in every kWh.
 """
 
 from .cluster_node_common import DIMENSIONLESS, WATT, byte, node_power_var

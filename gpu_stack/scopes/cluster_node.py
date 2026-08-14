@@ -2,12 +2,19 @@
 scopes/cluster_node.py
 ======================
 
-Public facade for node-level composition and aggregates.
+Public facade for the node: one server chassis, fully accounted.
 
-A node is one server chassis carrying GPUs, host CPU, DRAM, NIC, and local
-storage. Focused helper modules hold composition, power bill-of-materials,
-aggregate capacity, and NIC topology definitions; this wrapper keeps the
-historical import path, public exports, and registry ordering stable.
+A node is one server carrying GPUs plus everything they need to function:
+host CPUs, CPU DRAM, scale-out NICs, and local SSDs. It is the smallest unit
+a cluster is built from, so the model needs three things about it — what is
+inside (composition), what it can do (aggregate FLOPs, HBM, storage, and NIC
+injection bandwidth), and what it burns (a power bill of materials covering
+every component, not just the GPUs).
+
+Those three concerns live in focused helper modules; this wrapper only
+re-exports them, preserving the historical import path, the public export
+list, and the registry ordering. The rack scope multiplies node aggregates
+by nodes per rack.
 """
 
 from .cluster_node_common import *

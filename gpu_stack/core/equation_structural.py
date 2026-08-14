@@ -1,4 +1,10 @@
-"""Public structural relation helpers used by equation constructors."""
+"""
+Public wrappers for the structural relation builders.
+
+The real implementations live in equation_relations. These thin wrappers
+exist so the public ``core.equation`` facade can export the helpers with
+stable module identity, while equation_relations stays private.
+"""
 
 from __future__ import annotations
 

@@ -1,8 +1,16 @@
-"""
-tests/test_optimizer_units.py
-=============================
+"""Metadata coverage for the optimizer scope (``opt.*``).
 
-Regression coverage for optimizer metadata, provenance, and unit checks.
+Every optimizer variable must declare its units and cite a reference, and
+every optimizer equation must cite a reference too. Why insist? Units let
+SymPy catch dimensional mistakes mechanically, and references make each
+number auditable instead of folklore.
+
+Unit checking has a deliberate exception list: piecewise learning-rate
+schedules and the horizon inequalities compare dimensionless step counts, so
+a unit check adds nothing there. Everything else must be checked. The last
+two tests spot-check the split that matters most in practice: memory
+accounting variables carry byte units, while tensors and counters are
+dimensionless.
 """
 
 import sympy as sp

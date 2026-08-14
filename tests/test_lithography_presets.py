@@ -2,7 +2,18 @@
 tests/test_lithography_presets.py
 =================================
 
-Focused provenance and guardrail coverage for lithography source presets.
+A preset is a named bundle of root-input assignments plus provenance — the
+citations and caveats that say where each number came from. The rule these
+tests enforce is honesty: a preset may only assign roots that its cited
+public sources actually state. The ASML EUV public-context preset knows six
+public facts (13.5 nm wavelength, tin droplets, 25 micron diameter, 70 m/s
+speed, dual-pulse sequence, 50 kHz repetition rate) but assigns exactly one
+root — the pulse period, 1/50,000 s, derived from the repetition rate. The
+other five stay "provenance-only" with an explicit withholding reason, and
+uncalibrated plasma roots are never smuggled in. The tin-120 composition
+preset (Z=50, N=70) is labeled an assumption, not an ASML claim, and this
+module also checks the derived counts it implies and that combining the two
+presets still assigns only root inputs.
 """
 
 import pytest

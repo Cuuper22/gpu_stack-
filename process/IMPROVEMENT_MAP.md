@@ -239,9 +239,11 @@ Next highest-impact frontier: keep the scenario-artifact surface stable while ex
 
 ## Multi-definition variables with explicit semantics
 
-The tested multi-definition set now covers 50 variables, all with explicit
-role coverage through identity, constraint, approximation, or variant
-semantics. Representative high-signal variables include:
+A multi-definition variable is one with more than one defining relation, so
+each relation must say what role it plays. The tested set now covers 50
+variables, all with explicit role coverage through identity, constraint,
+approximation, or variant semantics. Representative high-signal variables
+include:
 
 - `physical.lithography.source_plasma_species_number_density`
 - `physical.lithography.source_plasma_species_thermal_speed`
@@ -294,7 +296,7 @@ semantics. Representative high-signal variables include:
 - `thermal.env.relative_humidity`
 - `thermal.env.dew_point_headroom`
 
-The pattern is not uniform. A few examples:
+The pattern varies from variable to variable. A few examples:
 
 - `opt.param_next` mixes alternative optimizer update rules.
 - `training.flops_per_step` and `training.scaling_params` mix dense and MoE variants.
@@ -309,7 +311,7 @@ The pattern is not uniform. A few examples:
 - Process geometry dimensions mix lower lithography/process approximations with explicit positive or nonnegative feasibility constraints.
 - `thermal.t_ambient` and `thermal.env.relative_humidity` are currently represented only as bounded constraints.
 
-Those are all reasonable modeling choices. The remaining work is richer
+Each of those is a reasonable modeling choice. What remains is richer
 selector diagnostics, approximation-validity policy handling, and constraint
 reporting for resolvers and user-facing scenario explanations.
 
@@ -369,7 +371,8 @@ files at or above 700 lines.
 
 ## Verification and tooling gaps
 
-These are project-wide and should be treated as first-class work, not cleanup:
+These gaps span the whole project. Treat them as first-class work, not
+cleanup:
 
 1. Keep the verified scenario-artifact surface deterministic while expanding selector controls and compact feasibility/approximation summaries.
 2. Add CI-style source build verification around the existing `pyproject.toml`, building on the local `verify --read-only` mode, cache/artifact hygiene checks, and timeout budgets that match the local `verify` profiles (`120s` fast, `300s` full, override with `--gate-timeout`, disable with `0`).
@@ -378,7 +381,7 @@ These are project-wide and should be treated as first-class work, not cleanup:
 
 ## What a "good next state" looks like
 
-The next major milestone is not "more equations." It is a cleaner semantic layer plus a reliable evaluation path. Concretely, the model should be able to:
+The next major milestone is not "more equations." It is a cleaner semantic layer plus a reliable evaluation path. Concretely, that means the model should be able to:
 
 - preserve constraints as constraints under ongoing model growth,
 - distinguish alternative model variants from simultaneous identities in resolver diagnostics,

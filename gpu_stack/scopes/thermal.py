@@ -2,23 +2,18 @@
 scopes/thermal.py
 =================
 
-Heat transfer, cooling, and facility overhead from the package scale up to the
-whole data center.
-
-The old file had the right nouns but one bad graph edge: it defined PUE from
-DC total power and then defined DC total power from PUE, which is the same
-relation written twice and therefore a cycle. This version keeps the PUE
-ratio as the definition and computes total facility power from explicit
-cooling and non-IT overhead terms.
-
-The scope now covers:
-
-* detailed package-to-coolant thermal resistances,
-* coolant flow, pump power, and fan power,
-* free-cooling versus chiller operation,
-* heat reuse, water use, and WUE,
-* ASHRAE-style inlet and humidity constraints,
-* facility total power and PUE without circularity.
+Heat transfer, cooling, and facility overhead from one package up to the
+whole data center. Every watt the ICs dissipate must cross the package into
+coolant, leave through the facility plant, and drag some overhead power
+with it -- that overhead ratio is the PUE. The old file had the right
+nouns but one bad graph edge: it defined PUE from DC total power and DC
+total power from PUE, the same relation written twice, hence a cycle. This
+version keeps PUE as the definition (total over IT power) and builds total
+facility power from explicit cooling and non-IT overhead terms. The scope
+covers package-to-coolant thermal resistances, coolant flow with pump and
+fan power, free cooling versus chiller operation, heat reuse, water use
+and WUE, ASHRAE-style inlet and humidity constraints, and facility total
+power and PUE without circularity.
 """
 
 from ..core import System

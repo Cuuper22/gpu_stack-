@@ -2,9 +2,21 @@
 scopes/memory_regfile.py
 ========================
 
-Per-thread and per-SM register file. Covers the register-file occupancy
-limit, banked peak bandwidth, and bank-conflict loss. Foundation helper
-for on-SM storage.
+The register file: the fastest memory on the chip, and its two limits.
+
+Registers are where operands live in the instant they are computed on, and
+each SM holds a large shared register file that all resident threads carve
+up. That creates the first limit: registers per thread times threads must
+fit in the file, so register-hungry kernels cap how many warps can be
+resident — a direct input to the occupancy model.
+
+The second limit is bandwidth. The file is built from banks, each with a
+width and port count, and peak bandwidth is banks times width times ports
+times the array clock. When two operands in one cycle map to the same
+bank, access serializes; a bank-conflict factor derates peak to effective
+bandwidth. This module also defines the common memory-array clock and the
+warp-size and thread-limit constants that the other on-SM storage helpers
+share, which is why it is the foundation helper.
 """
 
 import sympy as sp

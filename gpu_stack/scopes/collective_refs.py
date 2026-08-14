@@ -2,7 +2,14 @@
 scopes/collective_refs.py
 =========================
 
-Shared symbolic units and references for collective communication scopes.
+Shared References and the dimensionless unit for the collective helpers.
+
+The collective scope is split into topology, allreduce, gather-scatter,
+MoE, and overlap modules, and each cites one of four model References
+defined here — one per responsibility. Keeping the Reference objects in a
+leaf module with no other imports means every helper can pull them in
+without creating an import cycle, and every citation stays literally
+identical. DIMENSIONLESS lives here for the same reason.
 """
 
 import sympy as sp

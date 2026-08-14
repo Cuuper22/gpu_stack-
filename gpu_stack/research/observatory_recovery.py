@@ -1,8 +1,9 @@
 """Deterministic observatory projection for the E001 recovery experiment.
 
-The recovery runner owns mechanics and accounting.  This module is deliberately
-boring: it validates one persisted research result, preserves every reported
-value, and adds only evidence-bound explanatory copy for the browser.
+The recovery runner owns the mechanics and accounting; this module is
+deliberately boring. It validates one persisted research result, carries
+every reported value through unchanged, and adds only explanatory copy for
+the browser — copy that stays inside what the evidence supports.
 """
 
 from __future__ import annotations

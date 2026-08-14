@@ -1,4 +1,5 @@
-// Published guide data. Keep these values aligned with the README summaries.
+// The guide copy and numbers shown on the page. Keep them aligned with the
+// README summaries, because readers will compare the two.
 const primerSteps = {
   target: {
     text: "Start with a human question, then follow the named dependencies upstream. Every hop should tell you whether you are looking at an equation, a scenario value, or an unresolved root input.",
@@ -174,7 +175,8 @@ const traceMeterFoot = document.getElementById("trace-meter-foot");
 const traceMeter = document.getElementById("trace-meter");
 const clock = document.getElementById("clock");
 
-// Render helpers replace only panel content, preserving the surrounding markup.
+// Each render helper swaps out only the content inside its panel. The
+// surrounding markup never changes, so the page structure stays stable.
 function renderPrimer(key) {
   const step = primerSteps[key];
   primerText.textContent = step.text;
@@ -269,7 +271,8 @@ targetTabs.forEach((tab) => {
   tab.addEventListener("click", () => renderTrace(tab.dataset.target));
 });
 
-// Guard each panel so one missing hook cannot take down the others.
+// Each panel checks its own DOM hooks before rendering, so one missing
+// element cannot take down the other panels.
 if (primerText && primerFacts && primerStatusTitle && primerStatusBody) {
   renderPrimer("target");
 }
@@ -308,9 +311,10 @@ if (clock) {
   });
 })();
 
-// Scroll reveals. The hidden pre-reveal state only exists once html.js-anim
-// is set, so readers without JS, without IntersectionObserver, or with
-// reduced motion requested always get the fully visible page.
+// Scroll reveals. Content is only hidden after html.js-anim is set, so a
+// reader without JS, without IntersectionObserver, or with reduced motion
+// requested always gets the fully visible page. Hiding first and revealing
+// later would break for exactly those readers.
 (function initReveals() {
   const motionOk = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!("IntersectionObserver" in window) || !motionOk) {

@@ -2,7 +2,16 @@
 scopes/memory_sram_margins.py
 =============================
 
-SRAM read/write margin variables.
+The variables behind SRAM stability: transistor strengths and margins.
+
+An SRAM cell's stability is a tug-of-war between three transistor
+conductances — access, pull-up, and pull-down — and these declarations
+name the contestants and the scores. The derived quantities are the
+inverter trip point, the read-disturb excursion, the read static noise
+margin, the internal node voltage during a write, the write noise margin,
+and the internal write energy. Only the variables live here; the divider
+and margin equations that relate them are in
+memory_sram_margin_equations.
 """
 
 from ..core import var

@@ -1,4 +1,19 @@
-"""Lithography source reduced-mass constraint coverage."""
+"""Guard rails on the source's nuclear mass, reduced mass, and their ratio.
+
+The reduced mass is the effective mass of the electron-nucleus two-body
+system, m_e*M / (m_e + M); the transition energies downstream scale with
+its ratio to the bare electron mass. All three quantities — nuclear mass,
+reduced mass, and the ratio — must be positive, and this module verifies
+those positivity rules are explicit named Inequality constraints with
+references (unit checks are deliberately off here, since both sides are
+plain masses). It then constructs the pathological cases: a binding energy
+of 2*m_p*c^2 drives the nuclear mass of a lone proton to exactly -m_p; a
+nuclear mass of -m_e makes the reduced-mass denominator vanish, so the
+value is SymPy's complex infinity (zoo) and both mass constraints fail; and
+a negative reduced mass yields a ratio of -1 with both downstream
+constraints flagged. In every case the violation is reported, never
+swallowed.
+"""
 
 import pytest
 import sympy as sp

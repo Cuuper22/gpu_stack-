@@ -2,10 +2,16 @@
 scopes/physical_cmos_logic.py
 =============================
 
-CMOS logic, delay, and power.
-
-This is the bridge from transistor physics to the abstractions other scopes
-actually care about, namely clock, load capacitance, and power.
+CMOS logic delay and power: how fast a gate can flip and what each flip
+costs. A gate drives a load capacitance (its fan-out inputs plus wire)
+through the on-resistance of its transistors, so delay is at bottom an RC
+product; the Elmore delay extends this to a chain of stages. Power splits
+three ways: dynamic power from charging the load every cycle, static power
+from leakage that flows even when nothing switches, and short-circuit power
+from the brief moment both pull-up and pull-down conduct. The Landauer limit
+gives the thermodynamic floor per bit erased, a sanity anchor far below real
+switching energy. This module is the bridge from MOSFET physics up to the
+clock, load-capacitance, and power abstractions the gpu scope consumes.
 """
 
 import sympy as sp

@@ -2,7 +2,17 @@
 scopes/physical_lithography_medium_optics.py
 ============================================
 
-Imaging-medium Lorentz response, local screening, and refractive index.
+Optical response of the imaging medium: the step from microscopic
+polarizability to a refractive index. Each formula unit is a Lorentz
+oscillator -- a bound charge with a resonance frequency -- whose
+polarizability depends on how far the exposure frequency sits below that
+resonance. The Lorentz-Lorenz (Clausius-Mossotti) relation converts
+polarizability times site density into a relative permittivity, correcting
+for the local field each site feels from its neighbors; with the relative
+permeability near one, the refractive index is the square root of the
+permittivity. That index multiplies the objective sine to give the
+numerical aperture, which is the whole reason the medium is modeled: a
+higher-index medium prints smaller features.
 """
 
 import sympy as sp

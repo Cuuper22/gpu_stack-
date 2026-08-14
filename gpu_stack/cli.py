@@ -2,8 +2,8 @@
 gpu_stack.cli
 =============
 
-Small command-line interface that exercises the registry, the scenario
-resolver, and the preset library without requiring users to write Python.
+Command-line interface to the registry, the scenario resolver, and the
+preset library, so users can ask the model questions without writing Python.
 
 Subcommands:
 

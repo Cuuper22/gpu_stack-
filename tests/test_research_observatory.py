@@ -1,3 +1,17 @@
+"""Tests for the E001 screening observatory projection.
+
+``build_e001_observatory_artifact`` turns an E001 comparison into the
+published observatory view. These tests check the projection cannot
+overstate the science: with no held-out learning data the artifact must say
+so plainly ("cannot answer" in the plain-language summary, held-out
+validation False, time-to-target marked "unmeasured", and no synthesized
+progress-per-FLOP metric). Each run keeps its declared comparison role —
+reference baseline, preregistered baseline, hypothesis policy — and the
+artifact binds to its source result by schema and SHA-256 hash. Timelines
+must be causally sorted, so every rendered event sequence reads in real
+time order.
+"""
+
 from dataclasses import replace
 from pathlib import Path
 

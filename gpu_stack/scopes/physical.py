@@ -2,12 +2,14 @@
 scopes/physical.py
 ==================
 
-Aggregator for the physical scope.
-
-The original file tried to carry semiconductor transport, MOSFET regimes,
-CMOS timing, interconnect physics, and noise in one slab. That was already
-starting to rot. The physical scope is now split into focused helper modules
-and re-exported here so public imports stay stable.
+Aggregator for the physical scope: the device-physics floor of the stack.
+This scope answers how fast a transistor can switch, what each switch costs
+in energy, how quickly a signal crosses an on-chip wire, and how much noise
+rides underneath everything. The declarations live in focused helper
+modules -- semiconductor transport, MOSFET regimes, CMOS logic timing and
+power, interconnect, and noise -- and are re-exported here so public
+imports stay stable. Higher scopes (process, gpu, thermal) consume the
+clock, capacitance, and power abstractions assembled here.
 """
 
 from ..core import System

@@ -1,4 +1,11 @@
-"""Compact three-depth observatory projection for E001-LC3."""
+"""Observatory projection for E001-LC3, the equal-work comparison.
+
+Takes a hash-verified LC3 result artifact and condenses it into a compact
+payload for the UI: per-policy medians, learning curves, paired effects, and
+falsifier results. It only summarizes — the conclusion, margins, and evidence
+boundary pass through from the source artifact unchanged, and the output is
+stamped with its own SHA-256.
+"""
 
 from __future__ import annotations
 

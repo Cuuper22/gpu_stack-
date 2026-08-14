@@ -1,5 +1,14 @@
-"""
-Tests for the live next-work planning API.
+"""Tests for the live next-work planning API.
+
+``build_next_work_plan()`` reads the current dependency graph and experiment
+artifacts, then returns a prioritized work plan: what to research next, how to
+implement it, and which bugs threaten the results. These tests verify three
+properties that keep the plan trustworthy. First, the shape is exact — fixed
+section sizes and a stable JSON wire format, so downstream tooling never
+breaks. Second, the evidence is live — every item cites current graph numbers
+and real experiment results, never stale snapshots. Third, the ordering is
+honest — research priorities come first, and legacy diagnostics stay out of
+the public payload.
 """
 
 from __future__ import annotations

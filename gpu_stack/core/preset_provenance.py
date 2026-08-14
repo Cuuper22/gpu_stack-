@@ -1,8 +1,10 @@
 """
-Small provenance helpers for Preset objects.
+Provenance helpers for Preset objects.
 
-The public API stays on ``Preset``; these functions keep source-text handling
-consistent across summaries, scenario reports, and combined presets.
+Provenance is the answer to "where did this number come from". These
+functions normalize and summarize a preset's `source` text one way, so
+summaries, scenario reports, and combined presets never disagree about
+what counts as "sourced". The public API stays on ``Preset``.
 """
 
 from __future__ import annotations
@@ -40,7 +42,7 @@ def preset_source_summary(
 
 
 def combined_source_for(presets: Iterable[object]) -> Optional[str]:
-    """Render the later-audited source string for a combined preset."""
+    """Join per-preset sources as "name: source | ..." for a combined preset."""
     sources: list[str] = []
     for preset in presets:
         source = getattr(preset, "source", None)

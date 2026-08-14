@@ -1,8 +1,11 @@
-"""
-tests/test_interconnect_units.py
-================================
+"""Checks unit and reference metadata for the interconnect scope.
 
-Focused interconnect metadata and dimensional-check coverage.
+The interconnect scope models links in alpha-beta terms: a fixed latency
+(seconds) plus a per-byte cost (seconds per byte), along with line rates,
+packet efficiency, and bandwidth-delay products. These tests require every
+variable to declare a unit and a reference, pin the unchecked-equation set
+to the single packet-count relation, and spot-check representative
+variables against their expected units.
 """
 
 import sympy as sp

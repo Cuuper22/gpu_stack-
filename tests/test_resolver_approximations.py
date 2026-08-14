@@ -1,5 +1,11 @@
-"""
-Approximation and approximation-validity resolver coverage.
+"""Tests for how the resolver handles approximations and their validity.
+
+An Approximation is an equation that is only trustworthy inside a stated
+regime — its validity predicate. The resolver must still use the formula but
+report the check honestly: satisfied when the regime holds, violated when it
+does not, and unresolved (None) when the predicate's inputs are missing.
+These tests also confirm that validity-only inputs never leak into the value
+trace, so a regime check cannot change the computed number.
 """
 
 import pytest

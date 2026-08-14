@@ -2,11 +2,13 @@
 scopes/physical_lithography_source.py
 =====================================
 
-Compatibility surface for lithography exposure-source photon generation.
-
-The source variables, nuclear/reduced-mass relations, and transition-energy
-relations live in focused sibling modules. This module preserves the historical
-public imports and registry-list ordering used by downstream lithography scopes.
+Compatibility surface for the exposure source: the atomic system whose
+photon sets the lithography wavelength. The chain runs from nuclear
+structure (binding energy, nuclear mass, electron-nucleus reduced mass)
+through the screened hydrogenic transition to the exposure photon energy.
+Variables, nuclear equations, and transition equations live in focused
+sibling modules; this module preserves the historical public imports and
+the registry-list ordering used by downstream lithography scopes.
 """
 
 from .physical_lithography_binding_coefficients import *

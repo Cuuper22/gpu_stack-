@@ -1,5 +1,13 @@
 """
-Scheduler and provisioning overhead for site-level jobs.
+The dead time between submitting a job and its first training step.
+
+GPUs earn nothing while a job waits to start, and that delay has three
+parts: queue wait (other jobs hold the nodes), allocation (the control
+plane picks nodes and wires up containers), and provisioning (image pulls,
+filesystem mounts, runtime startup). This module declares the three terms
+and sums them into a single job start delay. For long runs the delay is
+noise; for short or frequently restarted jobs it becomes a real tax that
+the economics scope should count against utilization.
 """
 
 from ..core.units import SECOND

@@ -2,7 +2,21 @@
 scopes/optimizer_first_order_adamw.py
 =====================================
 
-AdamW moment declarations and update equations.
+AdamW: the default optimizer of large-model training, stated in full.
+
+Adam keeps two running statistics per parameter: a first moment (an
+exponential average of gradients, decayed by beta1) that smooths the
+direction, and a second moment (an average of squared gradients, decayed
+by beta2) that scales each coordinate's step by its recent volatility.
+Both start at zero, so early estimates are biased low; the hat-variables
+divide out that bias using the step index. The update moves parameters by
+the learning rate times m_hat over sqrt(v_hat) plus epsilon.
+
+The W in AdamW is decoupled weight decay: instead of folding decay into
+the gradient, it shrinks the weights directly in the update, which keeps
+regularization independent of the adaptive scaling. Those two moment
+tensors are also why AdamW costs so much memory — the sharding helper
+counts that bill.
 """
 
 import sympy as sp

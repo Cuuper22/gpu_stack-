@@ -2,12 +2,13 @@
 gpu_stack.presets.dgx_h100_tco
 ================================
 
-DGX H100 node-level power bill-of-materials (sourced) and full TCO
-closure (assumption) presets needed to resolve econ.cost.per_token for
-the pythia_70m_dgx_h100_us_2024_industrial_power scenario pack.
+The presets that let econ.cost.per_token resolve as a full total cost of
+ownership (TCO) for the pythia_70m_dgx_h100_us_2024_industrial_power
+scenario pack.
 
-Two layers are separated so callers can identify which numbers are
-public hardware facts and which are scenario-layer assumptions:
+The module is split into two layers on purpose, so a caller can always
+tell which numbers are public hardware facts and which are scenario-layer
+assumptions:
 
   dgx_h100_node_power_bom
     Sourced power roots for the DGX H100 node from Intel and NVIDIA

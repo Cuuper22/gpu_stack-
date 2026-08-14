@@ -2,12 +2,14 @@
 scopes/training_scaling.py
 ==========================
 
-Training throughput, energy, wall clock, and scaling-law variables.
-
-Tokens per second, IT power and energy per step and per token, tokens per
-joule, total step count, nominal and availability-adjusted wall clock,
-and the Chinchilla-style tokens-per-parameter design variables including
-the dense and active-MoE scaling-parameter specializations.
+From step time to run-level answers: throughput, energy, wall clock, and
+model sizing. Tokens per second follow from tokens per step over step
+time; IT power turns that into energy per step, energy per token, and
+tokens per joule. Total tokens over tokens per step gives the step count,
+and steps times step time gives the nominal wall clock, stretched by
+cluster availability into the real one. The Chinchilla-style
+tokens-per-parameter ratio ties dataset size to model size, with dense and
+active-MoE specializations of the scaling parameter count.
 """
 
 import sympy as sp

@@ -2,7 +2,17 @@
 tests/test_lithography_medium_composition_binding.py
 ====================================================
 
-The imaging medium should derive binding terms from nuclear composition.
+The lithography imaging medium is modeled as a two-component material (a and
+b), and each component's nuclear binding energy comes from the liquid-drop
+model — the classic formula that treats a nucleus like a charged liquid drop
+with volume, surface, Coulomb, asymmetry, and pairing terms. This module
+verifies that chain end to end: given quark-level composition and the four
+root liquid-drop coefficients, the graph must derive the nuclear radius
+coefficient, saturation density, bulk binding energy density, surface
+tension, and symmetry energy density with the exact algebraic relationships
+(for example, the radius coefficient falls out of the Coulomb coefficient via
+3*e^2 / (20*pi*eps0*a_C)). It also checks the pairing sign convention:
++1 for even-even nuclei, -1 for odd-odd, 0 for mixed parity.
 """
 
 import pytest

@@ -1,4 +1,14 @@
-"""Training/economics sourced-scenario contracts."""
+"""Contract tests for training-economics sourced scenario packs.
+
+A training-economics pack must earn its "sourced" label: hardware and
+workload numbers trace to official documents, while the assumptions that
+close the cost model (like zero capex in an energy-floor pack) are declared
+as closures, never dressed up as facts. These tests focus on the Pythia DGX
+H100 energy-floor pack — public, sourced, with provenance split into fact
+summaries and closure summaries — and then sweep every training-economics
+pack to confirm the user-facing targets resolve cleanly through the expected
+equations. Shared markers and helpers come from test_sourced_scenarios.
+"""
 
 from gpu_stack import Registry
 from gpu_stack.core.resolver import AmbiguousVariant, ResolverError, Underdetermined

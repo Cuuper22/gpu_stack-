@@ -2,10 +2,21 @@
 scopes/parallelism_batching.py
 ==============================
 
-Sequence parallelism (SP), batch decomposition, tokens-per-step math,
-activation-memory formulas, checkpoint keep fraction, and recomputation
-FLOP multiplier. Foundation helper for parallelism; downstream helpers
-import shared symbols from here.
+The foundation helper: parallelism degrees, batch math, and memory bills.
+
+Three bookkeeping layers live here, and every other parallelism helper
+imports from them. First the axes: the DP, TP, SP, PP, EP, and CP degrees,
+whose product is the total GPU count, with SP tied to TP in the
+Megatron-style layout. Second the batch: microbatch size per GPU times
+gradient-accumulation steps times DP degree gives the global batch, and
+times sequence length, the tokens per optimizer step.
+
+Third the memory bill per GPU: parameters, gradients, and optimizer state
+scale with parameter count and their bytes-per-parameter, while
+activations scale with the batch actually resident — layers, hidden width,
+tensors per layer, bytes per value. Activation checkpointing keeps only a
+fraction of activations and recomputes the rest during the backward pass,
+trading a FLOP multiplier for memory; both knobs are declared here.
 """
 
 import sympy as sp

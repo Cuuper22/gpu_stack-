@@ -2,9 +2,21 @@
 scopes/parallelism_moe.py
 =========================
 
-Tensor-parallel explicit payload and exposed-time formulas, MoE
-expert-capacity and all-to-all payload, and context-parallel ring-hop
-communication volume.
+The traffic bills of tensor, expert, and context parallelism.
+
+Splitting a layer across GPUs means the pieces must talk every layer, and
+this helper counts the bytes for three axes. Tensor parallel: each
+transformer block triggers a fixed number of allreduces over the TP group,
+each carrying local tokens times hidden width times bytes per value; the
+unoverlapped fraction of that traffic, divided by TP-group bandwidth, is
+the exposed time per block. Expert parallel: top-k routing dispatches and
+combines token activations through all-to-alls, with expert capacity set
+by the capacity factor and the time stretched by router imbalance.
+Context parallel: each rank's local KV state circulates around a ring of
+CP-minus-one hops so every rank attends over the full sequence.
+
+The collective scope prices these payloads with its alpha-beta formulas;
+the training scope adds the exposed times to the step.
 """
 
 import sympy as sp

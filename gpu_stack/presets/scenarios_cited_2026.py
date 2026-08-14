@@ -2,23 +2,24 @@
 gpu_stack.presets.scenarios_cited_2026
 =======================================
 
-Additional sourced scenario packs extending the base inventory in
+More sourced scenario packs, extending the base inventory in
 gpu_stack.presets.scenarios.
 
-Two new pack families with strict provenance discipline:
+Two pack families, both with strict provenance discipline:
 
-  Pythia-160M on one DGX H100 node (U.S. 2024 industrial electricity price).
-  Uses the same DGX H100 hardware facts and EIA industrial tariff as the
-  existing Pythia-70M pack, with the larger GPT-NeoX architecture sourced
-  from the EleutherAI Pythia repository and Hugging Face config.json.
+  Pythia-160M on one DGX H100 node, at the U.S. 2024 industrial electricity
+  price. Same DGX H100 hardware facts and EIA industrial tariff as the
+  existing Pythia-70M pack; the larger GPT-NeoX architecture comes from the
+  EleutherAI Pythia repository and its Hugging Face config.json.
 
-  Pythia-70M on one DGX H100 node (U.S. 2024 commercial electricity price).
-  Reuses the existing Pythia-70M hardware and workload facts but substitutes
-  the EIA 2024 commercial average retail electricity price for the industrial
-  rate, making the tariff sensitivity explicit.
+  Pythia-70M on one DGX H100 node, at the U.S. 2024 commercial electricity
+  price. Identical hardware and workload facts to the base pack — only the
+  tariff changes, from industrial to commercial — so the two packs isolate
+  the tariff's effect on cost per token.
 
 Every numeric assignment carries a source string naming a public document.
-Assumptions are separated into clearly named closure presets.
+Assumptions live in separately named closure presets, never mixed into the
+sourced facts.
 """
 
 from __future__ import annotations

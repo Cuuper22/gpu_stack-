@@ -1,9 +1,14 @@
-"""
-tests/test_gpu_tile_area_decomposition.py
-=========================================
+"""Verifies the SM tile area is a named area budget, not one opaque number.
 
-The SM tile area should be a symbolic floorplan budget instead of one opaque
-high-fanout root input.
+The area of one SM tile feeds the floorplan SM-count model, so leaving it
+as a single high-fanout root would hide a lot of structure. Instead it is a
+budget: tensor cores (count times area per unit), register file, shared
+memory, scheduler control, and local interconnect sum to an active area,
+which overhead and layout-utilization factors inflate to the full tile.
+These tests pin that dependency tree, resolve a hand-checkable case to
+8.8 area units through the exact three-equation trace, chain the budget
+into the SM-count model, and keep unit checks, references, and an acyclic
+graph.
 """
 
 import pytest

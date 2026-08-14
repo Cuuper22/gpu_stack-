@@ -1,8 +1,13 @@
-"""Meta-index for focused physical boundary test coverage.
+"""Index test for the focused physical-boundary test modules.
 
-This intentionally stays lightweight: it checks that the focused boundary test
-modules added or expanded together remain present and importable, without
-depending on the full suite collection count.
+Seven test modules were added or expanded together to cover physical boundary
+constraints (lithography media, plasma sources, nuclear binding, process
+geometry, root debt). This index makes sure the set stays whole: each module
+must exist as a file in this directory, be importable under its dotted name,
+resolve to that exact file, and define at least one test function.
+
+We check names and importability only — never the suite's total collection
+count — so unrelated test churn cannot break this index.
 """
 
 from importlib import import_module

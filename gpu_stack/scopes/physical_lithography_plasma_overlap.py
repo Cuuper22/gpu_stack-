@@ -1,9 +1,15 @@
 """
 scopes/physical_lithography_plasma_overlap.py
-==============================================
+=============================================
 
-Spatial and temporal overlap factors between the source-plasma drive pulse and
-the active emitting plasma.
+Overlap between the drive pulse and the emitting plasma, in space and in
+time. Spatially, pointing error (centroid offset over column radius) and
+transverse size mismatch each cost a factor; temporally, a timing offset
+and a duration mismatch between the pulse and the plasma response cost two
+more. The product of the spatial and temporal factors is the overall
+overlap factor, a number between 0 and 1 that multiplies the absorption
+efficiency: drive energy that misses the plasma in space or arrives at the
+wrong time heats nothing.
 """
 
 import sympy as sp

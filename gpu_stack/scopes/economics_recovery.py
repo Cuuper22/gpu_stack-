@@ -2,11 +2,21 @@
 scopes/economics_recovery.py
 ============================
 
-Run-cost rollups and inference-recovery targets for the economics scope.
+The bottom line: total run cost, unit costs, and the payback target.
 
-This helper carries the capex and opex rollups that assemble the total run
-cost, the cost-per-step, cost-per-token, and cost-per-FLOP views, the present
-value of the run cost, and the inference-token recovery target.
+This helper is where the economics scope converges. Each cost stream —
+allocated capex, electricity, water, maintenance, staff, network transit,
+demand charges, carbon — becomes a run-level amount by multiplying its rate
+by the run's wall-clock time, and the amounts sum to the total run cost.
+Dividing that total by steps, tokens, or achieved FLOPs from the training
+scope gives the unit costs people quote, and applying the finance helper's
+discount factor gives the run's net present value.
+
+The recovery target closes the loop on the business: take revenue per
+served inference token, subtract serving cost to get net margin per token,
+and divide the run cost by that margin. The result is how many inference
+tokens the finished model must serve before the training run has paid for
+itself.
 """
 
 import sympy as sp

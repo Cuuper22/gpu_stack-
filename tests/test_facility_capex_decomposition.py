@@ -1,9 +1,15 @@
-"""
-tests/test_facility_capex_decomposition.py
-==========================================
+"""Verifies facility cooling power and capex decompose to physical drivers.
 
-Facility cooling and capex should expose the narrow physical drivers instead
-of treating CDU power and facility capex as opaque roots.
+Two quantities are easy to leave as opaque roots and hard to trust that
+way: CDU power (the coolant distribution unit that pumps liquid coolant)
+and facility capex. Here CDU power is derived from site-wide liquid heat
+removed times an auxiliary-power fraction, and facility capex from three
+sizing quantities (floor area, power capacity, cooling capacity) times
+their unit costs. The tests pin those dependency sets, resolve
+hand-checkable cases (512 GPUs at 1000 W removed with a 0.025 aux fraction
+gives 12,800 W; the capex example totals 1.34 billion USD), confirm the
+capex slice never touches non-cooling overhead terms like UPS loss, and
+check metadata and cycle-freedom.
 """
 
 import pytest

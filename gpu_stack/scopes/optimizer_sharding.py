@@ -2,11 +2,17 @@
 scopes/optimizer_sharding.py
 ============================
 
-Distributed optimizer-state memory.
+How many bytes the optimizer's memory bill comes to, and who pays it.
 
-This helper covers the total optimizer-state footprint across all parameters
-and the distributed-Shampoo sharding that amortizes per-block preconditioner
-state across ranks.
+Optimizer state is often the largest tensor family in training: the total
+footprint is parameter count times bytes of state per parameter, where
+the state multiplier depends on the rule (two moments for AdamW, one
+buffer for Lion, more for Shampoo). At scale nobody keeps a full copy per
+GPU — distributed Shampoo divides its per-block preconditioner state by a
+shard degree, each rank holding one slice. This helper computes both the
+undivided total and the per-rank Shampoo state; the parallelism scope's
+ZeRO and FSDP formulas apply the equivalent sharding to first-order
+state when budgeting per-GPU memory.
 """
 
 import sympy as sp

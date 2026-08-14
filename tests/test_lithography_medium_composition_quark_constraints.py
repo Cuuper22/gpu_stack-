@@ -2,8 +2,15 @@
 tests/test_lithography_medium_composition_quark_constraints.py
 ==============================================================
 
-The imaging medium should derive component valence quark counts from the
-proton/neutron roots via U = 2Z + N and D = Z + 2N.
+A proton is two up quarks and one down quark; a neutron is one up and two
+down. So a nucleus with Z protons and N neutrons holds U = 2Z + N valence up
+quarks and D = Z + 2N valence down quarks. This module verifies that both
+imaging-medium components (a and b) derive their quark counts from the
+proton/neutron root variables through exactly those identity equations, and
+that the guard rails hold: proton count must be positive (Z = 0 is flagged
+as a violated constraint, reported exactly once) and must be an integer
+(Z = 2.5 still computes a value but records a domain violation). Numeric
+spot checks, e.g. Z=6, N=7 gives U=19 and D=20, pin the arithmetic down.
 """
 
 import pytest

@@ -2,17 +2,17 @@
 
 Updated: 2026-07-12 PDT.
 
-Read this first after compaction or restart. It is intentionally shorter than
-`HANDOFF.md`.
+Read this first after compaction or restart. It is shorter than `HANDOFF.md`
+on purpose.
 
 ## Strategic Research Reset
 
 The canonical branch is `main`. The July research-substrate wave was built
-from the synchronized GitHub base and is closed only after local `HEAD` and
+from the synchronized GitHub base and closes only when local `HEAD` and
 `origin/main` are proven equal. Do not recover from the interrupted, non-Git
 May snapshot.
 
-The project now treats the engine, visual medium, and research program as one
+The project treats the engine, visual medium, and research program as one
 loop. Read `RESEARCH.md`, then
 `docs/research/frontier-scan-2026-07-12.md`, before selecting work.
 
@@ -160,7 +160,7 @@ Status: implemented and verified on the current base.
 
 ## Reconciliation: Pythia Energy-Floor Wave End State
 
-The previously in-progress wave is reconciled against observed evidence:
+The previously in-progress wave was checked against what actually landed:
 
 - The scope-split merges landed on main (attention, plasma electron state,
   medium components, cluster node, semiconductor, lithography source).

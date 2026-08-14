@@ -2,12 +2,14 @@
 scopes/training.py
 ==================
 
-Aggregator for the training scope.
-
-The original training file carried step FLOPs, executed chip FLOPs,
-communication, HBM traffic, bubbles, availability, and scaling-law
-variables in one slab. It has been split into focused helpers and
-re-exported here so public imports stay stable.
+Aggregator for the training scope: how long and how expensive one
+training run is. The original file carried step FLOPs, executed chip
+FLOPs, communication, HBM traffic, bubbles, availability, and scaling-law
+variables in one slab; it is now split into focused helpers (compute,
+comm, memory, overheads, scaling) and re-exported here so public imports
+stay stable. Together they decompose the training step into compute,
+exposed communication, and memory-bound time, then roll steps up into
+throughput, wall clock, and energy.
 """
 
 from ..core import System

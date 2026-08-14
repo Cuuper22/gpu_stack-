@@ -2,13 +2,21 @@
 core/registry.py
 ================
 
-Global registry of all Variables, Constants, Equations, and Systems.
+The global phone book of the model: every Variable, Constant, Equation, and
+System registers itself here at construction time, keyed by name.
 
-Improvements vs the original single-file core:
-  * O(1) symbol -> Variable lookup via an internal cache, rebuilt on insert.
-  * Reset also clears Variable back-references so nothing dangles.
-  * Query helpers: by_scope, by_unit_pattern, roots, leaves.
-  * Optional collision check can be disabled for testing.
+Why global? Equations refer to variables through bare SymPy symbols, and the
+rest of core needs to map a symbol back to its Variable — its units, bounds,
+and defining equations. A single registry makes that lookup possible from
+anywhere, without threading a context object through every constructor.
+
+What it provides:
+  * Name-collision detection at registration time.
+  * O(1) symbol -> Variable lookup through an id()-based cache.
+  * `reset()` that also clears Variable back-references, so tests can
+    rebuild the model without stale wiring.
+  * Query helpers: by scope, by name prefix, roots (pure inputs), leaves
+    (final outputs), and metadata-coverage statistics.
 """
 
 from __future__ import annotations
@@ -60,11 +68,12 @@ class Registry:
 
     @classmethod
     def lookup_by_symbol(cls, sym: sp.Symbol) -> Optional["Variable"]:
-        """O(1) lookup via id(symbol)."""
+        """Map a SymPy symbol back to its registered Variable, or None."""
         v = cls._symbol_cache.get(id(sym))
         if v is not None:
             return v
-        # Fallback for symbols that compare equal but aren't identical
+        # The cache is keyed by object identity. A symbol rebuilt by SymPy can
+        # compare equal without being the same object, so scan once and cache.
         for var in cls.variables.values():
             if var.symbol == sym:
                 cls._symbol_cache[id(sym)] = var
@@ -73,7 +82,12 @@ class Registry:
 
     @classmethod
     def reset(cls) -> None:
-        """Full reset: clear dicts AND clear per-Variable back-references."""
+        """
+        Clear everything, including per-Variable back-references.
+
+        Clearing only the dicts would leave old Variables still wired to old
+        Equations; a rebuilt model would then see phantom dependencies.
+        """
         for v in cls.variables.values():
             v._defined_by.clear()
             v._used_in.clear()

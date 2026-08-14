@@ -1,4 +1,19 @@
-"""Lithography source-plasma operating chain coverage."""
+"""The source plasma's operating chain: from root knobs to derived optics.
+
+Two things must hold for the operating model to be trustworthy. First, the
+absorption-edge chain must compute correctly: the drive beam wavelength
+follows from the source's ionization energy and the edge detuning ratio
+(lambda = detuning * 2*pi*hbar*c / E_ion), the resonance-to-drive frequency
+ratio from the same ionization energy, and the participating-electron and
+sum-rule fractions from shell occupancy and capacity. Each is checked with
+numbers chosen so the expected value is easy to see (for example an
+ionization energy of 6*hbar with a drive frequency of 3 gives a ratio of
+exactly 2). Second, the root frontier must be explicit: the eight operating
+knobs (pulse period, duty factor, fluence, detuning, pupil radius, focal
+length, partial pressure, gas temperature) are true roots with no
+dependencies, and each derived quantity depends on exactly the roots and
+constants its equation names.
+"""
 
 import pytest
 import sympy as sp

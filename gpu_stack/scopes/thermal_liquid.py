@@ -2,9 +2,15 @@
 scopes/thermal_liquid.py
 ========================
 
-Liquid-cooling loop: coolant inlet and outlet temperatures, average coolant
-temperature, volumetric flow, required non-radiative heat removal, pump
-power per GPU and per site, and CDU power.
+The liquid-cooling loop between the cold plates and the facility plant.
+Sensible heat sets the physics: removed heat equals mass flow times
+specific heat times the coolant temperature rise, so the inlet temperature,
+outlet temperature, and flow rate are one constraint, not three free
+choices. Volumetric flow follows from mass flow and density; pushing that
+flow through the loop pressure drop at finite pump efficiency costs pump
+power per GPU and per site, and the coolant distribution units (CDUs) add
+their own draw. The average coolant temperature anchors the package-scope
+temperature stack; the removed heat is what the facility must reject.
 """
 
 import sympy as sp

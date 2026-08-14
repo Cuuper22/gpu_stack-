@@ -2,10 +2,11 @@
 scopes/physical_lithography_transition_step.py
 ==============================================
 
-Adjacent-shell closure for lithography source transition steps.
-
-This bridge keeps the principal-shell step default close to the electronic
-structure layer without making the main scope file grow past the audit limit.
+Default shell step for the source transition. The emitting transition is
+taken between adjacent principal shells: the upper quantum number is the
+lower plus one. This one-line closure lives in its own bridge module only
+to keep the main electronic-structure file under the audit size limit
+while staying next to the layer it belongs to.
 """
 
 import sympy as sp

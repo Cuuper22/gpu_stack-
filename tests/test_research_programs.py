@@ -1,3 +1,23 @@
+"""Tests for the preregistered experiment protocol catalog (E001-E006).
+
+A protocol is a preregistered experimental design: named metrics, scalar
+falsifier gates (metric, comparison operator, threshold), and structured
+evidence requirements, all frozen and hashed before any experiment runs.
+Preregistration only works if the catalog cannot drift, so these tests pin
+it in detail.
+
+The catalog lists E001 through E006 in order, is read-only, and rejects
+unknown ids with an explicit error. Every protocol beyond E001 carries its
+title, the shared 2026-04-13/2026-07-12 source window, a note that no
+result is claimed, and a protocol hash. Two structural rules keep the gate
+system honest. Each primary metric must be judged somewhere — by a scalar
+falsifier or a mandatory structured requirement. And vector-valued outcomes
+(latency percentiles, coverage families, regret panels) get structured
+requirements rather than invented scalar thresholds; the per-experiment
+tests then pin every gate's exact metric, operator, and threshold, and the
+final test confirms nothing irreducible is buried in free-text notes.
+"""
+
 import pytest
 
 from gpu_stack.research.e001 import E001_PROTOCOL

@@ -67,7 +67,7 @@ def _build_cone(
     """
     from gpu_stack.core.registry import Registry
 
-    # Resolve each target and collect its full cone.
+    # Collect each target plus every variable in its dependency cone.
     cone_vars: Set[str] = set()
     for name in target_names:
         var = Registry.variables.get(name)
@@ -77,9 +77,9 @@ def _build_cone(
         for dep in var.dependencies():
             cone_vars.add(dep.name)
 
-    # Build sorted edge list (dep -> defined) for value-defining relations only.
-    # We iterate over all cone variables and emit edges for direct dependencies
-    # that are also inside the cone.
+    # Emit one (dependency -> dependent) edge for each direct dependency that
+    # is also inside the cone. Only value-defining relations contribute, so
+    # the edge list mirrors what Variable.dependencies() traverses.
     seen_edges: Set[tuple] = set()
     edges: List[dict] = []
     for vname in sorted(cone_vars):

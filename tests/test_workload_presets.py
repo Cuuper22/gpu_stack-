@@ -1,8 +1,12 @@
-"""
-tests/test_workload_presets.py
-==============================
+"""Provenance and resolver tests for the workload (model-shape) presets.
 
-Focused provenance and resolver coverage for workload/model-shape presets.
+A workload preset pins a model's architecture numbers — layers, width, heads,
+tokens per step — to a public source. Using Pythia-70M as the example, these
+tests check three things: the source string actually cites the EleutherAI
+repository and config values it claims, the preset assigns exactly the
+sourced roots and nothing derivable (head_dim and n_steps must come from
+equations, not assignments), and resolving those derived targets reproduces
+the published numbers through the expected equations.
 """
 
 import pytest

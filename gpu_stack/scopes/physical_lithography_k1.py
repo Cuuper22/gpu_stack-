@@ -2,7 +2,14 @@
 scopes/physical_lithography_k1.py
 =================================
 
-Feature-family k1 process-factor layer.
+The k1 process factor: how much better or worse than the raw Rayleigh
+diffraction limit the process actually prints. In CD = k1 * lambda / NA,
+everything hard about real lithography hides inside k1. Here the gate k1 is
+composed from four dimensionless factors: aerial-image contrast and
+resolution-enhancement techniques push it down, while resist process
+latitude and mask-error amplification push it up. Contact, metal-width, and
+metal-spacing k1 values are approximated from the same gate baseline,
+because they share the tool and process family.
 """
 
 import sympy as sp

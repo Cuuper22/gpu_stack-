@@ -2,12 +2,13 @@
 scopes/training_memory.py
 =========================
 
-Training memory-bandwidth terms.
-
-Parameter, gradient, optimizer-state, and activation IO bytes per step,
-aggregate HBM traffic, the usable aggregate HBM bandwidth, and the
-memory-bound auxiliary time that the overhead helper folds into the
-nominal step time.
+HBM traffic in a training step. Parameters, gradients, optimizer state,
+and activations each move a bytes-per-step volume, computed as an IO
+multiplier times the underlying sizes; their sum is the aggregate HBM
+traffic. A bandwidth efficiency factor discounts the paper bandwidth to a
+usable aggregate figure, and traffic over usable bandwidth gives the
+memory-bound auxiliary time -- the cost of everything outside the main
+matmuls that the overheads module folds into the nominal step time.
 """
 
 import sympy as sp
@@ -36,7 +37,7 @@ TRAINING_MEMORY_REF = Reference(
 
 
 # ---------------------------------------------------------------------------
-# Memory-bandwidth terms
+# Bytes moved per step, and the auxiliary time they cost at usable HBM bandwidth
 # ---------------------------------------------------------------------------
 
 param_io_multiplier = var(

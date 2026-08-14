@@ -1,8 +1,16 @@
-"""
-tests/test_optimizer_schedules.py
-=================================
+"""Regression tests for optimizer learning-rate schedule constraints.
 
-Regression coverage for optimizer schedule domain and horizon constraints.
+A learning-rate schedule only makes sense on a sane domain: step counts must
+be positive integers, the base learning rate must be non-negative, and the
+horizon must be ordered — total steps longer than warmup, longer than warmup
+plus the stable phase, and at least as large as the current step.
+
+The graph encodes each of these as an explicit relation: domain assumptions
+on the variables and named CONSTRAINT-role inequalities on the horizon. These
+tests verify both halves. When a caller supplies nonsense (negative rates,
+fractional steps, a warmup longer than the run), ``resolve`` still returns a
+value, but the constraint report must flag exactly which relations failed —
+and at the legal boundary, all of them must pass.
 """
 
 import pytest

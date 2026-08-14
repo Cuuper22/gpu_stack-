@@ -2,7 +2,15 @@
 tests/test_lithography_medium_composition_unit_checks.py
 ========================================================
 
-The imaging medium composition equations should keep unit checks enabled.
+Every equation in this graph can carry a unit check: a flag that makes the
+framework verify both sides of the relation have the same physical
+dimensions. A dimensionally wrong equation is wrong no matter what numbers
+you feed it, so this check catches modeling mistakes before any resolve is
+run. This module lists every equation and inequality in the imaging-medium
+composition chain — from quark counts through binding energy, mass density,
+and permittivity — and asserts that each one keeps its unit check turned on.
+If someone adds an equation here without the flag, this test names the
+offender.
 """
 
 from gpu_stack import Registry

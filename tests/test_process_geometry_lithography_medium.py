@@ -1,4 +1,23 @@
-"""Lithography medium-response coverage for process geometry."""
+"""Tests for the lithography medium-response model.
+
+Light passing through the immersion medium (water, in the reference case)
+bends according to the medium's refractive index, and the graph builds that
+index from first principles: nuclear composition gives particle mass, packing
+geometry gives mass and number density, a Lorentz-oscillator model gives
+electric polarizability, and the Lorentz-Lorenz relation turns density times
+polarizability into relative permittivity.
+
+The big test walks this whole chain. It pins which variables are root inputs
+versus derived, pins every derived variable's exact dependency set, checks
+that electron-count and resonance-energy roots carry unit-checked constraints,
+and then resolves the chain numerically against hand-computed expectations —
+including the mass defect from binding energy (E/c^2) in the particle mass.
+
+The second test guards the model's validity limit: the Lorentz-oscillator
+polarizability formula diverges when the drive frequency hits the resonance,
+so resolving at (or at minus) the resonance frequency must flag the
+approximation-validity check as unsatisfied rather than report a number.
+"""
 
 import pytest
 

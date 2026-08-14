@@ -1,9 +1,12 @@
-"""Focused dependency-safe scheduler for the E002-PW3 rack experiment.
+"""Dependency-safe scheduler for the E002-PW3 rack experiment.
 
-This module is deliberately not a general workflow engine.  It schedules one
-batch of state-flow operations that are already ready in the physical PW3
-runtime.  Legality comes from explicit predecessor, generation, and deadline
-commitments; the policy may change release time only.
+This is deliberately not a general workflow engine. It schedules one batch
+of state-flow operations that the physical PW3 runtime has already marked
+ready. A policy can change only one thing — when each operation is released
+— never its contents, ordering constraints, or deadline. Legality comes
+from explicit predecessor, generation, and deadline commitments, enforced
+by `StateFlowLedger`. Five policies are compared, from a synchronized
+baseline through seeded jitter and cohorts up to telemetry feedback.
 """
 
 from __future__ import annotations
@@ -26,7 +29,11 @@ POLICIES = (
 
 @dataclass(frozen=True)
 class VisibleRackState:
-    """Only measurements available to a deployable online controller."""
+    """The rack measurements a deployable online controller could actually see.
+
+    Nothing here is oracle knowledge: every field is either a live sensor
+    reading (possibly None when unavailable) or an honest uncertainty bound.
+    """
 
     reference_time_ns: int
     rack_power_w: float | None
@@ -122,7 +129,12 @@ class EventRecord:
 
 
 class StateFlowLedger:
-    """Enforce the scientific DAG invariant for completed state flows."""
+    """Records completed state-flow events and refuses any that break the DAG.
+
+    An event may be recorded only if all its predecessors completed, it
+    started no earlier than its release, and it finished by its deadline.
+    This is what makes a scheduling policy provably unable to corrupt state.
+    """
 
     def __init__(self) -> None:
         self._events: dict[str, EventRecord] = {}
@@ -278,7 +290,14 @@ def schedule_state_flow_batch(
     random_seed: int,
     maximum_clock_uncertainty_ns: int,
 ) -> tuple[OperationDecision, ...]:
-    """Schedule one ready batch without changing operation contents or order."""
+    """Pick a release delay for each request in one ready batch.
+
+    The chosen policy only shifts release times within each request's legal
+    window (earliest start to deadline minus predicted duration); contents
+    and dependency order are untouched. The telemetry-feedback policy
+    abstains — releasing immediately — when the clock or telemetry quality
+    is not trustworthy.
+    """
 
     if policy_id not in POLICIES:
         raise ValueError(f"unknown PW3 policy {policy_id!r}")

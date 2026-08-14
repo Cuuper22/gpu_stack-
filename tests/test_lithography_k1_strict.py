@@ -2,7 +2,13 @@
 tests/test_lithography_k1_strict.py
 ===================================
 
-Focused strict-mode coverage for invalid gate-k1 process-factor inputs.
+Gate k1 is computed from four process factors, and each factor has a physical
+domain: contrast factors cannot exceed 1, and none can be zero or negative.
+This module feeds deliberately impossible factor values through two paths and
+checks that both refuse to pass them silently. The library path (resolve)
+must mark the matching domain constraint as unsatisfied; the CLI path, run
+with --fail-on-violated-constraints, must print the violated constraint and
+exit with a nonzero return code so scripts and CI can catch the bad input.
 """
 
 import contextlib

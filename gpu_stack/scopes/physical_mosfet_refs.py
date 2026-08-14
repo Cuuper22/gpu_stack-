@@ -1,8 +1,11 @@
 """
 scopes/physical_mosfet_refs.py
-================================
+==============================
 
-Shared references for MOSFET electrostatics and current models.
+Shared Reference objects for the MOSFET modules. Each provenance record is
+declared once here and cited by the variable and equation declarations, so
+the modeling sources stay in one place and the sibling modules can import
+them without importing each other.
 """
 
 from ..core import Reference

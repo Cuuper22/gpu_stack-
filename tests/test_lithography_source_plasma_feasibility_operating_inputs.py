@@ -1,5 +1,18 @@
 """
-Operating input and acceptance-geometry feasibility coverage.
+The drive laser's operating inputs — pupil fill factor, edge detuning
+ratio, objective pupil radius and focal length — feed the acceptance
+geometry: the half angle of the cone of light the focusing objective can
+deliver, and from it the numerical aperture. This module verifies the
+feasibility net around those inputs. Every operating constraint must be a
+named Inequality on a root input with the right operator, right-hand side,
+references, and unit check. The acceptance half angle must stay strictly
+below pi/2 (a wider cone would point backward), and the far-field
+divergence constraint must reference the acceptance angle as a
+constraint-only dependency. Bad roots must be visible everywhere they
+matter: a zero or negative fill factor trips the domain checks, a negative
+focal length flags the acceptance-geometry equation's validity and every
+derived positive-domain check down the chain to numerical aperture, and a
+zero detuning ratio invalidates the derived beam wavelength.
 """
 
 import pytest

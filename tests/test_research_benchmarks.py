@@ -1,3 +1,22 @@
+"""Tests for the research benchmark harness.
+
+A benchmark asks: how well does a prediction backend forecast held-out
+measurements? A ``BenchmarkDefinition`` names a metric, a calibration/
+evaluation split of observations, and evaluation cases; ``run_benchmark``
+scores a backend against them with error, ranking, and decision-regret
+statistics. Decision regret is the cost of trusting the model: pick the
+configuration the model predicts is best, then measure how much worse it
+actually is than the true best.
+
+Most of these tests defend against ways a benchmark can quietly flatter the
+model. A case may never point at a calibration observation — that is data
+leakage, and construction rejects it. Repeated runs of one configuration
+must be declared up front with a preregistered aggregation (mean or median
+over an explicit cluster boundary, e.g. trace_id) and are cluster-reduced
+before ranking and regret, so a configuration cannot win by being sampled
+more often.
+"""
+
 from datetime import datetime, timezone
 
 import pytest

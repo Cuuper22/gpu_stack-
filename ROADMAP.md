@@ -10,10 +10,11 @@ The project now optimizes one closed loop:
 
 The June engine is a strong symbolic foundation. Its live `next-work` ranking
 now follows the measured E001 sequence; root-debt closure and graph
-completeness remain diagnostic evidence, not the research roadmap. Recent work such as Charon
-already reports operator-level training and inference simulation below 5.35%
-overall timing error. `gpu_stack` will not compete by becoming another static
-performance simulator with more equations.
+completeness remain diagnostic evidence, not the research roadmap. The reason
+is competitive honesty: recent work such as Charon already reports
+operator-level training and inference simulation below 5.35% overall timing
+error. `gpu_stack` will not compete by becoming another static performance
+simulator with more equations.
 
 The research target is a causal, uncertainty-aware virtual datacenter that
 couples learning dynamics, temporal execution, failures, facility power, grid
@@ -33,7 +34,7 @@ gates.
 
 ## Virtual Datacenter Foundation: Implemented
 
-The first research substrate is no longer roadmap prose:
+The first research substrate is no longer roadmap prose. It exists:
 
 - observations, calibration/evaluation splits, residual metrics, stratified
   coverage, Kendall tau-b ranking, decision regret, and repeated benchmark
@@ -65,17 +66,19 @@ read-only full verifier `5/5` in `320.32s` with a 600-second gate ceiling.
 
 ## Recovery-Backed E001 Vertical Slice: Executed
 
-The feature branch now carries one complete research path: scenario input,
-transition-driven failure/recovery execution, four matched policies, a
-content-addressed result, and a three-depth observatory projection. All four
-runs reach durable frontier 8 and conserve attempted, retained, and lost work.
+The feature branch now carries one complete research path from end to end:
+scenario input, transition-driven failure/recovery execution, four matched
+policies, a content-addressed result, and a three-depth observatory
+projection. All four runs reach durable frontier 8 and conserve attempted,
+retained, and lost work.
 
-On this deterministic trace, adaptive recovery beats synchronous wait and
-restore by 48 ms and 1.6 GB while losing 66.21 PFLOP less work. Fixed-local
-restart is 20 ms faster and moves 3.2 GB fewer bytes than adaptive, but loses
-96.07 PFLOP more work and uses 0.028 MJ more modeled energy. The oracle ties
-adaptive on time and traffic and loses more work. The mechanics therefore
-produce a Pareto split, not a validated controller hierarchy.
+What did the runs show? On this deterministic trace, adaptive recovery beats
+synchronous wait and restore by 48 ms and 1.6 GB while losing 66.21 PFLOP less
+work. Fixed-local restart is 20 ms faster and moves 3.2 GB fewer bytes than
+adaptive, but loses 96.07 PFLOP more work and uses 0.028 MJ more modeled
+energy. The oracle ties adaptive on time and traffic and loses more work. So
+each policy wins somewhere and loses somewhere else. The mechanics produce a
+Pareto split, not a validated controller hierarchy.
 
 The observatory renders the same result at Freshman, Researcher, and Full trace
 depth, including the shared failure clock, restore/replay intervals, exact work
@@ -89,15 +92,17 @@ observations and 30 untouched held-out evaluation observations across six
 strata. The frozen decision is
 `candidate_falsified_small_model_calibration`; `candidate_survives_lc1=False`.
 
-Adaptive survivor continuation ended at better held-out loss: median final NLL
-2.31465 versus fixed-local restart's 2.34115. The frozen finite-horizon
-progress-per-FLOP objective nevertheless favored fixed restart because it
-stopped with 458,752 attempted tokens rather than 524,288, exactly 12.5 percent
-less work, while every policy crossed the 3.13759 target at the first 32-tick
-observation. LC1 therefore published the candidate failure instead of
-retuning the target or the six held-out schedules. The result artifact,
-learning sidecar, and observatory projection preserve the measured curves,
-paired interval, falsifier outcomes, device-energy boundary, and provenance.
+The details explain why the candidate lost despite learning well. Adaptive
+survivor continuation ended at better held-out loss: median final NLL 2.31465
+versus fixed-local restart's 2.34115. The frozen finite-horizon
+progress-per-FLOP objective nevertheless favored fixed restart, because fixed
+restart stopped with 458,752 attempted tokens rather than 524,288, exactly
+12.5 percent less work, while every policy crossed the 3.13759 target at the
+first 32-tick observation. LC1 therefore published the candidate failure
+instead of retuning the target or the six held-out schedules. The result
+artifact, learning sidecar, and observatory projection preserve the measured
+curves, paired interval, falsifier outcomes, device-energy boundary, and
+provenance.
 
 ## E001-LC2 Protocol Sequence: Preserved, Not Rewritten
 
@@ -106,8 +111,9 @@ late-stage under the frozen gate. LC2 v2 established a valid 8,192-tick
 late-stage checkpoint and exact no-failure equivalence, then stopped because
 the calibration-only NLL target had already been crossed outside its frozen
 192-to-288-tick validity window. Neither LC2 artifact is candidate evidence.
-Together they exposed raw first crossing as an invalid late-stage endpoint and
-selected LC3's equal-canonical-work question without smoothing or retuning.
+That does not make them useless. Together they exposed raw first crossing as an
+invalid late-stage endpoint and selected LC3's equal-canonical-work question
+without smoothing or retuning.
 
 ## E001-LC3 Equal-Canonical-Work Result: Executed
 
@@ -116,16 +122,17 @@ the exact same 524,288-canonical-token frontier. Adaptive was learning-
 noninferior, saved a median 3.03 percent attempted work, and saved a median 40
 opportunity ticks. Those gates passed. Its sampled training-device-energy ratio
 had median 1.068 and paired 90 percent upper bound 1.134, above the frozen 1.05
-ceiling. The sole failed gate makes the conclusion
+ceiling. One failed gate is enough: the conclusion is
 `candidate_falsified_equal_canonical_work`. The compact observatory sidecar is
 `docs/data/e001-equal-work-v1.json`.
 
 ## E002-PW1 Checkpoint-Power Result: Measurement Invalid
 
 PW1 completed all 32 frozen factorial runs with exact LC3 warm-state binding.
-Its requested 20 ms logger observed effective NVML updates every 494.693 ms,
-with selected +250 ms lag at the frozen boundary. The only active invalidators
-are `insufficient_evaluation_power_updates` and
+Then the measurement itself failed. Its requested 20 ms logger observed
+effective NVML updates every 494.693 ms, with selected +250 ms lag at the
+frozen boundary. The only active invalidators are
+`insufficient_evaluation_power_updates` and
 `insufficient_pooled_cadence_phase_updates`. The preserved conclusion is
 `measurement_invalid`.
 
@@ -330,6 +337,7 @@ and preset export/discovery tests.
 Build the research programs in `RESEARCH.md`: adaptive multi-datacenter
 training, power-waveform shaping, semantic fault tolerance, fluid inference
 topology, heterogeneous architecture co-design, and firm grid-responsive
-inference. Every program must move through virtual screening, held-out
-calibration, and counterfactual comparison. External physical validation is a
-later adapter only for claims whose measurement boundary requires it.
+inference. Every program must move through the same three steps: virtual
+screening, held-out calibration, and counterfactual comparison. External
+physical validation is a later adapter, used only for claims whose measurement
+boundary requires it.

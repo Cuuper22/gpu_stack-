@@ -2,7 +2,11 @@
 scopes/physical_lithography_medium_intercomponent_geometry.py
 =============================================================
 
-Effective radius, gap, and separation relations for medium intercomponents.
+Geometry of the A-B bond: each component gets an effective radius from a
+scale factor, a gap fraction sets the space between them, and the effective
+separation is the sum of the two radii plus the gap. This separation is
+what the screened Coulomb binding relation and the packing-length density
+closure both consume.
 """
 
 import sympy as sp

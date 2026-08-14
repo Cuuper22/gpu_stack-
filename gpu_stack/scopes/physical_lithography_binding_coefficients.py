@@ -2,13 +2,15 @@
 scopes/physical_lithography_binding_coefficients.py
 ===================================================
 
-Liquid-drop coefficient structure for lithography source nuclear binding.
-
-The empirical liquid-drop coefficients are the calibration boundary for source
-nuclear binding. Lower material fields are then reconstructed from those
-coefficients: Coulomb coefficient sets the radius scale, the radius sets
-saturation number density, and the volume, surface, and asymmetry coefficients
-set bulk binding density, surface tension, and symmetry-energy density.
+Liquid-drop coefficients for the source nucleus. The semi-empirical mass
+formula treats a nucleus like a charged liquid drop: binding energy is a
+volume term minus surface, Coulomb, asymmetry, and pairing corrections,
+each scaled by an empirical coefficient. Those coefficients are the
+calibration boundary here; everything else is reconstructed from them. The
+Coulomb coefficient sets the nuclear radius scale, the radius sets the
+saturation number density, and the volume, surface, and asymmetry
+coefficients set the bulk binding-energy density, surface tension, and
+symmetry-energy density of nuclear matter.
 """
 
 import sympy as sp

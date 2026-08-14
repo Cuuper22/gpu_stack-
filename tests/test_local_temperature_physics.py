@@ -2,9 +2,17 @@
 tests/test_local_temperature_physics.py
 =======================================
 
-Regressions for local semiconductor temperature decomposition. Device
-temperature is not a primitive number: it comes from a local boundary
-temperature plus heat-flux-driven self-heating.
+A transistor does not run at the room's temperature — it runs hotter,
+because it heats itself. This module verifies the decomposition that
+captures that: local temperature = ambient + self-heating rise, where the
+rise is heat flux times an area-normalized thermal resistance. Each link is
+checked separately with numbers small enough to verify by hand: the heat
+source area comes from cell count, cell area scale, and the two process
+pitches (2 cells * 5.0 scale * 2.0 * 5.0 = 100.0); flux is power over area
+(100 W / 100 = 1.0); resistance-area is thickness over conductivity times a
+spreading factor (6.0/2.0 * 1.5 = 4.5); so the rise is 4.5 K and the local
+temperature 304.5 K. The chain then feeds resistivity, which is checked end
+to end, and every equation in the chain must keep its unit check enabled.
 """
 
 import pytest

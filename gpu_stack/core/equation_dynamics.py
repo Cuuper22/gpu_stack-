@@ -1,4 +1,12 @@
-"""Differential and iterative equation subclasses."""
+"""
+Relations defined by change or by repetition.
+
+A DifferentialEquation states a rate of change: d(lhs)/d(indep_var) = rhs.
+An IterativeEquation states a fixed procedure: apply a map to an initial
+value some number of times. Both keep their extra structure (independent
+variable, boundary conditions, iteration binder) visible to the dependency
+graph without leaking local binder symbols as model dependencies.
+"""
 
 from __future__ import annotations
 
@@ -19,9 +27,10 @@ from .variable import Variable
 
 class DifferentialEquation(Equation):
     """
-    d^order(lhs) / d(indep_var)^order == rhs.
+    ``d^order(lhs) / d(indep_var)^order == rhs``.
 
     Typical use: dN/dt = -lambda*N, dV/dt = I/C, or d2x/dt2 = F/m.
+    ``boundary`` carries initial/boundary conditions as a plain dict.
     """
 
     kind = EquationKind.DIFFERENTIAL
@@ -71,9 +80,13 @@ class DifferentialEquation(Equation):
 
 class IterativeEquation(Equation):
     """
-    lhs is produced by iterating a map ``f`` from an initial condition.
+    ``lhs`` is what you get by applying ``map_expr`` repeatedly, starting
+    from ``initial``, either ``n_iter`` times or until ``convergence`` holds.
 
-    Typical use: Newton-Schulz iteration for matrix orthogonalization in Muon.
+    Typical use: Newton-Schulz iteration for matrix orthogonalization in
+    Muon. The ``iteration_variable`` is a local binder — it stands for
+    "the previous iterate", not a model quantity, so it is excluded from
+    dependency wiring.
     """
 
     kind = EquationKind.ITERATIVE
@@ -148,7 +161,14 @@ class IterativeEquation(Equation):
         self,
         subs: Optional[Mapping[sp.Symbol, sp.Expr]] = None,
     ) -> sp.Expr:
-        """Represent or unfold the iterated value without leaking the local binder."""
+        """
+        The iterated value as an expression, without leaking the binder.
+
+        When the iteration count is a small concrete integer and every input
+        is already numeric, unfold the map that many times and return the
+        closed result. Otherwise return a symbolic ``iterate(f, x0, n)``
+        placeholder that keeps the structure inspectable.
+        """
         bound_symbols = self._bound_symbols()
         subs_map = {
             sym: value

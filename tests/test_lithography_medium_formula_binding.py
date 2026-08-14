@@ -1,4 +1,16 @@
-"""Nuclear binding coverage for the lithography medium formula unit."""
+"""How the imaging medium's formula-unit binding energy is wired and computed.
+
+The binding energy of a formula unit — one repeating recipe of the medium —
+is the sum of each component's liquid-drop nuclear binding energy, weighted
+by how many of that component the recipe contains, plus an intercomponent
+term. This module verifies two things. First, the wiring: each derived
+binding quantity (radius coefficient, saturation density, surface tension,
+per-component binding terms, and the total) must depend on exactly the
+variables the physics says it should, no more and no fewer. Second, the
+numbers: resolving component a, component b, and the total binding energy on
+a shared reference case must reproduce the values the helper computes
+independently.
+"""
 
 import pytest
 

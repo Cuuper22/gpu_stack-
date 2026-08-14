@@ -2,7 +2,13 @@
 scopes/physical_lithography_medium_density.py
 =============================================
 
-Imaging-medium molar, particle, mass-density, and number-density closure.
+Bulk density closure for the imaging medium: the step from one formula
+unit to a macroscopic material. A packing length scale and fill factor turn
+the intercomponent separation into the volume one formula unit occupies;
+particle mass over that volume gives mass density, and its inverse gives
+number density. Molar mass follows from particle mass times the Avogadro
+constant. The number density is what the Lorentz-Lorenz optics layer needs
+to convert per-unit polarizability into a refractive index.
 """
 
 import sympy as sp

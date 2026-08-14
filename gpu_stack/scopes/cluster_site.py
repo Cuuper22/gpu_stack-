@@ -2,13 +2,17 @@
 scopes/cluster_site.py
 ======================
 
-Public facade for site-level aggregation, scheduler overhead, and hyperscaler
-scale-across.
+Public facade for the site: one data-center building as a unit.
 
-A site is one data-center building, one set of utility feeds, and one set of
-facility boundaries. Focused helper modules hold the rack-to-site rollups,
-scheduler/provisioning delay, and hyperscaler WAN declarations; this wrapper
-keeps the historical import path, public exports, and registry ordering stable.
+A site is one building with one set of utility feeds and one facility
+boundary — the natural unit for power contracts, cooling plants, and
+failure isolation. Three helper modules carry its math: rack-to-site rollups
+of compute, memory, storage, and IT power; scheduler and provisioning delay
+before a job's first useful step; and the hyperscaler layer that joins many
+sites over WAN links for scale-across training. This wrapper re-exports all
+of it, keeping the historical import path, public exports, and registry
+ordering stable. The thermal and economics scopes attach to the site's
+power figures.
 """
 
 from ..core import Reference

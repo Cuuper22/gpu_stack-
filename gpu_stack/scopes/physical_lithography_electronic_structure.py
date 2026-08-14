@@ -2,12 +2,16 @@
 scopes/physical_lithography_electronic_structure.py
 ===================================================
 
-Electronic-shell structure for lithography source transitions.
-
-This layer keeps source screening and active-shell occupancy from being raw
-scenario knobs. It exposes ion charge, bound electrons, principal-shell
-capacity, closed lower-shell capacity, filled lower-shell accounting, and
-radial-ordering shielding factors as symbolic graph structure.
+Electronic-shell structure of the emitting source ion. The exposure photon
+comes from an electron dropping between principal shells of a highly
+charged ion, so its energy depends on which shells are involved and how
+strongly the remaining electrons screen the nucleus. This layer derives ion
+charge, bound-electron count, shell capacities (2n^2 per shell), filled
+lower-shell accounting, and radial-ordering shielding factors as symbolic
+graph structure instead of leaving them as raw scenario knobs. It composes
+variables and equations from focused sibling modules (shells, ionization,
+shielding, absorption edge, transition step) and preserves the public
+import surface.
 """
 
 from .physical_lithography_plasma_state import *

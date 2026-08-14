@@ -2,10 +2,19 @@
 scopes/optimizer_schedules.py
 =============================
 
-Learning-rate schedules.
+Learning-rate schedules: how the step size changes over a run.
 
-This helper covers linear warmup, cosine decay after warmup, inverse
-square-root decay, and warmup-stable-decay (WSD).
+A fixed learning rate serves a long run badly — too hot for freshly
+initialized weights, too coarse for a converged model — so the rate is a
+function of the step index. All schedules here start with linear warmup, a
+ramp from zero that protects the early steps. After warmup the paths
+diverge: cosine decay glides smoothly down to zero over the declared
+horizon; inverse-square-root decays without needing the total step count
+in advance; and warmup-stable-decay (WSD) holds the rate flat through a
+long stable phase and only decays at the end, which lets one run branch
+into checkpoints of different lengths. Inequalities pin the horizon
+bookkeeping — total steps must exceed warmup, and warmup plus stable, and
+reach the current step.
 """
 
 import sympy as sp

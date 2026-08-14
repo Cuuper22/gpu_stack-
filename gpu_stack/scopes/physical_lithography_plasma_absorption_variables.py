@@ -1,8 +1,13 @@
 """
 scopes/physical_lithography_plasma_absorption_variables.py
-===========================================================
+==========================================================
 
-Pre-overlap absorption variables for the lithography source plasma.
+Pre-overlap absorption variables for the source plasma: path direction
+cosine, shape factor, and effective path length; drive angular frequency;
+resonance-to-drive frequency ratio, damping quality factor, and collision
+cross section; the electron fractions feeding oscillator strength; and the
+resulting cross section, optical depth, and absorbed fraction. The
+equations connecting them live in the sibling path and resonance modules.
 """
 
 import sympy as sp

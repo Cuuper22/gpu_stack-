@@ -505,7 +505,6 @@ def propagate_uncertainty(
     if not uncertain:
         raise ValueError("uncertain must contain at least one UncertainAssignment")
 
-    # Build base assignments and variants.
     if isinstance(preset_or_assignments, Preset):
         base_assignments: Dict[str, float] = dict(preset_or_assignments.assignments)
         base_variants: Dict[str, str] = dict(preset_or_assignments.variants)
@@ -515,7 +514,6 @@ def propagate_uncertainty(
         base_variants = {}
         preset_name = "<assignments>"
 
-    # Validate that there are no duplicate uncertain variable names.
     seen_names: List[str] = []
     for ua in uncertain:
         if ua.name in seen_names:
@@ -526,7 +524,8 @@ def propagate_uncertainty(
             )
         seen_names.append(ua.name)
 
-    # Validate that all uncertain names are also in the base assignments.
+    # An uncertain input must also have a nominal value in the base
+    # assignments; otherwise the deterministic resolve path has no anchor.
     for ua in uncertain:
         if ua.name not in base_assignments:
             raise ValueError(
@@ -539,7 +538,8 @@ def propagate_uncertainty(
     input_specs = tuple(uncertain)
     uncertain_names = [ua.name for ua in uncertain]
 
-    # Build RNG. We use numpy when available (needed for lambdify path anyway).
+    # Use the numpy RNG when available (the lambdify path needs numpy anyway);
+    # otherwise fall back to the standard-library random module.
     if _has_numpy:
         rng = _np.random.default_rng(seed)
         # Pre-draw all sample arrays, one per uncertain variable.

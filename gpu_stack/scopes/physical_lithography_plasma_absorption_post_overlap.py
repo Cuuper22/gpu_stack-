@@ -2,7 +2,13 @@
 scopes/physical_lithography_plasma_absorption_post_overlap.py
 =============================================================
 
-Post-overlap electron-channel absorption efficiency and absorbed power.
+The last stage of drive absorption accounting: electron-channel efficiency
+and absorbed power. Overall efficiency is the product of three fractions --
+the spatial-temporal overlap between drive pulse and plasma, the single-pass
+absorbed fraction from optical depth, and the heating fraction that ends up
+in free electrons rather than other channels. Multiplying by drive power
+gives the electron-channel absorbed power, which the electron-state
+inventory turns into an electron temperature.
 """
 
 import sympy as sp

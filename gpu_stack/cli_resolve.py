@@ -1,4 +1,10 @@
-"""Resolve command implementation for the gpu_stack CLI."""
+"""The `resolve` subcommand of the gpu_stack CLI.
+
+Takes a target variable name plus optional assignments, variant selections,
+and presets, runs the symbolic resolver, and prints the value along with any
+requested trace, missing-input, constraint, and approximation-validity
+diagnostics.
+"""
 
 from __future__ import annotations
 

@@ -1,8 +1,11 @@
 """
-Advertised target sets for scenario presets.
+Advertised resolver targets for scenario presets.
 
-Concrete scenario packs still live in ``gpu_stack.presets.scenarios``. This
-module keeps the label-to-variable registry explicit and reusable.
+Each scenario preset promises a set of variables it can resolve. This module
+holds that promise as an explicit registry mapping short labels (like
+"cost_per_token") to full variable names, so tools can list and look up a
+scenario's targets without parsing the preset itself. The scenario packs
+themselves live in ``gpu_stack.presets.scenarios``.
 """
 
 from __future__ import annotations
@@ -48,7 +51,7 @@ def build_scenario_target_sets(
     pythia_full_tco: Preset,
     euv_tin120_source_context: Preset,
 ) -> Mapping[str, ScenarioTargetSet]:
-    """Return the immutable public target registry for scenario artifacts."""
+    """Build the read-only registry mapping each preset name to its target set."""
     pythia_targets = (
         ("tokens_per_second", DENSE_TRAINING_COST_TARGETS["tokens_per_second"]),
         ("job_dc_power", DENSE_TRAINING_COST_TARGETS["job_dc_power"]),
@@ -74,7 +77,7 @@ def targets_for(
     target_sets: Mapping[str, ScenarioTargetSet],
     preset_or_name: Preset | str,
 ) -> ScenarioTargetSet:
-    """Return advertised labeled resolver targets for a scenario preset."""
+    """Look up the advertised (label, variable) targets for one scenario preset."""
     name = (
         preset_or_name.name
         if isinstance(preset_or_name, Preset)

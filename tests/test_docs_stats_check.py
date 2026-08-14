@@ -1,14 +1,17 @@
-"""
-tests/test_docs_stats_check.py
-================================
+"""Tests for the docs-stats freshness gate.
 
-Tests for the docs-stats freshness gate.
+The README, docs/index.html, and docs/app.js all quote registry statistics
+(variable count, equation count, and so on). Those numbers rot the moment
+the model grows, so the gate re-derives each one from the live registry and
+fails if any published number drifted. Three groups of tests:
 
-Three scenarios:
-  1. Gate passes on the current tree (numbers are correct).
-  2. Gate fails with a precise message when one number is perturbed in a
-     fixture copy (using tmp_path copies, not the real files).
-  3. Parser robustness: label moves within line, extra whitespace.
+1. The gate passes on the real tree — the published numbers are correct
+   right now.
+2. Perturbing one number in a tmp_path copy of the docs (never the real
+   files) makes the gate fail, and the mismatch names the file, the claim,
+   the expected value, and the wrong value it found.
+3. The parsers tolerate formatting noise — extra whitespace, content
+   outside the code fence, tables that end at the next heading.
 """
 
 from __future__ import annotations

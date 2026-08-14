@@ -4,15 +4,16 @@ Status timestamp: July 12, 2026, America/Los_Angeles.
 
 ## Strategic Research Reset
 
-The engine, visual medium, and research program are one closed loop. Read
-`RESEARCH.md`, `docs/research/frontier-scan-2026-07-12.md`, and the E001 result
-artifact before continuing. `main` is canonical; closeout requires local
-`HEAD` to equal `origin/main`.
+The engine, visual medium, and research program form one closed loop: the
+engine produces evidence, the observatory shows it, and the research program
+decides what to measure next. Before continuing, read `RESEARCH.md`,
+`docs/research/frontier-scan-2026-07-12.md`, and the E001 result artifact.
+`main` is canonical; closeout requires local `HEAD` to equal `origin/main`.
 
-Experiment 001 asks whether adaptive consistency, parallelism, optimizer
-correction, site membership, and power-aware placement can make frontier
+Experiment 001 asks one question: can adaptive consistency, parallelism,
+optimizer correction, site membership, and power-aware placement make frontier
 training span heterogeneous, intermittently powered datacenters without losing
-centralized learning efficiency. Its preregistered virtual design is in
+centralized learning efficiency? Its preregistered virtual design is in
 `experiments/e001-beyond-one-datacenter/experiment.md`.
 
 `next-work` now promotes E002-PW3 multi-GPU/rack dependency-safe dephasing,
@@ -48,8 +49,9 @@ reached durable frontier 8 with exact work conservation. Synchronous recorded
 1.584 s, 15.2 GB, 114.64 PFLOP lost, and 0.274 MJ; fixed-local 1.516 s,
 10.4 GB, 144.50 PFLOP, and 0.283 MJ; adaptive 1.536 s, 13.6 GB, 48.43 PFLOP,
 and 0.255 MJ; oracle 1.536 s, 13.6 GB, 57.00 PFLOP, and 0.257 MJ. Fixed-local
-won time and bytes while adaptive won lost work and modeled energy. This stays
-a mechanical Pareto split, not a learning or frontier-validation claim.
+won time and bytes while adaptive won lost work and modeled energy. No policy
+won everything, so this stays a mechanical Pareto split, not a learning or
+frontier-validation claim.
 
 ## Latest Verified Wave
 
@@ -115,10 +117,11 @@ Implemented facts:
 
 ## Resume Instructions
 
-Resume from PW2's valid local mechanism, not PW1's raw invalid ratios. Run
+Start from PW2's valid local mechanism, not PW1's raw invalid ratios. Run
 E002-PW3 across simultaneous GPUs and rack-visible checkpoint activity with
-aligned per-GPU cumulative, rack-PDU, storage, and cooling telemetry. Do not
-promote the laptop result to rack or facility transfer.
+aligned per-GPU cumulative, rack-PDU, storage, and cooling telemetry. The
+laptop result stays a laptop result: do not promote it to rack or facility
+transfer.
 
 ## Current State
 
@@ -214,11 +217,12 @@ and preset export/discovery tests.
 
 ## Verification Policy
 
-For each E-00N milestone, run one feature-level verification at the end. Do not
-build new audit/checklist infrastructure or repeatedly test partial recovery
-semantics while implementing. Fix a direct validity failure if it blocks the
-research path; otherwise finish the experiment, artifact, and visual result
-before verification.
+Verify once per milestone, at the end. For each E-00N milestone, run one
+feature-level verification when the work is done. Do not build new
+audit/checklist infrastructure or repeatedly test partial recovery semantics
+while implementing. Fix a direct validity failure if it blocks the research
+path; otherwise finish the experiment, artifact, and visual result before
+verification.
 
 ## 2026-05-06 22:35 PDT Parent Closeout
 

@@ -1,9 +1,11 @@
-"""Measured late-stage quality-to-target experiment for E001-LC2.
+"""E001-LC2: the measured late-stage quality-to-target experiment.
 
-LC2 reuses the frozen LC1 model and recovery semantics without editing the
-content-addressed LC1 engine.  It builds one shared warm model/AdamW state,
-selects a loss target from synchronous calibration runs only, then stops each
-held-out arm at the first observation that reaches the same target.
+LC1 asked about learning progress per FLOP; LC2 asks the sharper question of
+who reaches a fixed loss target first. It reuses the frozen LC1 model and
+recovery semantics without editing the content-addressed LC1 engine: build
+one shared warm model/AdamW state, pick the loss target from synchronous
+calibration runs only, then stop each held-out arm at the first observation
+that reaches that same target.
 """
 
 from __future__ import annotations

@@ -1,4 +1,21 @@
-"""Contracts for immutable measured observations and held-out splits."""
+"""Contract tests for immutable observations and calibration/evaluation splits.
+
+An ``Observation`` is one measured data point with everything needed to
+audit it later: the measured values with explicit uncertainty, a
+timezone-aware timestamp, the topology, workload, software, and
+instrumentation context, and provenance saying where it came from. These
+tests enforce the rules that keep observations trustworthy. Uncertainty must
+be stated explicitly (a standard deviation or a bound pair — a confidence
+level alone is not a representation). Values must be finite and sit inside
+their own bounds. Inputs are deep-copied and deep-frozen, so nothing can
+mutate an observation after construction, and serialization is canonical
+and round-trips exactly.
+
+The split tests guard against data leakage: a ``CalibrationEvaluationSplit``
+rejects duplicate ids and any observation appearing on both sides, validates
+that every referenced id exists, and can require a complete partition so no
+observation silently escapes assignment.
+"""
 
 from datetime import datetime, timedelta, timezone
 import json

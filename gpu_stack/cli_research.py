@@ -1,4 +1,12 @@
-"""CLI handlers for preregistered GPUSTACK research experiments."""
+"""The `experiment-protocol` and `experiment-run` subcommands.
+
+`experiment-protocol` prints a preregistered protocol — question, hypothesis,
+falsifiers, and evidence requirements — with its canonical hash, so the
+design is frozen before any run. `experiment-run` executes one experiment
+from an explicit scenario artifact and writes machine-readable result and
+observatory JSON. Experiment engines are imported lazily inside each branch
+so one experiment's heavy dependencies do not slow down the others.
+"""
 
 from __future__ import annotations
 

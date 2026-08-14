@@ -2,11 +2,11 @@
 core/equation.py
 ================
 
-Public facade for equation classes and structural relation helpers.
+The one import surface for every equation class and relation helper.
 
-The implementation lives in focused equation_* modules so each relation
-family stays small enough to reason about.  This module remains the stable
-import surface for existing code:
+The implementations live in focused equation_* modules — one file per
+relation family — so each stays small enough to reason about. This module
+re-exports them all, which means existing code keeps working unchanged:
 
     from gpu_stack.core.equation import Equation, Inequality, RelationRole
 """
@@ -32,7 +32,13 @@ from .symbolic import ExprLike
 
 
 def _pin_public_module() -> None:
-    """Keep repr/pickle-style metadata compatible with the old monolith."""
+    """
+    Stamp each re-exported class with this module's name.
+
+    reprs, pickling, and doc tools all read ``__module__``; without this,
+    they would advertise the private equation_* modules instead of the
+    stable public path.
+    """
     for obj in (
         Equation,
         Inequality,

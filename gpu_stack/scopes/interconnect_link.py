@@ -2,8 +2,20 @@
 scopes/interconnect_link.py
 ===========================
 
-Generic message path relations: packet efficiency, latency decomposition,
-alpha-beta transfer time, queueing, and bandwidth-delay product.
+The anatomy of one message crossing one link, fabric-agnostic.
+
+This module builds the alpha-beta cost model from first principles. The
+bandwidth side: a raw line rate is derated by packet efficiency — payload
+bytes over payload plus header bytes — and again by oversubscription to
+give effective bandwidth, whose reciprocal is beta, the time per byte. The
+latency side: time-of-flight from the physical scope, plus per-hop switch
+latency times hop count, plus host-stack latency, sum to alpha, the fixed
+cost of any message. Message time is then alpha plus size times beta, with
+a queueing term for packets waiting behind others.
+
+The bandwidth-delay product — bandwidth times latency — says how many
+bytes must be in flight to keep the pipe full. The NVLink and scale-out
+modules instantiate this template with their own numbers.
 """
 
 import sympy as sp

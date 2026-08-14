@@ -1,4 +1,12 @@
-"""Three-depth observatory projection for E002-PW1."""
+"""Observatory projection for E002-PW1, the checkpoint-power experiment.
+
+Verifies the PW1 result artifact's content hash, then emits two payloads:
+a raw artifact carrying the unprocessed GPU-board telemetry traces, and a
+three-depth observatory artifact (freshman / researcher / full-trace views).
+The projection preserves the experiment's own verdict — including the fact
+that the power sensor's effective update rate invalidated the energy
+comparison — and stamps each payload with its SHA-256.
+"""
 
 from __future__ import annotations
 

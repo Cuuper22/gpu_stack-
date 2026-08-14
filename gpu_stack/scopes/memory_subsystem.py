@@ -2,14 +2,20 @@
 scopes/memory_subsystem.py
 ==========================
 
-The memory hierarchy on a GPU, from per-thread registers out to HBM and host
-attached memory.
+Aggregator for the GPU memory hierarchy, registers out to host memory.
 
-The original file had the right nouns and almost none of the machinery that
-makes those nouns expensive. This version adds banked bandwidth, cache
-organization, translation overhead, host links, unified-memory migration, and
-refresh or compression effects that materially change usable bandwidth or
-capacity.
+A GPU's memory is a ladder of levels, each roughly ten times bigger and
+ten times slower than the one below: per-thread registers, shared memory
+and L1 inside the SM, the die-wide L2, HBM on the package, and finally
+host memory across PCIe or CXL. Each level's helper module models not
+just its size but the machinery that sets its real cost — banked access
+and conflicts for registers and SMEM, line-and-set organization and miss
+penalties for the caches, refresh, ECC, and compression for HBM, and TLB
+reach, page migration, and NUMA penalties for the virtual-memory layer.
+
+The kernel scope reads these bandwidths as roofline ceilings, and the gpu
+scope rolls the per-SM figures up to the package. This file re-exports
+the five helpers so public imports stay stable.
 """
 
 from ..core import System

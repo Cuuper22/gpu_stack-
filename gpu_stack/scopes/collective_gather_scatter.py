@@ -2,7 +2,17 @@
 scopes/collective_gather_scatter.py
 ===================================
 
-AllGather and ReduceScatter variants.
+AllGather and ReduceScatter: the two halves of an AllReduce.
+
+AllGather gives every rank a copy of every rank's shard; ReduceScatter sums
+across ranks and leaves each rank one shard of the result. Chained together
+they form an AllReduce, but sharded training (ZeRO, FSDP) uses them
+separately — AllGather to reassemble parameters before compute,
+ReduceScatter to distribute summed gradients after. Each moves (p-1)/p of
+the payload, half of AllReduce's traffic. This module prices both in ring
+and hierarchical (NVLink intra-node plus scale-out inter-node) variants
+using the alpha-beta link costs, with a selector variable holding the
+chosen algorithm's time.
 """
 
 import sympy as sp

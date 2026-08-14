@@ -2,9 +2,22 @@
 scopes/memory_virtual.py
 ========================
 
-Address translation and host-attached memory interfaces. Covers TLB
-reach, huge-page mixing, translation latency, PCIe bandwidth, unified
-memory page migration cost, and NUMA penalty ratios.
+The costs of pretending memory is flat: translation, host links, NUMA.
+
+Programs use virtual addresses, and every access must be translated. The
+TLB caches translations, and its reach — entries times effective page
+size — is the footprint it can cover without missing; mixing huge pages
+into the ordinary ones stretches the effective page size and therefore
+the reach. Average translation latency then weights the hit and
+miss-penalty paths by the hit rate, and the cache helper adds it to every
+global load.
+
+Beyond the package, this module prices the host side: PCIe bandwidth from
+lanes, lane rate, and efficiency; CXL bandwidth and latency for pooled
+memory; unified-memory page faults, whose service plus migration cost
+makes transparent oversubscription expensive; and NUMA, where remote
+socket access pays measurable bandwidth and latency penalty ratios over
+local. The offload models in the parallelism scope lean on these numbers.
 """
 
 import sympy as sp

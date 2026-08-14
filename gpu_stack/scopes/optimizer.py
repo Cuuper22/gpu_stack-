@@ -2,12 +2,20 @@
 scopes/optimizer.py
 ===================
 
-Aggregator for the optimizer scope.
+Aggregator for the optimizer scope: the update rule and what it costs.
 
-The original optimizer file carried shared gradient state, AdamW, Muon with
-Newton-Schulz, gradient clipping, SGD-family updates, learning-rate
-schedules, loss scaling, EMA, and optimizer-state memory in one slab. It has
-been split into focused helpers and re-exported here so public imports stay
+An optimizer turns gradients into parameter updates, and this scope models
+both faces of that: the mathematics of each rule and the memory its state
+occupies. The first-order helper covers AdamW, the SGD family, LAMB, Lion,
+and EMA deployment weights; the second-order helper covers Muon's
+Newton-Schulz orthogonalization, MuonClip, and Shampoo's preconditioners;
+schedules and dynamic loss scaling round out the training-loop machinery.
+
+The state question matters to hardware: AdamW keeps two extra tensors per
+parameter, so optimizer memory can dwarf the weights themselves, and the
+sharding helper counts what survives after distributing that state. The
+parallelism scope consumes those byte counts when budgeting per-GPU
+memory. This file re-exports the five helpers so public imports stay
 stable.
 """
 

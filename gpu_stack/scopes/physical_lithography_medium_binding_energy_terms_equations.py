@@ -2,7 +2,13 @@
 scopes/physical_lithography_medium_binding_energy_terms_equations.py
 ====================================================================
 
-Equations for component liquid-drop binding-energy terms.
+Equations for the liquid-drop binding-energy terms of each imaging-medium
+component nucleus. Each term follows the semi-empirical mass formula: the
+volume term grows with mass number A, the surface term with A^(2/3), the
+Coulomb term with Z(Z-1)/A^(1/3), the asymmetry term with (N-Z)^2/A, and
+the pairing term alternates sign with nucleon parity. Summing them gives
+each component binding energy, which the formula-unit layer converts into a
+rest mass through the mass defect.
 """
 
 import sympy as sp

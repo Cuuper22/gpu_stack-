@@ -2,10 +2,10 @@
 scopes/physical_lithography_medium_binding_energy_terms.py
 ==========================================================
 
-Compatibility facade for lithography imaging-medium binding-energy terms.
-
-Variables and equations live in focused sibling modules; this module preserves
-the historical direct attributes, public imports, and aggregate ordering.
+Facade for the per-component liquid-drop binding-energy terms of the
+imaging medium. The term variables and the equations that evaluate them
+live in focused sibling modules; this module preserves the historical
+direct attributes, public imports, and aggregate ordering.
 """
 
 import sympy as sp

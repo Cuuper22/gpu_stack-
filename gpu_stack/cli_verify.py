@@ -1,4 +1,11 @@
-"""Verification gate helpers for the gpu_stack CLI."""
+"""The `verify` subcommand of the gpu_stack CLI.
+
+Runs a fixed sequence of verification gates — each a subprocess such as the
+graph audit, pytest, a compile/syntax pass, or the demo — and stops at the
+first failure, printing the failed gate's command and output tail. The
+`fast` profile covers the audit plus core tests; `full` adds the whole
+pytest suite, compilation, the demo, and the docs-stats freshness check.
+"""
 
 from __future__ import annotations
 

@@ -2,12 +2,17 @@
 core/graph.py
 =============
 
-Dependency graph utilities.
+Utilities for the dependency graph that the Variables and Equations form.
+
+Every equation draws edges from the variables on its right-hand side to the
+variable it defines. Taken together, those edges make a directed graph, and
+this module answers the basic questions about it:
 
   * topological_sort: order Variables so dependencies come before dependents.
-  * find_cycles: detect any circular dependencies (helps debug bad equations).
-  * to_dot: export the dependency graph as Graphviz DOT text.
-  * subgraph: restrict the graph to the transitive cone of one Variable.
+  * find_cycles: find circular definitions, which usually mean a bad equation.
+  * subgraph: restrict the graph to everything one Variable depends on
+    (or everything that depends on it).
+  * to_dot: export the graph as Graphviz DOT text for visual inspection.
 """
 
 from __future__ import annotations
@@ -21,8 +26,11 @@ from .variable import Variable, Constant
 
 def topological_sort() -> List[Variable]:
     """
-    Kahn's algorithm over the Variable dependency graph.
-    Raises RuntimeError if a cycle is found.
+    Order all registered Variables so every dependency precedes its dependents.
+
+    Uses Kahn's algorithm: repeatedly emit a variable whose remaining
+    dependency count is zero, then decrement its dependents. If some
+    variables are never emitted, the graph has a cycle; raise RuntimeError.
     """
     in_degree: Dict[str, int] = {}
     for v in Registry.variables.values():
@@ -43,7 +51,13 @@ def topological_sort() -> List[Variable]:
 
 
 def find_cycles() -> List[List[Variable]]:
-    """DFS-based cycle detection. Returns one cycle per SCC, if any."""
+    """
+    Find circular dependencies by depth-first search.
+
+    A gray node met again while still on the DFS stack marks a cycle; the
+    stack slice from that node onward is the cycle itself. Returns one
+    cycle per strongly connected component, or an empty list.
+    """
     WHITE, GRAY, BLACK = 0, 1, 2
     color: Dict[str, int] = {v.name: WHITE for v in Registry.variables.values()}
     stack: List[Variable] = []
@@ -56,7 +70,8 @@ def find_cycles() -> List[List[Variable]]:
             if color[dep.name] == WHITE:
                 dfs(dep)
             elif color[dep.name] == GRAY:
-                # Found cycle: extract from stack
+                # dep is still on the DFS stack, so the stack from dep onward
+                # is a cycle.
                 idx = next(i for i, x in enumerate(stack) if x.name == dep.name)
                 cycles.append(list(stack[idx:]))
         color[v.name] = BLACK
@@ -70,8 +85,10 @@ def find_cycles() -> List[List[Variable]]:
 
 def subgraph(root: Variable, direction: str = "dependencies") -> Set[Variable]:
     """
-    Return the cone of Variables either reachable via dependencies (down)
-    or dependents (up) from `root`. `direction` in {"dependencies", "dependents"}.
+    The cone of Variables reachable from `root`, plus `root` itself.
+
+    `direction="dependencies"` walks down to everything `root` is computed
+    from; `direction="dependents"` walks up to everything computed from it.
     """
     if direction == "dependencies":
         return {root} | root.dependencies()
@@ -87,9 +104,12 @@ def to_dot(
     max_nodes: int = 2000,
 ) -> str:
     """
-    Emit Graphviz DOT representing the dependency graph.
-    Variables are nodes; edges go from defining (dependency) to defined
-    (dependent) so that a flow reads left-to-right.
+    Emit Graphviz DOT text for the dependency graph.
+
+    Variables are nodes; edges run from dependency to dependent, so the
+    rendered flow reads left-to-right from raw inputs toward outputs.
+    Constants, root inputs, and any `highlight` set get distinct fill
+    colors. Output is truncated at `max_nodes` nodes.
     """
     if variables is None:
         variables = list(Registry.variables.values())

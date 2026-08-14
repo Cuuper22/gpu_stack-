@@ -1,8 +1,11 @@
-"""
-tests/test_cli_physical_boundary_smoke.py
-=========================================
+"""Quick check that the CLI rejects physically impossible input values.
 
-Fast CLI smoke coverage for invalid physical-boundary assignments.
+Many physical variables carry boundary constraints — a gate length must be
+positive, a route detour factor cannot fall below 1. Each case here assigns
+one out-of-bounds value, runs ``resolve --constraints
+--fail-on-violated-constraints``, and expects exit code 1 with the specific
+violated inequality named in the output. This is a smoke test: one cheap
+case per constraint family, not exhaustive coverage.
 """
 
 from __future__ import annotations

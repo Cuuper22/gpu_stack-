@@ -1,4 +1,19 @@
-"""Lithography source quantum resolution-chain coverage."""
+"""Resolving the source's shell and valence chain, value by value.
+
+This module exercises the electronic-structure side of the quantum source
+model with concrete inputs. Quark counts follow the U = 2Z + N, D = Z + 2N
+identities (Z=3, N=4 gives 10 up and 11 down), the isotope mass number is
+Z + N, and a zero proton count trips the positivity constraint exactly
+once. The lower principal quantum number — which shell the transition's
+lower level lives in — is checked against a table of atomic numbers at
+every shell boundary (Z=2 is still shell 1, Z=3 opens shell 2, and so on up
+to Z=280 in shell 7), and its declared validity window 0 < Z <= 280 is
+confirmed. The two shielding-factor conventions are pinned to their
+constant values (inner shells screen fully, rhs = 1; same-shell electrons
+screen half, rhs = 1/2), and the ionization screening constant for Z=4
+resolves to 2.5 = 2*1 + 1*(1/2) without ever pulling the Saha ionization
+equations into the trace.
+"""
 
 import pytest
 import sympy as sp

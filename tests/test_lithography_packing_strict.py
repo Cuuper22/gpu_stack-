@@ -2,7 +2,13 @@
 tests/test_lithography_packing_strict.py
 =========================================
 
-Focused CLI strict-mode coverage for invalid lithography packing inputs.
+The two packing knobs of the imaging medium have hard limits: the packing
+length scale factor must be at least 1 (a formula unit cannot occupy a cell
+smaller than its own separation), and the fill factor must be at most 1 (you
+cannot fill more than all of the space). This module drives the CLI with a
+value on the wrong side of each limit under --fail-on-violated-constraints
+and checks the strict contract: exit code 1 and a "[violated]" line naming
+the broken constraint, so shell scripts and CI can catch bad packing inputs.
 """
 
 import contextlib

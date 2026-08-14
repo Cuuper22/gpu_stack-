@@ -2,8 +2,11 @@
 scopes/physical_lithography_plasma_drive.py
 ===========================================
 
-Pulse drive, gas inventory, and active-column geometry for the lithography
-source plasma.
+Compatibility surface for the source-plasma drive: the pulsed beam and gas
+target that create the emitting plasma. Pulse timing and intensity, pulse
+energy and average power, and the expanding active-column geometry live in
+focused sibling modules (pulse, energy, column); this module re-exports
+them and preserves the historical public import surface.
 """
 
 from .physical_lithography_plasma_focus import *

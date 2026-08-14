@@ -1,4 +1,17 @@
-"""Mass, molar mass, packing, and density formula-unit coverage."""
+"""From particle counts to a bulk density for the imaging medium.
+
+The rest mass of one formula unit is the sum of its proton, neutron, and
+electron masses minus the mass equivalent of its binding energy (E/c^2 —
+bound systems weigh less than their parts). Multiply by Avogadro's number to
+get molar mass; divide back to get the per-particle mass. Bulk density then
+comes from packing: each formula unit claims a cube whose edge is the
+intercomponent separation times a scale factor, and only a fill fraction of
+that cube is actually occupied. This module checks the dependency wiring of
+that whole chain, verifies the numbers on a reference case (for example a
+0.25 separation with scale factor 2 gives a 0.125 packing volume), and
+confirms the two packing constraints fire: a scale factor below 1 and a fill
+factor above 1 are both reported as violated.
+"""
 
 import pytest
 

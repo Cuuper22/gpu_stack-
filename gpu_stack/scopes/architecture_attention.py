@@ -2,9 +2,15 @@
 scopes/architecture_attention.py
 ================================
 
-Compatibility facade for attention math, KV cache, activation functions, and
-normalization. The definitions live in smaller helper modules, while this file
-keeps the original public import surface and aggregate registry order stable.
+Facade for the attention side of the architecture scope.
+
+Attention is the part of a transformer where every token looks at every other
+token, so it is where FLOPs grow quadratically with sequence length and where
+the KV cache — stored key and value states for already-seen tokens — eats
+memory. The actual definitions live in three helper modules: core attention
+math and KV-cache sizing, pointwise activations, and normalization. This file
+only re-exports them, keeping the original public import surface and the
+registry order stable so nothing downstream has to change its imports.
 """
 
 from .architecture_attention_core import *

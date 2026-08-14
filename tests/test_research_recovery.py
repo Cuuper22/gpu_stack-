@@ -1,3 +1,15 @@
+"""Tests for the failure-recovery contracts in ``gpu_stack.research.recovery``.
+
+When a training site fails, the planner must decide what to restore, what to
+replay, and how much work was lost — using only information visible at the
+decision time. These tests pin down the accounting rules: attempted, committed,
+lost, replayed, and recomputed work stay distinct; a failure never reveals its
+own future recovery time; checkpoints only count once their manifests are
+complete and checksummed; and serialized plans reject any forged or
+inconsistent claims. If any of these invariants slipped, a recovery plan could
+silently double-count work or peek at the future.
+"""
+
 import pytest
 
 from gpu_stack.research.recovery import (

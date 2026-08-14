@@ -1,10 +1,10 @@
 ## Visual-first demos and future 3D assets
 
-`gpu_stack` is already a dependency graph, but the next demo layer should make that graph inspectable before it asks anyone to read a wall of equations. Future visual-first demos should treat scopes as spatial systems: lithography source physics, MOSFET geometry, memory hierarchy, rack topology, thermal plant, and economics should each have a small interactive view that can load scenario data, highlight dependency cones, and show which root inputs still carry modeling debt.
+`gpu_stack` is already a dependency graph. The next demo layer should let a reader see that graph before asking them to read a wall of equations. Future visual-first demos should treat scopes as spatial systems: lithography source physics, MOSFET geometry, memory hierarchy, rack topology, thermal plant, and economics should each get a small interactive view that can load scenario data, highlight dependency cones, and show which root inputs still carry modeling debt.
 
 For browser 3D, the runtime contract should be GLB or glTF 2.0, optimized after export and checked before landing in the repo. Source files may live elsewhere, but README-facing assets should be predictable: stable names, normalized transforms, known units, explicit pivots, reused materials, compressed geometry where useful, and texture sizes tied to actual screen use.
 
-The equations should feel like space: every symbol is a coordinate in a causal machine, and every dependency edge is a visible path through silicon, memory, cooling, and cost.
+The goal is that the equations feel like space: every symbol is a coordinate in a causal machine, and every dependency edge is a visible path through silicon, memory, cooling, and cost.
 
 ### Asset naming and budgets
 

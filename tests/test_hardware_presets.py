@@ -1,8 +1,12 @@
-"""
-tests/test_hardware_presets.py
-==============================
+"""Tests for the H100 GPU and DGX H100 node hardware presets.
 
-Focused provenance and strict-assignment coverage for hardware presets.
+These presets exist to carry vendor spec-sheet numbers into the graph with
+their provenance attached. The tests hold them to that: each preset's
+source string must quote the exact NVIDIA figures it encodes (67 teraFLOPS
+FP32, 3.35 TB/s HBM bandwidth, 700 W, and so on), the assignment dicts must
+match the expected values exactly and be frozen against mutation, and
+derived quantities must follow — 8 GPUs times 67e12 FLOPS gives the node
+peak, 8 NICs at 50e9 give the raw NIC bandwidth.
 """
 
 import pytest

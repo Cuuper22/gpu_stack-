@@ -2,7 +2,12 @@
 scopes/physical_lithography_medium_binding_nuclear_state.py
 ===========================================================
 
-Component nuclear-state descriptors for lithography imaging-medium binding.
+Nuclear-state descriptors for the imaging-medium component nuclei: neutron
+excess (N minus Z), the pairing sign that flips with nucleon parity, and
+per-component pairing coefficients built from the shared reference gap
+energy. These are the inputs the asymmetry and pairing binding-energy terms
+need, kept separate from the terms themselves so the calibration boundary
+stays visible.
 """
 
 import sympy as sp

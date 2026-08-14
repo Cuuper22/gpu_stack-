@@ -2,7 +2,16 @@
 tests/test_lithography_source_plasma_feasibility.py
 ===================================================
 
-Focused feasibility coverage for lithography source-plasma operating inputs.
+Shared fixtures for the source-plasma feasibility test family. This module
+holds the two constraint tables the sibling test modules iterate over — the
+operating-input constraints (duty factor, detuning ratio, divergence,
+pupil fill, heating and charge fractions, each with a value that should
+violate it) and the gas/thermal constraints (positive pressure, temperature,
+density, and a thermal speed that must stay below the speed of light) —
+plus the small helpers that fetch a named constraint or validity check from
+a resolve result and assert whether it passed. Keeping the tables here means
+every sibling module tests the exact same list, so a constraint added to
+the registry only needs one new table row to be covered everywhere.
 """
 
 import sympy as sp

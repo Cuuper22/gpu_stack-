@@ -1,5 +1,15 @@
 """
-Gas and thermal feasibility coverage for lithography source plasmas.
+Before it becomes a plasma, the source species is just a gas, and two root
+inputs describe it: partial pressure and gas temperature. From those the
+graph derives number density via the ideal gas law (n = p / (k_B * T)) and
+the thermal speed of the species. This module verifies the feasibility
+scaffolding around that step: the positivity inequalities are real named
+constraints attached to the right variables, the two roots really are roots
+and the two derived quantities really are derived, a negative pressure or
+temperature produces a negative density that is flagged (constraint failed,
+ideal-gas equation validity failed) rather than hidden, and a clean input
+pair (2.0 Pa, 400 K) resolves with every constraint satisfied and a value
+matching p / (k_B * T) exactly.
 """
 
 import pytest

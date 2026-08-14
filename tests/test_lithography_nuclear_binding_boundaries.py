@@ -2,7 +2,16 @@
 tests/test_lithography_nuclear_binding_boundaries.py
 ====================================================
 
-Focused boundary coverage for shared SEMF calibration coefficients.
+The semi-empirical mass formula (SEMF) computes nuclear binding energy from
+five calibration coefficients: volume, surface, Coulomb, asymmetry, and the
+pairing gap reference energy. In this graph they are shared root inputs —
+raw calibration knobs with joule units, no defining equations, and no preset
+range. This module verifies that setup and the physical boundaries on each
+knob: the Coulomb coefficient must be strictly positive (it sits in a
+denominator when deriving the nuclear radius), while the other four only
+need to be nonnegative, so exactly 0.0 is accepted for them. Values on the
+wrong side of each boundary must land in the result's violated-constraints
+list, not pass silently.
 """
 
 import pytest

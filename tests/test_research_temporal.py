@@ -1,5 +1,13 @@
 """Tests for the deterministic research event timeline.
 
+The timeline is a discrete-event scheduler: you declare resources with fixed
+capacities (GPU slots, network bandwidth) and events that demand them, and it
+computes when each event actually runs. These tests pin down the properties
+the research code relies on: capacity is shared exactly, contention is broken
+deterministically (priority, then event id — never submission order), fixed
+exogenous events like outages hold their timestamps, and results serialize to
+canonical JSON that round-trips.
+
 All capacities, durations, and rates are synthetic fixtures chosen for exact
 arithmetic.  They are not measurements or hardware specifications.
 """

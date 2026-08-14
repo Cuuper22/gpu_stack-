@@ -1,8 +1,13 @@
-"""
-Registry import snapshot and bootstrap coverage.
+"""Pins the registry's published size and proves it can rebuild from empty.
 
-If a scope change legitimately moves the published numbers, update the
-expectations here rather than deleting the assertions.
+PUBLISHED_SNAPSHOT records the exact counts the project advertises — 1517
+variables, 950 equations, 619 root inputs, and the rest. Any scope change
+that adds or removes a variable moves these numbers, and that is the
+point: the change must be seen and the snapshot updated deliberately. If a
+change legitimately moves the numbers, update the expectations here — never
+delete the assertions. The second test resets the registry to zero and
+bootstraps it back, proving the full graph is reconstructible from code
+alone.
 """
 
 import gpu_stack

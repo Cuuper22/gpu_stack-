@@ -1,3 +1,23 @@
+"""End-to-end tests for the E001 recovery runner.
+
+``run_e001_recovery_v2`` replays a frozen failure scenario (checked in as
+``recovery-scenario-v2.json``) through four recovery policies: a synchronous
+wait-and-restore baseline, a fixed local-checkpoint restart, the adaptive
+candidate, and a future-trace oracle that peeks at the failure schedule as
+an upper bound. Comparing policies is only fair if they end in the same
+place, so every run must reach the same matched frontier (committed step 8)
+and conserve work exactly — attempted equals committed plus lost.
+
+These tests also check the runner records the physics of recovery, not just
+the outcome: interrupted-lost work outcomes, positive inter-site bytes, lost
+FLOPs, recovery time, and modeled energy; checkpoint and restore traffic on
+the links; and membership churn where the desired site set differs from the
+effective one. Finally, the execution must project into the result and
+observatory artifacts without recomputation (hashes must agree), and neither
+the candidate nor the oracle may spend more collective-traffic bytes than
+the synchronous baseline.
+"""
+
 from pathlib import Path
 
 from gpu_stack.research.e001_recovery_artifact import (

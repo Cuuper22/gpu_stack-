@@ -2,7 +2,18 @@
 scopes/collective_allreduce.py
 ==============================
 
-AllReduce algorithm variants and effective payload bandwidth.
+AllReduce: every rank ends up with the sum of every rank's data.
+
+AllReduce is the workhorse of data-parallel training — each step, every GPU
+must obtain the sum of all GPUs' gradients. This module gives its cost under
+three algorithms. Ring passes chunks around a loop in 2*(p-1) steps: nearly
+bandwidth-optimal, but latency grows linearly with rank count. Tree
+(recursive doubling) finishes in log2(p) rounds: better at small payloads
+where latency dominates. Hierarchical splits the job into a fast intra-node
+reduce over NVLink plus an inter-node exchange over the scale-out fabric,
+matching each phase to its own alpha and beta. A selector variable holds
+the chosen time, and an effective-bandwidth variable (payload over time)
+lets you compare the result against raw link speed.
 """
 
 import sympy as sp

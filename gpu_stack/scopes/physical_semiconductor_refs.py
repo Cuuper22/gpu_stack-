@@ -2,7 +2,10 @@
 scopes/physical_semiconductor_refs.py
 =====================================
 
-Shared references for semiconductor transport helper modules.
+Shared Reference objects for the semiconductor transport modules,
+declared once here and cited by the variable and equation declarations so
+provenance stays in one place and the sibling modules need not import each
+other.
 """
 
 from ..core import Reference

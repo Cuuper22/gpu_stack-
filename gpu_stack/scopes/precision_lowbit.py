@@ -2,12 +2,12 @@
 scopes/precision_lowbit.py
 ==========================
 
-Low-bit formats and format-transform support.
-
-Byte widths for FP32, BF16, FP16, TF32, FP8, FP6, FP4, INT8, and INT4.
-TF32 mantissa bits, posit useed, logarithmic-number-system relative
-error, FP16 loss scaling, and the symbolic Random Hadamard Transform
-block used by microscaled low-bit formats.
+Compatibility surface for low-bit formats and their supporting
+transforms. Byte widths for FP32 down to INT4, TF32 mantissa structure,
+posit and logarithmic number systems, FP16 loss scaling, and the Random
+Hadamard Transform live in focused sibling modules (formats, training,
+transforms, common); this module re-exports them so public imports stay
+stable.
 """
 
 import sympy as sp

@@ -1,4 +1,17 @@
-"""Registry coverage for lithography medium formula-unit model roots."""
+"""Which imaging-medium variables are inputs and which are derived.
+
+Every variable in the dependency graph is one of two kinds: a root input,
+which a user must assign (or a preset must supply), or a derived quantity,
+which the graph computes from equations. Getting this split wrong is a quiet
+way to break the model — a derived quantity marked as a root would let users
+override physics, and a root marked as derived could never be set. This
+module walks the entire imaging-medium formula-unit model and asserts the
+kind of every variable: stoichiometric counts, proton/neutron counts, the
+shared nuclear calibration coefficients, and the packing/geometry knobs are
+roots; everything else (quark counts, binding energies, masses, densities,
+permittivity) is derived. It also checks that the four constrained roots
+carry exactly their expected inequality constraints.
+"""
 
 from tests.helpers.lithography_medium_formula import medium_formula_variables
 

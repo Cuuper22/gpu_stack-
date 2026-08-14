@@ -2,7 +2,20 @@
 tests/test_lithography_source_species_boundaries.py
 ===================================================
 
-Focused boundary checks for source isotope and source-plasma species roots.
+Boundary rules for what the source is made of. Two kinds of variables live
+here. The thermodynamic roots — partial pressure (pascal) and gas
+temperature (kelvin) — must be strictly positive, carry no default value,
+and feed the symbolic ideal-gas closure n = p / (k_B * T), whose validity
+explicitly requires all three factors positive. The particle-count
+variables — nucleon counts, quark counts, mass numbers, electron
+inventories — are integers: proton and neutron counts are nonnegative
+integer roots, while the derived counts add sign domains of their own
+(quark counts and mass numbers positive, electron inventories
+nonnegative). Each rule is tested from both sides: a zero pressure or
+temperature fails the strict boundary, a fractional proton count of 2.5
+triggers the integer diagnostic naming the offending variable and value,
+zero or negative counts land in violated_constraints, and the legal edge
+case of a bare proton (Z=1, N=0) resolves with every domain satisfied.
 """
 
 import pytest

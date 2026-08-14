@@ -1,4 +1,15 @@
-"""Formula-unit composition and electron-count coverage."""
+"""Counting particles in the imaging medium's formula unit.
+
+A formula unit is the medium's smallest repeating recipe: some atoms of
+component a plus some of component b. Every particle tally follows from the
+per-component proton and neutron counts — quark counts, atomic number
+(Z, the proton count), mass number (A = Z + N), and the formula-unit totals
+weighted by stoichiometry. The electron count of a neutral formula unit
+simply equals its proton count. This module checks the dependency wiring of
+each tally, then resolves a reference case (component a: Z=1, N=0; component
+b: Z=8, N=9; two of a, one of b) and confirms every count comes out right —
+for example 10 protons, 9 neutrons, and 10 electrons in the unit.
+"""
 
 import pytest
 

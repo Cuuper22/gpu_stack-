@@ -1,12 +1,13 @@
-"""
-tests/test_symbolic_integrity.py
-================================
+"""Regression tests for the symbolic-assumption layer.
 
-Regression coverage for the symbolic-assumption layer.
-
-The graph should not silently assume every engineering quantity is positive
-and non-integer. That old default made SymPy erase useful relations before
-the model could inspect them.
+SymPy simplifies aggressively: if a symbol is declared positive, a relation
+like ``x > 0`` collapses to plain ``True`` before the model can inspect it.
+The graph once assumed every engineering quantity was positive and
+non-integer by default, and that default silently erased useful relations.
+These tests keep the fix in place: default symbols carry no positivity or
+integrality assumption, domain relations stay symbolic even when assumptions
+match, no registered equation or validity predicate collapses to a bare
+boolean, and no equation references a raw symbol outside the registry.
 """
 
 import sympy as sp

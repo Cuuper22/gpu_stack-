@@ -2,7 +2,13 @@
 scopes/memory_sram_variants.py
 ==============================
 
-SRAM 6T, 8T, and 10T topology variables.
+Variables naming the three SRAM bitcell topologies side by side.
+
+For each of the 6T, 8T, and 10T cells this module declares the same
+triple — transistor count, read-port count, and area — so the variants
+can be compared and one selected as the operating cell. The values are
+fixed by topology, not tuned; the equations assigning them live in
+memory_sram_variant_equations.
 """
 
 from ..core import var

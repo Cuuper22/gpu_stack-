@@ -2,7 +2,11 @@
 scopes/physical_lithography_medium_intercomponent_variables.py
 ==============================================================
 
-Variable declarations for lithography imaging-medium intercomponent closure.
+Variable declarations for the imaging-medium intercomponent closure:
+effective charge numbers and the transferred-electron count behind them,
+pair count, effective radii, gap, separation, relative permittivity, and
+the resulting binding energy. The relations connecting them live in the
+sibling charge, geometry, and binding modules.
 """
 
 import sympy as sp

@@ -1,8 +1,10 @@
 # Ninety-Day Frontier Scan
 
-Cutoff: July 12, 2026. The strict seed window is April 13 through July 12,
-2026. Most cited items are recent preprints and should not be described as
-settled results.
+This is a survey of what the field published in the last ninety days, done to
+find out where GPUSTACK's research claim can still be original. Cutoff:
+July 12, 2026. The strict seed window is April 13 through July 12, 2026. Most
+cited items are recent preprints and should not be described as settled
+results.
 
 ## Finding
 
@@ -10,6 +12,7 @@ The frontier is crowded with accurate performance simulators and strong local
 optimizations. It is not crowded with falsifiable models of the whole learning
 datacenter.
 
+Consider how good the simulators already are.
 [Charon](https://arxiv.org/abs/2605.17164) reports less than 5.35% overall
 performance-prediction error and less than 3.74% for large-cluster training.
 GPUSTACK therefore needs a different research claim. Its defensible territory
@@ -26,7 +29,7 @@ GPUSTACK completed E001-SC1 without waiting for physical rack access:
 > bandwidth, available compute, and membership change, while preserving
 > held-out learning and reducing communication and completion time?
 
-The recent papers make this question newly concrete. [One-Step Gradient Delay
+The recent papers make this question concrete for the first time. [One-Step Gradient Delay
 Is Not a Barrier](https://arxiv.org/abs/2606.30634) shows that optimizer choice
 can remove the assumed fixed-delay barrier. [GASLoC](https://arxiv.org/abs/2606.11081)
 shows that local steps and sparse communication can improve heterogeneous LLM
@@ -39,26 +42,28 @@ preserves an exact stochastic trajectory through failures, while
 practical.
 
 None of that reviewed work evaluates one deployable boundary among exact
-recovery, delayed updates, and local updates under joint network, compute-power,
-and failure variation. That is a literature-supported gap, not a universal
-priority claim. E001-SC1 first measures the mechanism on one byte-level model
-and uses GPUSTACK for the datacenter counterfactuals. Frontier-model transfer
-remains unresolved unless a later held-out model-family experiment supports it.
+recovery, delayed updates, and local updates under joint network,
+compute-power, and failure variation. That gap is supported by the literature;
+it is not a claim that this problem matters most in general. E001-SC1 first
+measures the mechanism on one byte-level model and uses GPUSTACK for the
+datacenter counterfactuals. Frontier-model transfer remains unresolved unless
+a later held-out model-family experiment supports it.
 
 The result rejected the proposed controller. Calibration selected
-`periodic_local`. Against that frozen comparator, adaptive switching had a
-median held-out NLL penalty of `+0.016659` with a paired 90% interval of
-`[+0.001785, +0.042213]`, a WAN-payload ratio of `2.128x [1.556x, 2.552x]`,
-and a modeled-completion ratio of `1.072x [0.986x, 1.099x]`. The hindsight
-whole-policy-envelope regret interval ended at `0.10056`, narrowly above its
-`0.10` ceiling. There were zero divergence, sample, lineage, or equal-work
-violations, so this is a controller/hypothesis failure rather than a broken
-experiment.
+`periodic_local` as the comparator. Against that frozen comparator, adaptive
+switching had a median held-out NLL penalty of `+0.016659` with a paired 90%
+interval of `[+0.001785, +0.042213]`, a WAN-payload ratio of
+`2.128x [1.556x, 2.552x]`, and a modeled-completion ratio of
+`1.072x [0.986x, 1.099x]`. The hindsight whole-policy-envelope regret interval
+ended at `0.10056`, narrowly above its `0.10` ceiling. There were zero
+divergence, sample, lineage, or equal-work violations. In other words, the
+experiment worked; the controller and its hypothesis failed.
 
 The controller also recorded 104 abstention ticks outside its calibrated
-visible-state support across E2, E4, and E6. That prevents a transferable
-winner claim even apart from the failed numerical gates. The artifact's
-conclusion is therefore `abstain_without_policy_claim`, not a softened success.
+visible-state support across E2, E4, and E6. That alone rules out a
+transferable winner claim, even before the failed numerical gates. The
+artifact's conclusion is therefore `abstain_without_policy_claim`, not a
+softened success.
 
 The next frontier question is E001-SC2:
 
@@ -66,11 +71,12 @@ The next frontier question is E001-SC2:
 > policy-specific learning penalty and modeled time/WAN consequence across a
 > wholly held-out model or optimizer family?
 
-SC2 must hold out whole model or optimizer families and retain
-`periodic_local` as the default baseline. The six SC1 evaluation families may
-not be reused to tune the controller. A transfer failure remains publishable.
+SC2 must hold out whole model or optimizer families and keep `periodic_local`
+as the default baseline. The six SC1 evaluation families may not be reused to
+tune the controller; reusing them would let the predictor grade its own
+homework. A transfer failure remains publishable.
 
-E002-PW3's physical rack protocol remains useful as an optional calibration or
+E002-PW3's physical rack protocol stays useful as an optional calibration or
 falsification adapter. It no longer gates GPUSTACK's research roadmap.
 
 ## Fresh Evidence
@@ -119,10 +125,11 @@ falsification adapter. It no longer gates GPUSTACK's research roadmap.
 
 ## Immediate Research Standard
 
-Before GPUSTACK proposes a new controller, it must beat TDP, roofline, fixed
-MFU, static queueing, and simple engineering heuristics on held-out data. The
-evaluation must withhold entire hardware families, workload families, topology
-classes, and stress regimes. Report:
+The bar is simple: before GPUSTACK proposes a new controller, it must beat
+TDP, roofline, fixed MFU, static queueing, and simple engineering heuristics
+on held-out data. The evaluation must withhold entire hardware families,
+workload families, topology classes, and stress regimes, so nothing in the
+test set resembles the training set too closely. Report:
 
 - absolute and relative prediction error;
 - interval calibration and failure rate;
@@ -132,13 +139,13 @@ classes, and stress regimes. Report:
 - calibration data and compute required;
 - transfer failure and abstention behavior.
 
-The UI should make this evidence the first thing beneath a result. The full
-equation ancestry remains one level deeper, available rather than compulsory.
+The UI should put this evidence directly beneath every result. The full
+equation ancestry sits one level deeper, available rather than compulsory.
 
 ## Competitive Boundary
 
-GPUSTACK should interoperate with or benchmark against adjacent simulators,
-not reimplement them blindly:
+GPUSTACK should interoperate with or benchmark against the adjacent
+simulators rather than reimplement them:
 
 - Charon is the performance-simulation baseline.
 - OpenG2G is the datacenter-to-grid control baseline.
@@ -155,4 +162,4 @@ uncertainty and the visual medium explains the intervention.
 [Measurement of Generative AI Workload Power Profiles](https://arxiv.org/abs/2604.07345)
 was submitted April 8, five days outside the strict window. Its public
 0.1-second H100 traces are still the strongest immediate calibration input
-found for temporal power work, but the date must remain explicit.
+found for temporal power work. Use them, but keep the date explicit.
