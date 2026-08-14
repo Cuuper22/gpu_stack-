@@ -85,7 +85,7 @@
               <p class="file-path">gpu_stack/readme/frontdoor.txt</p>
               <h1 id="page-title">gpu_stack</h1>
               <p class="tagline">
-                A virtual AI datacenter you can interrogate. It predicts what a training run does to time, power, and money, says how sure it is, and can show you what every one of its numbers is made of.
+                A virtual AI datacenter you can question. It estimates what a training run costs in time, power, and money, states how sure it is, and shows you what every number is built from.
               </p>
               <div class="action-row">
                 <a class="retro-btn primary" href="observatory.html"><span class="px-icon px-graph"></span> Open observatory</a>
@@ -96,9 +96,9 @@
             <aside class="status-panel" aria-label="Project status lights">
               <div class="status-light"><span class="led"></span><span>registry import graph coherent</span></div>
               <div class="status-light"><span class="led"></span><span>E001 recovery mechanics published</span></div>
-              <div class="status-light"><span class="led"></span><span>LC1-LC3 measured learning loop recorded</span></div>
-              <div class="status-light"><span class="led warn"></span><span>LC3 preserved learning and saved work/time but failed energy</span></div>
-              <div class="status-light"><span class="led red"></span><span>frontier-scale multi-site learning evidence absent</span></div>
+              <div class="status-light"><span class="led"></span><span>LC1-LC3 learning loop measured and recorded</span></div>
+              <div class="status-light"><span class="led warn"></span><span>LC3 kept the learning and saved work and time, but failed on energy</span></div>
+              <div class="status-light"><span class="led red"></span><span>no frontier-scale multi-site learning evidence yet</span></div>
             </aside>
           </section>
 
@@ -111,7 +111,7 @@
               </p>
               <ul class="note-list" id="primer-facts">
                 <li>The registry currently names 1517 variables and 950 equations.</li>
-                <li>Root debt means the 619 unresolved inputs stay visible instead of being smoothed over.</li>
+                <li>Root debt is the pile of inputs the model cannot yet derive. All 619 stay named instead of being smoothed over.</li>
               </ul>
             </div>
             <div class="primer-visual">
@@ -130,17 +130,17 @@
                 <div class="primer-node" data-primer-node="upstream">
                   <small>equations</small>
                   <b>run cost, tokens, power</b>
-                  <span>The graph walks the ancestry.</span>
+                  <span>The graph walks upstream through what defines it.</span>
                 </div>
                 <div class="primer-node" data-primer-node="roots">
                   <small>root debt</small>
                   <b>619 named inputs</b>
-                  <span>Unknowns stay inspectable.</span>
+                  <span>Every unknown keeps its name.</span>
                 </div>
                 <div class="primer-node" data-primer-node="fixture">
                   <small>scenario</small>
                   <b>explicit assignments</b>
-                  <span>Fixtures are anchors, not market claims.</span>
+                  <span>A fixture is a test anchor, not a price.</span>
                 </div>
               </div>
               <div class="primer-status" aria-live="polite">
@@ -164,7 +164,7 @@
             <div class="journey-head">
               <p class="eyebrow">token_journey.exe</p>
               <h2>Follow one token from math to money.</h2>
-              <p class="caption">Every station is a layer of the model. The lamp lights as the token passes through, and the trip always ends at an invoice.</p>
+              <p class="caption">Each station is one layer of the model. The lamp lights as the token passes through, and the trip always ends at an invoice.</p>
             </div>
             <div class="journey-track">
               <div class="journey-station" style="--i:0;">
@@ -208,14 +208,14 @@
           <section class="section-window" aria-labelledby="model-heading">
             <div class="section-copy">
               <p class="eyebrow">Symbolic causal backbone</p>
-              <h2 id="model-heading">The old engine becomes useful when measurements can prove it wrong.</h2>
+              <h2 id="model-heading">A model earns trust when a measurement can prove it wrong.</h2>
               <p>
-                The registry keeps equations, units, references, constraints, scenario assumptions, and unresolved boundaries attached. The research layer now adds observations, held-out splits, temporal events, interventions, uncertainty, residuals, and decision regret so graph completeness is no longer mistaken for scientific progress.
+                The registry keeps every equation next to its units, sources, constraints, scenario assumptions, and the boundaries it has not resolved. The research layer adds the things that can contradict it: real observations, timed events, interventions, uncertainty, residuals, held-out splits, and regret. A held-out split is data the model never saw while it was being fitted, so a prediction on that data is a real test. Regret is what the choice cost you compared with the choice you would have made knowing the outcome. A complete graph is not the same thing as a tested one.
               </p>
               <ul class="note-list">
                 <li>Only universal physics constants belong in <code>Constant</code>.</li>
                 <li>Everything else stays a <code>Variable</code>: clocks, voltages, tariffs, GPU counts, batch sizes, and facility assumptions.</li>
-                <li>A root input is visible modeling debt. That is much better than hidden modeling debt with a haircut.</li>
+                <li>A root input is modeling debt you can see. That beats hidden debt papered over with a fudge factor.</li>
               </ul>
             </div>
             <div class="section-visual">
@@ -245,7 +245,7 @@
                   <span>universal constants, named unknowns</span>
                 </button>
               </div>
-              <p class="caption" id="cone-diagram-note">One output, many upstream obligations. Click a layer to see what it owes.</p>
+              <p class="caption" id="cone-diagram-note">One answer at the top rests on every layer beneath it. Click a layer to see what it owes.</p>
             </div>
           </section>
 
@@ -282,8 +282,8 @@
                 Cost per token is not a lone price. It depends on run cost, token count, facility power, throughput, utilization, hardware choices, and root assumptions that still need better evidence.
               </p>
               <ul class="note-list" id="trace-facts">
-                <li>Use this as a mental model for the resolver, not as a live numerical solver.</li>
-                <li>The moving gold segment marks the direction of dependency pressure.</li>
+                <li>This is a picture of how the resolver works, the code that walks the graph and computes a value. It is not a live solver.</li>
+                <li>The moving gold segment shows which way the dependencies run.</li>
               </ul>
             </div>
             <div class="section-visual trace-lab">
@@ -297,7 +297,7 @@
                 <div class="trace-connector" aria-hidden="true"></div>
                 <div class="trace-details">
                   <div class="trace-note">
-                    <p id="trace-note">The graph is useful because each hop keeps its label. If a hop cannot be resolved from equations or scenario assignments, it comes back as a named missing boundary.</p>
+                    <p id="trace-note">Every hop keeps its label, and that is what makes the graph useful. If a hop cannot be worked out from equations or scenario assignments, it comes back as a named missing boundary instead of a guess.</p>
                   </div>
                   <div class="trace-meter" aria-label="Trace status">
                     <strong id="trace-meter-label">synthetic fixture resolves 4 of 4 targets</strong>
@@ -314,15 +314,16 @@
               <p class="eyebrow">cone_browser.exe</p>
               <h2 id="cone-heading">Inspect any variable's upstream cone.</h2>
               <p>
-                Choose a target and click any node to expand its direct dependencies.
-                Each hop shows the unit, scope, and whether it is an equation, a root
-                input, or a physics constant. Root inputs carry a gold badge because
-                they are the visible modeling debt.
+                Pick a target, then click any node to open its direct dependencies.
+                Each hop shows its unit, its scope, meaning the part of the system it
+                belongs to, and whether it is an equation, a root input, or a physics
+                constant. Root inputs carry a gold badge because they are the debt you
+                can still see.
               </p>
               <ul class="note-list">
-                <li>The tree loads from a pre-generated JSON snapshot of the registry.</li>
-                <li>Click a node button to toggle its direct dependencies open or closed.</li>
-                <li>Constants are marked to distinguish universal physics values.</li>
+                <li>The tree loads from a JSON snapshot of the registry, generated ahead of time.</li>
+                <li>Click a node to open or close its direct dependencies.</li>
+                <li>Constants carry their own mark, so universal physics values are easy to tell apart.</li>
               </ul>
             </div>
             <div class="section-visual">
@@ -346,7 +347,7 @@
               <p class="eyebrow">root_debt.dat</p>
               <h2 id="root-debt-heading">Root inputs are the visible unpaid invoices.</h2>
               <p>
-                <code>root-debt</code> ranks unresolved root inputs by downstream blast radius. The point is not to pretend the largest family is bad. The point is to know which unknowns are currently expensive.
+                <code>root-debt</code> ranks unresolved root inputs by how much depends on them. A large family is not automatically a bad one. The ranking exists so you know which unknowns are expensive right now.
               </p>
               <ul class="note-list">
                 <li>Total roots in the observed summary: 619.</li>
@@ -362,7 +363,7 @@
                 <div class="family-row" style="--impact: 62%;"><div><b>physical.mosfet</b><br><span>weight 1866, roots 18</span></div><div class="impact-bar"></div></div>
                 <div class="family-row" style="--impact: 43%;"><div><b>physical.process</b><br><span>weight 1293, roots 8</span></div><div class="impact-bar"></div></div>
               </div>
-              <p class="caption">These bars normalize the five README weights against the top family. No new metric is being invented here.</p>
+              <p class="caption">The bars scale the five README weights against the heaviest family. Nothing new is being measured here.</p>
             </div>
           </section>
 
@@ -371,7 +372,7 @@
               <p class="eyebrow">CLI.exe</p>
               <h2 id="run-heading">Use the command line as a microscope.</h2>
               <p>
-                The package is still closer to a research instrument than a polished app. That is useful right now. Ask it what exists, what is unresolved, and where a claim bottoms out.
+                This is a research instrument, not a polished app, and right now that is the useful thing to be. Ask it what exists, what is still unresolved, and where a claim bottoms out.
               </p>
             </div>
             <pre class="console-window" aria-label="Example gpu_stack commands"><code>python -m gpu_stack.cli stats
@@ -387,52 +388,52 @@ python -m gpu_stack.cli experiment-run E001 --scenario experiments/e001-beyond-o
           <section class="glossary-grid" id="glossary" aria-label="Plain-language glossary">
             <article class="glossary-term">
               <h3>Root input</h3>
-              <p>A variable with no defining value relation yet. It might be a real scenario boundary, or it might be physics that still needs decomposition.</p>
+              <p>A variable the model cannot yet compute from anything else. It may be a genuine edge of the scenario, or physics that nobody has broken down yet.</p>
             </article>
             <article class="glossary-term">
               <h3>Dependency cone</h3>
-              <p>The upstream set of variables, equations, assumptions, and constants needed to explain one target.</p>
+              <p>Everything upstream of one number: the variables, equations, assumptions, and constants you need in order to explain it.</p>
             </article>
             <article class="glossary-term">
               <h3>Scenario fixture</h3>
-              <p>A named set of explicit assignments used to resolve targets reproducibly. Synthetic fixtures are test anchors, not market claims.</p>
+              <p>A named set of fixed input values, so a target resolves the same way every time. Synthetic fixtures are test anchors, not claims about real prices.</p>
             </article>
             <article class="glossary-term">
               <h3>MFU</h3>
-              <p>Model FLOPs Utilization: how much of the theoretical model compute is actually useful during training.</p>
+              <p>Model FLOPs Utilization: the share of the machine's peak math rate that training actually uses. When it is low, the run is usually waiting on memory instead of doing math, which is exactly what a roofline chart is drawn to show.</p>
             </article>
             <article class="glossary-term">
               <h3>HBM</h3>
-              <p>High Bandwidth Memory: the fast memory sitting close to the accelerator package, often a ceiling for throughput.</p>
+              <p>High Bandwidth Memory: the fast memory stacked right next to the accelerator. Moving data in and out of it is often the real speed limit, not the math.</p>
             </article>
             <article class="glossary-term">
               <h3>PUE</h3>
-              <p>Power Usage Effectiveness: total facility power divided by IT equipment power. Cooling and overhead show up here.</p>
+              <p>Power Usage Effectiveness: total facility power divided by IT equipment power. Cooling and everything else the building draws shows up here.</p>
             </article>
           </section>
 
           <section class="dialog-grid" aria-label="Current usefulness and limitations">
             <article class="dialog-body">
               <h3>Good for now</h3>
-              <p>Tracing a result into mechanics and evidence. Replaying explicit compute, communication, checkpoint, outage, and recovery events. Keeping observations, assumptions, priors, modeled values, and unmeasured claims visibly separate.</p>
+              <p>Tracing a result back to mechanics and evidence. Replaying compute, communication, checkpoint, outage, and recovery events one at a time. Keeping observations, assumptions, priors, modeled values, and unmeasured claims clearly apart.</p>
             </article>
             <article class="dialog-body">
               <h3>Not finished yet</h3>
-              <p>E001 now has explicit recovery mechanics and three measured learning stages. LC3 held canonical work equal: adaptive continuation preserved learning and saved attempted work and opportunity ticks, but failed its frozen device-energy bound. This is not evidence that a frontier-scale multi-site run converges, and local GPU energy is not facility energy.</p>
+              <p>E001 now has explicit recovery mechanics and three measured learning stages. LC3 held useful work equal across policies: adaptive continuation kept the learning and saved both attempted work and opportunity ticks, the scheduled time it no longer needed, but it went past its frozen device-energy bound. None of that shows a frontier-scale multi-site run converges, and energy measured at one GPU is not energy measured at a facility.</p>
             </article>
           </section>
 
           <section class="timeline" id="next" aria-labelledby="next-heading">
             <div class="dialog-body">
               <p class="eyebrow">next_work.exe</p>
-              <h2 id="next-heading">The frontier program is six falsifiable questions.</h2>
+              <h2 id="next-heading">The frontier program is six questions a result could prove wrong.</h2>
             </div>
-            <div class="timeline-row"><b>1. Beyond One Datacenter · energy gate failed</b><span>At equal canonical work, adaptive continuation was learning-noninferior and saved work and scheduled time, but its measured RTX energy interval exceeded the frozen bound. Scale remains blocked.</span></div>
-            <div class="timeline-row"><b>2. Shape the Power Waveform · next</b><span>Factor checkpoint cadence from survivor continuation, attribute phase-level power, and test whether dependency-safe scheduling removes the energy penalty without losing the measured learning, work, or time gains.</span></div>
-            <div class="timeline-row"><b>3. Semantic Fault Tolerance</b><span>Allocate canaries, replay, and redundancy by counterfactual learning harm instead of fault label.</span></div>
-            <div class="timeline-row"><b>4. Fluid Inference Topology</b><span>Measure interaction gains and regime crossings when serving topology changes per request.</span></div>
-            <div class="timeline-row"><b>5. Architecture as a Datacenter Variable</b><span>Co-design model modules and heterogeneous hardware under one facility power and time envelope.</span></div>
-            <div class="timeline-row"><b>6. Firm Grid-responsive Inference</b><span>Measure meter-verified demand response with quality, tail latency, rebound, and hidden work inside the same boundary.</span></div>
+            <div class="timeline-row"><b>1. Beyond One Datacenter · energy gate failed</b><span>At equal useful work, adaptive continuation learned just as well and saved work and scheduled time, but its measured RTX energy interval went past the frozen bound. Scaling stays blocked.</span></div>
+            <div class="timeline-row"><b>2. Shape the Power Waveform · next</b><span>Separate checkpoint cadence from survivor continuation, attribute power phase by phase, and test whether scheduling that respects dependencies removes the energy penalty without giving back the measured learning, work, or time gains.</span></div>
+            <div class="timeline-row"><b>3. Semantic Fault Tolerance</b><span>Spend canaries, replay, and redundancy on the faults that would really have hurt learning, not on whatever the fault is labeled.</span></div>
+            <div class="timeline-row"><b>4. Fluid Inference Topology</b><span>Measure what is gained, and where the behavior flips, when the serving topology changes for every request.</span></div>
+            <div class="timeline-row"><b>5. Architecture as a Datacenter Variable</b><span>Design the model's parts and the mixed hardware together, under a single facility power and time budget.</span></div>
+            <div class="timeline-row"><b>6. Firm Grid-responsive Inference</b><span>Measure meter-verified demand response with output quality, tail latency, rebound, and hidden work all counted inside the same boundary.</span></div>
           </section>
         </div>
       </div>

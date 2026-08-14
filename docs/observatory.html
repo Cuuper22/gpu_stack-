@@ -87,7 +87,7 @@
           <span aria-hidden="true">·</span>
           <span>small-model learning + virtual datacenter</span>
         </div>
-        <p class="plain-answer" id="plain-answer">Loading the held-out semantic-consistency result. No conclusion is shown until its evidence boundary is known.</p>
+        <p class="plain-answer" id="plain-answer">Loading the held-out semantic-consistency result, the test run on data the controller never saw. No conclusion appears here until the page knows what evidence stands behind it.</p>
         <p class="plain-words" id="plain-words"></p>
         <p class="artifact-state" id="artifact-state" role="status" aria-live="polite">Reading data/e001-semantic-consistency-v1.json…</p>
       </div>
@@ -108,16 +108,16 @@
           <h3 id="semantic-consistency-insight-title">Result loading</h3>
         </div>
         <div>
-          <p id="semantic-consistency-plain-answer">The observatory will state whether adaptive switching preserved held-out learning and beat the frozen fixed comparator.</p>
+          <p id="semantic-consistency-plain-answer">The page will say whether adaptive switching kept the held-out learning and beat the fixed comparator that was frozen before the run.</p>
           <p class="plain-words" id="semantic-consistency-plain-words"></p>
-          <strong id="semantic-consistency-boundary-short">Infrastructure remains modeled unless the artifact says otherwise.</strong>
+          <strong id="semantic-consistency-boundary-short">The infrastructure is simulated, not measured, unless the artifact says otherwise.</strong>
         </div>
       </article>
 
       <div class="semantic-consistency-depth-copy">
-        <p class="depth-freshman" id="semantic-consistency-freshman-copy">Every policy receives the same training examples and must reach the same useful-work target. The result will show whether changing consistency mode helped, what it saved, and where the controller refused to guess.</p>
-        <p class="depth-researcher" id="semantic-consistency-researcher-copy">The fixed comparator is selected on calibration only. Six untouched stress families pair adaptive and fixed policies against a hindsight whole-policy envelope; sampling intervals and infrastructure uncertainty remain separate.</p>
-        <p class="depth-full_trace" id="semantic-consistency-depth-trace">Exact optimizer commits, mode transitions, membership, lineage, work, WAN accounting, assumptions, uncertainty, and missing evidence appear below.</p>
+        <p class="depth-freshman" id="semantic-consistency-freshman-copy">Every policy gets the same training examples and has to reach the same amount of useful work. The result shows whether switching consistency mode helped, what it saved, and where the controller refused to guess.</p>
+        <p class="depth-researcher" id="semantic-consistency-researcher-copy">The fixed comparator is chosen from calibration data only. Six untouched stress families pair the adaptive and fixed policies against the best whole-policy choice in hindsight. Sampling intervals and infrastructure uncertainty stay separate rather than being merged into one number.</p>
+        <p class="depth-full_trace" id="semantic-consistency-depth-trace">Exact optimizer commits, mode changes, membership, lineage, work, WAN accounting for traffic on the long link between sites, assumptions, uncertainty, and missing evidence all appear below.</p>
       </div>
 
       <div class="checkpoint-energy-freshman-grid semantic-consistency-freshman-grid depth-freshman" id="semantic-consistency-freshman-grid" aria-label="Plain-language semantic-consistency result"></div>
@@ -127,7 +127,7 @@
           <header class="equal-work-section-header">
             <div>
               <p class="control-label">Paired held-out effects</p>
-              <h3 id="semantic-consistency-effects-title">Learning, time, communication, work, and energy stay adjacent</h3>
+              <h3 id="semantic-consistency-effects-title">Learning, time, communication, work, and energy stay side by side</h3>
             </div>
             <span id="semantic-consistency-effects-note">six evaluation families · 90% paired intervals</span>
           </header>
@@ -137,14 +137,14 @@
         <section class="semantic-consistency-ranking" aria-labelledby="semantic-consistency-ranking-title">
           <header class="equal-work-section-header">
             <div>
-              <p class="control-label">Epistemic ranking regions</p>
-              <h3 id="semantic-consistency-ranking-title">Where the result survives uncertainty, and where it abstains</h3>
+              <p class="control-label">Ranking under uncertainty</p>
+              <h3 id="semantic-consistency-ranking-title">Where the result survives uncertainty, and where it refuses to answer</h3>
             </div>
             <span>direct labels · no hover required</span>
           </header>
           <div class="semantic-consistency-ranking-frame">
             <svg id="semantic-consistency-ranking-svg" role="img" aria-labelledby="semantic-consistency-ranking-title semantic-consistency-ranking-desc"></svg>
-            <p id="semantic-consistency-ranking-desc" class="visually-hidden">Each held-out stress family is divided into labeled infrastructure-uncertainty regions where adaptive wins, a fixed policy wins, ranking reverses, or the controller abstains.</p>
+            <p id="semantic-consistency-ranking-desc" class="visually-hidden">Each held-out stress family is split into labeled regions of infrastructure uncertainty, showing where adaptive wins, where a fixed policy wins, where the ranking flips, and where the controller declines to rank them at all.</p>
           </div>
           <details class="structured-fallback">
             <summary>Accessible ranking-region table</summary>
@@ -169,7 +169,7 @@
           </header>
           <div class="recovery-timeline-well semantic-consistency-timeline-well">
             <svg id="semantic-consistency-timeline-svg" class="recovery-timeline-svg" role="img" aria-labelledby="semantic-consistency-timeline-title semantic-consistency-timeline-desc"></svg>
-            <p id="semantic-consistency-timeline-desc" class="visually-hidden">Aligned adaptive and comparator mode intervals with membership, WAN, abstention, merge, and rejoin events.</p>
+            <p id="semantic-consistency-timeline-desc" class="visually-hidden">The adaptive and comparator mode intervals on one shared axis, marked with membership, WAN, abstention, merge, and rejoin events.</p>
           </div>
           <details class="structured-fallback">
             <summary>Accessible controller-decision timeline</summary>
@@ -183,7 +183,7 @@
               <p class="control-label">Untouched family ledger</p>
               <h3 id="semantic-consistency-family-results-title">No family disappears inside the median</h3>
             </div>
-            <span>adaptive versus calibration-selected fixed policy</span>
+            <span>adaptive versus the fixed policy chosen on calibration data</span>
           </header>
           <div class="checkpoint-energy-table-scroll">
             <table class="checkpoint-energy-trace-table semantic-consistency-family-table">
@@ -234,9 +234,9 @@
         </details>
 
         <details id="semantic-consistency-raw-details">
-          <summary>Load on-demand exact epoch trace</summary>
+          <summary>Load the exact epoch trace on demand</summary>
           <div class="checkpoint-energy-raw-panel">
-            <p id="semantic-consistency-raw-state" role="status" aria-live="polite">Raw optimizer-commit trace has not been loaded. Opening this disclosure in Full trace fetches the separately bound artifact.</p>
+            <p id="semantic-consistency-raw-state" role="status" aria-live="polite">The raw optimizer-commit trace is not loaded yet. Opening this panel in Full trace fetches the separate artifact it is bound to.</p>
             <p id="semantic-consistency-raw-meta"></p>
           </div>
         </details>
@@ -248,11 +248,11 @@
         <h2 id="causal-reading-title">Causal reading</h2>
         <ol>
           <li><span>1</span><p><strong>An assumed site interruption begins</strong><small>Availability is an input, not an observed outage rate.</small></p></li>
-          <li><span>2</span><p><strong>Membership response is missing</strong><small>Reactive outage membership is not implemented.</small></p></li>
-          <li><span>3</span><p><strong>Sync cadence changes</strong><small>The controller acts after a completed communication cycle.</small></p></li>
-          <li><span>4</span><p><strong>Traffic and elapsed time change</strong><small>Mechanics are modeled by event ordering and resources.</small></p></li>
-          <li><span>5</span><p><strong>Learning response is a prior</strong><small>One-step delay observations seed an unfitted sensitivity.</small></p></li>
-          <li><span>6</span><p><strong>Every gate stays explicit</strong><small>Scalar falsifiers and structured evidence requirements can fail or remain unresolved independently.</small></p></li>
+          <li><span>2</span><p><strong>Nothing changes who is in the group</strong><small>Dropping a site from the group during an outage is not implemented.</small></p></li>
+          <li><span>3</span><p><strong>Sync cadence changes</strong><small>The controller acts only after a finished collective, the round where every site exchanges and combines results.</small></p></li>
+          <li><span>4</span><p><strong>Traffic and elapsed time change</strong><small>The mechanics come from the order of events and the resources they use.</small></p></li>
+          <li><span>5</span><p><strong>Learning response is a prior</strong><small>A prior is a starting guess, not a fit. One-step delay observations seed it.</small></p></li>
+          <li><span>6</span><p><strong>Every gate stays explicit</strong><small>Numeric falsifiers and evidence requirements can each fail, or stay unresolved, on their own.</small></p></li>
         </ol>
 
         <div class="evidence-key" aria-label="Evidence class key">
@@ -282,7 +282,7 @@
         <section class="causal-field" aria-labelledby="causal-field-title">
           <div class="section-line-heading">
             <h2 id="causal-field-title">Causal field</h2>
-            <span id="causal-field-note">Values follow the artifact; evidence class does not collapse into color.</span>
+            <span id="causal-field-note">Values come from the artifact. Color alone never tells you what class of evidence a number is.</span>
           </div>
           <div class="causal-svg-wrap">
             <svg id="causal-svg" class="causal-svg" role="group" aria-labelledby="causal-svg-title causal-svg-desc"></svg>
@@ -366,8 +366,8 @@
 
       <div class="recovery-depth-copy" id="recovery-depth-copy">
         <p class="depth-freshman">The same failure hits all four policies. The shared clock shows what stops, what is restored, what must be redone, and when useful work catches up.</p>
-        <p class="depth-researcher">All policy tracks share the artifact time domain. Recovery completion is mechanical: each policy reaches the same durable frontier after explicit preemption, restore, replay, and membership transitions.</p>
-        <p class="depth-full_trace">Every mark is projected from a persisted recovery episode. Event IDs, nanosecond bounds, work dispositions, checkpoint lineage, and matched-frontier hashes remain available in the structured trace.</p>
+        <p class="depth-researcher">Every policy track shares one time axis taken from the artifact. Recovery is mechanical: each policy reaches the same durable frontier, the last point safely written to storage, after explicit preemption, restore, replay, and membership changes.</p>
+        <p class="depth-full_trace">Every mark is drawn from a saved recovery episode. Event IDs, nanosecond bounds, what happened to each unit of work, checkpoint lineage, and matched-frontier hashes stay available in the structured trace.</p>
       </div>
 
       <div class="recovery-timeline-well">
@@ -396,8 +396,8 @@
 
         <section class="recovery-measure" aria-labelledby="byte-composition-title">
           <div class="recovery-measure-heading">
-            <h3 id="byte-composition-title">Inter-site byte composition</h3>
-            <span>six disjoint traffic classes</span>
+            <h3 id="byte-composition-title">Where the inter-site bytes went</h3>
+            <span>six traffic classes that never overlap</span>
           </div>
           <div id="recovery-byte-bars" class="recovery-byte-bars"></div>
         </section>
@@ -416,7 +416,7 @@
             <h3 id="recovery-learning-title">Recovery-v2 learning was unresolved</h3>
             <p>This mechanics artifact contains no held-out learning observation.</p>
             <p class="depth-researcher">LC1 below adds measured local small-model learning. It does not turn the recovery-v2 mechanics run into real multi-site learning evidence.</p>
-            <p class="depth-full_trace" id="recovery-learning-trace">Recovery-v2 has no recovery-quality observation IDs; LC1 is a separate attached calibration artifact.</p>
+            <p class="depth-full_trace" id="recovery-learning-trace">Recovery-v2 records no recovery-quality observation IDs. LC1 is a separate calibration artifact attached to it.</p>
           </div>
         </aside>
       </div>
@@ -426,7 +426,7 @@
       <header class="band-header learning-v1-header">
         <div>
           <p class="control-label">Measured small-model learning</p>
-          <h2 id="learning-v1-title">Did adaptive recovery preserve learning efficiency?</h2>
+          <h2 id="learning-v1-title">Did adaptive recovery keep learning just as efficient?</h2>
         </div>
         <output id="learning-v1-state" role="status" aria-live="polite">Reading learning artifact…</output>
       </header>
@@ -436,13 +436,13 @@
           <p class="learning-eyebrow">LC1 · paired interrupted calibration</p>
           <h3 id="learning-insight-title">The learning result is loading</h3>
         </div>
-        <p id="learning-plain-answer">The observatory will state the measured answer once the persisted artifact is available.</p>
+        <p id="learning-plain-answer">The page will state the measured answer once the saved artifact loads.</p>
         <p class="plain-words" id="learning-plain-words"></p>
       </article>
 
       <div class="learning-depth-copy" id="learning-depth-copy">
         <p class="depth-freshman">Lower held-out loss means the model predicts better. The cards show how much training each policy attempted to get there, and the lines show what it learned over the same failure clock.</p>
-        <p class="depth-researcher">Policy medians summarize matched strata. The paired effect subtracts fixed-local progress per FLOP from adaptive progress per FLOP within each stratum, so zero means no retained-efficiency difference.</p>
+        <p class="depth-researcher">Policy medians summarize matched strata. Inside each stratum, the paired effect subtracts fixed-local progress per FLOP from adaptive progress per FLOP, so zero means the two are equally efficient.</p>
         <p class="depth-full_trace" id="learning-depth-trace">Artifact, dataset, runtime, paired evaluation, and per-run records remain attached below.</p>
       </div>
 
@@ -482,9 +482,9 @@
         <header>
           <div>
             <p class="control-label">Preregistered decision</p>
-            <h3 id="learning-gates-title">Falsifier gate strip</h3>
+            <h3 id="learning-gates-title">The gates that could fail this claim</h3>
           </div>
-          <span>every gate remains individually visible</span>
+          <span>every gate was written down before the run and stays visible</span>
         </header>
         <div id="learning-gate-strip" class="learning-gate-strip"></div>
       </section>
@@ -537,13 +537,13 @@
           <p class="equal-work-eyebrow">Same 524,288 useful tokens · six held-out pairs</p>
           <h3 id="equal-work-insight-title">Equal-work result loading</h3>
         </div>
-        <p id="equal-work-plain-answer">The observatory will state the result after loading the persisted LC3 artifact.</p>
+        <p id="equal-work-plain-answer">The page will state the result once the saved LC3 artifact loads.</p>
         <p class="plain-words" id="equal-work-plain-words"></p>
       </article>
 
       <div class="equal-work-depth-copy">
-        <p class="depth-freshman"><strong>Useful work is the fair ruler here.</strong> Both policies finish with the same 524,288 tokens actually kept by the model. Adaptive avoided redo work and finished the schedule sooner without a meaningful learning loss, but its GPU consumed too much energy to pass.</p>
-        <p class="depth-researcher"><strong>LC3 removes LC1’s stopping-early denominator trap.</strong> Six paired evaluation strata share an equal canonical-work endpoint. Read learning as paired NLL noninferiority, physical work as attempted-FLOP savings, schedule time as opportunity ticks, and energy as a paired device-energy ratio.</p>
+        <p class="depth-freshman"><strong>Useful work is the fair ruler here.</strong> Both policies end with the same 524,288 tokens actually kept by the model. Adaptive avoided work it would have had to redo and finished the schedule sooner with no meaningful loss of learning, but its GPU drew too much energy to pass.</p>
+        <p class="depth-researcher"><strong>LC3 closes the trap in LC1, where stopping early shrank the denominator and flattered the result.</strong> Six paired evaluation strata all end at the same amount of canonical work. Read learning as paired NLL noninferiority, physical work as attempted-FLOP savings, schedule time as opportunity ticks, and energy as a paired device-energy ratio.</p>
         <p class="depth-full_trace" id="equal-work-depth-trace">Exact pairs, run records, protocol predecessors, hashes, and the modeled-mechanics boundary remain attached below.</p>
       </div>
 
@@ -586,7 +586,7 @@
               <p class="control-label">Frozen LC3 decision</p>
               <h3 id="equal-work-gates-title">Seven gates passed; energy failed</h3>
             </div>
-            <span>the failed gate remains visually dominant</span>
+            <span>the failed gate stays the loudest thing here</span>
           </header>
           <div class="equal-work-gate-strip" id="equal-work-gate-strip"></div>
         </section>
@@ -654,7 +654,7 @@
           <h3 id="checkpoint-power-insight-title">Result loading</h3>
         </div>
         <div>
-          <p id="checkpoint-power-plain-answer">The observatory will state the measurement boundary after loading the persisted artifact.</p>
+          <p id="checkpoint-power-plain-answer">The page will state the measurement boundary once the saved artifact loads.</p>
           <p class="plain-words" id="checkpoint-power-plain-words"></p>
           <strong id="checkpoint-power-decision">No policy claim is available yet.</strong>
         </div>
@@ -662,7 +662,7 @@
 
       <div class="checkpoint-power-depth-copy">
         <p class="depth-freshman"><strong>The experiment ran; the measuring stick failed.</strong> All 32 planned comparisons started from the exact same trained model. Asking the sensor every 20 milliseconds did not make it answer that fast: its reading effectively changed about every 495 milliseconds. That is too slow to decide whether sparse continuation saves energy.</p>
-        <p class="depth-researcher"><strong>The 2×2 cadence-by-continuation design remains intact, but its energy estimand is inadmissible.</strong> Both frozen update-count invalidators fired and the logger calibration hit its boundary. Arm medians and contrasts remain visible as diagnostics, never as mechanism evidence.</p>
+        <p class="depth-researcher"><strong>The 2×2 cadence-by-continuation design is intact, but the energy quantity it was meant to estimate cannot be used.</strong> Both frozen update-count invalidators fired and the logger calibration hit its limit. Arm medians and contrasts stay visible as diagnostics, never as evidence about mechanism.</p>
         <p class="depth-full_trace" id="checkpoint-power-depth-trace">The 32-run ledger, per-phase metrics, bound source identities, and lazy raw telemetry are attached below.</p>
       </div>
 
@@ -689,7 +689,7 @@
               <p class="control-label">Observed arm medians</p>
               <h3 id="checkpoint-power-arms-title">The intended 2×2 comparison completed</h3>
             </div>
-            <span>energy values are descriptive and inadmissible</span>
+            <span>energy values describe the runs; they cannot support a claim</span>
           </header>
           <div class="checkpoint-power-arm-grid" id="checkpoint-power-arm-grid"></div>
         </section>
@@ -709,11 +709,11 @@
           <header class="checkpoint-power-section-header">
             <div>
               <p class="control-label">Raw diagnostic contrasts</p>
-              <h3 id="checkpoint-power-contrasts-title">Visible, but explicitly inadmissible</h3>
+              <h3 id="checkpoint-power-contrasts-title">Shown here, but they cannot support a claim</h3>
             </div>
             <span id="checkpoint-power-contrast-label">measurement invalidators take precedence</span>
           </header>
-          <div class="checkpoint-power-contrast-warning" role="note"><strong>DO NOT INTERPRET AS A POLICY PASS.</strong> These numbers describe the rejected telemetry stream; they cannot establish that sparse continuation fixed LC3’s energy failure.</div>
+          <div class="checkpoint-power-contrast-warning" role="note"><strong>DO NOT READ THIS AS A PASS.</strong> These numbers describe the telemetry stream that was rejected. They cannot show that sparse continuation fixed LC3’s energy failure.</div>
           <div class="checkpoint-power-contrast-grid" id="checkpoint-power-contrast-grid"></div>
         </section>
 
@@ -757,7 +757,7 @@
 
         <details open>
           <summary>Selected-run phase metrics</summary>
-          <p class="checkpoint-power-trace-warning">Phase energy is retained for diagnosis, but remains inadmissible for a causal policy comparison because the logger invalidators fired.</p>
+          <p class="checkpoint-power-trace-warning">Phase energy is kept for diagnosis. It cannot support a causal comparison between policies, because the logger invalidators fired.</p>
           <div class="checkpoint-power-table-scroll">
             <table class="checkpoint-power-trace-table">
               <thead><tr><th scope="col">Phase</th><th scope="col">Duration</th><th scope="col">Idle-subtracted board energy</th><th scope="col">Energy / canonical token</th><th scope="col">Effective update equivalents</th></tr></thead>
@@ -772,9 +772,9 @@
         </details>
 
         <details id="checkpoint-power-raw-details">
-          <summary>Load on-demand raw point trace</summary>
+          <summary>Load the raw point trace on demand</summary>
           <div class="checkpoint-power-raw-panel">
-            <p id="checkpoint-power-raw-state" role="status" aria-live="polite">Raw telemetry has not been loaded. Opening this disclosure in Full trace fetches the separate point artifact.</p>
+            <p id="checkpoint-power-raw-state" role="status" aria-live="polite">Raw telemetry is not loaded yet. Opening this panel in Full trace fetches the separate point artifact.</p>
             <p id="checkpoint-power-raw-meta"></p>
             <div class="checkpoint-power-table-scroll">
               <table class="checkpoint-power-trace-table checkpoint-power-points-table">
@@ -802,15 +802,15 @@
           <h3 id="checkpoint-energy-insight-title">Result loading</h3>
         </div>
         <div>
-          <p id="checkpoint-energy-plain-answer">The observatory will state the mechanism after loading the persisted artifact.</p>
+          <p id="checkpoint-energy-plain-answer">The page will state the mechanism once the saved artifact loads.</p>
           <p class="plain-words" id="checkpoint-energy-plain-words"></p>
           <strong id="checkpoint-energy-mechanism">Mechanism estimate loading.</strong>
         </div>
       </article>
 
       <div class="checkpoint-energy-depth-copy">
-        <p class="depth-freshman"><strong>Checkpointing less often fixed the measured energy problem without giving back the recovery win.</strong> Both policies kept exactly 524,288 useful tokens. Sparse continuation attempted less work, finished 40 scheduling ticks sooner, and stayed inside the frozen GPU-energy limit. An estimated idle-baseline subtraction was less certain and could not rule out zero interaction.</p>
-        <p class="depth-researcher"><strong>PW2 repeats PW1’s frozen 2×2 design with a supported cumulative-energy counter.</strong> No measurement invalidator fired. Positive total and checkpoint-group interactions pass the frozen primary attribution gates while sparse continuation preserves the learning, work, schedule, and energy gates. The sensitivity-only idle-subtracted interaction crossed zero, so the result is not insensitive to baseline treatment.</p>
+        <p class="depth-freshman"><strong>Checkpointing less often fixed the measured energy problem without giving back the recovery win.</strong> Both policies kept exactly 524,288 useful tokens. Sparse continuation attempted less work, finished 40 scheduling ticks sooner, and stayed inside the frozen GPU-energy limit. One version of the calculation subtracts an estimated idle baseline; that version is less certain and cannot rule out that the effect is zero.</p>
+        <p class="depth-researcher"><strong>PW2 repeats PW1’s frozen 2×2 design, this time with a cumulative-energy counter the hardware actually supports.</strong> No measurement invalidator fired. Positive total and checkpoint-group interactions pass the frozen primary attribution gates, and sparse continuation holds the learning, work, schedule, and energy gates. The sensitivity-only, idle-subtracted interaction crossed zero, so the result does depend on how the idle baseline is handled.</p>
         <p class="depth-full_trace" id="checkpoint-energy-depth-trace">The 32-run ledger, selected-run counter phases, bound identities, and lazy raw counter points are attached below.</p>
       </div>
 
@@ -832,7 +832,7 @@
           <header class="checkpoint-energy-section-header">
             <div>
               <p class="control-label">Paired causal contrasts</p>
-              <h3 id="checkpoint-energy-effects-title">Primary attribution passed; baseline sensitivity is unresolved</h3>
+              <h3 id="checkpoint-energy-effects-title">The main attribution passed; the baseline question is still open</h3>
             </div>
             <span>six frozen evaluation blocks · 90% intervals</span>
           </header>
@@ -843,7 +843,7 @@
           <header class="checkpoint-energy-section-header">
             <div>
               <p class="control-label">Counter support by phase</p>
-              <h3 id="checkpoint-energy-phase-support-title">Checkpoint groups are supported; rare recovery phases are exploratory</h3>
+              <h3 id="checkpoint-energy-phase-support-title">Checkpoint groups have enough counter data; rare recovery phases do not</h3>
             </div>
             <span>effective counter-update equivalents</span>
           </header>
@@ -908,9 +908,9 @@
         </details>
 
         <details id="checkpoint-energy-raw-details">
-          <summary>Load on-demand raw cumulative-counter trace</summary>
+          <summary>Load the raw cumulative-counter trace on demand</summary>
           <div class="checkpoint-energy-raw-panel">
-            <p id="checkpoint-energy-raw-state" role="status" aria-live="polite">Raw counter telemetry has not been loaded. Opening this disclosure in Full trace fetches the separate point artifact.</p>
+            <p id="checkpoint-energy-raw-state" role="status" aria-live="polite">Raw counter telemetry is not loaded yet. Opening this panel in Full trace fetches the separate point artifact.</p>
             <p id="checkpoint-energy-raw-meta"></p>
             <div class="checkpoint-energy-table-scroll">
               <table class="checkpoint-energy-trace-table checkpoint-energy-points-table">
@@ -927,7 +927,7 @@
       <header class="band-header rack-dephasing-v3-header">
         <div>
           <p class="control-label">E002-PW3 · physical rack mechanism</p>
-          <h2 id="rack-dephasing-v3-title">Can recovery slack become a rack-power control surface?</h2>
+          <h2 id="rack-dephasing-v3-title">Can slack in recovery be used to steer rack power?</h2>
         </div>
         <output id="rack-dephasing-v3-state" role="status" aria-live="polite">Reading rack experiment artifact…</output>
       </header>
@@ -938,14 +938,14 @@
           <h3 id="rack-dephasing-insight-title">Result loading</h3>
         </div>
         <div>
-          <p id="rack-dephasing-plain-answer">The observatory will explain what moved, what the rack meter saw, and whether learning stayed fixed.</p>
-          <strong id="rack-dephasing-boundary-short">No rack result is inferred from the earlier laptop experiment.</strong>
+          <p id="rack-dephasing-plain-answer">The page will explain what moved, what the rack meter saw, and whether learning stayed fixed.</p>
+          <strong id="rack-dephasing-boundary-short">Nothing about this rack is inferred from the earlier laptop experiment.</strong>
         </div>
       </article>
 
       <div class="rack-dephasing-depth-copy">
-        <p class="depth-freshman" id="rack-dephasing-freshman-copy">The same training and recovery work runs several ways. The shaped run may move only operations that have real timing slack, then the rack meter tells us whether separating those operations actually reduced the electrical shock.</p>
-        <p class="depth-researcher" id="rack-dephasing-researcher-copy">Paired blocks hold useful work, state generations, failures, and learning commitments fixed while changing only the legal release policy for checkpoint and rejoin flows.</p>
+        <p class="depth-freshman" id="rack-dephasing-freshman-copy">The same training and recovery work runs several ways. The shaped run is allowed to move only the operations that have real timing slack. The rack meter then says whether spreading those operations out really did soften the electrical spike.</p>
+        <p class="depth-researcher" id="rack-dephasing-researcher-copy">Paired blocks hold useful work, state generations, failures, and learning commitments fixed. The only thing that changes is when checkpoint and rejoin traffic is allowed to be released.</p>
         <p class="depth-full_trace" id="rack-dephasing-depth-trace">Exact event intervals, clock alignment, sensor coverage, semantic obligations, and chunk hashes appear below.</p>
       </div>
 
@@ -972,7 +972,7 @@
           </header>
           <div class="rack-dephasing-chart-frame">
             <svg id="rack-dephasing-waveform-svg" role="img" aria-labelledby="rack-dephasing-waveform-title rack-dephasing-waveform-desc"></svg>
-            <p id="rack-dephasing-waveform-desc" class="visually-hidden">Paired rack-PDU power traces aligned above job-level checkpoint and recovery event rails.</p>
+            <p id="rack-dephasing-waveform-desc" class="visually-hidden">Paired power traces from the rack PDU, the unit that distributes power to the rack, drawn above the checkpoint and recovery event rails for the job.</p>
           </div>
           <div class="rack-dephasing-waveform-fallback" id="rack-dephasing-waveform-fallback"></div>
         </section>
@@ -981,7 +981,7 @@
           <header class="rack-dephasing-section-header">
             <div>
               <p class="control-label">Paired physical effects</p>
-              <h3 id="rack-dephasing-effects-title">Electrical benefit and systems cost stay adjacent</h3>
+              <h3 id="rack-dephasing-effects-title">Electrical benefit and systems cost stay side by side</h3>
             </div>
             <span>six evaluation blocks · 90% paired intervals</span>
           </header>
@@ -1018,7 +1018,7 @@
         <aside class="rack-dephasing-boundary" aria-labelledby="rack-dephasing-boundary-title">
           <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
           <div>
-            <h3 id="rack-dephasing-boundary-title">Rack mechanism, not facility transfer</h3>
+            <h3 id="rack-dephasing-boundary-title">A rack result, not a whole-facility result</h3>
             <p id="rack-dephasing-evidence-boundary">Evidence boundary loading.</p>
             <p id="rack-dephasing-next-question"></p>
           </div>
@@ -1091,7 +1091,7 @@
           <p class="control-label">E001 v1 screening evidence chain</p>
           <h2 id="evidence-title">What the v1 learning prior did and did not know</h2>
         </div>
-        <span class="evidence-lock"><svg aria-hidden="true" viewBox="0 0 18 18"><rect x="3" y="8" width="12" height="8" rx="1"/><path d="M6 8V5a3 3 0 0 1 6 0v3"/></svg> Evidence is immutable</span>
+        <span class="evidence-lock"><svg aria-hidden="true" viewBox="0 0 18 18"><rect x="3" y="8" width="12" height="8" rx="1"/><path d="M6 8V5a3 3 0 0 1 6 0v3"/></svg> Evidence cannot be edited</span>
       </header>
 
       <div class="evidence-chain" id="evidence-chain" aria-label="Evidence chain">
@@ -1107,7 +1107,7 @@
       <div class="evidence-grid">
         <section class="source-observations" aria-labelledby="source-observations-title">
           <h3 id="source-observations-title">Seed observations</h3>
-          <p>Published source measurements are read from the observatory artifact. Publication-rounding intervals remain distinct from run-to-run variance.</p>
+          <p>Published source measurements are read from the observatory artifact. Uncertainty that comes from rounding in the paper is tracked separately from real run-to-run variation.</p>
           <div class="source-table-scroll">
             <table>
               <thead><tr><th scope="col">Observation</th><th scope="col">Value</th><th scope="col">Evidence</th><th scope="col"><span class="visually-hidden">Action</span></th></tr></thead>
@@ -1117,7 +1117,7 @@
           <dl class="prior-parameters depth-researcher" id="prior-parameters"></dl>
           <div class="transfer-boundary depth-researcher">
             <h4>Transfer boundary</h4>
-            <p>The attached literature records cover a narrow delay setting. They do not identify progress per FLOP, longer local-update intervals, frontier-scale transfer, multi-site interruption behavior, or an active-outage controller.</p>
+            <p>The attached literature covers one narrow delay setting. It says nothing about progress per FLOP, longer local-update intervals, frontier-scale transfer, how a multi-site run behaves when it is interrupted, or a controller that acts during an outage.</p>
           </div>
         </section>
 
@@ -1139,15 +1139,15 @@
             </svg>
             <div class="empty-residual-message">
               <strong>No held-out multi-site learning observation</strong>
-              <span>Prediction requires observed data. No residual can be computed.</span>
+              <span>A residual is the gap between a prediction and an observation, so with nothing observed there is nothing to compute.</span>
             </div>
           </div>
           <div class="resolve-list depth-researcher">
             <h4>What would resolve this?</h4>
             <ol>
-              <li><span>1</span><p><strong>Repeated small-model delay calibration</strong>Measure multiple delay intervals and optimizers rather than extrapolating one step.</p></li>
-              <li><span>2</span><p><strong>Held-out optimizer, model, and site combinations</strong>Evaluate combinations excluded from prior construction.</p></li>
-              <li><span>3</span><p><strong>Controlled 30B to 100B-plus multi-site run</strong>Vary delay and cadence under a defined policy with identical evaluation accounting.</p></li>
+              <li><span>1</span><p><strong>Repeated small-model delay calibration</strong>Measure several delay intervals and optimizers instead of extrapolating from a single step.</p></li>
+              <li><span>2</span><p><strong>Held-out optimizer, model, and site combinations</strong>Test combinations that were deliberately left out when the prior was built.</p></li>
+              <li><span>3</span><p><strong>Controlled 30B to 100B-plus multi-site run</strong>Vary delay and cadence under one stated policy, counting the evaluation the same way every time.</p></li>
             </ol>
           </div>
         </section>
@@ -1156,7 +1156,7 @@
       <section class="decision-ledger depth-researcher" aria-labelledby="decision-ledger-title">
         <div class="section-line-heading">
           <h3 id="decision-ledger-title">Policy decision ledger</h3>
-          <span>The controller reads a completed communication cycle, then queues the next epoch.</span>
+          <span>The controller reads one finished communication cycle, then queues the next epoch.</span>
         </div>
         <div class="ledger-scroll">
           <table>
