@@ -155,6 +155,7 @@ test("all eight WebMCP registrations execute against immutable evidence", async 
   assert.equal(run.epoch_page.rows.length, 6);
   assert.equal(run.epoch_page.context_limit_applied, false);
   assert.equal(run.source_raw_sha256, "d6321d6fc4c0f71c4f14c2f799eff252348073b3fe5508783f9f078e7f5e9d76");
+  assert.ok(JSON.stringify(run).length <= 1450, `run result left too little budget headroom: ${JSON.stringify(run).length}`);
   assert.equal(run.truncated, undefined);
 
   const trace = await execute("trace_causal_path", {

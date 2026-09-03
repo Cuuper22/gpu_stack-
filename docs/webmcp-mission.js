@@ -446,7 +446,6 @@
       },
       epoch_page: page,
       source_raw_sha256: projection.source_artifact_sha256,
-      projection_boundary: "Bounded scalar projection; the raw SHA-256 remains authoritative.",
     }, receipt);
   }
 
@@ -485,6 +484,7 @@
     }
     const bridge = await observatory();
     await bridge.focusCausalPath(path.nodeIds, path.edges);
+    scrollToId("causal-field-title");
     const nodeRows = path.nodeIds.map((id) => {
       const node = nodes.get(id);
       return { node_id: id, label: node.label, evidence_class: node.evidence_class };
