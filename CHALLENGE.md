@@ -7,11 +7,11 @@ GPUSTACK is a virtual AI datacenter whose full Python model connects 1,517 varia
 - **Live application:** <https://cuuper22.github.io/gpu_stack-/observatory.html>
 - **Public source:** <https://github.com/Cuuper22/gpu_stack->
 - **Pre-WebMCP baseline:** [`3d7339a87e13c4f809ed223c2aa299fb3f631799`](https://github.com/Cuuper22/gpu_stack-/commit/3d7339a87e13c4f809ed223c2aa299fb3f631799)
-- **Baseline tag:** `pre-webmcp-baseline`
+- **Baseline ref:** [`pre-webmcp-baseline`](https://github.com/Cuuper22/gpu_stack-/tree/pre-webmcp-baseline) (public branch; also an annotated tag in the development checkout)
 
 ## Challenge-window disclosure
 
-GPUSTACK is an existing project. The baseline commit above, merged August 13, 2026, is the exact state immediately before the WebMCP Challenge extension. It is preserved in Git history and tagged so reviewers can separate the new work from the underlying project.
+GPUSTACK is an existing project. The baseline commit above, merged August 13, 2026, is the exact state immediately before the WebMCP Challenge extension. It is preserved as a public immutable comparison ref so reviewers can separate the new work from the underlying project.
 
 ### Existing before the challenge extension
 
