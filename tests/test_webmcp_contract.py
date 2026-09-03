@@ -13,6 +13,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 ADAPTER = ROOT / "docs" / "webmcp-tools.js"
+OBSERVATORY_HTML = ROOT / "docs" / "observatory.html"
 
 TOOL_ORDER = [
     "get_observatory_state",
@@ -371,3 +372,15 @@ def test_adapter_documents_late_bound_bridge_and_human_only_approval() -> None:
     assert "window.GPUStackMission.invoke(toolName, validatedArgs, { signal })" in source
     assert "approval remains an explicit page-only human act" in source
     assert "This never approves or commits it" in source
+
+
+def test_observatory_load_order_and_cache_keys_include_the_bridge_release() -> None:
+    html = OBSERVATORY_HTML.read_text(encoding="utf-8")
+    scripts = [
+        'observatory.js?v=20260903.1',
+        'webmcp-tools.js?v=20260903.1',
+        'webmcp-mission.js?v=20260903.1',
+    ]
+
+    assert all(script in html for script in scripts)
+    assert [html.index(script) for script in scripts] == sorted(html.index(script) for script in scripts)
