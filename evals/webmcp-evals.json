@@ -64,8 +64,8 @@
         "functionName": "inspect_run",
         "arguments": {
           "run_id": "e001-sc1:evaluation:E6-repeated-membership-loss:observable_adaptive",
-          "epoch_offset": 0,
-          "epoch_limit": 8
+          "epoch_offset": 158,
+          "epoch_limit": 6
         }
       }
     ]
@@ -136,14 +136,14 @@
       {
         "role": "user",
         "type": "message",
-        "content": "Stage the scientifically warranted conclusion that no transferable winner claim follows for observable_adaptive over periodic_local across the held-out stress families. Cite the decisive E6 family, both E6 policy runs, the failed learning effect, and the compact and raw semantic-consistency artifacts. Mark confidence as abstain. Do not approve or commit it."
+        "content": "Stage the artifact's typed abstain_without_policy_claim conclusion for observable_adaptive versus periodic_local. Cite the decisive E6 family, both E6 policy runs, the failed learning effect, and the compact and raw semantic-consistency artifacts. Use the current observatory state version. Do not approve or commit it."
       }
     ],
     "expectedCall": [
       {
         "functionName": "stage_conclusion",
         "arguments": {
-          "claim": "No transferable winner claim follows for observable_adaptive over periodic_local across the held-out stress families.",
+          "conclusion_code": "abstain_without_policy_claim",
           "evidence_ids": [
             "adaptive_minus_best_fixed_final_nll",
             "E6-repeated-membership-loss",
@@ -152,8 +152,82 @@
             "369bc4e9b32d6e1fcdd8dadc98c830e5ac5179f4a7204a9f5194e22913fdefdf",
             "d6321d6fc4c0f71c4f14c2f799eff252348073b3fe5508783f9f078e7f5e9d76"
           ],
-          "confidence": "abstain"
+          "expected_state_version": 1
         }
+      }
+    ]
+  },
+  {
+    "name": "Flagship evidence-court journey",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Audit whether the observable adaptive controller deserves a transferable win over periodic_local. Discover the current IDs, compare every held-out family, inspect the decisive E6 transition, open the failed learning gate, and stage only the artifact's warranted conclusion. Do not approve anything."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "get_observatory_state",
+        "arguments": {}
+      },
+      {
+        "functionName": "compare_stress_families",
+        "arguments": {}
+      },
+      {
+        "functionName": "inspect_stress_family",
+        "arguments": {
+          "family_id": "E6-repeated-membership-loss",
+          "include_regions": true
+        }
+      },
+      {
+        "functionName": "inspect_run",
+        "arguments": {
+          "run_id": "e001-sc1:evaluation:E6-repeated-membership-loss:observable_adaptive",
+          "epoch_offset": 158,
+          "epoch_limit": 6
+        }
+      },
+      {
+        "functionName": "open_evidence",
+        "arguments": {
+          "evidence_id": "adaptive_minus_best_fixed_final_nll",
+          "semantic_depth": "researcher"
+        }
+      },
+      {
+        "functionName": "stage_conclusion",
+        "arguments": {
+          "conclusion_code": "abstain_without_policy_claim",
+          "evidence_ids": [
+            "E6-repeated-membership-loss",
+            "e001-sc1:evaluation:E6-repeated-membership-loss:observable_adaptive",
+            "adaptive_minus_best_fixed_final_nll"
+          ],
+          "expected_state_version": 1
+        }
+      }
+    ]
+  },
+  {
+    "name": "Resolve an ambiguous win question from evidence",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "So, does adaptive actually win here? Check the published experiment before answering; don't infer from the dashboard headline."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "get_observatory_state",
+        "arguments": {}
+      },
+      {
+        "functionName": "compare_stress_families",
+        "arguments": {}
       }
     ]
   }

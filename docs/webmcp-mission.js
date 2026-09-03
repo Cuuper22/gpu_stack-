@@ -6,11 +6,20 @@
   const PROJECTION_URL = "data/webmcp-run-projection-v1.json.gz";
   const STORAGE_KEY = "gpustack.webmcp.mission.v1";
   const MAX_RECEIPTS = 40;
+  const CANONICAL_CONCLUSIONS = Object.freeze({
+    abstain_without_policy_claim: "The observable adaptive controller does not earn a transferable winner claim: it abstained under out-of-distribution stress, and every frozen aggregate gate failed.",
+  });
+  const RECEIPT_ORIGIN_LABELS = Object.freeze({
+    webmcp: "WEBMCP",
+    local_tour: "LOCAL TOUR",
+    human: "HUMAN",
+  });
   const REGISTERED_METRICS = Object.freeze([
     "final_held_out_nll",
     "modeled_completion_seconds",
     "inter_site_payload_bytes",
-    "abstention_count",
+    "controller_abstentions",
+    "support_envelope_flag_count",
     "replayed_tokens",
     "divergence_count",
   ]);
@@ -274,12 +283,15 @@
       artifact: {
         experiment_id: semantic.experiment_id,
         sha256: semantic.artifact_sha256,
-        raw_sha256: semantic.full_trace.raw_trace_artifact.artifact_sha256,
         families: families.length,
         runs: runLedger(semantic).length,
         epochs: semantic.full_trace.raw_trace_artifact.epoch_count || 12981,
       },
-      evidence_boundary: "Measured learning + exact accounting; modeled infrastructure; frontier transfer unresolved.",
+      evidence_boundary: {
+        measured: "learning + exact accounting",
+        modeled: "virtual infrastructure",
+        unresolved: "frontier/facility transfer",
+      },
       frozen_result: {
         conclusion: semantic.status.conclusion,
         all_falsifiers_pass: semantic.status.all_falsifiers_pass,
@@ -288,9 +300,9 @@
       },
       registered_ids: {
         families: families.map((family) => family.family_id),
-        policies: [...new Set(runLedger(semantic).map((run) => run.policy_id))],
+        policies: ["observable_adaptive", semantic.comparison.selected_fixed_policy_id],
         causal_nodes: screening.causal_graph.nodes.map((node) => node.node_id),
-        effect_ids: effects.map((effect) => effect.effect_id),
+        failed_gates: effects.filter((effect) => effect.passed === false).map((effect) => effect.effect_id),
       },
       pending_proposal: missionState.pending ? missionState.pending.proposalId : null,
       suggested_next: "compare_stress_families",
@@ -426,8 +438,8 @@
         split: run.split,
         seed: run.seed,
         epoch_count: run.epoch_count,
-        abstention_count: run.abstention_count,
-        ood_epoch_count: run.out_of_distribution_epoch_count,
+        controller_abstentions: run.policy_id === "observable_adaptive" ? run.abstention_count : null,
+        support_envelope_flag_count: run.out_of_distribution_epoch_count,
         final_held_out_nll: run.final_held_out_nll,
         completion_seconds: run.modeled_infrastructure?.completion_seconds,
         inter_site_payload_bytes: run.modeled_infrastructure?.inter_site_payload_bytes,
@@ -512,7 +524,7 @@
     }
     if (rawAliases.has(evidenceId)) {
       if (navigate) {
-        await bridge.selectView({ experiment: "E001-SC1", depth: "researcher" });
+        await bridge.selectView({ experiment: "E001-SC1", depth: "full_trace" });
         scrollToId("semantic-consistency-raw-details");
       }
       return {
@@ -562,7 +574,8 @@
         policy_id: run.policy_id,
         final_held_out_nll: run.final_held_out_nll,
         completion_seconds: run.modeled_infrastructure?.completion_seconds,
-        abstentions: run.abstention_count,
+        controller_abstentions: run.policy_id === "observable_adaptive" ? run.abstention_count : null,
+        support_envelope_flag_count: run.out_of_distribution_epoch_count,
         work_contract_violations: run.exact_accounting?.work_contract_violations || [],
       };
     }
@@ -602,7 +615,7 @@
     const ledgerEntry = ledgers.find((entry) => [entry.assumption_id, entry.evidence_id, entry.id].includes(evidenceId));
     if (ledgerEntry) {
       if (navigate) {
-        await bridge.selectView({ experiment: "E001-SC1", depth: "researcher" });
+        await bridge.selectView({ experiment: "E001-SC1", depth: "full_trace" });
         scrollToId("semantic-consistency-assumptions");
       }
       return { evidence_id: evidenceId, kind: "evidence_boundary", entry: ledgerEntry };
@@ -634,7 +647,8 @@
       final_held_out_nll: run.final_held_out_nll,
       modeled_completion_seconds: run.modeled_infrastructure?.completion_seconds,
       inter_site_payload_bytes: run.modeled_infrastructure?.inter_site_payload_bytes,
-      abstention_count: run.abstention_count,
+      controller_abstentions: run.policy_id === "observable_adaptive" ? run.abstention_count : null,
+      support_envelope_flag_count: run.out_of_distribution_epoch_count,
       replayed_tokens: run.exact_accounting?.replayed_tokens,
       divergence_count: run.diverged ? 1 : 0,
     };
@@ -646,7 +660,7 @@
     const ledger = runLedger(semantic);
     const availablePolicies = [...new Set(ledger.map((run) => run.policy_id))];
     const policyIds = args.policy_ids || ["observable_adaptive", semantic.comparison.selected_fixed_policy_id];
-    const metricIds = args.metric_ids || REGISTERED_METRICS.slice(0, 5);
+    const metricIds = args.metric_ids || REGISTERED_METRICS.slice(0, 6);
     const unknownPolicy = policyIds.find((id) => !availablePolicies.includes(id));
     const unknownMetric = metricIds.find((id) => !REGISTERED_METRICS.includes(id));
     if (unknownPolicy) throw new MissionError("UNKNOWN_POLICY", `No registered policy named ${unknownPolicy}.`, { available_ids: availablePolicies });
@@ -655,10 +669,18 @@
       const runs = ledger.filter((run) => run.split === "evaluation" && run.policy_id === policyId);
       const metrics = {};
       metricIds.forEach((metricId) => {
-        const values = runs.map((run) => Number(metricValue(run, metricId))).filter(Number.isFinite);
-        metrics[metricId] = ["abstention_count", "divergence_count", "replayed_tokens"].includes(metricId)
-          ? values.reduce((sum, value) => sum + value, 0)
-          : median(values);
+        const values = runs
+          .map((run) => metricValue(run, metricId))
+          .filter((value) => value !== null && value !== undefined)
+          .map(Number)
+          .filter(Number.isFinite);
+        if (!values.length) {
+          metrics[metricId] = null;
+        } else {
+          metrics[metricId] = ["controller_abstentions", "support_envelope_flag_count", "divergence_count", "replayed_tokens"].includes(metricId)
+            ? values.reduce((sum, value) => sum + value, 0)
+            : median(values);
+        }
       });
       return { policy_id: policyId, evaluation_runs: runs.length, metrics };
     });
@@ -685,27 +707,33 @@
 
   async function stageConclusion(args, context) {
     const semantic = await semanticArtifact(context.signal);
-    if (args.expected_state_version !== undefined && args.expected_state_version !== missionState.stateVersion) {
+    if (args.expected_state_version !== missionState.stateVersion) {
       throw new MissionError("STALE_STATE", `Expected state version ${args.expected_state_version}, but current version is ${missionState.stateVersion}.`, {
         current_state_version: missionState.stateVersion,
       });
     }
-    if (args.confidence === "supported" && semantic.status.all_falsifiers_pass !== true) {
-      throw new MissionError("EVIDENCE_CONFLICT", "A supported conclusion is not admissible: all four frozen aggregate gates failed. Use qualified or abstain and cite the failed gates.", {
+    if (missionState.pending) {
+      throw new MissionError("PENDING_REVIEW_EXISTS", `Human review is already pending for ${missionState.pending.proposalId}. Approve or reject it before staging another conclusion.`, {
+        pending_proposal: missionState.pending.proposalId,
+      });
+    }
+    if (args.conclusion_code !== semantic.status.conclusion || !CANONICAL_CONCLUSIONS[args.conclusion_code]) {
+      throw new MissionError("EVIDENCE_CONFLICT", `The immutable artifact serializes ${semantic.status.conclusion}; a different conclusion cannot be staged.`, {
         frozen_conclusion: semantic.status.conclusion,
-        recommended_confidence: "abstain",
       });
     }
     const resolved = [];
     for (const evidenceId of args.evidence_ids) {
       resolved.push(await resolveEvidence(evidenceId, "researcher", false, context.signal));
     }
+    abortIfNeeded(context.signal);
     const proposal = {
       proposalId: `proposal-${String(missionState.nextProposal).padStart(3, "0")}`,
-      claim: args.claim,
+      claim: CANONICAL_CONCLUSIONS[args.conclusion_code],
+      conclusionCode: args.conclusion_code,
       evidenceIds: [...args.evidence_ids],
       evidenceKinds: resolved.map((entry) => entry.kind),
-      confidence: args.confidence,
+      confidence: "abstain",
       frozenConclusion: semantic.status.conclusion,
       createdAt: new Date().toISOString(),
     };
@@ -725,6 +753,7 @@
       ok: true,
       proposal_id: proposal.proposalId,
       status: "pending_human_review",
+      conclusion_code: proposal.conclusionCode,
       confidence: proposal.confidence,
       evidence_ids: proposal.evidenceIds,
       frozen_conclusion: proposal.frozenConclusion,
@@ -751,7 +780,7 @@
     try {
       abortIfNeeded(context.signal);
       const result = await handler(args, context);
-      abortIfNeeded(context.signal);
+      if (toolName !== "stage_conclusion") abortIfNeeded(context.signal);
       refreshRegistrationStatus();
       return result;
     } catch (error) {
@@ -827,7 +856,8 @@
         item.className = "webmcp-receipt";
         item.dataset.status = receipt.status;
         const heading = document.createElement("strong");
-        heading.textContent = `${receipt.tool.replaceAll("_", " ")} · ${receipt.status}`;
+        const originLabel = RECEIPT_ORIGIN_LABELS[receipt.origin] || String(receipt.origin || "webmcp").toUpperCase();
+        heading.textContent = `${originLabel} · ${receipt.tool.replaceAll("_", " ")} · ${receipt.status}`;
         const summary = document.createElement("p");
         summary.textContent = receipt.summary;
         const metadata = document.createElement("p");
@@ -958,14 +988,13 @@
       await invoke("open_evidence", { evidence_id: "adaptive_minus_best_fixed_final_nll", semantic_depth: "researcher" }, { origin: "local_tour" });
       await pause(220);
       await invoke("stage_conclusion", {
-        claim: "The observable adaptive controller does not earn a transferable winner claim: it abstained under out-of-distribution stress, and every frozen aggregate gate failed.",
+        conclusion_code: "abstain_without_policy_claim",
         evidence_ids: [
           "E6-repeated-membership-loss",
           "adaptive_minus_best_fixed_final_nll",
           "adaptive_to_best_fixed_inter_site_payload_ratio",
           "adaptive_to_best_fixed_modeled_completion_time_ratio",
         ],
-        confidence: "abstain",
         expected_state_version: missionState.stateVersion,
       }, { origin: "local_tour" });
       setStatus("Audit staged · waiting for human approval", "waiting");
@@ -990,6 +1019,10 @@
   }
 
   function refreshRegistrationStatus(forcedState) {
+    if (!forcedState && missionState.pending) {
+      setStatus("Audit staged · waiting for human approval", "waiting");
+      return;
+    }
     const webmcp = window.GPUStackWebMCP;
     if (webmcp?.supported) {
       webmcp.ready.then((status) => {

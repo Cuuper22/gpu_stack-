@@ -75,9 +75,9 @@ Registration occurs in the top-level document. If `document.modelContext` is una
 | `trace_causal_path` | Read-only | Finds and highlights a bounded path through the seven-node conceptual evidence graph without collapsing its branches or evidence classes |
 | `open_evidence` | Read-only | Opens a registered artifact, source result, assumption, uncertainty item, or missing-evidence boundary at a chosen semantic depth |
 | `compare_policies` | Read-only | Compares up to three registered policies; by default it uses `observable_adaptive` and the calibration-frozen `periodic_local` comparator |
-| `stage_conclusion` | Staging write | Places a supported, qualified, or abstain claim plus one to eight evidence IDs in the pending tray; it cannot approve or commit the claim |
+| `stage_conclusion` | Staging write | Places the artifact's typed `abstain_without_policy_claim` conclusion plus one to eight evidence IDs in the pending tray; free-form agent claims are rejected and it cannot approve or commit the conclusion |
 
-The first seven tools are annotated read-only. `stage_conclusion` affects only local pending-review state, never the source experiment JSON. No WebMCP tool can approve, reject, or undo a conclusion: those actions are page-only human controls. The agent can explore broadly and prepare a coherent evidence bundle, but it must stop at the judgment boundary.
+The first seven tools are annotated read-only. `stage_conclusion` requires the current state version, refuses to overwrite an existing pending review, and affects only local pending-review state—never the source experiment JSON. No WebMCP tool can approve, reject, edit, or undo a conclusion: those actions are page-only human controls. The agent can explore broadly and prepare a coherent evidence bundle, but it must stop at the judgment boundary.
 
 ## Testing
 
