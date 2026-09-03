@@ -77,7 +77,7 @@ Registration occurs in the top-level document. If `document.modelContext` is una
 | `compare_policies` | Read-only | Compares up to three registered policies; by default it uses `observable_adaptive` and the calibration-frozen `periodic_local` comparator |
 | `stage_conclusion` | Staging write | Places the artifact's typed `abstain_without_policy_claim` conclusion plus one to eight evidence IDs in the pending tray; free-form agent claims are rejected and it cannot approve or commit the conclusion |
 
-The first seven tools are annotated read-only. `stage_conclusion` requires the current state version, refuses to overwrite an existing pending review, and affects only local pending-review state—never the source experiment JSON. No WebMCP tool can approve, reject, edit, or undo a conclusion: those actions are page-only human controls. The agent can explore broadly and prepare a coherent evidence bundle, but it must stop at the judgment boundary.
+The first seven tools are annotated read-only. `stage_conclusion` requires the current state version, a failed frozen gate, and an adaptive family or run with controller abstentions; it performs a final compare-and-swap and refuses to overwrite an existing pending review. It affects only local pending-review state—never the source experiment JSON. No WebMCP tool can approve, reject, edit, or undo a conclusion: those actions are page-only human controls. A human edit is recorded explicitly as an override, and the approved claim, evidence, artifact code, timestamp, and override status remain visible until undone. The agent can explore broadly and prepare a coherent evidence bundle, but it must stop at the judgment boundary.
 
 ## Testing
 
