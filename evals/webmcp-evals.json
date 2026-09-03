@@ -1,0 +1,160 @@
+[
+  {
+    "name": "Read the observatory before auditing",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Read the current GPUSTACK observatory state and tell me which immutable experiment, policies, families, evidence boundary, and review state are available. Do not guess identifiers."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "get_observatory_state",
+        "arguments": {}
+      }
+    ]
+  },
+  {
+    "name": "Compare every held-out stress family",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Compare observable_adaptive with the frozen comparator across all six held-out E001-SC1 stress families. Include learning, modeled completion time, payload, replayed work, and abstentions."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "compare_stress_families",
+        "arguments": {}
+      }
+    ]
+  },
+  {
+    "name": "Inspect the decisive repeated-membership-loss family",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Inspect E6-repeated-membership-loss, including its uncertainty regions, adaptive-versus-comparator delta, abstention reason, and linked runs."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "inspect_stress_family",
+        "arguments": {
+          "family_id": "E6-repeated-membership-loss",
+          "include_regions": true
+        }
+      }
+    ]
+  },
+  {
+    "name": "Inspect a bounded page of the decisive candidate run",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Inspect the first eight projected epochs of the observable_adaptive run in the E6 held-out family. Keep the result bounded and preserve its link to the authoritative trace."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "inspect_run",
+        "arguments": {
+          "run_id": "e001-sc1:evaluation:E6-repeated-membership-loss:observable_adaptive",
+          "epoch_offset": 0,
+          "epoch_limit": 8
+        }
+      }
+    ]
+  },
+  {
+    "name": "Trace the causal evidence DAG",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Trace the published evidence path from site availability to time to target. Preserve the relation labels and evidence classes, and do not invent a linear chain where the graph branches."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "trace_causal_path",
+        "arguments": {
+          "from_node": "site_availability",
+          "to_node": "time_to_target",
+          "max_nodes": 7
+        }
+      }
+    ]
+  },
+  {
+    "name": "Open the semantic-consistency evidence boundary",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Open the E001-SC1 semantic-consistency evidence at full-trace depth and distinguish measured learning, exact accounting, modeled infrastructure, and unresolved transfer."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "open_evidence",
+        "arguments": {
+          "evidence_id": "369bc4e9b32d6e1fcdd8dadc98c830e5ac5179f4a7204a9f5194e22913fdefdf",
+          "semantic_depth": "full_trace"
+        }
+      }
+    ]
+  },
+  {
+    "name": "Compare the adaptive policy with its frozen comparator",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Compare observable_adaptive with the calibration-frozen periodic_local policy using the registered E001-SC1 metrics."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "compare_policies",
+        "arguments": {
+          "policy_ids": [
+            "observable_adaptive",
+            "periodic_local"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "name": "Stage the warranted abstention without approving it",
+    "messages": [
+      {
+        "role": "user",
+        "type": "message",
+        "content": "Stage the scientifically warranted conclusion that no transferable winner claim follows for observable_adaptive over periodic_local across the held-out stress families. Cite the decisive E6 family, both E6 policy runs, the failed learning effect, and the compact and raw semantic-consistency artifacts. Mark confidence as abstain. Do not approve or commit it."
+      }
+    ],
+    "expectedCall": [
+      {
+        "functionName": "stage_conclusion",
+        "arguments": {
+          "claim": "No transferable winner claim follows for observable_adaptive over periodic_local across the held-out stress families.",
+          "evidence_ids": [
+            "adaptive_minus_best_fixed_final_nll",
+            "E6-repeated-membership-loss",
+            "e001-sc1:evaluation:E6-repeated-membership-loss:observable_adaptive",
+            "e001-sc1:evaluation:E6-repeated-membership-loss:periodic_local",
+            "369bc4e9b32d6e1fcdd8dadc98c830e5ac5179f4a7204a9f5194e22913fdefdf",
+            "d6321d6fc4c0f71c4f14c2f799eff252348073b3fe5508783f9f078e7f5e9d76"
+          ],
+          "confidence": "abstain"
+        }
+      }
+    ]
+  }
+]

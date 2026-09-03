@@ -7,6 +7,12 @@
 **Repository:** <https://github.com/Cuuper22/gpu_stack-><br>
 **Research program:** [RESEARCH.md](RESEARCH.md)
 
+## WebMCP Challenge 2026
+
+GPUSTACK's [Causal Observatory](https://cuuper22.github.io/gpu_stack-/observatory.html) is now a shared evidence-audit surface for people and browser agents. Eight WebMCP tools let an agent compare the immutable E001-SC1 results, inspect bounded run traces, follow claims through the causal evidence graph, and stage a review conclusion while the human keeps control of approval and undo.
+
+See [CHALLENGE.md](CHALLENGE.md) for the exact pre-challenge baseline, challenge-window work, tool contracts, architecture, tests, and demo path.
+
 `gpu_stack` started as a curiosity project in the overlap between my AI work and my physics brain.
 
 The question was simple enough to be annoying: if frontier training is supposedly "more GPUs, more data, more money," where does that sentence actually bottom out?
