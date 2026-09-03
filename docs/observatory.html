@@ -15,9 +15,12 @@
   <link rel="stylesheet" href="styles/60-taskbar.css">
   <link rel="stylesheet" href="styles/70-pixel-icons.css">
   <link rel="stylesheet" href="styles/95-observatory-cuperos.css?v=20260717.2">
+  <link rel="stylesheet" href="styles/99-webmcp-mission.css?v=20260903.1">
   <script src="observatory.js?v=20260717.1" defer></script>
+  <script src="webmcp-tools.js?v=20260903.1" defer></script>
+  <script src="webmcp-mission.js?v=20260903.1" defer></script>
 </head>
-<body data-depth="freshman" data-data-state="loading">
+<body data-depth="freshman" data-data-state="loading" data-mission-mode="active">
   <a class="skip-link" href="#observatory-main">Skip to experiment</a>
 
   <div class="obs-desktop">
@@ -66,6 +69,85 @@
       <span>Share state</span>
     </button>
   </header>
+
+  <section class="mission-control" id="mission-control" aria-labelledby="mission-control-title">
+    <h2 class="visually-hidden" id="mission-control-title">WebMCP causal mission control</h2>
+
+    <div class="mission-identity" aria-hidden="true">
+      <span class="mission-signal"></span>
+      <span>Causal mission</span>
+    </div>
+
+    <div class="mission-objective-block">
+      <span class="mission-bar-label">Objective:</span>
+      <strong id="mission-objective">Audit whether adaptive training deserves a transferable win claim</strong>
+    </div>
+
+    <div class="mission-policy">
+      <span class="mission-bar-label">Policy:</span>
+      <strong>Human approval required</strong>
+    </div>
+
+    <div class="mission-live-block">
+      <span class="mission-bar-label">Live status:</span>
+      <span class="mission-live-copy" id="mission-status" role="status" aria-live="polite" aria-atomic="true">Connecting to the observatory…</span>
+      <span class="mission-meter" aria-hidden="true">
+        <i></i><i></i><i></i><i></i><i></i><i></i>
+      </span>
+    </div>
+
+    <div class="mission-utility-actions" aria-label="Mission controls">
+      <button class="mission-button mission-button--compact" id="mission-tour" type="button" aria-controls="observatory-main pending-changes webmcp-receipts">Tour</button>
+      <button class="mission-button mission-button--compact" id="mission-reset" type="button" aria-controls="mission-control pending-changes webmcp-receipts">Reset</button>
+    </div>
+  </section>
+
+  <aside class="mission-sidecar" aria-label="Human decision and WebMCP receipt rail">
+    <section class="mission-panel mission-panel--pending" aria-labelledby="pending-changes-title">
+      <header class="mission-panel-header">
+        <h2 id="pending-changes-title">Pending changes</h2>
+        <output class="mission-count" id="pending-change-count" aria-label="Pending change count">0 staged</output>
+      </header>
+
+      <div class="mission-list" id="pending-changes" role="region" aria-label="Changes awaiting human review" aria-live="polite" aria-atomic="false">
+        <div class="mission-empty">
+          <span class="mission-empty-mark" aria-hidden="true"></span>
+          <div>
+            <strong>No conclusion is staged</strong>
+            <p>Agent evidence bundles land here before they can become a recorded decision.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mission-decision-actions" aria-label="Review selected change">
+        <button class="mission-button" id="mission-edit" type="button" data-human-action="edit" aria-controls="pending-changes" disabled>Edit</button>
+        <button class="mission-button mission-button--reject" id="mission-reject" type="button" data-human-action="reject" aria-controls="pending-changes" disabled>Reject</button>
+        <button class="mission-button mission-button--approve" id="mission-approve" type="button" data-human-action="approve" aria-controls="pending-changes webmcp-receipts" disabled>Approve</button>
+      </div>
+      <p class="mission-human-boundary">Human approval is required before any staged conclusion is recorded.</p>
+    </section>
+
+    <section class="mission-panel mission-panel--receipts" aria-labelledby="webmcp-receipts-title">
+      <header class="mission-panel-header">
+        <h2 id="webmcp-receipts-title">WebMCP receipts</h2>
+        <output class="mission-count" id="webmcp-receipt-count" aria-label="Receipt count">0 items</output>
+      </header>
+
+      <ol class="receipt-list" id="webmcp-receipts" aria-label="WebMCP action receipts" aria-live="polite" aria-atomic="false">
+        <li class="mission-empty mission-empty--receipt">
+          <span class="mission-empty-mark" aria-hidden="true"></span>
+          <div>
+            <strong>No WebMCP calls yet</strong>
+            <p>Semantic calls appear with evidence IDs and visible state deltas.</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="mission-receipt-actions">
+        <button class="mission-button" id="mission-undo" type="button" data-human-action="undo" aria-controls="pending-changes webmcp-receipts" disabled>Undo last change</button>
+      </div>
+    </section>
+  </aside>
 
   <main id="observatory-main">
     <section class="question-band" aria-labelledby="experiment-question">

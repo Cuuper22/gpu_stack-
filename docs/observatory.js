@@ -212,6 +212,8 @@
   let inspectorHidden = false;
   let siteRailInitialized = false;
   let resizeFrame = 0;
+  let resolveObservatoryReady;
+  const observatoryReady = new Promise((resolve) => { resolveObservatoryReady = resolve; });
 
   class ArtifactContractError extends Error {}
 
@@ -1060,6 +1062,8 @@
     loadCheckpointEnergyArtifact();
     loadRackDephasingArtifact();
     loadSemanticConsistencyArtifact();
+    resolveObservatoryReady();
+    document.dispatchEvent(new CustomEvent("gpustack:observatory-ready"));
   }
 
   document.addEventListener("DOMContentLoaded", init, { once: true });
@@ -1088,7 +1092,7 @@
     renderRackDephasingV3();
     renderSemanticConsistencyV1();
     renderExperimentView();
-    if (state.experiment === "E001-SC1" && state.depth === "full_trace" && semanticConsistencyArtifact && !semanticConsistencyRawArtifact && !semanticConsistencyRawLoad && !semanticConsistencyRawArtifactError) {
+    if (state.experiment === "E001-SC1" && state.depth === "full_trace" && dom.semanticconsistencyrawdetails?.open && semanticConsistencyArtifact && !semanticConsistencyRawArtifact && !semanticConsistencyRawLoad && !semanticConsistencyRawArtifactError) {
       loadSemanticConsistencyRawArtifact().catch(() => {});
     }
   }
@@ -2713,6 +2717,7 @@
       const stateLabel = passed === true ? "PASS" : passed === false ? "FAIL" : "UNRESOLVED";
       const card = element("article", "equal-work-effect-card");
       card.dataset.passed = passed === null || passed === undefined ? "unresolved" : String(passed);
+      card.dataset.effectId = effect.effect_id || "";
       const header = element("header");
       header.append(element("h4", "", effect.label), element("span", "equal-work-effect-status", stateLabel));
       card.append(
@@ -2944,6 +2949,7 @@
     dom.semanticconsistencyfamilybody.replaceChildren();
     semanticFamilyResults().forEach((family) => {
       const row = element("tr");
+      row.dataset.familyId = family.family_id || "";
       const stateCell = element("td", "", `${semanticRankingStateLabel(family.ranking_state)}${family.abstention_reason ? ` · ${family.abstention_reason}` : ""}`);
       stateCell.dataset.state = family.ranking_state || "unmeasured";
       row.append(
@@ -4028,6 +4034,8 @@
         class: `causal-edge${selectedId && (edge.source === selectedId || edge.target === selectedId) ? " is-selected" : ""}`,
         d: causalEdgePath(source, target, mobile),
         "marker-end": "url(#causal-arrow)",
+        "data-source": edge.source,
+        "data-target": edge.target,
       });
       svg.append(path);
       if (!mobile) {
@@ -4052,6 +4060,7 @@
       const kind = normalizedEvidence(node.evidence_class);
       const group = svgElement("g", {
         class: `causal-node node--${kind}${state.node === node.node_id ? " is-selected" : ""}`,
+        "data-node-id": node.node_id,
         transform: `translate(${box.x} ${box.y})`,
         role: "button",
         tabindex: 0,
@@ -4201,6 +4210,7 @@
     const orderedRuns = [...artifactRuns()].sort((a, b) => POLICY_ORDER.indexOf(a.policy) - POLICY_ORDER.indexOf(b.policy));
     orderedRuns.forEach((run) => {
       const row = element("tr");
+      row.dataset.policyId = run.policy || "";
       row.classList.toggle("is-selected", run.policy === state.policy);
       const policyCell = element("td");
       const policyButton = element("button", "policy-select", policyLabel(run.policy));
@@ -5004,5 +5014,53 @@
     dom.rawtracesummary.textContent = `${eventCount.toLocaleString("en-US")} artifact event records · ${artifact.schema}`;
     dom.rawtracejson.textContent = JSON.stringify(artifact, null, 2);
   }
+
+  const observatoryBridge = Object.freeze({
+    version: "1.0.0",
+    whenReady() {
+      return observatoryReady;
+    },
+    getState() {
+      return { ...state };
+    },
+    getArtifactStatus() {
+      return {
+        screening: artifact ? "ready" : artifactError ? "error" : "loading",
+        semanticConsistency: semanticConsistencyArtifact ? "ready" : semanticConsistencyArtifactError ? "error" : "loading",
+        semanticRaw: semanticConsistencyRawArtifact ? "ready" : semanticConsistencyRawArtifactError ? "error" : "not_loaded",
+      };
+    },
+    async selectView(patch, options = {}) {
+      await observatoryReady;
+      commitState(patch, { replace: Boolean(options.replace) });
+      return { ...state };
+    },
+    async focusCausalPath(nodeIds, edges = []) {
+      await observatoryReady;
+      const pathNodes = Array.isArray(nodeIds) ? nodeIds.filter((value) => typeof value === "string") : [];
+      const terminalNode = pathNodes[pathNodes.length - 1] || "time_to_target";
+      commitState({ experiment: "E001", depth: "researcher", node: terminalNode });
+      const selectedNodes = new Set(pathNodes);
+      const selectedEdges = new Set(edges.map((edge) => `${edge.source}>${edge.target}`));
+      document.querySelectorAll("#causal-svg [data-node-id]").forEach((node) => {
+        node.classList.toggle("is-mission-path", selectedNodes.has(node.dataset.nodeId));
+      });
+      document.querySelectorAll("#causal-svg [data-source][data-target]").forEach((edge) => {
+        edge.classList.toggle("is-mission-path", selectedEdges.has(`${edge.dataset.source}>${edge.dataset.target}`));
+      });
+      byId("causal-field")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return { ...state };
+    },
+    announce(message) {
+      announce(String(message || ""));
+    },
+  });
+
+  Object.defineProperty(window, "GPUStackObservatory", {
+    configurable: false,
+    enumerable: true,
+    writable: false,
+    value: observatoryBridge,
+  });
 
 })();

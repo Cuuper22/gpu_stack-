@@ -1,0 +1,769 @@
+/* GPUSTACK WebMCP mission layer.
+   This file intentionally loads last: it extends the existing CuperOS
+   observatory without changing the evidence grammar underneath it. */
+
+:root {
+  --mission-rail: clamp(330px, 24vw, 390px);
+  --mission-bar-height: 50px;
+  --mission-ready: oklch(0.55 0.17 142);
+  --mission-wait: oklch(0.55 0.14 88);
+  --mission-cyan-wash: oklch(0.94 0.045 195);
+  --mission-gold-wash: oklch(0.95 0.075 88);
+  --mission-red-wash: oklch(0.94 0.04 28);
+}
+
+body[data-mission-mode="active"] .obs-desktop {
+  width: min(100% - 20px, 1660px);
+}
+
+/* Reserve a real column for the rail. It never floats over evidence. */
+.obs-window-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--mission-rail);
+  align-items: start;
+}
+
+.obs-header,
+.mission-control,
+.obs-footer {
+  grid-column: 1 / -1;
+}
+
+.obs-header {
+  grid-row: 1;
+}
+
+.mission-control {
+  grid-row: 2;
+}
+
+#observatory-main {
+  grid-row: 3;
+  grid-column: 1;
+  width: 100%;
+  min-width: 0;
+  border-right: 2px solid var(--inset-dark);
+}
+
+.mission-sidecar {
+  grid-row: 3;
+  grid-column: 2;
+}
+
+.obs-footer {
+  grid-row: 4;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mission bar                                                         */
+/* ------------------------------------------------------------------ */
+
+.mission-control {
+  position: sticky;
+  z-index: 38;
+  top: var(--obs-header-height);
+  display: grid;
+  grid-template-columns: auto minmax(220px, 1fr) auto minmax(300px, 1.25fr) auto;
+  min-height: var(--mission-bar-height);
+  margin: 0;
+  border-top: 2px solid var(--inset-light);
+  border-bottom: 2px solid var(--inset-dark);
+  background: var(--pane-bright);
+  box-shadow: 0 2px 0 oklch(0.18 0.006 250 / 0.14);
+  color: var(--text-dark);
+  font: 600 13px/1.2 var(--font-display);
+}
+
+.mission-control > div {
+  min-width: 0;
+  min-height: calc(var(--mission-bar-height) - 4px);
+  padding: 8px 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mission-control > div + div {
+  border-left: 2px solid var(--inset-dark);
+  box-shadow: inset 2px 0 0 var(--inset-light);
+}
+
+.mission-identity {
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
+  white-space: nowrap;
+}
+
+.mission-signal {
+  position: relative;
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+  border: 2px solid var(--accent-cyan-deep);
+  transform: rotate(45deg);
+  background: var(--pane-bright);
+}
+
+.mission-signal::after {
+  position: absolute;
+  inset: 3px;
+  content: "";
+  background: var(--accent-cyan-deep);
+}
+
+.mission-bar-label {
+  flex: 0 0 auto;
+  color: var(--text-soft);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.035em;
+}
+
+.mission-objective-block strong,
+.mission-live-copy {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mission-objective-block strong {
+  font-weight: 700;
+}
+
+.mission-policy strong {
+  color: var(--danger-red);
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mission-live-block {
+  overflow: hidden;
+}
+
+.mission-live-copy {
+  flex: 1 1 auto;
+}
+
+body[data-mission-status="working"] .mission-live-copy {
+  color: var(--title-bar);
+}
+
+body[data-mission-status="waiting"] .mission-live-copy,
+body[data-mission-status="waiting"] .mission-signal {
+  color: var(--mission-wait);
+  border-color: var(--mission-wait);
+}
+
+body[data-mission-status="waiting"] .mission-signal::after {
+  background: var(--mission-wait);
+}
+
+body[data-mission-status="error"] .mission-live-copy,
+body[data-mission-status="error"] .mission-signal {
+  color: var(--danger-red);
+  border-color: var(--danger-red);
+}
+
+body[data-mission-status="error"] .mission-signal::after {
+  background: var(--danger-red);
+}
+
+body[data-mission-status="fallback"] .mission-live-copy {
+  color: var(--text-soft);
+}
+
+.mission-meter {
+  display: grid;
+  grid-template-columns: repeat(6, 6px);
+  gap: 3px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.mission-meter i {
+  width: 6px;
+  height: 10px;
+  border: 1px solid oklch(0.31 0.01 250);
+  background: var(--mission-ready);
+  box-shadow: inset 1px 1px 0 oklch(0.86 0.12 142);
+}
+
+.mission-meter i:nth-child(5),
+.mission-meter i:nth-child(6) {
+  animation: mission-meter-pulse 1400ms steps(2, end) infinite;
+}
+
+body[data-mission-status="waiting"] .mission-meter i {
+  background: var(--mission-wait);
+}
+
+body[data-mission-status="error"] .mission-meter i {
+  background: var(--danger-red);
+}
+
+body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
+  background: var(--chrome-well);
+  box-shadow: none;
+}
+
+.mission-utility-actions {
+  gap: 5px !important;
+  padding-right: 8px !important;
+  padding-left: 8px !important;
+}
+
+@keyframes mission-meter-pulse {
+  50% {
+    background: var(--chrome-well);
+    box-shadow: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Human decision rail                                                 */
+/* ------------------------------------------------------------------ */
+
+.mission-sidecar {
+  position: sticky;
+  z-index: 18;
+  top: calc(var(--obs-header-height) + var(--mission-bar-height));
+  align-self: start;
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  max-height: calc(100vh - var(--obs-header-height) - var(--mission-bar-height) - 68px);
+  padding: 8px;
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--window-chrome);
+}
+
+.mission-panel {
+  min-width: 0;
+  border: 2px outset var(--button-face);
+  background: var(--pane-bright);
+  box-shadow: 1px 1px 0 oklch(0.16 0.008 250 / 0.28);
+}
+
+.mission-panel-header {
+  min-height: 34px;
+  padding: 6px 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 2px solid var(--inset-dark);
+  background: linear-gradient(180deg, var(--pane-bright), var(--chrome-well));
+}
+
+.mission-panel-header h2 {
+  margin: 0;
+  color: var(--text-dark);
+  font: 700 14px/1.1 var(--font-display);
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.mission-count {
+  flex: 0 0 auto;
+  color: var(--text-soft);
+  font: 500 12px/1 var(--font-mono);
+}
+
+.mission-list,
+.receipt-list {
+  min-width: 0;
+  margin: 0;
+  padding: 7px;
+  display: grid;
+  gap: 7px;
+  list-style: none;
+  background: var(--chrome-well-bright);
+}
+
+.mission-list {
+  max-height: min(34vh, 330px);
+  overflow: auto;
+}
+
+.receipt-list {
+  max-height: min(32vh, 300px);
+  overflow: auto;
+}
+
+.mission-empty {
+  min-height: 76px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  border: 1px dashed var(--chrome-border);
+  background: var(--pane-bright);
+  color: var(--text-soft);
+}
+
+.mission-empty--receipt {
+  min-height: 70px;
+}
+
+.mission-empty-mark {
+  width: 11px;
+  height: 11px;
+  margin-top: 3px;
+  border: 2px solid var(--chrome-border);
+  transform: rotate(45deg);
+}
+
+.mission-empty strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--text-dark);
+  font: 700 12px/1.25 var(--font-display);
+  text-transform: uppercase;
+}
+
+.mission-empty p {
+  margin: 0;
+  font: 500 12px/1.35 var(--font-display);
+}
+
+/* The bridge can render either class names or semantic data attributes.
+   Both receive the same compact, evidence-first card treatment. */
+.mission-change,
+.pending-change,
+#pending-changes > [data-change-id] {
+  padding: 10px 11px;
+  border: 1px solid var(--accent-cyan-deep);
+  background: var(--mission-cyan-wash);
+  box-shadow: inset 0 0 0 1px oklch(0.92 0.035 195);
+  color: var(--text-dark);
+}
+
+.mission-change[data-kind="assumption"],
+.pending-change[data-kind="assumption"],
+#pending-changes > [data-change-kind="assumption"],
+.mission-change[data-kind="conclusion"],
+.pending-change[data-kind="conclusion"],
+#pending-changes > [data-change-kind="conclusion"] {
+  border-color: var(--gold-line);
+  background: var(--mission-gold-wash);
+  box-shadow: inset 0 0 0 1px oklch(0.94 0.065 88);
+}
+
+.mission-change[aria-selected="true"],
+.pending-change[aria-selected="true"],
+#pending-changes > [data-selected="true"] {
+  outline: 2px solid var(--title-bar);
+  outline-offset: -3px;
+}
+
+.mission-change h3,
+.pending-change h3,
+#pending-changes > [data-change-id] h3 {
+  margin: 0 0 8px;
+  font: 700 13px/1.25 var(--font-display);
+}
+
+.mission-change p,
+.pending-change p,
+#pending-changes > [data-change-id] p {
+  margin: 4px 0;
+  font: 500 12px/1.35 var(--font-display);
+  overflow-wrap: anywhere;
+}
+
+.mission-change code,
+.pending-change code,
+#pending-changes > [data-change-id] code {
+  font: 500 14px/1 var(--font-mono);
+}
+
+.mission-claim-editor {
+  display: block;
+  width: 100%;
+  min-height: 118px;
+  max-height: 240px;
+  margin: 6px 0 8px;
+  padding: 8px 9px;
+  resize: vertical;
+  border: 2px inset var(--window-chrome);
+  border-radius: 0;
+  background: var(--pane-bright);
+  color: var(--text-dark);
+  font: 500 13px/1.45 var(--font-display);
+}
+
+.mission-claim-editor:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
+.mission-decision-actions,
+.mission-receipt-actions {
+  padding: 7px;
+  display: grid;
+  gap: 7px;
+  border-top: 2px solid var(--inset-light);
+  background: var(--window-chrome);
+}
+
+.mission-decision-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mission-receipt-actions {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mission-button {
+  min-width: 0;
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 2px outset var(--button-face);
+  border-radius: 0;
+  background: var(--button-face);
+  color: var(--text-dark);
+  font: 700 12px/1 var(--font-display);
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.mission-button:hover:not(:disabled) {
+  background: var(--button-hover);
+  color: var(--title-bar);
+}
+
+.mission-button:active:not(:disabled) {
+  border-style: inset;
+}
+
+.mission-button:disabled {
+  cursor: not-allowed;
+  color: oklch(0.50 0.004 250);
+  text-shadow: 1px 1px 0 var(--inset-light);
+  opacity: 0.72;
+}
+
+.mission-button--compact {
+  min-height: 28px;
+  padding: 4px 7px;
+  font-size: 11px;
+}
+
+.mission-button--reject:not(:disabled) {
+  color: var(--danger-red);
+}
+
+.mission-button--approve:not(:disabled) {
+  color: oklch(0.42 0.16 142);
+}
+
+.mission-human-boundary {
+  margin: 0;
+  padding: 6px 9px;
+  border-top: 2px solid var(--inset-dark);
+  background: var(--chrome-well);
+  color: var(--text-dark);
+  font: 600 11px/1.3 var(--font-display);
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ */
+/* Receipts                                                            */
+/* ------------------------------------------------------------------ */
+
+.receipt-list > li:not(.mission-empty),
+.webmcp-receipt,
+.receipt-item {
+  position: relative;
+  min-width: 0;
+  padding: 9px 10px 9px 27px;
+  border: 1px solid var(--chrome-border);
+  background: var(--pane-bright);
+  color: var(--text-dark);
+  font: 500 12px/1.35 var(--font-display);
+}
+
+.receipt-list > li:not(.mission-empty)::before,
+.webmcp-receipt::before,
+.receipt-item::before {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  width: 9px;
+  height: 9px;
+  content: "";
+  border: 2px solid var(--mission-ready);
+  transform: rotate(45deg);
+}
+
+.receipt-list > li[data-status="pending"] {
+  border-color: var(--gold-line);
+  background: var(--mission-gold-wash);
+}
+
+.receipt-list > li[data-status="pending"]::before {
+  border-color: var(--mission-wait);
+}
+
+.receipt-list > li[data-status="rejected"],
+.receipt-list > li[data-status="failed"] {
+  border-color: var(--danger-red);
+  background: var(--mission-red-wash);
+}
+
+.receipt-list > li[data-status="rejected"]::before,
+.receipt-list > li[data-status="failed"]::before {
+  border-color: var(--danger-red);
+}
+
+.receipt-list strong {
+  font-weight: 700;
+}
+
+.receipt-list code,
+.receipt-list time,
+.receipt-id,
+.receipt-delta {
+  font-family: var(--font-mono);
+}
+
+.receipt-list p {
+  margin: 3px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.receipt-evidence {
+  color: var(--text-soft);
+  font: 500 13px/1.25 var(--font-mono);
+}
+
+/* Agent-read paths are a temporary cyan spotlight, never a new evidence
+   class. The node's original evidence label and glyph remain untouched. */
+#causal-svg .causal-node.is-mission-path .node-frame {
+  fill: var(--mission-cyan-wash);
+  stroke: var(--accent-cyan-deep);
+  stroke-width: 3;
+  filter: drop-shadow(2px 2px 0 oklch(0.28 0.06 195 / 0.24));
+}
+
+#causal-svg .causal-edge.is-mission-path {
+  stroke: var(--accent-cyan-deep);
+  stroke-width: 3;
+  stroke-dasharray: 8 4;
+  animation: mission-path-flow 900ms linear infinite;
+}
+
+@keyframes mission-path-flow {
+  to {
+    stroke-dashoffset: -12;
+  }
+}
+
+/* Family rows and effect cards opened by an agent keep their original
+   PASS/FAIL and evidence state; this gold focus band only shows location. */
+.is-mission-evidence:not(tr) {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid var(--accent-gold);
+  outline-offset: 3px;
+  scroll-margin-top: calc(var(--obs-header-height) + var(--mission-bar-height) + 18px);
+  animation: mission-evidence-arrive 700ms steps(2, end) 2;
+}
+
+tr.is-mission-evidence > th,
+tr.is-mission-evidence > td {
+  background: var(--mission-gold-wash);
+  box-shadow: inset 0 3px 0 var(--accent-gold), inset 0 -3px 0 var(--accent-gold);
+}
+
+tr.is-mission-evidence > :first-child {
+  box-shadow: inset 3px 0 0 var(--accent-gold), inset 0 3px 0 var(--accent-gold), inset 0 -3px 0 var(--accent-gold);
+}
+
+tr.is-mission-evidence > :last-child {
+  box-shadow: inset -3px 0 0 var(--accent-gold), inset 0 3px 0 var(--accent-gold), inset 0 -3px 0 var(--accent-gold);
+}
+
+@keyframes mission-evidence-arrive {
+  50% {
+    outline-color: var(--title-bar);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                          */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 1380px) {
+  .mission-control {
+    grid-template-columns: auto minmax(200px, 1fr) auto minmax(250px, 1fr) auto;
+  }
+
+  .mission-control > div {
+    padding-right: 9px;
+    padding-left: 9px;
+  }
+
+  .mission-meter {
+    display: none;
+  }
+}
+
+/* Below a wide desktop, an inline rail gives the dense observatory its full
+   width. This deliberately switches before any research grid can collide. */
+@media (max-width: 1280px) {
+  .obs-window-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .obs-header,
+  .mission-control,
+  .mission-sidecar,
+  #observatory-main,
+  .obs-footer {
+    grid-column: 1;
+  }
+
+  .obs-header {
+    grid-row: 1;
+  }
+
+  .mission-control {
+    grid-row: 2;
+  }
+
+  .mission-sidecar {
+    position: static;
+    grid-row: 3;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: none;
+    padding: 8px;
+    overflow: visible;
+    border-bottom: 2px solid var(--inset-dark);
+  }
+
+  #observatory-main {
+    grid-row: 4;
+    border-right: 0;
+  }
+
+  .obs-footer {
+    grid-row: 5;
+  }
+
+  .mission-list,
+  .receipt-list {
+    max-height: 250px;
+  }
+}
+
+@media (max-width: 900px) {
+  .mission-control {
+    position: static;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 0;
+  }
+
+  .mission-control > div {
+    min-height: 42px;
+  }
+
+  .mission-identity {
+    grid-column: 1;
+  }
+
+  .mission-objective-block {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    border-top: 2px solid var(--inset-dark);
+    border-left: 0 !important;
+    box-shadow: inset 0 2px 0 var(--inset-light) !important;
+  }
+
+  .mission-policy {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    border-top: 2px solid var(--inset-dark);
+    border-left: 0 !important;
+    box-shadow: inset 0 2px 0 var(--inset-light) !important;
+  }
+
+  .mission-live-block {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    border-top: 2px solid var(--inset-dark);
+    border-left: 0 !important;
+    box-shadow: inset 0 2px 0 var(--inset-light) !important;
+  }
+
+  .mission-utility-actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .mission-sidecar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mission-panel {
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 620px) {
+  body[data-mission-mode="active"] .obs-desktop {
+    width: min(100% - 10px, 1660px);
+  }
+
+  .mission-control {
+    font-size: 12px;
+  }
+
+  .mission-control > div {
+    padding: 7px 8px;
+  }
+
+  .mission-objective-block,
+  .mission-policy,
+  .mission-live-block {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 3px !important;
+  }
+
+  .mission-objective-block strong,
+  .mission-live-copy,
+  .mission-policy strong {
+    overflow: visible;
+    white-space: normal;
+  }
+
+  .mission-sidecar {
+    padding: 5px;
+  }
+
+  .mission-decision-actions {
+    gap: 5px;
+  }
+
+  .mission-button {
+    min-height: 36px;
+    padding-right: 5px;
+    padding-left: 5px;
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mission-meter i,
+  #causal-svg .causal-edge.is-mission-path,
+  .is-mission-evidence:not(tr) {
+    animation: none;
+  }
+}
