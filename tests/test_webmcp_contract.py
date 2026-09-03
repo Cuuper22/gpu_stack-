@@ -46,12 +46,11 @@ VALID_CALLS = {
         "policy_ids": ["observable_adaptive", "periodic_local"],
     },
     "stage_conclusion": {
-        "claim": "The transferable-win claim is not supported across every held-out family; abstain pending stronger evidence.",
+        "conclusion_code": "abstain_without_policy_claim",
         "evidence_ids": [
             "369bc4e9b32d6e1fcdd8dadc98c830e5ac5179f4a7204a9f5194e22913fdefdf",
             "d6321d6fc4c0f71c4f14c2f799eff252348073b3fe5508783f9f078e7f5e9d76",
         ],
-        "confidence": "abstain",
         "expected_state_version": 4,
     },
 }
@@ -73,9 +72,9 @@ INVALID_CALLS = {
     "open_evidence": {"evidence_id": "contains a space"},
     "compare_policies": {"policy_ids": ["same", "same"]},
     "stage_conclusion": {
-        "claim": "Unsupported certainty",
-        "evidence_ids": [],
-        "confidence": "certain",
+        "conclusion_code": "transferable_winner",
+        "evidence_ids": ["E6-repeated-membership-loss"],
+        "expected_state_version": 4,
     },
 }
 
@@ -261,9 +260,9 @@ def test_exact_tools_schemas_and_annotations() -> None:
     )
     assert tools["get_observatory_state"]["inputSchema"]["properties"] == {}
     assert tools["stage_conclusion"]["inputSchema"]["required"] == [
-        "claim",
+        "conclusion_code",
         "evidence_ids",
-        "confidence",
+        "expected_state_version",
     ]
 
 
@@ -284,11 +283,11 @@ def test_schema_limits_match_the_grounded_artifact_contract() -> None:
     assert schemas["compare_policies"]["properties"]["policy_ids"]["maxItems"] == 3
     assert schemas["compare_policies"]["properties"]["metric_ids"]["maxItems"] == 6
     assert schemas["stage_conclusion"]["properties"]["evidence_ids"]["maxItems"] == 8
-    assert schemas["stage_conclusion"]["properties"]["confidence"]["enum"] == [
-        "supported",
-        "qualified",
-        "abstain",
+    assert schemas["stage_conclusion"]["properties"]["conclusion_code"]["enum"] == [
+        "abstain_without_policy_claim",
     ]
+    assert "claim" not in schemas["stage_conclusion"]["properties"]
+    assert "confidence" not in schemas["stage_conclusion"]["properties"]
 
 
 def test_valid_calls_are_normalized_forwarded_and_compact() -> None:
@@ -371,15 +370,16 @@ def test_adapter_documents_late_bound_bridge_and_human_only_approval() -> None:
     source = ADAPTER.read_text(encoding="utf-8")
     assert "window.GPUStackMission.invoke(toolName, validatedArgs, { signal })" in source
     assert "approval remains an explicit page-only human act" in source
-    assert "This never approves or commits it" in source
+    assert "Only the human can approve, edit, or reject it" in source
+    assert "Free-form agent claims are rejected" in source
 
 
 def test_observatory_load_order_and_cache_keys_include_the_bridge_release() -> None:
     html = OBSERVATORY_HTML.read_text(encoding="utf-8")
     scripts = [
-        'observatory.js?v=20260903.1',
-        'webmcp-tools.js?v=20260903.1',
-        'webmcp-mission.js?v=20260903.1',
+        'observatory.js?v=20260903.2',
+        'webmcp-tools.js?v=20260903.2',
+        'webmcp-mission.js?v=20260903.2',
     ]
 
     assert all(script in html for script in scripts)

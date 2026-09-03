@@ -19,7 +19,7 @@
   const MAX_RESULT_CHARS = 1500;
   const ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_.:/-]{0,179}$/;
   const SEMANTIC_DEPTHS = ["freshman", "researcher", "full_trace"];
-  const CONFIDENCE_LEVELS = ["supported", "qualified", "abstain"];
+  const CONCLUSION_CODES = ["abstain_without_policy_claim"];
 
   class ArgumentError extends Error {
     constructor(field, message, expected) {
@@ -137,28 +137,22 @@
 
     stage_conclusion: objectSchema(
       {
-        claim: {
+        conclusion_code: {
           type: "string",
-          minLength: 1,
-          maxLength: 600,
-          description: "Concise proposed conclusion grounded only in the cited evidence IDs.",
+          enum: CONCLUSION_CODES,
+          description: "Typed conclusion serialized by the immutable artifact. Free-form agent claims are not accepted.",
         },
         evidence_ids: idArraySchema(
-          "One to eight evidence IDs that directly support or qualify the proposed claim.",
+          "One to eight evidence IDs that directly support the typed artifact conclusion.",
           8,
         ),
-        confidence: {
-          type: "string",
-          enum: CONFIDENCE_LEVELS,
-          description: "Supported, qualified, or abstain. This is evidence confidence, not approval.",
-        },
         expected_state_version: {
           type: "integer",
           minimum: 0,
-          description: "Optional optimistic-concurrency version returned by a prior tool call.",
+          description: "Required optimistic-concurrency version returned by get_observatory_state.",
         },
       },
-      ["claim", "evidence_ids", "confidence"],
+      ["conclusion_code", "evidence_ids", "expected_state_version"],
     ),
   });
 
@@ -313,16 +307,12 @@
     },
 
     stage_conclusion(args) {
-      checkObject(args, ["claim", "evidence_ids", "confidence", "expected_state_version"]);
-      const result = {
-        claim: cleanString(args.claim, "claim", { required: true, min: 1, max: 600 }),
+      checkObject(args, ["conclusion_code", "evidence_ids", "expected_state_version"]);
+      return {
+        conclusion_code: cleanEnum(args.conclusion_code, "conclusion_code", CONCLUSION_CODES),
         evidence_ids: cleanIdArray(args.evidence_ids, "evidence_ids", 8),
-        confidence: cleanEnum(args.confidence, "confidence", CONFIDENCE_LEVELS),
+        expected_state_version: cleanInteger(args.expected_state_version, "expected_state_version", 0),
       };
-      if (args.expected_state_version !== undefined) {
-        result.expected_state_version = cleanInteger(args.expected_state_version, "expected_state_version", 0);
-      }
-      return result;
     },
   });
 
@@ -354,7 +344,7 @@
     {
       name: "inspect_run",
       title: "Inspect experiment run",
-      description: "Inspect one exact E001-SC1 run and a bounded page of scalar-projected optimizer-commit epochs. Returns mode choice, OOD and abstention state, completion, and event markers while preserving the authoritative raw-trace hash.",
+      description: "Inspect one exact E001-SC1 run and a bounded page of scalar-projected optimizer-commit epochs. Separates support-envelope flags from controller-only abstentions while preserving the authoritative raw-trace hash.",
       inputSchema: SCHEMAS.inspect_run,
       annotations: READ_ONLY,
     },
@@ -375,14 +365,14 @@
     {
       name: "compare_policies",
       title: "Compare registered policies",
-      description: "Compare up to three policies from the immutable experiment artifact. Omit IDs for observable_adaptive versus the calibration-frozen periodic_local comparator across registered metrics.",
+      description: "Compare up to three policies from the immutable artifact. Separates controller-only abstentions from cross-policy support-envelope flags; defaults to observable_adaptive versus frozen periodic_local.",
       inputSchema: SCHEMAS.compare_policies,
       annotations: READ_ONLY,
     },
     {
       name: "stage_conclusion",
       title: "Stage evidence conclusion",
-      description: "Stage a supported, qualified, or abstain conclusion with explicit evidence IDs in the visible pending tray. This never approves or commits it; only the human can approve or reject it in the page.",
+      description: "Stage the artifact's typed abstain conclusion with explicit evidence IDs and a current state version. Free-form agent claims are rejected. Only the human can approve, edit, or reject it.",
       inputSchema: SCHEMAS.stage_conclusion,
       annotations: STAGING_WRITE,
     },
@@ -485,7 +475,7 @@
 
     try {
       const result = await bridge.invoke(toolName, validated, { signal });
-      abortIfNeeded(signal);
+      if (toolName !== "stage_conclusion") abortIfNeeded(signal);
       return compactResult(toolName, result);
     } catch (error) {
       abortIfNeeded(signal);
