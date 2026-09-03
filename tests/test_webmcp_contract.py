@@ -377,9 +377,9 @@ def test_adapter_documents_late_bound_bridge_and_human_only_approval() -> None:
 def test_observatory_load_order_and_cache_keys_include_the_bridge_release() -> None:
     html = OBSERVATORY_HTML.read_text(encoding="utf-8")
     scripts = [
-        'observatory.js?v=20260903.3',
-        'webmcp-tools.js?v=20260903.3',
-        'webmcp-mission.js?v=20260903.3',
+        'observatory.js?v=20260903.5',
+        'webmcp-tools.js?v=20260903.5',
+        'webmcp-mission.js?v=20260903.5',
     ]
 
     assert all(script in html for script in scripts)

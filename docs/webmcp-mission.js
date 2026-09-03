@@ -47,6 +47,7 @@
   let screeningPromise = null;
   let projectionPromise = null;
   let tourRunning = false;
+  let tourGeneration = 0;
   let editingProposal = false;
   let missionState = loadMissionState();
 
@@ -95,16 +96,36 @@
     if (signal && signal.aborted) throw signal.reason || new DOMException("Aborted", "AbortError");
   }
 
-  async function fetchArtifact(url, signal) {
+  function waitForShared(promise, signal) {
     abortIfNeeded(signal);
-    const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" }, signal });
+    if (!signal || typeof signal.addEventListener !== "function") return promise;
+    return new Promise((resolve, reject) => {
+      const onAbort = () => {
+        signal.removeEventListener?.("abort", onAbort);
+        reject(signal.reason || new DOMException("Aborted", "AbortError"));
+      };
+      signal.addEventListener("abort", onAbort, { once: true });
+      promise.then(
+        (value) => {
+          signal.removeEventListener?.("abort", onAbort);
+          resolve(value);
+        },
+        (error) => {
+          signal.removeEventListener?.("abort", onAbort);
+          reject(error);
+        },
+      );
+    });
+  }
+
+  async function fetchArtifact(url) {
+    const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
     if (!response.ok) throw new MissionError("ARTIFACT_UNAVAILABLE", `${url} returned HTTP ${response.status}.`);
     return response.json();
   }
 
-  async function fetchGzipArtifact(url, signal) {
-    abortIfNeeded(signal);
-    const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/gzip" }, signal });
+  async function fetchGzipArtifact(url) {
+    const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/gzip" } });
     if (!response.ok) throw new MissionError("ARTIFACT_UNAVAILABLE", `${url} returned HTTP ${response.status}.`);
     if (typeof DecompressionStream !== "function") {
       throw new MissionError("DECOMPRESSION_UNAVAILABLE", "This browser cannot open the bounded gzip projection.");
@@ -119,7 +140,7 @@
   }
 
   function semanticArtifact(signal) {
-    semanticPromise ||= fetchArtifact(SEMANTIC_URL, signal).then((value) => {
+    semanticPromise ||= fetchArtifact(SEMANTIC_URL).then((value) => {
       if (value?.schema !== "gpu-stack.causal-observatory.e001-semantic-consistency.v1") {
         throw new MissionError("ARTIFACT_INVALID", "The E001-SC1 compact artifact has an unsupported schema.");
       }
@@ -128,11 +149,11 @@
       semanticPromise = null;
       throw error;
     });
-    return semanticPromise;
+    return waitForShared(semanticPromise, signal);
   }
 
   function screeningArtifact(signal) {
-    screeningPromise ||= fetchArtifact(SCREENING_URL, signal).then((value) => {
+    screeningPromise ||= fetchArtifact(SCREENING_URL).then((value) => {
       if (value?.schema !== "gpu-stack.causal-observatory.e001.v1") {
         throw new MissionError("ARTIFACT_INVALID", "The E001 screening artifact has an unsupported schema.");
       }
@@ -141,11 +162,11 @@
       screeningPromise = null;
       throw error;
     });
-    return screeningPromise;
+    return waitForShared(screeningPromise, signal);
   }
 
   function runProjection(signal) {
-    projectionPromise ||= fetchGzipArtifact(PROJECTION_URL, signal).then((value) => {
+    projectionPromise ||= fetchGzipArtifact(PROJECTION_URL).then((value) => {
       if (value?.schema !== "gpustack.webmcp-run-projection.v1" || !Array.isArray(value.epoch_columns)) {
         throw new MissionError("PROJECTION_INVALID", "The bounded epoch projection has an unsupported schema.");
       }
@@ -154,7 +175,7 @@
       projectionPromise = null;
       throw error;
     });
-    return projectionPromise;
+    return waitForShared(projectionPromise, signal);
   }
 
   async function observatory() {
@@ -268,6 +289,7 @@
     const effects = semantic.researcher.paired_effects || [];
     const families = familyList(semantic);
     const view = bridge.getState();
+    const latestApproved = missionState.approved[missionState.approved.length - 1] || null;
     const receipt = addReceipt("get_observatory_state", "complete", "Read the immutable audit state and registered evidence IDs.", {
       evidenceIds: [semantic.artifact_sha256],
       origin: context.origin,
@@ -304,7 +326,11 @@
         causal_nodes: screening.causal_graph.nodes.map((node) => node.node_id),
         failed_gates: effects.filter((effect) => effect.passed === false).map((effect) => effect.effect_id),
       },
-      pending_proposal: missionState.pending ? missionState.pending.proposalId : null,
+      review: {
+        pending: missionState.pending ? missionState.pending.proposalId : null,
+        latest_approved: latestApproved ? latestApproved.proposalId : null,
+        human_override: latestApproved ? Boolean(latestApproved.humanOverride) : false,
+      },
       suggested_next: "compare_stress_families",
     }, receipt);
   }
@@ -416,6 +442,10 @@
       throw new MissionError("HASH_MISMATCH", "The bounded projection is not bound to this compact artifact's raw trace.");
     }
     const page = projectedEpochRows(projection, run.run_id, args.epoch_offset, args.epoch_limit);
+    if (run.policy_id !== "observable_adaptive") {
+      const flagColumn = page.columns.indexOf("abstained");
+      if (flagColumn >= 0) page.columns[flagColumn] = "support_envelope_flag";
+    }
     const bridge = await observatory();
     await bridge.selectView({
       experiment: "E001-SC1",
@@ -682,7 +712,10 @@
             : median(values);
         }
       });
-      return { policy_id: policyId, evaluation_runs: runs.length, metrics };
+      const role = policyId === "observable_adaptive"
+        ? "candidate"
+        : (policyId === semantic.comparison.selected_fixed_policy_id ? "calibration_frozen_comparator" : "registered_reference");
+      return { policy_id: policyId, role, evaluation_runs: runs.length, metrics };
     });
     const bridge = await observatory();
     await bridge.selectView({ experiment: "E001-SC1", depth: "researcher" });
@@ -695,7 +728,10 @@
     return resultWithReceipt({
       ok: true,
       evaluation_split_only: true,
-      comparator_frozen_before_evaluation: semantic.comparison.selection.frozen_before_evaluation,
+      comparator_contract: {
+        policy_id: semantic.comparison.selected_fixed_policy_id,
+        frozen_before_evaluation: semantic.comparison.selection.frozen_before_evaluation,
+      },
       policies: rows,
       frozen_gates: semantic.researcher.paired_effects.map((effect) => ({
         effect_id: effect.effect_id,
@@ -726,11 +762,33 @@
     for (const evidenceId of args.evidence_ids) {
       resolved.push(await resolveEvidence(evidenceId, "researcher", false, context.signal));
     }
+    const hasFailedGate = resolved.some((entry) => entry.kind === "frozen_gate" && entry.passed === false);
+    const hasAdaptiveAbstention = resolved.some((entry) => (
+      (entry.kind === "held_out_family" && Number(entry.abstentions) > 0)
+      || (entry.kind === "run" && entry.policy_id === "observable_adaptive" && Number(entry.controller_abstentions) > 0)
+    ));
+    if (!hasFailedGate || !hasAdaptiveAbstention) {
+      throw new MissionError("EVIDENCE_INSUFFICIENT", "The typed abstain conclusion requires at least one failed frozen gate and one adaptive family or run with controller abstentions.", {
+        required_evidence: ["failed_frozen_gate", "adaptive_abstention_family_or_run"],
+      });
+    }
     abortIfNeeded(context.signal);
+    if (args.expected_state_version !== missionState.stateVersion) {
+      throw new MissionError("STALE_STATE", `Expected state version ${args.expected_state_version}, but current version is ${missionState.stateVersion}.`, {
+        current_state_version: missionState.stateVersion,
+      });
+    }
+    if (missionState.pending) {
+      throw new MissionError("PENDING_REVIEW_EXISTS", `Human review is already pending for ${missionState.pending.proposalId}. Approve or reject it before staging another conclusion.`, {
+        pending_proposal: missionState.pending.proposalId,
+      });
+    }
     const proposal = {
       proposalId: `proposal-${String(missionState.nextProposal).padStart(3, "0")}`,
       claim: CANONICAL_CONCLUSIONS[args.conclusion_code],
+      originalClaim: CANONICAL_CONCLUSIONS[args.conclusion_code],
       conclusionCode: args.conclusion_code,
+      humanOverride: false,
       evidenceIds: [...args.evidence_ids],
       evidenceKinds: resolved.map((entry) => entry.kind),
       confidence: "abstain",
@@ -807,9 +865,29 @@
   function renderPending() {
     if (!dom.pending) return;
     const proposal = missionState.pending;
+    const latestApproved = missionState.approved[missionState.approved.length - 1] || null;
     dom.pending.replaceChildren();
     if (!proposal) {
-      dom.pending.innerHTML = EMPTY_PENDING_HTML;
+      if (!latestApproved) {
+        dom.pending.innerHTML = EMPTY_PENDING_HTML;
+      } else {
+        const card = document.createElement("article");
+        card.className = "mission-change";
+        card.dataset.kind = "approved-conclusion";
+        card.dataset.changeId = latestApproved.proposalId;
+        const title = document.createElement("h3");
+        title.textContent = `${latestApproved.proposalId} · human recorded${latestApproved.humanOverride ? " · override" : ""}`;
+        const claim = document.createElement("p");
+        claim.textContent = latestApproved.claim;
+        const evidence = document.createElement("p");
+        const evidenceLabel = document.createElement("strong");
+        evidenceLabel.textContent = "Evidence: ";
+        evidence.append(evidenceLabel, document.createTextNode(latestApproved.evidenceIds.join(" · ")));
+        const boundary = document.createElement("p");
+        boundary.textContent = `Artifact code: ${latestApproved.conclusionCode}. Human override: ${latestApproved.humanOverride ? "yes" : "no"}. Recorded ${new Date(latestApproved.approvedAt).toLocaleString()}.`;
+        card.append(title, claim, evidence, boundary);
+        dom.pending.append(card);
+      }
     } else {
       const card = document.createElement("article");
       card.className = "mission-change";
@@ -833,7 +911,7 @@
       evidenceLabel.textContent = "Evidence: ";
       evidence.append(evidenceLabel, document.createTextNode(proposal.evidenceIds.join(" · ")));
       const boundary = document.createElement("p");
-      boundary.textContent = `Frozen result: ${proposal.frozenConclusion}. Approval has not occurred.`;
+      boundary.textContent = `Frozen result: ${proposal.frozenConclusion}. Human override: ${proposal.humanOverride ? "yes" : "no"}. Approval has not occurred.`;
       card.append(title, claim, evidence, boundary);
       dom.pending.append(card);
     }
@@ -895,7 +973,7 @@
     missionState.stateVersion += 1;
     editingProposal = false;
     persist();
-    addReceipt("human_approve", "approved", `Human recorded ${approved.proposalId}.`, {
+    addReceipt("human_approve", "approved", `Human recorded ${approved.proposalId}: ${approved.claim}`, {
       evidenceIds: approved.evidenceIds,
       delta: `Recorded conclusion → ${approved.proposalId}`,
       origin: "human",
@@ -934,6 +1012,7 @@
       return;
     }
     missionState.pending.claim = claim.slice(0, 600);
+    missionState.pending.humanOverride = missionState.pending.claim !== missionState.pending.originalClaim;
     missionState.stateVersion += 1;
     editingProposal = false;
     persist();
@@ -958,9 +1037,12 @@
   }
 
   async function resetMission() {
+    tourGeneration += 1;
+    const nextStateVersion = missionState.stateVersion + 1;
     missionState = initialMissionState();
+    missionState.stateVersion = nextStateVersion;
     editingProposal = false;
-    try { window.sessionStorage.removeItem(STORAGE_KEY); } catch (_error) { /* no-op */ }
+    persist();
     renderMission();
     clearHighlights();
     const bridge = await observatory();
@@ -974,19 +1056,25 @@
 
   async function runTour() {
     if (tourRunning) return;
+    const generation = ++tourGeneration;
     tourRunning = true;
     dom.tour.disabled = true;
     try {
       await invoke("get_observatory_state", {}, { origin: "local_tour" });
       await pause(220);
+      if (generation !== tourGeneration) return;
       await invoke("compare_stress_families", {}, { origin: "local_tour" });
       await pause(220);
+      if (generation !== tourGeneration) return;
       await invoke("inspect_stress_family", { family_id: "E6-repeated-membership-loss", include_regions: false }, { origin: "local_tour" });
       await pause(220);
+      if (generation !== tourGeneration) return;
       await invoke("trace_causal_path", { from_node: "site_availability", to_node: "time_to_target", max_nodes: 7 }, { origin: "local_tour" });
       await pause(220);
+      if (generation !== tourGeneration) return;
       await invoke("open_evidence", { evidence_id: "adaptive_minus_best_fixed_final_nll", semantic_depth: "researcher" }, { origin: "local_tour" });
       await pause(220);
+      if (generation !== tourGeneration) return;
       await invoke("stage_conclusion", {
         conclusion_code: "abstain_without_policy_claim",
         evidence_ids: [
@@ -1019,7 +1107,7 @@
   }
 
   function refreshRegistrationStatus(forcedState) {
-    if (!forcedState && missionState.pending) {
+    if (missionState.pending) {
       setStatus("Audit staged · waiting for human approval", "waiting");
       return;
     }

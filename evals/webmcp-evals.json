@@ -56,7 +56,7 @@
       {
         "role": "user",
         "type": "message",
-        "content": "Inspect the first eight projected epochs of the observable_adaptive run in the E6 held-out family. Keep the result bounded and preserve its link to the authoritative trace."
+        "content": "Inspect a six-row transition slice starting at epoch 158 of the observable_adaptive run in the E6 held-out family. Keep the result bounded and preserve its link to the authoritative trace."
       }
     ],
     "expectedCall": [

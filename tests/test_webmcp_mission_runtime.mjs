@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 
-async function makeRuntime() {
+async function makeRuntime({ fetchDelayMs = 0 } = {}) {
   const registrations = new Map();
   const selections = [];
   const paths = [];
@@ -72,6 +72,7 @@ async function makeRuntime() {
     console,
     document,
     fetch: async (url) => {
+      if (fetchDelayMs) await new Promise((resolve) => setTimeout(resolve, fetchDelayMs));
       const filename = path.join(ROOT, "docs", String(url));
       try {
         const body = await fs.readFile(filename);
@@ -102,10 +103,10 @@ async function makeRuntime() {
 
 
 function executor(runtime) {
-  return (name, args) => {
+  return (name, args, signal = new AbortController().signal) => {
     runtime.context.__args = JSON.stringify(args);
     const realmArgs = vm.runInContext("JSON.parse(__args)", runtime.context);
-    return runtime.registrations.get(name).execute(realmArgs, { signal: new AbortController().signal });
+    return runtime.registrations.get(name).execute(realmArgs, { signal });
   };
 }
 
@@ -128,6 +129,11 @@ test("all eight WebMCP registrations execute against immutable evidence", async 
   assert.equal(state.registered_ids.causal_nodes.length, 7);
   assert.equal(state.registered_ids.failed_gates.length, 4);
   assert.equal(state.evidence_boundary.unresolved, "frontier/facility transfer");
+  assert.deepEqual(JSON.parse(JSON.stringify(state.review)), {
+    pending: null,
+    latest_approved: null,
+    human_override: false,
+  });
   assert.ok(JSON.stringify(state).length <= 1500, `state result exceeded budget: ${JSON.stringify(state).length}`);
   assert.equal(state.truncated, undefined);
 
@@ -157,6 +163,17 @@ test("all eight WebMCP registrations execute against immutable evidence", async 
   assert.equal(run.source_raw_sha256, "d6321d6fc4c0f71c4f14c2f799eff252348073b3fe5508783f9f078e7f5e9d76");
   assert.ok(JSON.stringify(run).length <= 1450, `run result left too little budget headroom: ${JSON.stringify(run).length}`);
   assert.equal(run.truncated, undefined);
+
+  const fixedRun = await execute("inspect_run", {
+    run_id: "e001-sc1:evaluation:E6-repeated-membership-loss:periodic_local",
+    epoch_offset: 158,
+    epoch_limit: 6,
+  });
+  assert.equal(fixedRun.ok, true);
+  assert.equal(fixedRun.run.controller_abstentions, null);
+  assert.equal(fixedRun.run.support_envelope_flag_count, 24);
+  assert.ok(fixedRun.epoch_page.columns.includes("support_envelope_flag"));
+  assert.ok(!fixedRun.epoch_page.columns.includes("abstained"));
 
   const trace = await execute("trace_causal_path", {
     from_node: "site_availability",
@@ -189,12 +206,20 @@ test("all eight WebMCP registrations execute against immutable evidence", async 
   const policies = await execute("compare_policies", {});
   assert.equal(policies.ok, true);
   assert.equal(policies.policies.length, 2);
-  assert.equal(policies.comparator_frozen_before_evaluation, true);
+  assert.equal(policies.comparator_contract.policy_id, "periodic_local");
+  assert.equal(policies.comparator_contract.frozen_before_evaluation, true);
+  assert.equal(policies.policies[0].role, "candidate");
+  assert.equal(policies.policies[1].role, "calibration_frozen_comparator");
   assert.equal(policies.policies[0].metrics.controller_abstentions, 104);
   assert.equal(policies.policies[1].metrics.controller_abstentions, null);
   assert.equal(policies.policies[0].metrics.support_envelope_flag_count, 104);
   assert.equal(policies.policies[1].metrics.support_envelope_flag_count, 104);
   assert.equal(policies.truncated, undefined);
+
+  const referencePolicy = await execute("compare_policies", { policy_ids: ["future_trace_oracle"] });
+  assert.equal(referencePolicy.ok, true);
+  assert.equal(referencePolicy.policies[0].role, "registered_reference");
+  assert.equal(referencePolicy.comparator_contract.policy_id, "periodic_local");
 
   const rejectedOverclaim = await execute("stage_conclusion", {
     conclusion_code: "transferable_winner",
@@ -238,16 +263,24 @@ test("adapter rejects invalid and stale calls without mutating approval state", 
   assert.equal(unknown.ok, false);
   assert.equal(unknown.code, "UNKNOWN_FAMILY");
 
+  const insufficient = await execute("stage_conclusion", {
+    conclusion_code: "abstain_without_policy_claim",
+    evidence_ids: ["site_availability"],
+    expected_state_version: 1,
+  });
+  assert.equal(insufficient.ok, false);
+  assert.equal(insufficient.code, "EVIDENCE_INSUFFICIENT");
+
   const staged = await execute("stage_conclusion", {
     conclusion_code: "abstain_without_policy_claim",
-    evidence_ids: ["adaptive_minus_best_fixed_final_nll"],
+    evidence_ids: ["adaptive_minus_best_fixed_final_nll", "E6-repeated-membership-loss"],
     expected_state_version: 1,
   });
   assert.equal(staged.ok, true);
 
   const occupied = await execute("stage_conclusion", {
     conclusion_code: "abstain_without_policy_claim",
-    evidence_ids: ["adaptive_minus_best_fixed_final_nll"],
+    evidence_ids: ["adaptive_minus_best_fixed_final_nll", "E6-repeated-membership-loss"],
     expected_state_version: 2,
   });
   assert.equal(occupied.ok, false);
@@ -255,10 +288,48 @@ test("adapter rejects invalid and stale calls without mutating approval state", 
 
   const stale = await execute("stage_conclusion", {
     conclusion_code: "abstain_without_policy_claim",
-    evidence_ids: ["adaptive_minus_best_fixed_final_nll"],
+    evidence_ids: ["adaptive_minus_best_fixed_final_nll", "E6-repeated-membership-loss"],
     expected_state_version: 1,
   });
   assert.equal(stale.ok, false);
   assert.equal(stale.code, "STALE_STATE");
   assert.equal(runtime.window.GPUStackMission.getState().approved.length, 0);
+});
+
+
+test("concurrent staging uses a final compare-and-swap and cannot overwrite pending review", async () => {
+  const runtime = await makeRuntime();
+  const execute = executor(runtime);
+  const state = await execute("get_observatory_state", {});
+  const args = {
+    conclusion_code: "abstain_without_policy_claim",
+    evidence_ids: ["adaptive_minus_best_fixed_final_nll", "E6-repeated-membership-loss"],
+    expected_state_version: state.state_version,
+  };
+
+  const results = await Promise.all([
+    execute("stage_conclusion", args),
+    execute("stage_conclusion", args),
+  ]);
+  assert.equal(results.filter((result) => result.ok).length, 1);
+  assert.equal(results.filter((result) => !result.ok).length, 1);
+  assert.ok(["STALE_STATE", "PENDING_REVIEW_EXISTS"].includes(results.find((result) => !result.ok).code));
+  assert.equal(runtime.window.GPUStackMission.getState().pending.proposalId, "proposal-001");
+});
+
+
+test("one caller aborting a cold shared artifact load does not cancel another caller", async () => {
+  const runtime = await makeRuntime({ fetchDelayMs: 20 });
+  const execute = executor(runtime);
+  const cancelled = new AbortController();
+  const surviving = new AbortController();
+  const first = execute("get_observatory_state", {}, cancelled.signal);
+  const second = execute("get_observatory_state", {}, surviving.signal);
+  cancelled.abort(new DOMException("cancelled", "AbortError"));
+
+  const [firstResult, secondResult] = await Promise.allSettled([first, second]);
+  assert.equal(firstResult.status, "rejected");
+  assert.equal(secondResult.status, "fulfilled");
+  assert.equal(secondResult.value.ok, true);
+  assert.equal(secondResult.value.artifact.runs, 56);
 });
