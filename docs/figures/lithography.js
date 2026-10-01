@@ -11,13 +11,11 @@
       name: "193 nm immersion",
       nm: 193,
       na: [0.85, 1.35, 1.35],
-      caption: "Immersion means a thin layer of water between the lens and the wafer. It bends the light more, so the lens can gather a wider cone of it.",
     },
     euv: {
       name: "13.5 nm EUV",
       nm: 13.5,
       na: [0.33, 0.55, 0.33],
-      caption: "Extreme ultraviolet light is 13.5 nanometers. Almost everything absorbs it, including air, so the machines run in a vacuum and bounce the light off mirrors instead of lenses. Each machine costs more than a passenger jet.",
     },
   };
   var PX_PER_NM = 1.4; // close-up scale, same for every setting
@@ -118,7 +116,7 @@
         cdOut.appendChild(document.createTextNode(txt + " nm"));
         cdOut.appendChild(h("small", { text: "smallest line you can print" }));
         eq.textContent = "CD = k1 x wavelength / NA = " + K1 + " x " + T.nm + " / " + na.toFixed(2);
-        cap.textContent = custom || T.caption;
+        cap.textContent = custom || "Finest line: about " + txt + " nm";
         var px = Math.max(1.5, v * PX_PER_NM);
         linePat.setAttribute("width", String(px * 2));
         linePat.firstChild.setAttribute("width", String(px));

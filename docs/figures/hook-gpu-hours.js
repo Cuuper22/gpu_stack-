@@ -60,7 +60,12 @@
         });
       }
       var canvas = h("canvas", { class: "hk-grid", role: "img", "aria-label": "A grid of 16,384 GPUs lighting up" });
-      var countLabel = h("p", { class: "hk-label", text: "16,384 GPUs" });
+      var countLabel = h("p", { class: "hk-label", text: "1 GPU working" });
+      var legend = h("ul", { class: "hk-legend", "aria-hidden": "true" }, [
+        h("li", null, [h("i", { class: "hk-sw is-off" }), "Idle GPU"]),
+        h("li", null, [h("i", { class: "hk-sw is-on" }), "Working GPU"]),
+        h("li", null, [h("i", { class: "hk-sw is-new" }), "Just started"]),
+      ]);
       var hand = s("line", { x1: 11, y1: 11, x2: 11, y2: 4.5, stroke: "currentColor", "stroke-width": 2, "stroke-linecap": "round" });
       var hand2 = s("line", { x1: 11, y1: 11, x2: 11, y2: 7, stroke: "currentColor", "stroke-width": 2, "stroke-linecap": "round" });
       var clock = s("svg", { class: "hk-clock", viewBox: "0 0 22 22", "aria-hidden": "true" }, [
@@ -69,9 +74,13 @@
         hand2,
       ]);
       var fill = h("div", { class: "hk-fill" });
-      var v1 = h("span", { text: "about 3,500 years" });
-      var v2 = h("span", { text: span(16384) });
-      var out = h("p", { class: "hk-value", "aria-live": "polite" }, [v1, v2]);
+      var w2 = h("span", { class: "hk-who", text: "On 16,384 GPUs" });
+      var v2 = h("b", { class: "hk-when", text: span(16384) });
+      var row2 = h("p", { class: "hk-row" }, [w2, v2]);
+      var out = h("div", { class: "hk-value", "aria-live": "polite" }, [
+        h("p", { class: "hk-row is-on" }, [h("span", { class: "hk-who", text: "On 1 GPU" }), h("b", { class: "hk-when", text: span(1) })]),
+        row2,
+      ]);
       var timeLabel = h("p", { class: "hk-time-head" }, [clock, h("span", { text: "Time to finish the same work" })]);
       var seg = h("div", { class: "gsf-seg", role: "group", "aria-label": "Number of GPUs" });
       var btns = COUNTS.map(function (n) {
@@ -84,7 +93,7 @@
         h("div", null, [
           h("div", { class: "hk-pair" }, [
             h("div", { class: "hk-col" }, [h("p", { class: "hk-label", text: "One GPU" }), chip]),
-            h("div", { class: "hk-col" }, [countLabel, canvas]),
+            h("div", { class: "hk-col" }, [countLabel, h("div", { class: "hk-gridwrap" }, [canvas, legend])]),
           ]),
           h("div", { class: "hk-time" }, [
             timeLabel,
@@ -99,63 +108,62 @@
 
       var g = canvas.getContext ? canvas.getContext("2d") : null;
       var size = 0;
-      var cOff, cOn, cFront;
-      function colors() {
-        cOff = "#363b47";
-        cOn = "#4fd0da";
-        cFront = "#f3cf55";
-      }
+      var CENTER = 64 * COLS + 64;
+      var cBack = "#252a35", cOff = "#4b5468", cOn = "#4fd0da", cFront = "#f3cf55";
       function resize() {
         var r = canvas.getBoundingClientRect();
         var d = root.devicePixelRatio || 1;
         var w = Math.max(64, Math.round(r.width * d));
-        if (w !== canvas.width) {
+        if (w !== canvas.width || w !== canvas.height) {
           canvas.width = w;
           canvas.height = w;
         }
         size = w;
-        colors();
         draw();
       }
-      var state = { n: 16384, waveP: 1 };
+      var state = { n: 1, waveP: 0 };
       var picked = false;
+      // The grid is 8 x 8 racks of 16 x 16 GPUs, with a small gap between racks.
       function draw() {
         if (!g || !size) return;
-        var cell = size / COLS;
-        g.clearRect(0, 0, size, size);
-        var n = state.n, wp = state.waveP;
-        g.fillStyle = "#1b1e25";
+        var gap = Math.max(1.5, size / 150);
+        var cell = (size - 7 * gap) / COLS;
+        var pad = Math.max(0.2, cell * 0.1);
+        function px(i) { return i * cell + (i >> 4) * gap; }
+        g.fillStyle = cBack;
         g.fillRect(0, 0, size, size);
         g.fillStyle = cOff;
-        var pad0 = Math.max(0.2, cell * 0.08);
-        for (var q = 0; q < CELLS; q++) g.fillRect((q % COLS) * cell + pad0, ((q / COLS) | 0) * cell + pad0, cell - pad0 * 2, cell - pad0 * 2);
-        // gaps: draw cells on a faint background
-        var pad = Math.max(0.2, cell * 0.08);
+        for (var q = 0; q < CELLS; q++) g.fillRect(px(q % COLS) + pad, px((q / COLS) | 0) + pad, cell - pad * 2, cell - pad * 2);
+        var n = state.n, wp = state.waveP;
+        var grow = n === 1 ? 7 : n <= 128 ? 3.5 : n <= 2048 ? 1.5 : 1;
         for (var k = 0; k < CELLS; k++) {
           var on, front = false;
           if (n === 16384) {
             on = wave[k] < wp;
             front = on && wave[k] > wp - 0.06 && wp < 1;
-          } else on = rank[k] < n;
+          } else if (n === 1) on = k === CENTER;
+          else on = rank[k] < n;
           if (!on) continue;
           g.fillStyle = front ? cFront : cOn;
-          var grow = n === 1 ? 7 : n <= 128 ? 3.5 : n <= 2048 ? 1.5 : 1;
-          var cx = (k % COLS) * cell + cell / 2, cy = ((k / COLS) | 0) * cell + cell / 2;
+          var cx = px(k % COLS) + cell / 2, cy = px((k / COLS) | 0) + cell / 2;
           var half = (cell * grow) / 2 - pad;
           g.fillRect(cx - half, cy - half, half * 2, half * 2);
         }
       }
       function setBar(frac) {
-        fill.style.transform = "scaleX(" + Math.max(frac, 0.004) + ")";
+        fill.style.transform = "scaleX(" + Math.max(frac, 0.014) + ")";
       }
       function setClock(frac) {
         var a = frac * 360 * 8;
         hand.setAttribute("transform", "rotate(" + a + " 11 11)");
         hand2.setAttribute("transform", "rotate(" + a / 12 + " 11 11)");
       }
-      function showValue(which) {
-        v1.className = which === 1 ? "is-on" : "";
-        v2.className = which === 2 ? "is-on" : "";
+      function showRow2(on) {
+        row2.className = "hk-row" + (on ? " is-on" : "");
+      }
+      function setCount(n) {
+        var txt = F.util.fmt(n) + (n === 1 ? " GPU" : " GPUs");
+        if (countLabel.textContent !== txt + " working") countLabel.textContent = txt + " working";
       }
       function choose(n) {
         picked = true;
@@ -166,8 +174,9 @@
         setBar(frac);
         setClock(frac);
         v2.textContent = span(n);
-        showValue(2);
-        countLabel.textContent = F.util.fmt(n) + (n === 1 ? " GPU" : " GPUs");
+        setCount(n);
+        w2.textContent = "On " + F.util.fmt(n) + (n === 1 ? " GPU" : " GPUs");
+        showRow2(n > 1);
         chipBusy(n === 1);
         draw();
         ctx.setSummary("Llama 3.1 405B needed 30.84 million GPU-hours. With " + F.util.fmt(n) + " GPUs working together that is " + span(n) + ".");
@@ -182,23 +191,26 @@
         duration: 10.5,
         onReplay: function () {
           picked = false;
+          w2.textContent = "On 16,384 GPUs";
           btns.forEach(function (b, i) { b.setAttribute("aria-pressed", COUNTS[i] === 16384 ? "true" : "false"); });
-          countLabel.textContent = "16,384 GPUs";
-          v2.textContent = span(16384);
         },
         render: function (t) {
           if (picked) return;
+          // 0 to 4 s: one GPU works through the whole job. 4 to 7 s: the other
+          // GPUs join. 7 to 10 s: the same work finishes in a fraction of the time.
           var p1 = u.ease(t / 3.4);
           var p2 = u.ease((t - 4) / 2.6);
           var p3 = u.ease((t - 7) / 1.6);
-          state.n = 16384;
+          var one = t < 4;
+          state.n = one ? 1 : 16384;
           state.waveP = p2 * 1.1;
           var frac = p3 > 0 ? u.lerp(1, 1 / 16384, p3) : p1;
           setBar(frac);
           setClock(frac);
-          showValue(p3 > 0.5 ? 2 : p1 > 0.9 ? 1 : 0);
+          setCount(one ? 1 : 16384);
+          v2.textContent = span(16384);
+          showRow2(p3 > 0.5);
           chipBusy(t > 0.3 && t < 4);
-          countLabel.style.opacity = t > 3.9 ? 1 : 0.35;
           if (t >= 10.4) btns.forEach(function (b, i) { b.setAttribute("aria-pressed", COUNTS[i] === 16384 ? "true" : "false"); });
           draw();
         },
