@@ -1,0 +1,593 @@
+{
+ "schema": "r001.scenario.v1",
+ "levels": {
+  "L0": {
+   "calibration_warm_seeds": [
+    9101,
+    9102,
+    9103
+   ],
+   "evaluation_warm_seeds": [
+    8101,
+    8102,
+    8103,
+    8104,
+    8105,
+    8106
+   ],
+   "optional_arms": true
+  },
+  "L1": {
+   "calibration_warm_seeds": [
+    9101,
+    9102,
+    9103
+   ],
+   "evaluation_warm_seeds": [
+    8101,
+    8102,
+    8103,
+    8104,
+    8105
+   ],
+   "optional_arms": false
+  },
+  "L2": {
+   "calibration_warm_seeds": [
+    9101,
+    9102
+   ],
+   "evaluation_warm_seeds": [
+    8101,
+    8102,
+    8103,
+    8104,
+    8105
+   ],
+   "optional_arms": false
+  },
+  "rule": "chosen once, before any task runs, from a measured warm-start throughput probe (`run.py probe`): the richest level whose projected wall-clock is <= 3.0 h (L0, then L1, then L2); if even L2 projects above 3.0 h, wait for a quieter machine or do not run. Never chosen from outcomes."
+ },
+ "study_id": "R001-cpu-replication",
+ "sources": {
+  "lc3_scenario": {
+   "path": "experiments/e001-beyond-one-datacenter/equal-work-scenario-v1.json",
+   "sha256": "88f9a142143e79713be2b479c22252e1c97b75ca2c2bc73b2700ddd380f11166"
+  },
+  "sc1_scenario": {
+   "path": "experiments/e001-beyond-one-datacenter/semantic-consistency-scenario-v1.json",
+   "sha256": "d682328d36984c15d6a097060b66e1e71a830fa7a95979e8a6f672f564a88d65"
+  }
+ },
+ "dataset": {
+  "dataset_id": "roneneldan/TinyStories",
+  "config": "default",
+  "split": "train",
+  "shard": "0000.parquet",
+  "uri": "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/refs%2Fconvert%2Fparquet/default/train/0000.parquet",
+  "sha256": "77cf780cebe52b6e83e3a2ac84bc56d8059363113e41d17a023f1d8b2ed0fc0b",
+  "train_rows": 50000,
+  "validation_start_row": 50000,
+  "validation_rows": 2000,
+  "encoding": "utf-8 bytes",
+  "separator_byte": 0
+ },
+ "model": {
+  "vocab_size": 256,
+  "context_length": 256,
+  "layers": 4,
+  "width": 192,
+  "heads": 4,
+  "mlp_width": 768,
+  "dropout": 0.0,
+  "tie_embeddings": true
+ },
+ "optimization": {
+  "optimizer": "AdamW",
+  "learning_rate": 0.0003,
+  "weight_decay": 0.1,
+  "beta1": 0.9,
+  "beta2": 0.95,
+  "gradient_clip_norm": 1.0,
+  "autocast": "bfloat16 (CPU autocast via cpu_runtime.install)",
+  "deterministic_cuda_algorithms": false,
+  "batch_size_per_site": 4,
+  "warm_start_ticks": 8192,
+  "warm_start_seed": 7,
+  "warm_start_late_window_start_tick": 7936,
+  "warm_start_max_window_nll_improvement": 0.03,
+  "canonical_target_ticks": 256,
+  "maximum_opportunity_ticks": 384,
+  "healthy_local_ticks": 8,
+  "reduced_membership_checkpoint_ticks": 2,
+  "post_rejoin_sync_ticks": 2,
+  "fixed_checkpoint_merge_interval": 2,
+  "adaptive_checkpoint_merge_interval": 1,
+  "evaluation_interval_ticks": 64,
+  "validation_batches": 64,
+  "validation_seed": 20260712,
+  "flop_model": "6 * parameter_count * attempted_tokens",
+  "num_threads_per_worker": 1,
+  "workers": 4
+ },
+ "warm_start": {
+  "ticks": 8192,
+  "late_window_ticks": 256,
+  "max_late_window_nll_improvement": 0.03,
+  "invalid_seed_rule": "a warm seed failing the late-stage gate is dropped from every analysis and reported; it is not replaced"
+ },
+ "calibration_warm_seeds": [
+  9101,
+  9102,
+  9103
+ ],
+ "evaluation_warm_seeds": [
+  8101,
+  8102,
+  8103,
+  8104,
+  8105,
+  8106
+ ],
+ "lc3": {
+  "calibration": [
+   {
+    "warm_seed": 9101,
+    "stream_seeds": [
+     9211,
+     9229,
+     9247
+    ]
+   },
+   {
+    "warm_seed": 9102,
+    "stream_seeds": [
+     9311,
+     9329,
+     9347
+    ]
+   },
+   {
+    "warm_seed": 9103,
+    "stream_seeds": [
+     9411,
+     9429,
+     9447
+    ]
+   }
+  ],
+  "calibration_arms": "fixed no-failure for all three streams; adaptive no-failure for the first stream only (exact-equivalence check)",
+  "evaluation_pairs": [
+   {
+    "pair_id": "P01",
+    "warm_seed": 8101,
+    "stream_seed": 8201,
+    "failures": [
+     [
+      112,
+      24
+     ],
+     [
+      192,
+      8
+     ]
+    ]
+   },
+   {
+    "pair_id": "P02",
+    "warm_seed": 8101,
+    "stream_seed": 8202,
+    "failures": [
+     [
+      144,
+      8
+     ],
+     [
+      208,
+      16
+     ]
+    ]
+   },
+   {
+    "pair_id": "P03",
+    "warm_seed": 8101,
+    "stream_seed": 8203,
+    "failures": [
+     [
+      32,
+      16
+     ],
+     [
+      104,
+      16
+     ],
+     [
+      200,
+      24
+     ]
+    ]
+   },
+   {
+    "pair_id": "P04",
+    "warm_seed": 8102,
+    "stream_seed": 8204,
+    "failures": [
+     [
+      96,
+      16
+     ],
+     [
+      216,
+      16
+     ]
+    ]
+   },
+   {
+    "pair_id": "P05",
+    "warm_seed": 8102,
+    "stream_seed": 8205,
+    "failures": [
+     [
+      112,
+      8
+     ],
+     [
+      200,
+      24
+     ]
+    ]
+   },
+   {
+    "pair_id": "P06",
+    "warm_seed": 8102,
+    "stream_seed": 8206,
+    "failures": [
+     [
+      88,
+      16
+     ],
+     [
+      208,
+      24
+     ]
+    ]
+   },
+   {
+    "pair_id": "P07",
+    "warm_seed": 8103,
+    "stream_seed": 8207,
+    "failures": [
+     [
+      152,
+      16
+     ],
+     [
+      216,
+      16
+     ]
+    ]
+   },
+   {
+    "pair_id": "P08",
+    "warm_seed": 8103,
+    "stream_seed": 8208,
+    "failures": [
+     [
+      80,
+      16
+     ],
+     [
+      200,
+      24
+     ]
+    ]
+   },
+   {
+    "pair_id": "P09",
+    "warm_seed": 8103,
+    "stream_seed": 8209,
+    "failures": [
+     [
+      48,
+      24
+     ],
+     [
+      160,
+      8
+     ]
+    ]
+   },
+   {
+    "pair_id": "P10",
+    "warm_seed": 8104,
+    "stream_seed": 8210,
+    "failures": [
+     [
+      72,
+      24
+     ],
+     [
+      184,
+      8
+     ]
+    ]
+   },
+   {
+    "pair_id": "P11",
+    "warm_seed": 8104,
+    "stream_seed": 8211,
+    "failures": [
+     [
+      48,
+      8
+     ],
+     [
+      160,
+      24
+     ]
+    ]
+   },
+   {
+    "pair_id": "P12",
+    "warm_seed": 8104,
+    "stream_seed": 8212,
+    "failures": [
+     [
+      104,
+      24
+     ],
+     [
+      216,
+      16
+     ]
+    ]
+   },
+   {
+    "pair_id": "P13",
+    "warm_seed": 8105,
+    "stream_seed": 8213,
+    "failures": [
+     [
+      144,
+      24
+     ],
+     [
+      216,
+      24
+     ]
+    ]
+   },
+   {
+    "pair_id": "P14",
+    "warm_seed": 8105,
+    "stream_seed": 8214,
+    "failures": [
+     [
+      56,
+      16
+     ],
+     [
+      192,
+      8
+     ]
+    ]
+   },
+   {
+    "pair_id": "P15",
+    "warm_seed": 8105,
+    "stream_seed": 8215,
+    "failures": [
+     [
+      56,
+      16
+     ],
+     [
+      176,
+      16
+     ]
+    ]
+   },
+   {
+    "pair_id": "P16",
+    "warm_seed": 8106,
+    "stream_seed": 8216,
+    "failures": [
+     [
+      144,
+      16
+     ],
+     [
+      208,
+      16
+     ]
+    ]
+   },
+   {
+    "pair_id": "P17",
+    "warm_seed": 8106,
+    "stream_seed": 8217,
+    "failures": [
+     [
+      32,
+      16
+     ],
+     [
+      112,
+      16
+     ]
+    ]
+   },
+   {
+    "pair_id": "P18",
+    "warm_seed": 8106,
+    "stream_seed": 8218,
+    "failures": [
+     [
+      88,
+      24
+     ],
+     [
+      208,
+      16
+     ]
+    ]
+   }
+  ],
+  "schedule_generator_seed": 20261001,
+  "margin": {
+   "original_nll": 0.01,
+   "multiplier_on_sd": 2.0,
+   "round_up_to": 0.001,
+   "floor_nll": 0.003,
+   "cap_nll": 0.01
+  },
+  "ci_level": 0.9,
+  "pairs_per_warm_seed": 3,
+  "unit_of_analysis": "warm seed (mean of its three paired differences)"
+ },
+ "sc1": {
+  "calibration_cells": [
+   {
+    "cell_id": "K01",
+    "warm_seed": 9101,
+    "family_id": "C1-healthy-high-bandwidth",
+    "stream_seed": 9301
+   },
+   {
+    "cell_id": "K02",
+    "warm_seed": 9101,
+    "family_id": "C4-single-failure",
+    "stream_seed": 9302
+   },
+   {
+    "cell_id": "K03",
+    "warm_seed": 9102,
+    "family_id": "C1-healthy-high-bandwidth",
+    "stream_seed": 9303
+   },
+   {
+    "cell_id": "K04",
+    "warm_seed": 9102,
+    "family_id": "C4-single-failure",
+    "stream_seed": 9304
+   },
+   {
+    "cell_id": "K05",
+    "warm_seed": 9103,
+    "family_id": "C1-healthy-high-bandwidth",
+    "stream_seed": 9305
+   },
+   {
+    "cell_id": "K06",
+    "warm_seed": 9103,
+    "family_id": "C4-single-failure",
+    "stream_seed": 9306
+   }
+  ],
+  "evaluation_cells": [
+   {
+    "cell_id": "Q01",
+    "warm_seed": 8101,
+    "family_id": "E1-bursty-wan",
+    "stream_seed": 8301
+   },
+   {
+    "cell_id": "Q02",
+    "warm_seed": 8101,
+    "family_id": "E2-low-wan-then-failure",
+    "stream_seed": 8302
+   },
+   {
+    "cell_id": "Q03",
+    "warm_seed": 8102,
+    "family_id": "E3-power-throttle-with-fast-wan",
+    "stream_seed": 8303
+   },
+   {
+    "cell_id": "Q04",
+    "warm_seed": 8102,
+    "family_id": "E4-failure-inside-wan-collapse",
+    "stream_seed": 8304
+   },
+   {
+    "cell_id": "Q05",
+    "warm_seed": 8103,
+    "family_id": "E5-short-alternating-stress",
+    "stream_seed": 8305
+   },
+   {
+    "cell_id": "Q06",
+    "warm_seed": 8103,
+    "family_id": "E6-repeated-membership-loss",
+    "stream_seed": 8306
+   },
+   {
+    "cell_id": "Q07",
+    "warm_seed": 8104,
+    "family_id": "E1-bursty-wan",
+    "stream_seed": 8307
+   },
+   {
+    "cell_id": "Q08",
+    "warm_seed": 8104,
+    "family_id": "E4-failure-inside-wan-collapse",
+    "stream_seed": 8308
+   },
+   {
+    "cell_id": "Q09",
+    "warm_seed": 8105,
+    "family_id": "E3-power-throttle-with-fast-wan",
+    "stream_seed": 8309
+   },
+   {
+    "cell_id": "Q10",
+    "warm_seed": 8105,
+    "family_id": "E6-repeated-membership-loss",
+    "stream_seed": 8310
+   },
+   {
+    "cell_id": "Q11",
+    "warm_seed": 8106,
+    "family_id": "E5-short-alternating-stress",
+    "stream_seed": 8311
+   },
+   {
+    "cell_id": "Q12",
+    "warm_seed": 8106,
+    "family_id": "E2-low-wan-then-failure",
+    "stream_seed": 8312
+   }
+  ],
+  "calibration_arms": [
+   "exact_forward_recovery",
+   "periodic_local"
+  ],
+  "evaluation_arms": [
+   "exact_forward_recovery",
+   "periodic_local",
+   "exact_forward_recovery+cosine",
+   "periodic_local+cosine"
+  ],
+  "optional_arms": [
+   "periodic_local+cosine"
+  ],
+  "ema_decays": [
+   0.9,
+   0.95,
+   0.98,
+   0.99
+  ],
+  "ema_rule": "EMA of the surviving replica's weights, updated once per canonical tick; evaluated only at tick 256; the decay used for the primary test is the one with the lowest mean EMA NLL on calibration cells",
+  "cosine": "lr_t = 3e-4 * 0.5 * (1 + cos(pi * t / 256)) at canonical tick t = 0..255",
+  "advantage_floor_nll": 0.005,
+  "explained_fraction_thresholds": {
+   "mostly_explained_lower_bound_gte": 0.75,
+   "not_explained_upper_bound_lte": 0.25
+  },
+  "ci_level": 0.9,
+  "overrides": {
+   "evaluation_interval_ticks": 64,
+   "validation_batches": 64
+  }
+ }
+}
