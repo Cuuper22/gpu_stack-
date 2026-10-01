@@ -22,10 +22,9 @@ Done when P001 is re-run on the revised gates and no gate is labeled impossible.
 
 ## 2. Close the two running studies
 
-- **R001** (CPU replication, protocol frozen at `0540632`): does LC3's small NLL cost
-  replicate on fresh seeds, and is the SC1 averaging effect plain weight averaging? Its
-  answer decides whether `periodic_local` is a finding or an artifact. Q2 is the open
-  mechanism question for item 6 below.
+- **R001** (CPU replication): done. LC3's NLL cost replicates and is larger (+0.010, 15 of
+  15 pairs worse); `periodic_local`'s edge is plain averaging (EMA or cosine on sync beats
+  it). See item 6.
 - **V001** (simulator vs known results): done. Event mechanics match theory where runs
   complete; see item 3 for the defect it found. Multi-site, WAN policy, power and cooling
   paths are still untested.
@@ -65,10 +64,9 @@ so the edit is a provenance event and must be recorded as one.
 
 ## 6. SC1 averaging mechanism
 
-`periodic_local` beat synchronous training in 10 of 10 families, and nobody knows why.
-R001 Q2 adds controls (iterate averaging, period 1, shared vs separate Adam state, EMA).
-If it survives them, it is the most interesting result in the project and worth a
-write-up of its own. If it does not, say so in the ledger.
+Settled by R001: averaging at a constant learning rate. Any future E001 comparison must
+give every arm the same LR schedule or weight averaging, or it will rediscover this. Open:
+whether `periodic_local` keeps any edge under a cosine schedule (R001 arm D, not run).
 
 ## 7. Energy questions that need the owner's GPU
 

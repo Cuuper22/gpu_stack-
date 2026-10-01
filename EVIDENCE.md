@@ -200,7 +200,13 @@ takes `exact_forward_recovery` whether or not it abstains (also in E6's 16 non-a
 single-site ticks, rate 0.80). So abstention changed no action. SC1's own write-up says it was
 unintended. It is not a capability to praise.
 
-**(iii) periodic_local beats synchronous on NLL in every family. Verified, mechanism not.**
+**(iii) periodic_local beats synchronous on NLL in every family. Verified; mechanism settled by R001.**
+
+> Update (R001, protocol frozen before the run): the advantage replicates on fresh seeds
+> (0.0209 [0.0194, 0.0225]) and is fully explained by averaging. Synchronous training plus an
+> EMA of the weights, or a cosine LR schedule, beats periodic_local by about twice the
+> advantage (explained fraction 3.2). See experiments/r001-cpu-replication/RESULT.md.
+
 10 of 10 (4 calibration, 6 held-out): -0.0187 [-0.0201, -0.0174], sign p 0.002; at 0.375 of
 the bytes and 0.71x median modeled time. Delayed-one-step is worse in 10 of 10 (+0.047). Same
 tokens, same optimizer, same LR. Consistent with weight averaging at a constant-LR plateau
@@ -253,6 +259,8 @@ to adjudicate. The site's 404 on `e002-rack-dephasing-v3.json` is consistent wit
 1. **SC1 periodic_local** lowers held-out NLL by 0.0187 [0.0174, 0.0201] vs synchronous in 10 of 10
    families at 0.375x bytes and about 0.7x modeled time. It was treated as "the baseline".
    It is the most interesting measured finding, subject to a mechanism control.
+   **R001 update:** the control explains it. It is a constant-LR plateau effect, not a
+   property of local training. Moved out of the under-sold list in the README.
 2. **SC1 adaptive vs synchronous:** time 0.69x [0.58, 0.81], payload 0.74x at equal NLL.
 3. **PW2 sparse continuation:** about 3% less energy, 3% less work, +0.003 NLL, 40 modeled
    ticks fewer. Passes every gate under a valid meter.
@@ -266,6 +274,9 @@ to adjudicate. The site's 404 on `e002-rack-dephasing-v3.json` is consistent wit
 
 - **LC3 NLL non-inferiority.** Pair sd of the NLL difference is 0.0044. With 20+ CPU seeds
   the standard error falls to about 0.001, enough to separate 0.005 from 0.01.
+  **R001 update:** 5 fresh warm seeds x 3 pairs give +0.0100 [0.0075, 0.0125], 15 of 15 pairs
+  worse: `not_shown_non_inferior`. The LC3 learning pass does not replicate; the cost is about
+  twice the original estimate, mostly from warm-seed spread the original single seed hid.
 - **SC1 periodic_local vs synchronous.** CPU replication with controls: synchronous plus
   iterate averaging, periodic with period 1, shared vs separate Adam state, 5+ seeds per family.
 - **SC1 rescoring.** Replace the two unreachable gates with "no worse than periodic_local"

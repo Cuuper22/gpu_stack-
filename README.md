@@ -10,7 +10,7 @@ gpu_stack started with one question: when people say frontier training is "more 
 
 | Finding | Number | Source |
 |---|---|---|
-| `periodic_local` (two sites train alone, average weights every 8 steps) beat synchronous training on held-out loss (NLL, lower is better) in every stress family. Cause unknown: no control arm exists. | 10 of 10 families, -0.0187 [-0.0201, -0.0174], at 0.375x the bytes | [EVIDENCE](EVIDENCE.md#sc1-the-controller-loses-the-gates-were-mostly-unreachable) |
+| Survivor continuation (keep training on the site that is still up) saves work, and that saving replicates on fresh seeds. | 3.6% fewer tokens [2.8, 4.4], 45 fewer modeled ticks | [R001](experiments/r001-cpu-replication/RESULT.md) |
 | Sparse checkpointing with survivor continuation used a little less energy, with a valid meter. Small, six pairs, one GPU. | energy 0.970 [0.940, 0.999], work -3.0%, NLL +0.0033 | [EVIDENCE](EVIDENCE.md#pw2-real-but-narrower-than-stated) |
 | The graph counts a model's parameters from its architecture. | median error 0.0003 on 11 published models | [V002](experiments/v002-graph-published-runs/RESULT.md) |
 | Hand checks of the economics path and 6ND FLOPs (6 x parameters x tokens) match published values. | two Pythia cost packs to 4 digits | [audit](analysis/graph-audit/REPORT.md) |
@@ -20,6 +20,8 @@ gpu_stack started with one question: when people say frontier training is "more 
 
 | Claim | What the evidence says | Source |
 |---|---|---|
+| `periodic_local` (two sites train alone, average weights every 8 steps) learns better than synchronous training. | It does (held-out loss, NLL, -0.021 on fresh seeds), but only because averaging smooths the noise of a constant learning rate. Synchronous training plus an EMA of the weights, or a cosine schedule, beats `periodic_local` by about twice as much. | [R001](experiments/r001-cpu-replication/RESULT.md) |
+| Survivor continuation learns as well as restarting. | Not shown. On fresh seeds it is worse in 15 of 15 pairs, +0.0100 [0.0075, 0.0125], right at the 0.01 margin. The original six pairs (+0.005) understated the cost. | [R001](experiments/r001-cpu-replication/RESULT.md) |
 | The adaptive controller beats the simple baseline. | It lost to `periodic_local`: worse NLL in 6 of 6 families, 2.05x the bytes. | [EVIDENCE](EVIDENCE.md#sc1-the-controller-loses-the-gates-were-mostly-unreachable) |
 | The controller "abstained" when out of its depth (104 times). | Scenario setup put the compute rate below the calibration floor. Abstaining changed no action. | [EVIDENCE](EVIDENCE.md#sc1-the-controller-loses-the-gates-were-mostly-unreachable) |
 | LC1 falsified survivor continuation. | LC1 never tested it: the per-FLOP estimator was biased and every run hit the target at tick 32. | [EVIDENCE](EVIDENCE.md#lc1-the-test-could-not-see-the-hypothesis) |
@@ -34,7 +36,7 @@ gpu_stack started with one question: when people say frontier training is "more 
 
 ## How the project checks itself
 
-- **Frozen protocols.** For P001, S001, V002, V001 and R001, the protocol was committed before any result. Results landed later in git for P001 (`c3dfe91` then `d1d58c8`), S001 (`99c2e95` then `de57f2f`) V002 (`c8801ea` then `0866736`) and V001 (`38babe1` then `6709dc9`). R001 (`0540632`) is running. Check with `git log`. Git order is checkable, not tamper-proof.
+- **Frozen protocols.** For P001, S001, V002, V001 and R001, the protocol was committed before any result. Results landed later in git for P001 (`c3dfe91` then `d1d58c8`), S001 (`99c2e95` then `de57f2f`) V002 (`c8801ea` then `0866736`), V001 (`38babe1` then `6709dc9`) and R001 (`0540632` then `5a98b0b`; it ran a smaller level than its own time rule allowed, listed as a deviation). Check with `git log`. Git order is checkable, not tamper-proof.
 - **The old runs were not preregistered.** For E001 and E002, protocol and results share commits, minutes to hours after the runs. Only the E003-E006 protocols (`7b13f73`) predate results, and they have none. The word is not used for the early runs here.
 - **An evidence ledger.** [EVIDENCE.md](EVIDENCE.md) re-judges every run with results. It copies each original verdict verbatim, then says HOLDS, OVERTURNED, UNDETERMINED or MEASUREMENT INVALID, with a confidence and what would settle it. It reproduces all 39 original bootstrap intervals exactly.
 - **Who judged what.** Much of the code and the first verdicts were written with AI coding agents, and those verdicts were unreliable in both directions: some bars were impossible, some praise was unearned. The October 2026 audit re-derived every verdict from the raw artifacts. The audit is itself checkable: the scripts are in `analysis/` and each new study's protocol commit precedes its result commit.
@@ -114,7 +116,7 @@ That is Pythia-70M on one 8-GPU H100 node: 7.5M tokens/s, 10.2 kW, about $9 of e
 | E004 | Should an inference fleet move requests while serving them? | Protocol only. Same P001 finding. |
 | E005 | Can mixed hardware plus architecture co-design win under a power cap? | Protocol only. Same P001 finding. |
 | E006 | Can an inference fleet act as a firm, grid-responsive load? | Protocol only. Same P001 finding. |
-| R001 | Do the LC3 and SC1 learning results replicate on CPU with fresh seeds and an averaging control? | Running, protocol frozen at `0540632`. <!-- R001-RESULT --> |
+| R001 | Do the LC3 and SC1 learning results replicate on CPU with fresh seeds and an averaging control? | Done. Continuation's NLL cost replicates and is larger; `periodic_local`'s edge is plain averaging. [R001](experiments/r001-cpu-replication/RESULT.md). |
 | V001 | Does the simulator reproduce known results (Young/Daly checkpointing, queueing theory, Llama 3 failure rate)? | Done. Event mechanics match theory exactly where it completes; one recovery defect (34% of multi-failure traces raise). [Result](experiments/v001-simulator-known-results/RESULT.md). |
 | V002 | Does the graph match published training runs? | Done. Fails as shipped, equals 6ND with a prior. [Result](experiments/v002-graph-published-runs/RESULT.md). |
 | S001 | Which inputs move the headline outputs? | Done. Not lithography. [Result](experiments/s001-graph-sensitivity/RESULT.md). |

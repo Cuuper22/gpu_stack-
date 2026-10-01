@@ -272,7 +272,7 @@
   // companion. Nothing here changes a value or a verdict; it only restates.
   const PLAIN_WORDS = {
     abstain_without_policy_claim:
-      "The adaptive controller lost to a simpler rule, periodic_local, where two sites train on their own and average their weights every 8 steps. On held-out learning it was worse in 6 of 6 test families and it sent about twice the data between sites. Separately, periodic_local itself beat fully synchronous training in all 10 families, and we do not yet know why. The 104 abstentions came from how the test scenarios were set up. They did not change any decision.",
+      "The adaptive controller lost to a simpler rule, periodic_local, where two sites train on their own and average their weights every 8 steps. On held-out learning it was worse in 6 of 6 test families and it sent about twice the data between sites. Separately, periodic_local beat fully synchronous training in all 10 families. A later replication (R001) found why: averaging smooths the noise of a constant learning rate, and synchronous training with weight averaging does even better. The 104 abstentions came from how the test scenarios were set up. They did not change any decision.",
     candidate_falsified_equal_canonical_work:
       "At equal work, the adaptive policy learned slightly worse (worse in 6 of 6 schedules, by a small margin) and saved about 3% of the work. Its energy came out 1.07 times higher on a meter too noisy for the 1.05 bar. The valid counter later gave 1.02. So the energy question is open, not settled either way.",
     candidate_falsified_small_model_calibration:
@@ -293,7 +293,7 @@
   // unchanged; these only replace the display copy so it matches EVIDENCE.md.
   const SC1_PLAIN_QUESTION = "Can a training run spread across flaky datacenters keep learning as well as one cluster?";
   const SC1_PLAIN_HEADLINE = "The adaptive controller lost to a simpler rule";
-  const SC1_PLAIN_ANSWER = "Not with the adaptive controller. It did worse than the simple periodic_local policy on held-out learning and sent more data. periodic_local beat synchronous training in every stress family, and the cause is not yet known.";
+  const SC1_PLAIN_ANSWER = "Not with the adaptive controller. It did worse than the simple periodic_local policy on held-out learning and sent more data. periodic_local beat synchronous training in every stress family, but a later replication showed that is just weight averaging at a constant learning rate.";
   // Extra note shown on a card, keyed by the card label in the artifact.
   const SC1_CARD_NOTES = {
     "Inter-site payload": "This bar could not be met: no available action sends less than periodic_local.",
