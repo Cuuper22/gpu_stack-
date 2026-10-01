@@ -56,6 +56,48 @@ def test_training_step_time_adds_other_overheads_once():
     assert math.isfinite(float(r.value))
 
 
+COLLECTIVE_INPUTS = {
+    "col.n_ranks": 64,
+    "col.payload": 1e9,
+    "col.ranks_per_node": 8,
+    "col.n_nodes": 8,
+    "link.nvlink.alpha": 1e-6,
+    "link.nvlink.beta": 1 / 450e9,
+    "link.scaleout.alpha": 5e-6,
+    "link.scaleout.beta": 1 / 50e9,
+}
+
+
+def _collective(name):
+    return float(resolve(name, assignments=COLLECTIVE_INPUTS).value)
+
+
+def test_hierarchical_allgather_matches_two_level_reference():
+    """Two-level allgather (Thakur, Rabenseifner, Gropp 2005, MPICH
+    collectives): each rank holds N/r after the inter-node stage, so the
+    inter-node bandwidth term is N (n-1)/(n r) beta_so, then an intra-node
+    allgather of N (r-1)/r beta_nv."""
+    r, n, big_n = 8, 8, 1e9
+    a_nv, b_nv, a_so, b_so = 1e-6, 1 / 450e9, 5e-6, 1 / 50e9
+    ref = (
+        (n - 1) * a_so
+        + (n - 1) / (n * r) * big_n * b_so
+        + (r - 1) * a_nv
+        + (r - 1) / r * big_n * b_nv
+    )
+    assert _collective("col.allgather.time_hier") == pytest.approx(ref, rel=1e-12)
+
+
+def test_hierarchical_allreduce_equals_reducescatter_plus_allgather():
+    """Standard identity (Thakur et al. 2005; Patarasuk and Yuan 2009):
+    allreduce = reduce-scatter followed by allgather, so the hierarchical
+    forms must satisfy it inside the graph."""
+    ar = _collective("col.allreduce.time_hier")
+    rs = _collective("col.reducescatter.time_hier")
+    ag = _collective("col.allgather.time_hier")
+    assert ar == pytest.approx(rs + ag, rel=1e-12)
+
+
 def _bubble_share(name, **assign):
     return float(resolve(f"par.pp.bubble_{name}", assignments=assign).value)
 
