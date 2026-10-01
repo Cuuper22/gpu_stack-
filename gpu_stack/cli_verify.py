@@ -96,7 +96,7 @@ def _verify_gates(profile: str, read_only: bool = False) -> List[VerifyGate]:
                 "core-tests",
                 _pytest_command(
                     "tests/test_import.py",
-                    "tests/test_import_physical_exports.py",
+                    "tests/test_import_physical_scopes.py",
                     "tests/test_import_registry.py",
                     "tests/test_graph_health.py",
                     "tests/test_units.py",
@@ -118,10 +118,7 @@ def _verify_gates(profile: str, read_only: bool = False) -> List[VerifyGate]:
                     "tests/test_cli_verify.py",
                     "tests/test_next_work.py",
                     "tests/test_next_work_continuation_contract.py",
-                    (
-                        "tests/test_process_geometry.py::"
-                        "test_source_plasma_radial_expansion_uses_species_mass_chain"
-                    ),
+                    "tests/test_process_geometry.py",
                     "-q",
                     read_only=read_only,
                 ),

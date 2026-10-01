@@ -5,8 +5,7 @@ equation that a user must assign by hand. The command ranks them by dependent
 count so effort goes where it pays off most. These tests keep the text table
 machine-parseable, the JSON output stable and complete, the ranking
 deterministic (a smaller ``--limit`` is always a prefix of a larger one), and
-the ``--families`` grouping consistent with the per-root rows. A local
-grouping helper mirrors the family logic for physical lithography prefixes.
+the ``--families`` grouping consistent with the per-root rows.
 """
 
 from __future__ import annotations
@@ -36,19 +35,6 @@ class RootDebtFamilyRow:
     boundary_category: str
     primitive_boundary: str
     top_roots: str
-
-
-_PHYSICAL_FAMILY_PREFIXES = (
-    "physical.lithography.source_plasma_drive",
-    "physical.lithography.source_plasma",
-    "physical.lithography.medium_component",
-    "physical.lithography.medium_formula_unit",
-    "physical.lithography.medium_intercomponent",
-    "physical.lithography.nuclear_binding",
-    "physical.lithography.gate_k1",
-    "physical.lithography.source",
-    "physical.lithography.medium",
-)
 
 
 def _run_root_debt(*args: str) -> str:
@@ -99,10 +85,6 @@ def _parse_root_debt_family_rows(output: str) -> list[RootDebtFamilyRow]:
 
 
 def _root_debt_family(variable: str) -> str:
-    for prefix in _PHYSICAL_FAMILY_PREFIXES:
-        if variable.startswith(prefix):
-            return prefix
-
     namespace, _, local_name = variable.rpartition(".")
     if not namespace:
         return variable
@@ -136,19 +118,13 @@ def test_physical_root_debt_output_is_parseable_and_groupable():
     assert all(family.startswith("physical.") for family in grouped)
 
 
-def test_physical_root_debt_top_rows_expose_source_frontier():
+def test_physical_root_debt_top_rows_expose_lithography_frontier():
     output = _run_root_debt("--scope", "physical", "--limit", "10")
 
     rows = _parse_root_debt_rows(output)
     variables = [row.variable for row in rows]
-    assert any(
-        variable.endswith(("source_proton_count", "source_neutron_count"))
-        for variable in variables[:5]
-    )
-    assert any(
-        variable.startswith("physical.lithography.source_plasma")
-        for variable in variables
-    )
+    assert "physical.lithography.wavelength" in variables
+    assert "physical.lithography.numerical_aperture" in variables
 
 
 def test_physical_root_debt_limit_is_deterministic_prefix():
@@ -218,7 +194,7 @@ def test_physical_root_debt_families_group_ranked_rows():
     assert "grouped_roots" in output
     assert "family_count" in output
     assert "dependents  scope" not in output
-    assert all(row.family.startswith("physical.") for row in rows)
+    assert all(row.family.split(".")[0] == "physical" for row in rows)
     assert all(row.boundary_category == "primitive-root" for row in rows)
     assert all(row.primitive_boundary == "True" for row in rows)
     assert [
@@ -229,20 +205,12 @@ def test_physical_root_debt_families_group_ranked_rows():
         key=lambda item: (-item[0], -item[1], item[2]),
     )
 
-    source_nucleons = next(
+    lithography = next(
         row for row in rows
-        if row.family == "physical.lithography.source"
+        if row.family == "physical.lithography"
     )
-    assert source_nucleons.root_count == 2
-    assert "source_proton_count" in source_nucleons.top_roots
-    assert "source_neutron_count" in source_nucleons.top_roots
-
-    assert any(
-        row.family == "physical.lithography.source_plasma_drive"
-        and row.root_count > 1
-        and "source_plasma_drive" in row.top_roots
-        for row in rows
-    )
+    assert lithography.root_count == 7
+    assert "physical.lithography.gate_k1_" in lithography.top_roots
 
 
 def test_economics_root_debt_families_use_public_prefixes_deterministically():
@@ -335,20 +303,10 @@ def test_physical_root_debt_families_json_output_is_parseable():
 
 def test_root_debt_family_groups_known_physical_clusters():
     assert (
-        _root_debt_family(
-            "physical.lithography.source_plasma_drive_objective_pupil_radius"
-        )
-        == "physical.lithography.source_plasma_drive"
+        _root_debt_family("physical.lithography.wavelength")
+        == "physical.lithography.wavelength"
     )
     assert (
-        _root_debt_family(
-            "physical.lithography.medium_component_a_proton_count"
-        )
-        == "physical.lithography.medium_component"
-    )
-    assert (
-        _root_debt_family(
-            "physical.lithography.nuclear_binding_coulomb_coefficient"
-        )
-        == "physical.lithography.nuclear_binding"
+        _root_debt_family("physical.process.gate_contact_overlay_budget")
+        == "physical.process.gate_contact"
     )

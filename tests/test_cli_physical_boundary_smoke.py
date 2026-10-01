@@ -37,12 +37,6 @@ PHYSICAL_BOUNDARY_SMOKE_CASES = (
         "physical.ineq.drawn_gate_length_positive",
         id="process-drawn-gate",
     ),
-    pytest.param(
-        "physical.lithography.source_plasma_species_partial_pressure",
-        "0",
-        "physical.ineq.lithography_source_plasma_species_partial_pressure_positive",
-        id="lithography-plasma-pressure",
-    ),
 )
 
 

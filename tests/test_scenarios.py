@@ -101,7 +101,6 @@ def test_scenario_target_registry_labels_are_stable():
         for name in (
             scenarios.dense_training_cost_fixture.name,
             scenarios.pythia_70m_dgx_h100_us_2024_industrial_power.name,
-            scenarios.euv_tin120_lpp_source_context_assumption.name,
         )
     }
 
@@ -112,9 +111,6 @@ def test_scenario_target_registry_labels_are_stable():
             "job_dc_power",
             "run_power_cost",
             "cost_per_token",
-        ),
-        "euv_tin120_lpp_source_context_assumption": tuple(
-            scenarios.EUV_TIN120_SOURCE_TARGETS
         ),
     }
 
@@ -184,16 +180,6 @@ def test_sourced_scenario_packs_include_pythia_dgx_h100_industrial_pack():
     assert preset.name in {pack.name for pack in scenarios.SOURCED_SCENARIO_PACKS}
     assert all(pack.require_source() is pack for pack in scenarios.SOURCED_SCENARIO_PACKS)
     assert preset.name in _training_economics_pack_names()
-
-
-def test_sourced_scenario_packs_include_euv_tin120_source_context_pack():
-    preset = scenarios.euv_tin120_lpp_source_context_assumption
-
-    assert preset in scenarios.SOURCED_SCENARIO_PACKS
-    assert preset.name in {pack.name for pack in scenarios.SOURCED_SCENARIO_PACKS}
-    assert preset.require_source() is preset
-    assert preset.variants == {}
-    assert preset.name not in _training_economics_pack_names()
 
 
 def test_pythia_dgx_h100_industrial_pack_provenance_summary_is_useful():

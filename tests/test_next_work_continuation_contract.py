@@ -4,8 +4,8 @@ A contract test pins down the shape of a public API without caring how it is
 built. Here the API is the plan builder in ``gpu_stack.next_work``: the module
 must export exactly one public builder, and the plan it returns must carry
 three fixed-size sections (3 highest-impact items, 4 implementation items,
-10 bug risks) plus a snapshot of the live dependency graph (1517 variables,
-950 equations, 619 root inputs) that justifies those items.
+10 bug risks) plus a snapshot of the live dependency graph (1267 variables,
+701 equations, 583 root inputs) that justifies those items.
 
 We deliberately accept several field spellings for each section. That lets
 the implementation rename internals freely while the promise to callers —
@@ -20,9 +20,9 @@ from collections.abc import Mapping, Sequence
 
 
 EXPECTED_GRAPH_EVIDENCE = {
-    "variables": 1517,
-    "equations": 950,
-    "root_inputs": 619,
+    "variables": 1267,
+    "equations": 701,
+    "root_inputs": 583,
 }
 
 BUILDER_NAMES = (

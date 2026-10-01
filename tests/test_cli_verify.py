@@ -36,7 +36,7 @@ def test_verify_fast_prints_compact_gate_summary(monkeypatch):
     core_command = calls[1][2]
     for import_test_file in (
         "tests/test_import.py",
-        "tests/test_import_physical_exports.py",
+        "tests/test_import_physical_scopes.py",
         "tests/test_import_registry.py",
     ):
         assert import_test_file in core_command
@@ -61,10 +61,7 @@ def test_verify_fast_prints_compact_gate_summary(monkeypatch):
         "tests/test_cli_verify.py",
     ):
         assert cli_test_file in core_command
-    assert (
-        "tests/test_process_geometry.py::"
-        "test_source_plasma_radial_expansion_uses_species_mass_chain"
-    ) in core_command
+    assert "tests/test_process_geometry.py" in core_command
     assert "Read-only mode: off" in out
 
 
