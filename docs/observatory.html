@@ -3,20 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="GPUSTACK causal observatory for evidence-preserving virtual datacenter experiments.">
+  <meta name="description" content="The gpu_stack Lab: a virtual datacenter that shows what happens to a training run when datacenters fail.">
   <link rel="canonical" href="https://cuuper22.github.io/gpu_stack-/observatory.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="gpu_stack">
-  <meta property="og:title" content="GPUSTACK Causal Observatory">
-  <meta property="og:description" content="GPUSTACK causal observatory for evidence-preserving virtual datacenter experiments.">
+  <meta property="og:title" content="gpu_stack Lab">
+  <meta property="og:description" content="A virtual datacenter that shows what happens to a training run when datacenters fail.">
   <meta property="og:url" content="https://cuuper22.github.io/gpu_stack-/observatory.html">
   <meta property="og:image" content="https://cuuper22.github.io/gpu_stack-/assets/readme-hero.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="GPUSTACK Causal Observatory">
-  <meta name="twitter:description" content="GPUSTACK causal observatory for evidence-preserving virtual datacenter experiments.">
+  <meta name="twitter:title" content="gpu_stack Lab">
+  <meta name="twitter:description" content="A virtual datacenter that shows what happens to a training run when datacenters fail.">
   <meta name="twitter:image" content="https://cuuper22.github.io/gpu_stack-/assets/readme-hero.png">
   <meta name="theme-color" content="#0e7d84">
-  <title>GPUSTACK Causal Observatory · E001</title>
+  <title>Lab · gpu_stack</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23008080'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%23808080' stroke='%231A1A1A'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23C0C0C0'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,18 +33,23 @@
   <script src="webmcp-tools.js?v=20261001.1" defer></script>
   <script src="webmcp-mission.js?v=20261001.1" defer></script>
 </head>
-<body data-depth="freshman" data-data-state="loading" data-mission-mode="active">
-  <a class="skip-link" href="#observatory-main">Skip to experiment</a>
+<body data-depth="freshman" data-data-state="loading" data-mission-mode="active" data-rail="open">
+  <a class="skip-link" href="#observatory-main">Skip to the Lab</a>
+
+  <nav class="phone-tabs" aria-label="Sections">
+    <a href="index.html">Story</a>
+    <a href="index.html#calculator">Calculator</a>
+    <a href="observatory.html" aria-current="page">Lab</a>
+  </nav>
 
   <div class="obs-desktop">
     <div class="desktop-logo">
       <span class="logo-text">CuperOS</span>
-      <span class="logo-version">CAUSAL OBSERVATORY V0.27</span>
     </div>
 
-    <div class="window obs-app-window" aria-label="Causal observatory window">
+    <div class="window obs-app-window" aria-label="Lab window">
       <div class="title-bar">
-        <div class="title-text"><span class="px-icon px-graph"></span> observatory.exe · E001</div>
+        <div class="title-text"><span class="px-icon px-graph"></span> Lab</div>
         <div class="window-controls" aria-hidden="true">
           <span class="window-btn">_</span>
           <span class="window-btn">□</span>
@@ -53,36 +58,28 @@
       </div>
       <div class="window-content obs-window-content">
 
-  <header class="obs-header" aria-label="Observatory header">
-    <a class="obs-identity" href="index.html" aria-label="GPUSTACK home">
-      <span class="obs-wordmark">GPUSTACK</span>
-      <span class="obs-product">/ Virtual Datacenter</span>
+  <header class="obs-header" aria-label="Lab header">
+    <a class="obs-identity" href="index.html" aria-label="gpu_stack home">
+      <span class="obs-wordmark">gpu_stack</span>
+      <span class="obs-product">/ Lab</span>
     </a>
 
-    <nav class="obs-nav" aria-label="Observatory sections">
-      <a class="is-current" href="#observatory-main" aria-current="page">Observatory</a>
-      <a href="#comparison">Experiments</a>
-      <a href="#evidence">Evidence</a>
+    <nav class="obs-nav" aria-label="Sections">
+      <a href="index.html">Story</a>
+      <a href="index.html#calculator">Calculator</a>
+      <a class="is-current" href="observatory.html" aria-current="page">Lab</a>
     </nav>
 
-    <label class="experiment-picker">
-      <span class="visually-hidden">Experiment</span>
-      <select id="experiment-select" aria-label="Experiment">
-        <option value="E001-SC1">E001-SC1 · Observable Semantic Slack</option>
-        <option value="E001">E001 · Prior Evidence Chain</option>
-      </select>
-      <svg aria-hidden="true" viewBox="0 0 16 16"><path d="m4 6 4 4 4-4"/></svg>
-    </label>
+    <button class="agent-tools-toggle" id="agent-tools-toggle" type="button" aria-expanded="false" aria-controls="agent-tools">
+      <span data-agent-label>Agent tools</span>
+    </button>
 
-    <button class="share-state" id="share-state" type="button">
-      <svg aria-hidden="true" viewBox="0 0 24 24">
-        <circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/>
-        <path d="m8.3 10.8 7.4-4.4M8.3 13.2l7.4 4.4"/>
-      </svg>
+    <button class="share-state" id="share-state" type="button" hidden>
       <span>Share state</span>
     </button>
   </header>
 
+  <div class="agent-tools" id="agent-tools" hidden>
   <section class="mission-control" id="mission-control" aria-labelledby="mission-control-title">
     <h2 class="visually-hidden" id="mission-control-title">WebMCP causal mission control</h2>
 
@@ -162,37 +159,612 @@
       </div>
     </section>
   </aside>
+  </div>
 
   <main id="observatory-main">
-    <section class="question-band" aria-labelledby="experiment-question">
-      <div class="depth-cluster">
-        <span class="control-label">Semantic depth</span>
-        <div class="depth-control" role="group" aria-label="Semantic depth">
-          <button type="button" data-depth="freshman" aria-pressed="true">Freshman</button>
-          <button type="button" data-depth="researcher" aria-pressed="false">Researcher</button>
-          <button type="button" data-depth="full_trace" aria-pressed="false">Full trace</button>
+    <section class="lab-first" aria-labelledby="lab-question">
+      <h1 id="lab-question">Can a training run survive across flaky datacenters?</h1>
+      <!-- LAB ANSWER -->
+      <p class="lab-answer lab-placeholder">[Placeholder: a two or three sentence plain answer goes here. Written by the coordinator.]</p>
+
+    <section class="recovery-v2-band" id="recovery-v2" aria-labelledby="recovery-v2-title">
+      <header class="band-header recovery-v2-header">
+        <div>
+          <h2 id="recovery-v2-title">The same failure, four ways to recover</h2>
         </div>
+        <output id="recovery-v2-state" role="status" aria-live="polite">Loading the chart…</output>
+      </header>
+
+      <div class="recovery-depth-copy" id="recovery-depth-copy">
+        <p class="depth-freshman">The same failure hits all four policies. The shared clock shows what stops, what is restored, what must be redone, and when useful work catches up.</p>
+        <p class="depth-researcher">Every policy track shares one time axis taken from the artifact. Recovery is mechanical: each policy reaches the same durable frontier, the last point safely written to storage, after explicit preemption, restore, replay, and membership changes.</p>
+        <p class="depth-full_trace">Every mark is drawn from a saved recovery episode. Event IDs, nanosecond bounds, what happened to each unit of work, checkpoint lineage, and matched-frontier hashes stay available in the structured trace.</p>
       </div>
 
-      <div class="question-copy">
-        <p class="experiment-kicker"><span id="experiment-kicker-code">E001-SC1</span> <span id="experiment-kicker-name">Observable Semantic Slack</span></p>
-        <h1 id="experiment-question">Can one observable controller safely spend semantic slack?</h1>
-        <div class="stage-boundary" id="stage-boundary">
-          <span class="stage-mark" aria-hidden="true"></span>
-          <strong>Software experiment</strong>
-          <span aria-hidden="true">·</span>
-          <span>small-model learning + virtual datacenter</span>
+      <div class="recovery-timeline-well">
+        <svg id="recovery-timeline-svg" class="recovery-timeline-svg" role="img" aria-labelledby="recovery-timeline-title recovery-timeline-desc"></svg>
+      </div>
+      <ul class="recovery-role-key" aria-label="Recovery timeline roles">
+        <li><span data-recovery-role="failure"></span>Failure</li>
+        <li><span data-recovery-role="preemption"></span>Preemption</li>
+        <li><span data-recovery-role="checkpoint_restore"></span>Restore</li>
+        <li><span data-recovery-role="replay"></span>Replay</li>
+        <li><span data-recovery-role="membership_rejoin"></span>Rejoin</li>
+      </ul>
+      <details class="structured-fallback recovery-timeline-fallback">
+        <summary>Accessible recovery timeline list</summary>
+        <div id="recovery-timeline-fallback"></div>
+      </details>
+
+    
+      <details class="lab-more" id="recovery-measures">
+        <summary>Where the work and the data went</summary>
+      <div class="recovery-mechanics-grid">
+        <section class="recovery-measure" aria-labelledby="work-conservation-title">
+          <div class="recovery-measure-heading">
+            <h3 id="work-conservation-title">Work conservation</h3>
+            <span>attempted = retained + lost</span>
+          </div>
+          <div id="recovery-work-bars" class="recovery-work-bars"></div>
+        </section>
+
+        <section class="recovery-measure" aria-labelledby="byte-composition-title">
+          <div class="recovery-measure-heading">
+            <h3 id="byte-composition-title">Where the inter-site bytes went</h3>
+            <span>six traffic classes that never overlap</span>
+          </div>
+          <div id="recovery-byte-bars" class="recovery-byte-bars"></div>
+        </section>
+
+        <section class="recovery-measure recovery-completion" aria-labelledby="completion-compare-title">
+          <div class="recovery-measure-heading">
+            <h3 id="completion-compare-title">Mechanical completion</h3>
+            <span>same durable frontier</span>
+          </div>
+          <div id="recovery-completion-ruler" class="recovery-completion-ruler"></div>
+        </section>
+
+        <aside class="recovery-learning-boundary" id="recovery-learning-boundary" aria-labelledby="recovery-learning-title">
+          <span class="evidence-glyph evidence-glyph--unmeasured" aria-hidden="true"></span>
+          <div>
+            <h3 id="recovery-learning-title">This simulation does not measure learning</h3>
+            <p>This mechanics artifact contains no held-out learning observation.</p>
+            <p class="depth-researcher">The measured small-model learning check further down is separate. It does not turn this simulation into real multi-site learning evidence.</p>
+            <p class="depth-full_trace" id="recovery-learning-trace">This simulation records no recovery-quality observation. The learning check further down is a separate measurement.</p>
+          </div>
+        </aside>
+      </div>
+      </details>
+    </section>
+    </section>
+
+    <section class="lab-deeper" aria-labelledby="lab-deeper-title">
+      <div class="lab-deeper-head">
+        <h2 id="lab-deeper-title">Go deeper</h2>
+        <button class="detail-toggle" id="detail-toggle" type="button" aria-pressed="false">Show technical detail</button>
+      </div>
+      <p class="lab-deeper-lede">Each section below opens to the measurements behind it.</p>
+
+    <details class="lab-fold" data-fold="learning">
+      <summary><span class="lab-fold-title">Did the model still learn as well?</span><span class="lab-fold-hint">Measured on one laptop GPU</span></summary>
+      <p class="lab-fold-loading" role="status">Loading…</p>
+    <section class="learning-v1-band" id="learning-v1" aria-labelledby="learning-v1-title">
+      <header class="band-header learning-v1-header">
+        <div>
+          <p class="control-label">Measured small-model learning</p>
+          <h2 id="learning-v1-title">Did the adaptive method keep learning just as efficient?</h2>
         </div>
-        <p class="plain-answer" id="plain-answer">Loading the held-out semantic-consistency result, the test run on data the controller never saw. No conclusion appears here until the page knows what evidence stands behind it.</p>
-        <p class="plain-words" id="plain-words"></p>
-        <p class="artifact-state" id="artifact-state" role="status" aria-live="polite">Reading data/e001-semantic-consistency-v1.json…</p>
+        <output id="learning-v1-state" role="status" aria-live="polite">Reading learning artifact…</output>
+      </header>
+
+      <article class="learning-insight" aria-labelledby="learning-insight-title">
+        <div>
+          <p class="learning-eyebrow">Measured on one laptop GPU</p>
+          <h3 id="learning-insight-title">The learning result is loading</h3>
+        </div>
+        <p id="learning-plain-answer">The page will state the measured answer once the saved artifact loads.</p>
+        <p class="plain-words" id="learning-plain-words"></p>
+      </article>
+
+      <div class="learning-depth-copy" id="learning-depth-copy">
+        <p class="depth-freshman">Lower held-out loss means the model predicts better. The cards show how much training each policy attempted to get there, and the lines show what it learned over the same failure clock.</p>
+        <p class="depth-researcher">Policy medians summarize matched strata. Inside each stratum, the paired effect subtracts fixed-local progress per FLOP from adaptive progress per FLOP, so zero means the two are equally efficient.</p>
+        <p class="depth-full_trace" id="learning-depth-trace">Artifact, dataset, runtime, paired evaluation, and per-run records remain attached below.</p>
+      </div>
+
+      <div class="learning-policy-grid" id="learning-policy-grid" aria-label="Learning policy metric comparison"></div>
+
+      <div class="learning-visual-grid">
+        <section class="learning-figure learning-curves-figure" aria-labelledby="learning-curves-title">
+          <header>
+            <div>
+              <p class="control-label">Median trajectory</p>
+              <h3 id="learning-curves-title">Held-out NLL over wall ticks</h3>
+            </div>
+            <span>lower is better</span>
+          </header>
+          <div class="learning-svg-scroll">
+            <svg id="learning-curves-svg" class="learning-curves-svg" role="img" aria-labelledby="learning-curves-svg-title learning-curves-svg-desc"></svg>
+          </div>
+          <ul id="learning-curve-values" class="learning-direct-values" aria-label="Final curve values"></ul>
+        </section>
+
+        <section class="learning-figure learning-paired-figure" aria-labelledby="learning-paired-title">
+          <header>
+            <div>
+              <p class="control-label">Paired causal contrast</p>
+              <h3 id="learning-paired-title">Adaptive minus fixed progress per FLOP</h3>
+            </div>
+            <span>six matched strata</span>
+          </header>
+          <div class="learning-svg-scroll">
+            <svg id="learning-paired-svg" class="learning-paired-svg" role="img" aria-labelledby="learning-paired-svg-title learning-paired-svg-desc"></svg>
+          </div>
+          <p id="learning-paired-summary" class="learning-paired-summary">Paired interval not loaded.</p>
+        </section>
+      </div>
+
+      <section class="learning-gates" aria-labelledby="learning-gates-title">
+        <header>
+          <div>
+            <p class="control-label">Frozen decision</p>
+            <h3 id="learning-gates-title">The gates that could fail this claim</h3>
+          </div>
+          <span>every gate stays visible; protocol and results share a commit, so "before the run" is not verifiable</span>
+        </header>
+        <div id="learning-gate-strip" class="learning-gate-strip"></div>
+      </section>
+
+      <aside class="learning-boundary" aria-labelledby="learning-boundary-title">
+        <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
+        <div>
+          <h3 id="learning-boundary-title">What this evidence can carry</h3>
+          <p id="learning-evidence-boundary">Learning evidence boundary not loaded.</p>
+        </div>
+      </aside>
+
+      <div class="learning-trace depth-full_trace">
+        <details open>
+          <summary>Exact paired evaluations</summary>
+          <div class="learning-table-scroll">
+            <table class="learning-trace-table">
+              <thead><tr><th scope="col">Stratum</th><th scope="col">Fixed progress/FLOP</th><th scope="col">Adaptive progress/FLOP</th><th scope="col">Adaptive − fixed</th></tr></thead>
+              <tbody id="learning-evaluation-pairs"></tbody>
+            </table>
+          </div>
+        </details>
+        <details>
+          <summary>Run-level measurements</summary>
+          <div class="learning-table-scroll">
+            <table class="learning-trace-table">
+              <thead><tr><th scope="col">Run</th><th scope="col">Stratum</th><th scope="col">Final NLL</th><th scope="col">Attempted tokens</th><th scope="col">Energy</th><th scope="col">Active time</th></tr></thead>
+              <tbody id="learning-run-details"></tbody>
+            </table>
+          </div>
+        </details>
+        <details>
+          <summary>Dataset, runtime, and source identity</summary>
+          <pre id="learning-provenance-json" tabindex="0">not loaded</pre>
+        </details>
+      </div>
+    </section>
+    </details>
+
+    <details class="lab-fold" data-fold="equalwork">
+      <summary><span class="lab-fold-title">What if every method does the same amount of work?</span><span class="lab-fold-hint">Measured on one laptop GPU</span></summary>
+      <p class="lab-fold-loading" role="status">Loading…</p>
+    <section class="equal-work-v1-band" id="equal-work-v1" aria-labelledby="equal-work-v1-title">
+      <header class="band-header equal-work-v1-header">
+        <div>
+          <p class="control-label">Measured, same amount of work</p>
+          <h2 id="equal-work-v1-title">What survives when useful work is held equal?</h2>
+        </div>
+        <output id="equal-work-v1-state" role="status" aria-live="polite">Reading equal-work artifact…</output>
+      </header>
+
+      <article class="equal-work-insight" aria-labelledby="equal-work-insight-title">
+        <div>
+          <p class="equal-work-eyebrow">Same 524,288 useful tokens · six held-out pairs</p>
+          <h3 id="equal-work-insight-title">Equal-work result loading</h3>
+        </div>
+        <p id="equal-work-plain-answer">The page will state the result once the saved result loads.</p>
+        <p class="plain-words" id="equal-work-plain-words"></p>
+      </article>
+
+      <div class="equal-work-depth-copy">
+        <p class="depth-freshman"><strong>Useful work is the fair ruler here.</strong> Both policies end with the same 524,288 tokens actually kept by the model. Adaptive avoided work it would have had to redo and finished the schedule sooner with no meaningful loss of learning, but its GPU drew too much energy to pass.</p>
+        <p class="depth-researcher"><strong>This check fixes a flaw in the one before it, where stopping early flattered the result.</strong> Six paired evaluation strata all end at the same amount of canonical work. Read learning as paired NLL noninferiority, physical work as attempted-FLOP savings, schedule time as opportunity ticks, and energy as a paired device-energy ratio.</p>
+        <p class="depth-full_trace" id="equal-work-depth-trace">Exact pairs, run records, protocol predecessors, hashes, and the modeled-mechanics boundary remain attached below.</p>
+      </div>
+
+      <div class="equal-work-freshman-grid depth-freshman" id="equal-work-freshman-grid" aria-label="Plain-language equal-work result"></div>
+
+      <div class="equal-work-research depth-researcher">
+        <section class="equal-work-policy-section" aria-labelledby="equal-work-policy-title">
+          <header class="equal-work-section-header">
+            <div>
+              <p class="control-label">Observed policy medians</p>
+              <h3 id="equal-work-policy-title">Same useful frontier, different path</h3>
+            </div>
+            <span>six interrupted evaluation runs per policy</span>
+          </header>
+          <div class="equal-work-policy-grid" id="equal-work-policy-grid"></div>
+        </section>
+
+        <section class="equal-work-effects" aria-labelledby="equal-work-effects-title">
+          <header class="equal-work-section-header">
+            <div>
+              <p class="control-label">Paired 90% intervals</p>
+              <h3 id="equal-work-effects-title">Three gates passed, one failed on a noisy meter</h3>
+            </div>
+            <span>direct labels · frozen bounds</span>
+          </header>
+          <div class="equal-work-effect-grid" id="equal-work-effect-grid"></div>
+        </section>
+
+        <aside class="equal-work-clue" aria-labelledby="equal-work-clue-title">
+          <span aria-hidden="true">?</span>
+          <div>
+            <h3 id="equal-work-clue-title">Likely causal clue, not proof</h3>
+            <p id="equal-work-checkpoint-clue">Checkpoint evidence loading.</p>
+          </div>
+        </aside>
+
+        <section class="equal-work-gates" aria-labelledby="equal-work-gates-title">
+          <header class="equal-work-section-header">
+            <div>
+              <p class="control-label">The decision rule, set in advance</p>
+              <h3 id="equal-work-gates-title">Seven gates passed; the energy gate failed, but its meter could not resolve a 5% bar</h3>
+            </div>
+            <span>the failed gate stays visible; the ledger rates energy undetermined</span>
+          </header>
+          <div class="equal-work-gate-strip" id="equal-work-gate-strip"></div>
+        </section>
+
+        <aside class="equal-work-boundary" aria-labelledby="equal-work-boundary-title">
+          <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
+          <div>
+            <h3 id="equal-work-boundary-title">Observed learning, local device boundary</h3>
+            <p id="equal-work-evidence-boundary">Evidence boundary loading.</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="equal-work-trace depth-full_trace">
+        <details open>
+          <summary>Six paired evaluation rows</summary>
+          <div class="equal-work-table-scroll">
+            <table class="equal-work-trace-table">
+              <thead><tr><th scope="col">Stratum</th><th scope="col">Fixed NLL</th><th scope="col">Adaptive NLL</th><th scope="col">Adaptive − fixed NLL</th><th scope="col">Attempted-FLOP saved</th><th scope="col">Ticks saved</th><th scope="col">Energy ratio</th></tr></thead>
+              <tbody id="equal-work-evaluation-pairs"></tbody>
+            </table>
+          </div>
+        </details>
+        <details>
+          <summary>All 16 run records</summary>
+          <div class="equal-work-table-scroll">
+            <table class="equal-work-trace-table">
+              <thead><tr><th scope="col">Run</th><th scope="col">Split</th><th scope="col">Policy</th><th scope="col">Interrupted</th><th scope="col">Final NLL</th><th scope="col">Attempted / canonical tokens</th><th scope="col">Opportunity ticks</th><th scope="col">Device energy</th><th scope="col">Checkpoints</th></tr></thead>
+              <tbody id="equal-work-run-details"></tbody>
+            </table>
+          </div>
+        </details>
+        <details>
+          <summary>Two earlier protocol results</summary>
+          <div class="equal-work-table-scroll">
+            <table class="equal-work-trace-table">
+              <thead><tr><th scope="col">Artifact path</th><th scope="col">Conclusion</th><th scope="col">SHA-256</th></tr></thead>
+              <tbody id="equal-work-predecessors"></tbody>
+            </table>
+          </div>
+        </details>
+        <details>
+          <summary>Modeled mechanics bridge boundary</summary>
+          <div class="equal-work-bridge" id="equal-work-bridge"></div>
+        </details>
+        <details>
+          <summary>Source hashes and complete provenance</summary>
+          <pre id="equal-work-provenance-json" tabindex="0">not loaded</pre>
+        </details>
+      </div>
+    </section>
+    </details>
+
+    <details class="lab-fold" data-fold="checkpoints">
+      <summary><span class="lab-fold-title">Does saving progress cost energy?</span><span class="lab-fold-hint">Measured on one laptop GPU</span></summary>
+      <p class="lab-fold-loading" role="status">Loading…</p>
+    <section class="checkpoint-power-v1-band" id="checkpoint-power-v1" aria-labelledby="checkpoint-power-v1-title">
+      <header class="band-header checkpoint-power-v1-header">
+        <div>
+          <p class="control-label">Measured power draw</p>
+          <h2 id="checkpoint-power-v1-title">Did how often we save checkpoints cause the energy penalty?</h2>
+        </div>
+        <output id="checkpoint-power-v1-state" role="status" aria-live="polite">Reading checkpoint-power artifact…</output>
+      </header>
+
+      <article class="checkpoint-power-insight" aria-labelledby="checkpoint-power-insight-title">
+        <div>
+          <p class="checkpoint-power-eyebrow">32 real GPU runs · measurement rejected</p>
+          <h3 id="checkpoint-power-insight-title">Result loading</h3>
+        </div>
+        <div>
+          <p id="checkpoint-power-plain-answer">The page will state the measurement boundary once the saved artifact loads.</p>
+          <p class="plain-words" id="checkpoint-power-plain-words"></p>
+          <strong id="checkpoint-power-decision">No policy claim is available yet.</strong>
+        </div>
+      </article>
+
+      <div class="checkpoint-power-depth-copy">
+        <p class="depth-freshman"><strong>The experiment ran; the measuring stick failed.</strong> All 32 planned comparisons started from the exact same trained model. Asking the sensor every 20 milliseconds did not make it answer that fast: its reading effectively changed about every 495 milliseconds. That is too slow to decide whether sparse continuation saves energy.</p>
+        <p class="depth-researcher"><strong>The 2×2 cadence-by-continuation design is intact, but the energy quantity it was meant to estimate cannot be used.</strong> Both frozen update-count invalidators fired and the logger calibration hit its limit. Arm medians and contrasts stay visible as diagnostics, never as evidence about mechanism.</p>
+        <p class="depth-full_trace" id="checkpoint-power-depth-trace">The 32-run ledger, per-phase metrics, bound source identities, and lazy raw telemetry are attached below.</p>
+      </div>
+
+      <div class="checkpoint-power-freshman-grid depth-freshman" id="checkpoint-power-freshman-grid" aria-label="Plain-language checkpoint-power result"></div>
+
+      <div class="checkpoint-power-research depth-researcher">
+        <section class="checkpoint-power-validity" aria-labelledby="checkpoint-power-validity-title">
+          <header class="checkpoint-power-section-header">
+            <div>
+              <p class="control-label">Validity before effect size</p>
+              <h3 id="checkpoint-power-validity-title">Two active invalidators stopped the claim</h3>
+            </div>
+            <span>both were frozen before evaluation</span>
+          </header>
+          <div class="checkpoint-power-validity-grid">
+            <div class="checkpoint-power-invalidators" id="checkpoint-power-invalidators"></div>
+            <div class="checkpoint-power-logger" id="checkpoint-power-logger"></div>
+          </div>
+        </section>
+
+        <section class="checkpoint-power-arms" aria-labelledby="checkpoint-power-arms-title">
+          <header class="checkpoint-power-section-header">
+            <div>
+              <p class="control-label">Observed arm medians</p>
+              <h3 id="checkpoint-power-arms-title">The intended 2×2 comparison completed</h3>
+            </div>
+            <span>energy values describe the runs; they cannot support a claim</span>
+          </header>
+          <div class="checkpoint-power-arm-grid" id="checkpoint-power-arm-grid"></div>
+        </section>
+
+        <section class="checkpoint-power-controls" aria-labelledby="checkpoint-power-controls-title">
+          <header class="checkpoint-power-section-header">
+            <div>
+              <p class="control-label">No-failure controls</p>
+              <h3 id="checkpoint-power-controls-title">State, work, and final NLL matched exactly</h3>
+            </div>
+            <span>two blocks × two checkpoint cadences</span>
+          </header>
+          <div class="checkpoint-power-control-grid" id="checkpoint-power-control-grid"></div>
+        </section>
+
+        <section class="checkpoint-power-contrasts" aria-labelledby="checkpoint-power-contrasts-title">
+          <header class="checkpoint-power-section-header">
+            <div>
+              <p class="control-label">Raw diagnostic contrasts</p>
+              <h3 id="checkpoint-power-contrasts-title">Shown here, but they cannot support a claim</h3>
+            </div>
+            <span id="checkpoint-power-contrast-label">measurement invalidators take precedence</span>
+          </header>
+          <div class="checkpoint-power-contrast-warning" role="note"><strong>Do not read this as a good result.</strong> These numbers describe the telemetry stream that was rejected. They cannot show that sparse continuation fixed the earlier energy penalty.</div>
+          <div class="checkpoint-power-contrast-grid" id="checkpoint-power-contrast-grid"></div>
+        </section>
+
+        <aside class="checkpoint-power-redirect" aria-labelledby="checkpoint-power-redirect-title">
+          <span aria-hidden="true">Next</span>
+          <div>
+            <p class="control-label">Direct redirect</p>
+            <h3 id="checkpoint-power-redirect-title">Keep the design; replace the meter</h3>
+            <p id="checkpoint-power-next-question">Next question loading.</p>
+            <div class="checkpoint-power-redirect-grid">
+              <div><strong>Do not change</strong><ul id="checkpoint-power-next-frozen"></ul></div>
+              <div><strong>New evidence required</strong><ul id="checkpoint-power-next-evidence"></ul></div>
+            </div>
+          </div>
+        </aside>
+
+        <aside class="checkpoint-power-boundary" aria-labelledby="checkpoint-power-boundary-title">
+          <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
+          <div>
+            <h3 id="checkpoint-power-boundary-title">Local board telemetry is not facility power</h3>
+            <p id="checkpoint-power-evidence-boundary">Evidence boundary loading.</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="checkpoint-power-trace depth-full_trace">
+        <div class="checkpoint-power-run-selector">
+          <label for="checkpoint-power-run-select">Selected run for phase metrics and raw points</label>
+          <select id="checkpoint-power-run-select" aria-label="Selected run"></select>
+        </div>
+
+        <details open>
+          <summary>All 32 run records</summary>
+          <div class="checkpoint-power-table-scroll">
+            <table class="checkpoint-power-trace-table checkpoint-power-ledger-table">
+              <thead><tr><th scope="col">Run</th><th scope="col">Split / block</th><th scope="col">Arm</th><th scope="col">Attempted / canonical</th><th scope="col">Final NLL</th><th scope="col">Samples / effective updates</th><th scope="col">Raw board energy</th><th scope="col">Checkpoints</th><th scope="col">Raw trace SHA-256</th></tr></thead>
+              <tbody id="checkpoint-power-run-ledger"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <details open>
+          <summary>Selected-run phase metrics</summary>
+          <p class="checkpoint-power-trace-warning">Phase energy is kept for diagnosis. It cannot support a causal comparison between policies, because the logger invalidators fired.</p>
+          <div class="checkpoint-power-table-scroll">
+            <table class="checkpoint-power-trace-table">
+              <thead><tr><th scope="col">Phase</th><th scope="col">Duration</th><th scope="col">Idle-subtracted board energy</th><th scope="col">Energy / canonical token</th><th scope="col">Effective update equivalents</th></tr></thead>
+              <tbody id="checkpoint-power-phase-metrics"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <details>
+          <summary>Hashes and complete compact provenance</summary>
+          <pre id="checkpoint-power-provenance-json" tabindex="0">not loaded</pre>
+        </details>
+
+        <details id="checkpoint-power-raw-details">
+          <summary>Load the raw point trace on demand</summary>
+          <div class="checkpoint-power-raw-panel">
+            <p id="checkpoint-power-raw-state" role="status" aria-live="polite">Raw telemetry is not loaded yet.</p>
+            <p id="checkpoint-power-raw-meta"></p>
+            <div class="checkpoint-power-table-scroll">
+              <table class="checkpoint-power-trace-table checkpoint-power-points-table">
+                <thead><tr><th scope="col">Point</th><th scope="col">Time</th><th scope="col">Phase at timestamp</th><th scope="col">Board power</th><th scope="col">GPU util.</th><th scope="col">Memory util.</th><th scope="col">SM / memory clock</th><th scope="col">Temperature</th><th scope="col">P-state</th></tr></thead>
+                <tbody id="checkpoint-power-raw-points"></tbody>
+              </table>
+            </div>
+          </div>
+        </details>
       </div>
     </section>
 
-    <section class="semantic-consistency-v1-band" id="semantic-consistency-v1" aria-labelledby="semantic-consistency-v1-title" data-experiment-view="E001-SC1" hidden>
+    <section class="checkpoint-energy-v2-band" id="checkpoint-energy-v2" aria-labelledby="checkpoint-energy-v2-title">
+      <header class="band-header checkpoint-energy-v2-header">
+        <div>
+          <p class="control-label">Measured energy use</p>
+          <h2 id="checkpoint-energy-v2-title">What caused the local GPU-energy penalty?</h2>
+        </div>
+        <output id="checkpoint-energy-v2-state" role="status" aria-live="polite">Reading cumulative-energy artifact…</output>
+      </header>
+
+      <article class="checkpoint-energy-insight" aria-labelledby="checkpoint-energy-insight-title">
+        <div>
+          <p class="checkpoint-energy-eyebrow">32 real GPU runs · measurement valid</p>
+          <h3 id="checkpoint-energy-insight-title">Result loading</h3>
+        </div>
+        <div>
+          <p id="checkpoint-energy-plain-answer">The page will state the mechanism once the saved artifact loads.</p>
+          <p class="plain-words" id="checkpoint-energy-plain-words"></p>
+          <strong id="checkpoint-energy-mechanism">Mechanism estimate loading.</strong>
+        </div>
+      </article>
+
+      <div class="checkpoint-energy-depth-copy">
+        <p class="depth-freshman"><strong>Checkpointing less often looks a little better, and the energy question is not closed.</strong> Both policies kept exactly 524,288 useful tokens. Sparse continuation attempted about 3% less work, finished 40 scheduling ticks sooner (a modeled number), and used about 3% less energy. That checkpoint snapshots caused the earlier penalty is not shown: replaying lost work cost more than writing them. The version that subtracts an estimated idle baseline cannot rule out a zero effect.</p>
+        <p class="depth-researcher"><strong>This repeats the earlier test, this time with a cumulative-energy counter the hardware actually supports.</strong> No measurement invalidator fired. Positive total and checkpoint-group interactions pass the frozen primary attribution gates, and sparse continuation holds the learning, work, schedule, and energy gates. The sensitivity-only, idle-subtracted interaction crossed zero, so the result does depend on how the idle baseline is handled.</p>
+        <p class="depth-full_trace" id="checkpoint-energy-depth-trace">The 32-run ledger, selected-run counter phases, bound identities, and lazy raw counter points are attached below.</p>
+      </div>
+
+      <div class="checkpoint-energy-freshman-grid depth-freshman" id="checkpoint-energy-freshman-grid" aria-label="Plain-language cumulative-energy result"></div>
+
+      <div class="checkpoint-energy-research depth-researcher">
+        <section class="checkpoint-energy-validity" aria-labelledby="checkpoint-energy-validity-title">
+          <header class="checkpoint-energy-section-header">
+            <div>
+              <p class="control-label">Measurement validity</p>
+              <h3 id="checkpoint-energy-validity-title">The cumulative counter cleared the frozen support rules</h3>
+            </div>
+            <span>zero active invalidators</span>
+          </header>
+          <div class="checkpoint-energy-validity-grid" id="checkpoint-energy-validity-grid"></div>
+        </section>
+
+        <section class="checkpoint-energy-effects" aria-labelledby="checkpoint-energy-effects-title">
+          <header class="checkpoint-energy-section-header">
+            <div>
+              <p class="control-label">Paired causal contrasts</p>
+              <h3 id="checkpoint-energy-effects-title">The main interaction passed its gate; replay, not snapshots, is the biggest term</h3>
+            </div>
+            <span>six frozen evaluation blocks · 90% intervals</span>
+          </header>
+          <div class="checkpoint-energy-effect-grid" id="checkpoint-energy-effect-grid"></div>
+        </section>
+
+        <section class="checkpoint-energy-phase-support" aria-labelledby="checkpoint-energy-phase-support-title">
+          <header class="checkpoint-energy-section-header">
+            <div>
+              <p class="control-label">Counter support by phase</p>
+              <h3 id="checkpoint-energy-phase-support-title">Checkpoint groups have enough counter data; rare recovery phases do not</h3>
+            </div>
+            <span>effective counter-update equivalents</span>
+          </header>
+          <div class="checkpoint-energy-support-grid" id="checkpoint-energy-support-grid"></div>
+          <div class="checkpoint-energy-exploratory" id="checkpoint-energy-exploratory"></div>
+        </section>
+
+        <section class="checkpoint-energy-gates" aria-labelledby="checkpoint-energy-gates-title">
+          <header class="checkpoint-energy-section-header">
+            <div>
+              <p class="control-label">Frozen decision</p>
+              <h3 id="checkpoint-energy-gates-title">All 11 gates passed as written; one mechanism gate is vacuous</h3>
+            </div>
+            <span>eleven independent checks remain visible</span>
+          </header>
+          <div class="checkpoint-energy-gate-groups">
+            <div><h4>Mechanism · 3 / 3</h4><div class="checkpoint-energy-gate-strip" id="checkpoint-energy-mechanism-gates"></div></div>
+            <div><h4>Sparse continuation · 8 / 8</h4><div class="checkpoint-energy-gate-strip" id="checkpoint-energy-salvage-gates"></div></div>
+          </div>
+        </section>
+
+        <aside class="checkpoint-energy-boundary" aria-labelledby="checkpoint-energy-boundary-title">
+          <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
+          <div>
+            <h3 id="checkpoint-energy-boundary-title">Local RTX + TinyStories result only</h3>
+            <p id="checkpoint-energy-evidence-boundary">Scope boundary loading.</p>
+            <p id="checkpoint-energy-next-question"></p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="checkpoint-energy-trace depth-full_trace">
+        <div class="checkpoint-energy-run-selector">
+          <label for="checkpoint-energy-run-select">Selected run for counter and nine-phase trace</label>
+          <select id="checkpoint-energy-run-select" aria-label="Selected run"></select>
+        </div>
+
+        <details open>
+          <summary>All 32 run records</summary>
+          <div class="checkpoint-energy-table-scroll">
+            <table class="checkpoint-energy-trace-table checkpoint-energy-ledger-table">
+              <thead><tr><th scope="col">Run</th><th scope="col">Split / block</th><th scope="col">Arm</th><th scope="col">Attempted / canonical</th><th scope="col">Final NLL</th><th scope="col">Polls / counter updates</th><th scope="col">Run energy</th><th scope="col">Checkpoints</th><th scope="col">Counter trace SHA-256</th></tr></thead>
+              <tbody id="checkpoint-energy-run-ledger"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <details open>
+          <summary>Selected-run cumulative counter and nine phases</summary>
+          <div class="checkpoint-energy-counter-summary" id="checkpoint-energy-counter-summary"></div>
+          <div class="checkpoint-energy-table-scroll">
+            <table class="checkpoint-energy-trace-table">
+              <thead><tr><th scope="col">Phase</th><th scope="col">Evidence class</th><th scope="col">Duration</th><th scope="col">Energy</th><th scope="col">Energy / canonical token</th><th scope="col">Counter updates</th><th scope="col">Effective update equivalents</th></tr></thead>
+              <tbody id="checkpoint-energy-phase-metrics"></tbody>
+            </table>
+          </div>
+        </details>
+
+        <details>
+          <summary>Hashes and complete compact provenance</summary>
+          <pre id="checkpoint-energy-provenance-json" tabindex="0">not loaded</pre>
+        </details>
+
+        <details id="checkpoint-energy-raw-details">
+          <summary>Load the raw cumulative-counter trace on demand</summary>
+          <div class="checkpoint-energy-raw-panel">
+            <p id="checkpoint-energy-raw-state" role="status" aria-live="polite">Raw counter telemetry is not loaded yet.</p>
+            <p id="checkpoint-energy-raw-meta"></p>
+            <div class="checkpoint-energy-table-scroll">
+              <table class="checkpoint-energy-trace-table checkpoint-energy-points-table">
+                <thead><tr><th scope="col">Point</th><th scope="col">Time</th><th scope="col">Phase at timestamp</th><th scope="col">Cumulative board energy</th><th scope="col">Counter update</th><th scope="col">Ancillary board power</th><th scope="col">GPU util.</th><th scope="col">Temperature</th></tr></thead>
+                <tbody id="checkpoint-energy-raw-points"></tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+    </details>
+
+    <details class="lab-fold" data-fold="controller">
+      <summary><span class="lab-fold-title">Can a controller pick the best settings by itself?</span><span class="lab-fold-hint">Unseen test cases</span></summary>
+      <p class="lab-fold-loading" role="status">Loading…</p>
+    <section class="semantic-consistency-v1-band" id="semantic-consistency-v1" aria-labelledby="semantic-consistency-v1-title">
       <header class="band-header semantic-consistency-v1-header">
         <div>
-          <p class="control-label">E001-SC1 · held-out software experiment</p>
+          <p class="control-label">Unseen test cases</p>
           <h2 id="semantic-consistency-v1-title">One controller, six unseen stress families</h2>
         </div>
         <output id="semantic-consistency-v1-state" role="status" aria-live="polite">Reading semantic-consistency artifact…</output>
@@ -338,8 +910,12 @@
         </details>
       </div>
     </section>
+    </details>
 
-    <section class="research-band" aria-label="Causal field and evidence inspector" data-experiment-view="E001">
+    <details class="lab-fold" data-fold="simulator">
+      <summary><span class="lab-fold-title">How the simulator works</span><span class="lab-fold-hint">For experts</span></summary>
+      <p class="lab-fold-loading" role="status">Loading…</p>
+    <section class="research-band" aria-label="Causal field and evidence inspector">
       <aside class="causal-reading" aria-labelledby="causal-reading-title">
         <h2 id="causal-reading-title">Causal reading</h2>
         <ol>
@@ -348,7 +924,7 @@
           <li><span>3</span><p><strong>Sync cadence changes</strong><small>The controller acts only after a finished collective, the round where every site exchanges and combines results.</small></p></li>
           <li><span>4</span><p><strong>Traffic and elapsed time change</strong><small>The mechanics come from the order of events and the resources they use.</small></p></li>
           <li><span>5</span><p><strong>Learning response is a prior</strong><small>A prior is a starting guess, not a fit. One-step delay observations seed it.</small></p></li>
-          <li><span>6</span><p><strong>Every gate stays explicit</strong><small>Numeric falsifiers and evidence requirements can each fail, or stay unresolved, on their own.</small></p></li>
+          <li><span>6</span><p><strong>Each claim can fail on its own</strong><small>Every result is checked separately, and any one of them can fail or stay unresolved.</small></p></li>
         </ol>
 
         <div class="evidence-key" aria-label="Evidence class key">
@@ -407,7 +983,7 @@
       </aside>
     </section>
 
-    <section class="timeline-band" id="timeline" aria-labelledby="timeline-title" data-experiment-view="E001">
+    <section class="timeline-band" id="timeline" aria-labelledby="timeline-title">
       <header class="band-header">
         <div>
           <p class="control-label">Aligned experiment time</p>
@@ -451,706 +1027,11 @@
       </details>
     </section>
 
-    <section class="recovery-v2-band" id="recovery-v2" aria-labelledby="recovery-v2-title" data-experiment-view="E001" hidden>
-      <header class="band-header recovery-v2-header">
-        <div>
-          <p class="control-label">Matched recovery trace</p>
-          <h2 id="recovery-v2-title">Four policies, one failure clock</h2>
-        </div>
-        <output id="recovery-v2-state" role="status" aria-live="polite">Reading recovery artifact…</output>
-      </header>
-
-      <div class="recovery-depth-copy" id="recovery-depth-copy">
-        <p class="depth-freshman">The same failure hits all four policies. The shared clock shows what stops, what is restored, what must be redone, and when useful work catches up.</p>
-        <p class="depth-researcher">Every policy track shares one time axis taken from the artifact. Recovery is mechanical: each policy reaches the same durable frontier, the last point safely written to storage, after explicit preemption, restore, replay, and membership changes.</p>
-        <p class="depth-full_trace">Every mark is drawn from a saved recovery episode. Event IDs, nanosecond bounds, what happened to each unit of work, checkpoint lineage, and matched-frontier hashes stay available in the structured trace.</p>
-      </div>
-
-      <div class="recovery-timeline-well">
-        <svg id="recovery-timeline-svg" class="recovery-timeline-svg" role="img" aria-labelledby="recovery-timeline-title recovery-timeline-desc"></svg>
-      </div>
-      <ul class="recovery-role-key" aria-label="Recovery timeline roles">
-        <li><span data-recovery-role="failure"></span>Failure</li>
-        <li><span data-recovery-role="preemption"></span>Preemption</li>
-        <li><span data-recovery-role="checkpoint_restore"></span>Restore</li>
-        <li><span data-recovery-role="replay"></span>Replay</li>
-        <li><span data-recovery-role="membership_rejoin"></span>Rejoin</li>
-      </ul>
-      <details class="structured-fallback recovery-timeline-fallback">
-        <summary>Accessible recovery timeline list</summary>
-        <div id="recovery-timeline-fallback"></div>
-      </details>
-
-      <div class="recovery-mechanics-grid">
-        <section class="recovery-measure" aria-labelledby="work-conservation-title">
-          <div class="recovery-measure-heading">
-            <h3 id="work-conservation-title">Work conservation</h3>
-            <span>attempted = retained + lost</span>
-          </div>
-          <div id="recovery-work-bars" class="recovery-work-bars"></div>
-        </section>
-
-        <section class="recovery-measure" aria-labelledby="byte-composition-title">
-          <div class="recovery-measure-heading">
-            <h3 id="byte-composition-title">Where the inter-site bytes went</h3>
-            <span>six traffic classes that never overlap</span>
-          </div>
-          <div id="recovery-byte-bars" class="recovery-byte-bars"></div>
-        </section>
-
-        <section class="recovery-measure recovery-completion" aria-labelledby="completion-compare-title">
-          <div class="recovery-measure-heading">
-            <h3 id="completion-compare-title">Mechanical completion</h3>
-            <span>same durable frontier</span>
-          </div>
-          <div id="recovery-completion-ruler" class="recovery-completion-ruler"></div>
-        </section>
-
-        <aside class="recovery-learning-boundary" id="recovery-learning-boundary" aria-labelledby="recovery-learning-title">
-          <span class="evidence-glyph evidence-glyph--unmeasured" aria-hidden="true"></span>
-          <div>
-            <h3 id="recovery-learning-title">Recovery-v2 learning was unresolved</h3>
-            <p>This mechanics artifact contains no held-out learning observation.</p>
-            <p class="depth-researcher">LC1 below adds measured local small-model learning. It does not turn the recovery-v2 mechanics run into real multi-site learning evidence.</p>
-            <p class="depth-full_trace" id="recovery-learning-trace">Recovery-v2 records no recovery-quality observation IDs. LC1 is a separate calibration artifact attached to it.</p>
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <section class="learning-v1-band" id="learning-v1" aria-labelledby="learning-v1-title" data-experiment-view="E001" hidden>
-      <header class="band-header learning-v1-header">
-        <div>
-          <p class="control-label">Measured small-model learning</p>
-          <h2 id="learning-v1-title">Did adaptive recovery keep learning just as efficient?</h2>
-        </div>
-        <output id="learning-v1-state" role="status" aria-live="polite">Reading learning artifact…</output>
-      </header>
-
-      <article class="learning-insight" aria-labelledby="learning-insight-title">
-        <div>
-          <p class="learning-eyebrow">LC1 · paired interrupted calibration</p>
-          <h3 id="learning-insight-title">The learning result is loading</h3>
-        </div>
-        <p id="learning-plain-answer">The page will state the measured answer once the saved artifact loads.</p>
-        <p class="plain-words" id="learning-plain-words"></p>
-      </article>
-
-      <div class="learning-depth-copy" id="learning-depth-copy">
-        <p class="depth-freshman">Lower held-out loss means the model predicts better. The cards show how much training each policy attempted to get there, and the lines show what it learned over the same failure clock.</p>
-        <p class="depth-researcher">Policy medians summarize matched strata. Inside each stratum, the paired effect subtracts fixed-local progress per FLOP from adaptive progress per FLOP, so zero means the two are equally efficient.</p>
-        <p class="depth-full_trace" id="learning-depth-trace">Artifact, dataset, runtime, paired evaluation, and per-run records remain attached below.</p>
-      </div>
-
-      <div class="learning-policy-grid" id="learning-policy-grid" aria-label="Learning policy metric comparison"></div>
-
-      <div class="learning-visual-grid">
-        <section class="learning-figure learning-curves-figure" aria-labelledby="learning-curves-title">
-          <header>
-            <div>
-              <p class="control-label">Median trajectory</p>
-              <h3 id="learning-curves-title">Held-out NLL over wall ticks</h3>
-            </div>
-            <span>lower is better</span>
-          </header>
-          <div class="learning-svg-scroll">
-            <svg id="learning-curves-svg" class="learning-curves-svg" role="img" aria-labelledby="learning-curves-svg-title learning-curves-svg-desc"></svg>
-          </div>
-          <ul id="learning-curve-values" class="learning-direct-values" aria-label="Final curve values"></ul>
-        </section>
-
-        <section class="learning-figure learning-paired-figure" aria-labelledby="learning-paired-title">
-          <header>
-            <div>
-              <p class="control-label">Paired causal contrast</p>
-              <h3 id="learning-paired-title">Adaptive minus fixed progress per FLOP</h3>
-            </div>
-            <span>six matched strata</span>
-          </header>
-          <div class="learning-svg-scroll">
-            <svg id="learning-paired-svg" class="learning-paired-svg" role="img" aria-labelledby="learning-paired-svg-title learning-paired-svg-desc"></svg>
-          </div>
-          <p id="learning-paired-summary" class="learning-paired-summary">Paired interval not loaded.</p>
-        </section>
-      </div>
-
-      <section class="learning-gates" aria-labelledby="learning-gates-title">
-        <header>
-          <div>
-            <p class="control-label">Frozen decision</p>
-            <h3 id="learning-gates-title">The gates that could fail this claim</h3>
-          </div>
-          <span>every gate stays visible; protocol and results share a commit, so "before the run" is not verifiable</span>
-        </header>
-        <div id="learning-gate-strip" class="learning-gate-strip"></div>
-      </section>
-
-      <aside class="learning-boundary" aria-labelledby="learning-boundary-title">
-        <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
-        <div>
-          <h3 id="learning-boundary-title">What this evidence can carry</h3>
-          <p id="learning-evidence-boundary">Learning evidence boundary not loaded.</p>
-        </div>
-      </aside>
-
-      <div class="learning-trace depth-full_trace">
-        <details open>
-          <summary>Exact paired evaluations</summary>
-          <div class="learning-table-scroll">
-            <table class="learning-trace-table">
-              <thead><tr><th scope="col">Stratum</th><th scope="col">Fixed progress/FLOP</th><th scope="col">Adaptive progress/FLOP</th><th scope="col">Adaptive − fixed</th></tr></thead>
-              <tbody id="learning-evaluation-pairs"></tbody>
-            </table>
-          </div>
-        </details>
-        <details>
-          <summary>Run-level measurements</summary>
-          <div class="learning-table-scroll">
-            <table class="learning-trace-table">
-              <thead><tr><th scope="col">Run</th><th scope="col">Stratum</th><th scope="col">Final NLL</th><th scope="col">Attempted tokens</th><th scope="col">Energy</th><th scope="col">Active time</th></tr></thead>
-              <tbody id="learning-run-details"></tbody>
-            </table>
-          </div>
-        </details>
-        <details>
-          <summary>Dataset, runtime, and source identity</summary>
-          <pre id="learning-provenance-json" tabindex="0">not loaded</pre>
-        </details>
-      </div>
-    </section>
-
-    <section class="equal-work-v1-band" id="equal-work-v1" aria-labelledby="equal-work-v1-title" data-experiment-view="E001" hidden>
-      <header class="band-header equal-work-v1-header">
-        <div>
-          <p class="control-label">LC3 · measured equal-work endpoint</p>
-          <h2 id="equal-work-v1-title">What survives when useful work is held equal?</h2>
-        </div>
-        <output id="equal-work-v1-state" role="status" aria-live="polite">Reading equal-work artifact…</output>
-      </header>
-
-      <article class="equal-work-insight" aria-labelledby="equal-work-insight-title">
-        <div>
-          <p class="equal-work-eyebrow">Same 524,288 useful tokens · six held-out pairs</p>
-          <h3 id="equal-work-insight-title">Equal-work result loading</h3>
-        </div>
-        <p id="equal-work-plain-answer">The page will state the result once the saved LC3 artifact loads.</p>
-        <p class="plain-words" id="equal-work-plain-words"></p>
-      </article>
-
-      <div class="equal-work-depth-copy">
-        <p class="depth-freshman"><strong>Useful work is the fair ruler here.</strong> Both policies end with the same 524,288 tokens actually kept by the model. Adaptive avoided work it would have had to redo and finished the schedule sooner with no meaningful loss of learning, but its GPU drew too much energy to pass.</p>
-        <p class="depth-researcher"><strong>LC3 closes the trap in LC1, where stopping early shrank the denominator and flattered the result.</strong> Six paired evaluation strata all end at the same amount of canonical work. Read learning as paired NLL noninferiority, physical work as attempted-FLOP savings, schedule time as opportunity ticks, and energy as a paired device-energy ratio.</p>
-        <p class="depth-full_trace" id="equal-work-depth-trace">Exact pairs, run records, protocol predecessors, hashes, and the modeled-mechanics boundary remain attached below.</p>
-      </div>
-
-      <div class="equal-work-freshman-grid depth-freshman" id="equal-work-freshman-grid" aria-label="Plain-language equal-work result"></div>
-
-      <div class="equal-work-research depth-researcher">
-        <section class="equal-work-policy-section" aria-labelledby="equal-work-policy-title">
-          <header class="equal-work-section-header">
-            <div>
-              <p class="control-label">Observed policy medians</p>
-              <h3 id="equal-work-policy-title">Same useful frontier, different path</h3>
-            </div>
-            <span>six interrupted evaluation runs per policy</span>
-          </header>
-          <div class="equal-work-policy-grid" id="equal-work-policy-grid"></div>
-        </section>
-
-        <section class="equal-work-effects" aria-labelledby="equal-work-effects-title">
-          <header class="equal-work-section-header">
-            <div>
-              <p class="control-label">Paired 90% intervals</p>
-              <h3 id="equal-work-effects-title">Three gates passed, one failed on a noisy meter</h3>
-            </div>
-            <span>direct labels · frozen bounds</span>
-          </header>
-          <div class="equal-work-effect-grid" id="equal-work-effect-grid"></div>
-        </section>
-
-        <aside class="equal-work-clue" aria-labelledby="equal-work-clue-title">
-          <span aria-hidden="true">?</span>
-          <div>
-            <h3 id="equal-work-clue-title">Likely causal clue, not proof</h3>
-            <p id="equal-work-checkpoint-clue">Checkpoint evidence loading.</p>
-          </div>
-        </aside>
-
-        <section class="equal-work-gates" aria-labelledby="equal-work-gates-title">
-          <header class="equal-work-section-header">
-            <div>
-              <p class="control-label">Frozen LC3 decision</p>
-              <h3 id="equal-work-gates-title">Seven gates passed; the energy gate failed, but its meter could not resolve a 5% bar</h3>
-            </div>
-            <span>the failed gate stays visible; the ledger rates energy undetermined</span>
-          </header>
-          <div class="equal-work-gate-strip" id="equal-work-gate-strip"></div>
-        </section>
-
-        <aside class="equal-work-boundary" aria-labelledby="equal-work-boundary-title">
-          <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
-          <div>
-            <h3 id="equal-work-boundary-title">Observed learning, local device boundary</h3>
-            <p id="equal-work-evidence-boundary">Evidence boundary loading.</p>
-          </div>
-        </aside>
-      </div>
-
-      <div class="equal-work-trace depth-full_trace">
-        <details open>
-          <summary>Six paired evaluation rows</summary>
-          <div class="equal-work-table-scroll">
-            <table class="equal-work-trace-table">
-              <thead><tr><th scope="col">Stratum</th><th scope="col">Fixed NLL</th><th scope="col">Adaptive NLL</th><th scope="col">Adaptive − fixed NLL</th><th scope="col">Attempted-FLOP saved</th><th scope="col">Ticks saved</th><th scope="col">Energy ratio</th></tr></thead>
-              <tbody id="equal-work-evaluation-pairs"></tbody>
-            </table>
-          </div>
-        </details>
-        <details>
-          <summary>All 16 run records</summary>
-          <div class="equal-work-table-scroll">
-            <table class="equal-work-trace-table">
-              <thead><tr><th scope="col">Run</th><th scope="col">Split</th><th scope="col">Policy</th><th scope="col">Interrupted</th><th scope="col">Final NLL</th><th scope="col">Attempted / canonical tokens</th><th scope="col">Opportunity ticks</th><th scope="col">Device energy</th><th scope="col">Checkpoints</th></tr></thead>
-              <tbody id="equal-work-run-details"></tbody>
-            </table>
-          </div>
-        </details>
-        <details>
-          <summary>Two LC2 protocol predecessors</summary>
-          <div class="equal-work-table-scroll">
-            <table class="equal-work-trace-table">
-              <thead><tr><th scope="col">Artifact path</th><th scope="col">Conclusion</th><th scope="col">SHA-256</th></tr></thead>
-              <tbody id="equal-work-predecessors"></tbody>
-            </table>
-          </div>
-        </details>
-        <details>
-          <summary>Modeled mechanics bridge boundary</summary>
-          <div class="equal-work-bridge" id="equal-work-bridge"></div>
-        </details>
-        <details>
-          <summary>Source hashes and complete provenance</summary>
-          <pre id="equal-work-provenance-json" tabindex="0">not loaded</pre>
-        </details>
-      </div>
-    </section>
-
-    <section class="checkpoint-power-v1-band" id="checkpoint-power-v1" aria-labelledby="checkpoint-power-v1-title" data-experiment-view="E001" hidden>
-      <header class="band-header checkpoint-power-v1-header">
-        <div>
-          <p class="control-label">E002-PW1 · measured local power</p>
-          <h2 id="checkpoint-power-v1-title">Did checkpoint cadence cause LC3’s energy penalty?</h2>
-        </div>
-        <output id="checkpoint-power-v1-state" role="status" aria-live="polite">Reading checkpoint-power artifact…</output>
-      </header>
-
-      <article class="checkpoint-power-insight" aria-labelledby="checkpoint-power-insight-title">
-        <div>
-          <p class="checkpoint-power-eyebrow">32 real GPU runs · measurement rejected</p>
-          <h3 id="checkpoint-power-insight-title">Result loading</h3>
-        </div>
-        <div>
-          <p id="checkpoint-power-plain-answer">The page will state the measurement boundary once the saved artifact loads.</p>
-          <p class="plain-words" id="checkpoint-power-plain-words"></p>
-          <strong id="checkpoint-power-decision">No policy claim is available yet.</strong>
-        </div>
-      </article>
-
-      <div class="checkpoint-power-depth-copy">
-        <p class="depth-freshman"><strong>The experiment ran; the measuring stick failed.</strong> All 32 planned comparisons started from the exact same trained model. Asking the sensor every 20 milliseconds did not make it answer that fast: its reading effectively changed about every 495 milliseconds. That is too slow to decide whether sparse continuation saves energy.</p>
-        <p class="depth-researcher"><strong>The 2×2 cadence-by-continuation design is intact, but the energy quantity it was meant to estimate cannot be used.</strong> Both frozen update-count invalidators fired and the logger calibration hit its limit. Arm medians and contrasts stay visible as diagnostics, never as evidence about mechanism.</p>
-        <p class="depth-full_trace" id="checkpoint-power-depth-trace">The 32-run ledger, per-phase metrics, bound source identities, and lazy raw telemetry are attached below.</p>
-      </div>
-
-      <div class="checkpoint-power-freshman-grid depth-freshman" id="checkpoint-power-freshman-grid" aria-label="Plain-language checkpoint-power result"></div>
-
-      <div class="checkpoint-power-research depth-researcher">
-        <section class="checkpoint-power-validity" aria-labelledby="checkpoint-power-validity-title">
-          <header class="checkpoint-power-section-header">
-            <div>
-              <p class="control-label">Validity before effect size</p>
-              <h3 id="checkpoint-power-validity-title">Two active invalidators stopped the claim</h3>
-            </div>
-            <span>both were frozen before evaluation</span>
-          </header>
-          <div class="checkpoint-power-validity-grid">
-            <div class="checkpoint-power-invalidators" id="checkpoint-power-invalidators"></div>
-            <div class="checkpoint-power-logger" id="checkpoint-power-logger"></div>
-          </div>
-        </section>
-
-        <section class="checkpoint-power-arms" aria-labelledby="checkpoint-power-arms-title">
-          <header class="checkpoint-power-section-header">
-            <div>
-              <p class="control-label">Observed arm medians</p>
-              <h3 id="checkpoint-power-arms-title">The intended 2×2 comparison completed</h3>
-            </div>
-            <span>energy values describe the runs; they cannot support a claim</span>
-          </header>
-          <div class="checkpoint-power-arm-grid" id="checkpoint-power-arm-grid"></div>
-        </section>
-
-        <section class="checkpoint-power-controls" aria-labelledby="checkpoint-power-controls-title">
-          <header class="checkpoint-power-section-header">
-            <div>
-              <p class="control-label">No-failure controls</p>
-              <h3 id="checkpoint-power-controls-title">State, work, and final NLL matched exactly</h3>
-            </div>
-            <span>two blocks × two checkpoint cadences</span>
-          </header>
-          <div class="checkpoint-power-control-grid" id="checkpoint-power-control-grid"></div>
-        </section>
-
-        <section class="checkpoint-power-contrasts" aria-labelledby="checkpoint-power-contrasts-title">
-          <header class="checkpoint-power-section-header">
-            <div>
-              <p class="control-label">Raw diagnostic contrasts</p>
-              <h3 id="checkpoint-power-contrasts-title">Shown here, but they cannot support a claim</h3>
-            </div>
-            <span id="checkpoint-power-contrast-label">measurement invalidators take precedence</span>
-          </header>
-          <div class="checkpoint-power-contrast-warning" role="note"><strong>DO NOT READ THIS AS A PASS.</strong> These numbers describe the telemetry stream that was rejected. They cannot show that sparse continuation fixed LC3’s energy failure.</div>
-          <div class="checkpoint-power-contrast-grid" id="checkpoint-power-contrast-grid"></div>
-        </section>
-
-        <aside class="checkpoint-power-redirect" aria-labelledby="checkpoint-power-redirect-title">
-          <span aria-hidden="true">PW2</span>
-          <div>
-            <p class="control-label">Direct redirect</p>
-            <h3 id="checkpoint-power-redirect-title">Keep the design; replace the meter</h3>
-            <p id="checkpoint-power-next-question">PW2 question loading.</p>
-            <div class="checkpoint-power-redirect-grid">
-              <div><strong>Do not change</strong><ul id="checkpoint-power-next-frozen"></ul></div>
-              <div><strong>New evidence required</strong><ul id="checkpoint-power-next-evidence"></ul></div>
-            </div>
-          </div>
-        </aside>
-
-        <aside class="checkpoint-power-boundary" aria-labelledby="checkpoint-power-boundary-title">
-          <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
-          <div>
-            <h3 id="checkpoint-power-boundary-title">Local board telemetry is not facility power</h3>
-            <p id="checkpoint-power-evidence-boundary">Evidence boundary loading.</p>
-          </div>
-        </aside>
-      </div>
-
-      <div class="checkpoint-power-trace depth-full_trace">
-        <div class="checkpoint-power-run-selector">
-          <label for="checkpoint-power-run-select">Selected run for phase metrics and raw points</label>
-          <select id="checkpoint-power-run-select" aria-label="Selected PW1 run"></select>
-        </div>
-
-        <details open>
-          <summary>All 32 run records</summary>
-          <div class="checkpoint-power-table-scroll">
-            <table class="checkpoint-power-trace-table checkpoint-power-ledger-table">
-              <thead><tr><th scope="col">Run</th><th scope="col">Split / block</th><th scope="col">Arm</th><th scope="col">Attempted / canonical</th><th scope="col">Final NLL</th><th scope="col">Samples / effective updates</th><th scope="col">Raw board energy</th><th scope="col">Checkpoints</th><th scope="col">Raw trace SHA-256</th></tr></thead>
-              <tbody id="checkpoint-power-run-ledger"></tbody>
-            </table>
-          </div>
-        </details>
-
-        <details open>
-          <summary>Selected-run phase metrics</summary>
-          <p class="checkpoint-power-trace-warning">Phase energy is kept for diagnosis. It cannot support a causal comparison between policies, because the logger invalidators fired.</p>
-          <div class="checkpoint-power-table-scroll">
-            <table class="checkpoint-power-trace-table">
-              <thead><tr><th scope="col">Phase</th><th scope="col">Duration</th><th scope="col">Idle-subtracted board energy</th><th scope="col">Energy / canonical token</th><th scope="col">Effective update equivalents</th></tr></thead>
-              <tbody id="checkpoint-power-phase-metrics"></tbody>
-            </table>
-          </div>
-        </details>
-
-        <details>
-          <summary>Hashes and complete compact provenance</summary>
-          <pre id="checkpoint-power-provenance-json" tabindex="0">not loaded</pre>
-        </details>
-
-        <details id="checkpoint-power-raw-details">
-          <summary>Load the raw point trace on demand</summary>
-          <div class="checkpoint-power-raw-panel">
-            <p id="checkpoint-power-raw-state" role="status" aria-live="polite">Raw telemetry is not loaded yet.</p>
-            <p id="checkpoint-power-raw-meta"></p>
-            <div class="checkpoint-power-table-scroll">
-              <table class="checkpoint-power-trace-table checkpoint-power-points-table">
-                <thead><tr><th scope="col">Point</th><th scope="col">Time</th><th scope="col">Phase at timestamp</th><th scope="col">Board power</th><th scope="col">GPU util.</th><th scope="col">Memory util.</th><th scope="col">SM / memory clock</th><th scope="col">Temperature</th><th scope="col">P-state</th></tr></thead>
-                <tbody id="checkpoint-power-raw-points"></tbody>
-              </table>
-            </div>
-          </div>
-        </details>
-      </div>
-    </section>
-
-    <section class="checkpoint-energy-v2-band" id="checkpoint-energy-v2" aria-labelledby="checkpoint-energy-v2-title" data-experiment-view="E001" hidden>
-      <header class="band-header checkpoint-energy-v2-header">
-        <div>
-          <p class="control-label">E002-PW2 · valid cumulative energy</p>
-          <h2 id="checkpoint-energy-v2-title">What caused the local GPU-energy penalty?</h2>
-        </div>
-        <output id="checkpoint-energy-v2-state" role="status" aria-live="polite">Reading cumulative-energy artifact…</output>
-      </header>
-
-      <article class="checkpoint-energy-insight" aria-labelledby="checkpoint-energy-insight-title">
-        <div>
-          <p class="checkpoint-energy-eyebrow">32 real GPU runs · measurement valid</p>
-          <h3 id="checkpoint-energy-insight-title">Result loading</h3>
-        </div>
-        <div>
-          <p id="checkpoint-energy-plain-answer">The page will state the mechanism once the saved artifact loads.</p>
-          <p class="plain-words" id="checkpoint-energy-plain-words"></p>
-          <strong id="checkpoint-energy-mechanism">Mechanism estimate loading.</strong>
-        </div>
-      </article>
-
-      <div class="checkpoint-energy-depth-copy">
-        <p class="depth-freshman"><strong>Checkpointing less often looks a little better, and the energy question is not closed.</strong> Both policies kept exactly 524,288 useful tokens. Sparse continuation attempted about 3% less work, finished 40 scheduling ticks sooner (a modeled number), and used about 3% less energy. That checkpoint snapshots caused the earlier penalty is not shown: replaying lost work cost more than writing them. The version that subtracts an estimated idle baseline cannot rule out a zero effect.</p>
-        <p class="depth-researcher"><strong>PW2 repeats PW1’s frozen 2×2 design, this time with a cumulative-energy counter the hardware actually supports.</strong> No measurement invalidator fired. Positive total and checkpoint-group interactions pass the frozen primary attribution gates, and sparse continuation holds the learning, work, schedule, and energy gates. The sensitivity-only, idle-subtracted interaction crossed zero, so the result does depend on how the idle baseline is handled.</p>
-        <p class="depth-full_trace" id="checkpoint-energy-depth-trace">The 32-run ledger, selected-run counter phases, bound identities, and lazy raw counter points are attached below.</p>
-      </div>
-
-      <div class="checkpoint-energy-freshman-grid depth-freshman" id="checkpoint-energy-freshman-grid" aria-label="Plain-language cumulative-energy result"></div>
-
-      <div class="checkpoint-energy-research depth-researcher">
-        <section class="checkpoint-energy-validity" aria-labelledby="checkpoint-energy-validity-title">
-          <header class="checkpoint-energy-section-header">
-            <div>
-              <p class="control-label">Measurement validity</p>
-              <h3 id="checkpoint-energy-validity-title">The cumulative counter cleared the frozen support rules</h3>
-            </div>
-            <span>zero active invalidators</span>
-          </header>
-          <div class="checkpoint-energy-validity-grid" id="checkpoint-energy-validity-grid"></div>
-        </section>
-
-        <section class="checkpoint-energy-effects" aria-labelledby="checkpoint-energy-effects-title">
-          <header class="checkpoint-energy-section-header">
-            <div>
-              <p class="control-label">Paired causal contrasts</p>
-              <h3 id="checkpoint-energy-effects-title">The main interaction passed its gate; replay, not snapshots, is the biggest term</h3>
-            </div>
-            <span>six frozen evaluation blocks · 90% intervals</span>
-          </header>
-          <div class="checkpoint-energy-effect-grid" id="checkpoint-energy-effect-grid"></div>
-        </section>
-
-        <section class="checkpoint-energy-phase-support" aria-labelledby="checkpoint-energy-phase-support-title">
-          <header class="checkpoint-energy-section-header">
-            <div>
-              <p class="control-label">Counter support by phase</p>
-              <h3 id="checkpoint-energy-phase-support-title">Checkpoint groups have enough counter data; rare recovery phases do not</h3>
-            </div>
-            <span>effective counter-update equivalents</span>
-          </header>
-          <div class="checkpoint-energy-support-grid" id="checkpoint-energy-support-grid"></div>
-          <div class="checkpoint-energy-exploratory" id="checkpoint-energy-exploratory"></div>
-        </section>
-
-        <section class="checkpoint-energy-gates" aria-labelledby="checkpoint-energy-gates-title">
-          <header class="checkpoint-energy-section-header">
-            <div>
-              <p class="control-label">Frozen decision</p>
-              <h3 id="checkpoint-energy-gates-title">All 11 gates passed as written; one mechanism gate is vacuous</h3>
-            </div>
-            <span>eleven independent checks remain visible</span>
-          </header>
-          <div class="checkpoint-energy-gate-groups">
-            <div><h4>Mechanism · 3 / 3</h4><div class="checkpoint-energy-gate-strip" id="checkpoint-energy-mechanism-gates"></div></div>
-            <div><h4>Sparse continuation · 8 / 8</h4><div class="checkpoint-energy-gate-strip" id="checkpoint-energy-salvage-gates"></div></div>
-          </div>
-        </section>
-
-        <aside class="checkpoint-energy-boundary" aria-labelledby="checkpoint-energy-boundary-title">
-          <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
-          <div>
-            <h3 id="checkpoint-energy-boundary-title">Local RTX + TinyStories result only</h3>
-            <p id="checkpoint-energy-evidence-boundary">Scope boundary loading.</p>
-            <p id="checkpoint-energy-next-question"></p>
-          </div>
-        </aside>
-      </div>
-
-      <div class="checkpoint-energy-trace depth-full_trace">
-        <div class="checkpoint-energy-run-selector">
-          <label for="checkpoint-energy-run-select">Selected run for counter and nine-phase trace</label>
-          <select id="checkpoint-energy-run-select" aria-label="Selected PW2 run"></select>
-        </div>
-
-        <details open>
-          <summary>All 32 run records</summary>
-          <div class="checkpoint-energy-table-scroll">
-            <table class="checkpoint-energy-trace-table checkpoint-energy-ledger-table">
-              <thead><tr><th scope="col">Run</th><th scope="col">Split / block</th><th scope="col">Arm</th><th scope="col">Attempted / canonical</th><th scope="col">Final NLL</th><th scope="col">Polls / counter updates</th><th scope="col">Run energy</th><th scope="col">Checkpoints</th><th scope="col">Counter trace SHA-256</th></tr></thead>
-              <tbody id="checkpoint-energy-run-ledger"></tbody>
-            </table>
-          </div>
-        </details>
-
-        <details open>
-          <summary>Selected-run cumulative counter and nine phases</summary>
-          <div class="checkpoint-energy-counter-summary" id="checkpoint-energy-counter-summary"></div>
-          <div class="checkpoint-energy-table-scroll">
-            <table class="checkpoint-energy-trace-table">
-              <thead><tr><th scope="col">Phase</th><th scope="col">Evidence class</th><th scope="col">Duration</th><th scope="col">Energy</th><th scope="col">Energy / canonical token</th><th scope="col">Counter updates</th><th scope="col">Effective update equivalents</th></tr></thead>
-              <tbody id="checkpoint-energy-phase-metrics"></tbody>
-            </table>
-          </div>
-        </details>
-
-        <details>
-          <summary>Hashes and complete compact provenance</summary>
-          <pre id="checkpoint-energy-provenance-json" tabindex="0">not loaded</pre>
-        </details>
-
-        <details id="checkpoint-energy-raw-details">
-          <summary>Load the raw cumulative-counter trace on demand</summary>
-          <div class="checkpoint-energy-raw-panel">
-            <p id="checkpoint-energy-raw-state" role="status" aria-live="polite">Raw counter telemetry is not loaded yet.</p>
-            <p id="checkpoint-energy-raw-meta"></p>
-            <div class="checkpoint-energy-table-scroll">
-              <table class="checkpoint-energy-trace-table checkpoint-energy-points-table">
-                <thead><tr><th scope="col">Point</th><th scope="col">Time</th><th scope="col">Phase at timestamp</th><th scope="col">Cumulative board energy</th><th scope="col">Counter update</th><th scope="col">Ancillary board power</th><th scope="col">GPU util.</th><th scope="col">Temperature</th></tr></thead>
-                <tbody id="checkpoint-energy-raw-points"></tbody>
-              </table>
-            </div>
-          </div>
-        </details>
-      </div>
-    </section>
-
-    <section class="rack-dephasing-v3-band" id="rack-dephasing-v3" aria-labelledby="rack-dephasing-v3-title" data-experiment-view="E001" hidden>
-      <header class="band-header rack-dephasing-v3-header">
-        <div>
-          <p class="control-label">E002-PW3 · physical rack mechanism</p>
-          <h2 id="rack-dephasing-v3-title">Can slack in recovery be used to steer rack power?</h2>
-        </div>
-        <output id="rack-dephasing-v3-state" role="status" aria-live="polite">Reading rack experiment artifact…</output>
-      </header>
-
-      <article class="rack-dephasing-insight" aria-labelledby="rack-dephasing-insight-title">
-        <div>
-          <p class="rack-dephasing-eyebrow" id="rack-dephasing-eyebrow">Physical result loading</p>
-          <h3 id="rack-dephasing-insight-title">Result loading</h3>
-        </div>
-        <div>
-          <p id="rack-dephasing-plain-answer">The page will explain what moved, what the rack meter saw, and whether learning stayed fixed.</p>
-          <strong id="rack-dephasing-boundary-short">Nothing about this rack is inferred from the earlier laptop experiment.</strong>
-        </div>
-      </article>
-
-      <div class="rack-dephasing-depth-copy">
-        <p class="depth-freshman" id="rack-dephasing-freshman-copy">The same training and recovery work runs several ways. The shaped run is allowed to move only the operations that have real timing slack. The rack meter then says whether spreading those operations out really did soften the electrical spike.</p>
-        <p class="depth-researcher" id="rack-dephasing-researcher-copy">Paired blocks hold useful work, state generations, failures, and learning commitments fixed. The only thing that changes is when checkpoint and rejoin traffic is allowed to be released.</p>
-        <p class="depth-full_trace" id="rack-dephasing-depth-trace">Exact event intervals, clock alignment, sensor coverage, semantic obligations, and chunk hashes appear below.</p>
-      </div>
-
-      <div class="rack-dephasing-freshman-grid depth-freshman" id="rack-dephasing-freshman-grid" aria-label="Plain-language rack dephasing result"></div>
-
-      <div class="rack-dephasing-research depth-researcher">
-        <section class="rack-dephasing-waveform" aria-labelledby="rack-dephasing-waveform-title">
-          <header class="rack-dephasing-section-header">
-            <div>
-              <p class="control-label">Same clock · measured boundary</p>
-              <h3 id="rack-dephasing-waveform-title">What moved, and what the rack meter saw</h3>
-            </div>
-            <div class="rack-dephasing-controls">
-              <label for="rack-dephasing-block-select">Block
-                <select id="rack-dephasing-block-select" aria-label="Selected physical evaluation block"></select>
-              </label>
-              <label for="rack-dephasing-comparator-select">Compare with
-                <select id="rack-dephasing-comparator-select" aria-label="Rack dephasing comparator">
-                  <option value="synchronized">Synchronized</option>
-                  <option value="random_jitter">Random legal jitter</option>
-                </select>
-              </label>
-            </div>
-          </header>
-          <div class="rack-dephasing-chart-frame">
-            <svg id="rack-dephasing-waveform-svg" role="img" aria-labelledby="rack-dephasing-waveform-title rack-dephasing-waveform-desc"></svg>
-            <p id="rack-dephasing-waveform-desc" class="visually-hidden">Paired power traces from the rack PDU, the unit that distributes power to the rack, drawn above the checkpoint and recovery event rails for the job.</p>
-          </div>
-          <div class="rack-dephasing-waveform-fallback" id="rack-dephasing-waveform-fallback"></div>
-        </section>
-
-        <section class="rack-dephasing-effects" aria-labelledby="rack-dephasing-effects-title">
-          <header class="rack-dephasing-section-header">
-            <div>
-              <p class="control-label">Paired physical effects</p>
-              <h3 id="rack-dephasing-effects-title">Electrical benefit and systems cost stay side by side</h3>
-            </div>
-            <span>six evaluation blocks · 90% paired intervals</span>
-          </header>
-          <div class="rack-dephasing-effect-grid" id="rack-dephasing-effect-grid"></div>
-        </section>
-
-        <section class="rack-dephasing-policy-summary" aria-labelledby="rack-dephasing-policy-title">
-          <header class="rack-dephasing-section-header">
-            <div>
-              <p class="control-label">Five frozen policies</p>
-              <h3 id="rack-dephasing-policy-title">Feedback must beat synchronization and random timing</h3>
-            </div>
-            <span>calibration remains outside the claim</span>
-          </header>
-          <div class="rack-dephasing-table-scroll">
-            <table class="rack-dephasing-table">
-              <thead><tr><th scope="col">Policy</th><th scope="col">Rack ramp</th><th scope="col">0.1–10 Hz energy</th><th scope="col">Useful-token rate</th><th scope="col">Rack J / token</th><th scope="col">p95 recovery</th><th scope="col">Held-out NLL</th></tr></thead>
-              <tbody id="rack-dephasing-policy-body"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="rack-dephasing-gates" aria-labelledby="rack-dephasing-gates-title">
-          <header class="rack-dephasing-section-header">
-            <div>
-              <p class="control-label">Frozen decision</p>
-              <h3 id="rack-dephasing-gates-title">Every electrical and semantic gate counts</h3>
-            </div>
-            <span id="rack-dephasing-gate-summary">Decision loading</span>
-          </header>
-          <div class="rack-dephasing-gate-strip" id="rack-dephasing-gate-strip"></div>
-        </section>
-
-        <aside class="rack-dephasing-boundary" aria-labelledby="rack-dephasing-boundary-title">
-          <span class="evidence-glyph evidence-glyph--observed" aria-hidden="true"></span>
-          <div>
-            <h3 id="rack-dephasing-boundary-title">A rack result, not a whole-facility result</h3>
-            <p id="rack-dephasing-evidence-boundary">Evidence boundary loading.</p>
-            <p id="rack-dephasing-next-question"></p>
-          </div>
-        </aside>
-      </div>
-
-      <div class="rack-dephasing-trace depth-full_trace">
-        <details open>
-          <summary>Selected block event ledger</summary>
-          <div class="rack-dephasing-table-scroll">
-            <table class="rack-dephasing-table rack-dephasing-event-table">
-              <thead><tr><th scope="col">Arm / job</th><th scope="col">Operation</th><th scope="col">Generation</th><th scope="col">Ready → release</th><th scope="col">Actual interval</th><th scope="col">Bytes</th><th scope="col">Outcome</th></tr></thead>
-              <tbody id="rack-dephasing-event-body"></tbody>
-            </table>
-          </div>
-        </details>
-        <details open>
-          <summary>Sensor, clock, and semantic evidence</summary>
-          <div id="rack-dephasing-trace-summary" class="rack-dephasing-trace-summary"></div>
-        </details>
-        <details>
-          <summary>Chunked raw telemetry manifest</summary>
-          <div id="rack-dephasing-raw-manifest" class="rack-dephasing-raw-manifest"></div>
-        </details>
-        <details>
-          <summary>Hashes and complete compact provenance</summary>
-          <pre id="rack-dephasing-provenance-json" tabindex="0">not loaded</pre>
-        </details>
-      </div>
-    </section>
-
-    <section class="comparison-band" id="comparison" aria-labelledby="comparison-title" data-experiment-view="E001">
+    <section class="comparison-band" id="comparison" aria-labelledby="comparison-title">
       <header class="band-header">
         <div>
-          <p class="control-label">E001 v1 screening artifact</p>
-          <h2 id="comparison-title">Three-policy comparison</h2>
+          <p class="control-label">Simulator result</p>
+          <h2 id="comparison-title">Three methods side by side</h2>
         </div>
         <label class="uncertainty-control" for="uncertainty-select">
           <span>Uncertainty display</span>
@@ -1163,7 +1044,7 @@
 
       <div class="comparison-scroll">
         <table class="policy-comparison">
-          <caption class="visually-hidden">Comparison of synchronous, fixed-local, and adaptive-cadence E001 artifacts</caption>
+          <caption class="visually-hidden">Comparison of synchronous, fixed-local, and adaptive-cadence artifacts</caption>
           <thead>
             <tr>
               <th scope="col">Policy</th>
@@ -1181,13 +1062,12 @@
       <p class="comparison-boundary" id="comparison-boundary">Waiting for a generated artifact. Result cells remain not run.</p>
     </section>
 
-    <section class="evidence-lab" id="evidence" aria-labelledby="evidence-title" data-experiment-view="E001">
+    <section class="evidence-lab" id="evidence" aria-labelledby="evidence-title">
       <header class="band-header">
         <div>
-          <p class="control-label">E001 v1 screening evidence chain</p>
-          <h2 id="evidence-title">What the v1 learning prior did and did not know</h2>
+          <p class="control-label">Where the learning guess came from</p>
+          <h2 id="evidence-title">What the first learning guess did and did not know</h2>
         </div>
-        <span class="evidence-lock"><svg aria-hidden="true" viewBox="0 0 18 18"><rect x="3" y="8" width="12" height="8" rx="1"/><path d="M6 8V5a3 3 0 0 1 6 0v3"/></svg> Evidence cannot be edited</span>
       </header>
 
       <div class="evidence-chain" id="evidence-chain" aria-label="Evidence chain">
@@ -1217,36 +1097,6 @@
           </div>
         </section>
 
-        <section class="residual-panel" aria-labelledby="residual-title">
-          <h3 id="residual-title">Prediction vs observation</h3>
-          <div class="empty-residual">
-            <svg viewBox="0 0 720 330" role="img" aria-labelledby="residual-svg-title residual-svg-desc">
-              <title id="residual-svg-title">Empty residual plot</title>
-              <desc id="residual-svg-desc">No held-out multi-site learning observation exists, so no residual points or confidence bands are drawn.</desc>
-              <g class="residual-grid" aria-hidden="true">
-                <path d="M72 28V278H690M72 228H690M72 178H690M72 128H690M72 78H690M225 28V278M380 28V278M535 28V278"/>
-              </g>
-              <g class="residual-axis-labels" aria-hidden="true">
-                <text x="59" y="283">0.0</text><text x="59" y="233">0.5</text><text x="59" y="183">1.0</text><text x="59" y="133">1.5</text><text x="59" y="83">2.0</text>
-                <text x="72" y="301">10⁰</text><text x="218" y="301">10¹</text><text x="373" y="301">10²</text><text x="528" y="301">10³</text><text x="674" y="301">10⁴</text>
-                <text x="320" y="323">Local-update interval (steps)</text>
-                <text transform="translate(17 205) rotate(-90)">Progress per FLOP ratio</text>
-              </g>
-            </svg>
-            <div class="empty-residual-message">
-              <strong>No held-out multi-site learning observation</strong>
-              <span>A residual is the gap between a prediction and an observation, so with nothing observed there is nothing to compute.</span>
-            </div>
-          </div>
-          <div class="resolve-list depth-researcher">
-            <h4>What would resolve this?</h4>
-            <ol>
-              <li><span>1</span><p><strong>Repeated small-model delay calibration</strong>Measure several delay intervals and optimizers instead of extrapolating from a single step.</p></li>
-              <li><span>2</span><p><strong>Held-out optimizer, model, and site combinations</strong>Test combinations that were deliberately left out when the prior was built.</p></li>
-              <li><span>3</span><p><strong>Controlled 30B to 100B-plus multi-site run</strong>Vary delay and cadence under one stated policy, counting the evaluation the same way every time.</p></li>
-            </ol>
-          </div>
-        </section>
       </div>
 
       <section class="decision-ledger depth-researcher" aria-labelledby="decision-ledger-title">
@@ -1271,12 +1121,9 @@
         <pre id="raw-trace-json" tabindex="0">not run</pre>
       </details>
     </section>
+    </details>
+    </section>
   </main>
-
-  <footer class="obs-footer">
-    <span id="footer-evidence-state"><i></i> Evidence state: awaiting artifact</span>
-    <span>All experiment times shown in seconds unless nanoseconds are selected in full trace.</span>
-  </footer>
 
       </div>
     </div>
@@ -1285,8 +1132,9 @@
   <footer class="taskbar" aria-label="CuperOS taskbar">
     <div class="taskbar-left">
       <a class="start-button" href="https://cuuper22.github.io/"><span class="px-icon px-start"></span> Start</a>
-      <a class="task-button" href="index.html"><span class="px-icon px-chip"></span> gpu_stack.exe</a>
-      <span class="task-button is-active"><span class="px-icon px-graph"></span> observatory.exe</span>
+      <a class="task-button" href="index.html"><span class="px-icon px-doc"></span> Story</a>
+      <a class="task-button" href="index.html#calculator"><span class="px-icon px-chip"></span> Calculator</a>
+      <span class="task-button is-active"><span class="px-icon px-graph"></span> Lab</span>
     </div>
     <div class="taskbar-clock" id="obs-clock">12:00 PM</div>
   </footer>
@@ -1304,7 +1152,7 @@
         clock.textContent = h + ":" + m + " " + (now.getHours() >= 12 ? "PM" : "AM");
       }
       tick();
-      setInterval(tick, 1000);
+      setInterval(tick, 30000);
     })();
   </script>
 </body>

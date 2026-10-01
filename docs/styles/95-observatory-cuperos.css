@@ -9,11 +9,17 @@
    brand. The No New Brand Rule is enforced here. */
 
 /* ------------------------------------------------------------------ */
+
 /* Token remap: the --obs-* palette now resolves to CuperOS tokens.     */
+
 /* Evidence classes keep distinct hues, but every hue is a CuperOS one:  */
+
 /*   OBSERVED -> indigo, MODELED -> deep cyan, ASSUMED -> deep gold,     */
+
 /*   UNMEASURED/failure -> red. Shape and label stay the primary        */
+
 /*   carriers, so this remap cannot change any meaning.                 */
+
 /* ------------------------------------------------------------------ */
 
 :root {
@@ -40,7 +46,9 @@
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Desktop surface: the paper page becomes a window on the teal desktop */
+
 /* ------------------------------------------------------------------ */
 
 body {
@@ -51,6 +59,7 @@ body {
 }
 
 /* The full-viewport paper grid belonged to the standalone brand. */
+
 body::before {
   display: none;
 }
@@ -74,14 +83,10 @@ body::before {
   text-shadow: 2px 2px 0 var(--pixel-ink);
 }
 
-.logo-version {
-  color: var(--gold-soft);
-  font: 600 13px/1 var(--font-display);
-  text-shadow: 1px 1px 0 var(--pixel-ink);
-}
-
 /* ------------------------------------------------------------------ */
+
 /* Window chrome (mirrors the index shell)                              */
+
 /* ------------------------------------------------------------------ */
 
 .obs-app-window {
@@ -146,13 +151,16 @@ body::before {
 
 /* Main already draws its own hairline side rules; the window supplies the
    outer boundary now. */
+
 main {
   border-right: 0;
   border-left: 0;
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Header: paper toolbar inside the window                              */
+
 /* ------------------------------------------------------------------ */
 
 .obs-header {
@@ -175,7 +183,9 @@ main {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Typography: Pixelify only for window chrome; Plex for everything read */
+
 /* ------------------------------------------------------------------ */
 
 h1,
@@ -188,22 +198,23 @@ h4 {
 }
 
 /* Long research questions stay readable: cap the pixel face size. */
+
 h1 {
   line-height: 1.12;
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Type rule: Pixelify carries only the wordmark, nav menu and window   */
+
 /* chrome. Labels, controls and paragraphs are Plex Sans; values, IDs,  */
+
 /* intervals and tables are Plex Mono.                                  */
+
 /* ------------------------------------------------------------------ */
 
 .obs-nav a {
   font: 600 1rem var(--font-display);
-}
-
-.experiment-picker select {
-  font: 600 0.9rem var(--font-body);
 }
 
 .share-state {
@@ -215,20 +226,12 @@ h1 {
   letter-spacing: 0.04em;
 }
 
-.experiment-kicker,
-.stage-boundary,
 .equal-work-eyebrow {
   font-family: var(--font-body);
 }
 
 .obs-product {
   font: 600 0.95rem var(--font-body);
-}
-
-.obs-footer,
-.obs-footer span {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
 }
 
 .site-button .site-name,
@@ -238,6 +241,7 @@ h1 {
 }
 
 /* Multi-sentence verdicts and translations follow the reading rule. */
+
 .plain-answer {
   font-family: var(--font-reading);
 }
@@ -247,11 +251,17 @@ h1 {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Pixel sweep: 90-observatory used mono as its label-and-heading font. */
+
 /* Every heading, label, kicker, note, summary, and control flips to    */
+
 /* the pixel face (family only; sizes and weights stay). Mono remains   */
+
 /* on values, intervals, identifiers, tables, stamps, and small SVG     */
+
 /* plot annotations where pixel would be illegible.                     */
+
 /* ------------------------------------------------------------------ */
 
 .causal-reading h2,
@@ -262,7 +272,6 @@ h1 {
 .inspector-header h2,
 .inspector-section h3,
 .source-observations h3,
-.residual-panel h3,
 .decision-ledger h3,
 .equal-work-section-header h3,
 .equal-work-clue h3,
@@ -289,16 +298,12 @@ h1 {
 .recovery-learning-boundary h3,
 .recovery-measure-heading span,
 .transfer-boundary h4,
-.resolve-list h4,
-.semantic-consistency-evidence-grid h4,
-.rack-dephasing-section-header h3,
-.rack-dephasing-boundary h3 {
+.semantic-consistency-evidence-grid h4 {
   font-family: var(--font-body);
 }
 
 .skip-link,
 .causal-reading > ol li > span,
-.resolve-list li > span,
 .causal-reading > ol p,
 .causal-svg .node-title,
 .structured-fallback summary,
@@ -320,34 +325,27 @@ h1 {
 .checkpoint-power-trace summary,
 .checkpoint-energy-trace summary,
 .learning-trace summary,
-.rack-dephasing-trace summary,
 .raw-trace summary,
 .checkpoint-power-run-selector label,
 .checkpoint-energy-run-selector label,
-.rack-dephasing-controls label,
 .timeline-controls > label,
 .timeline-control-row button,
 .event-legend,
 .evidence-key li,
 .recovery-measure-label,
 .recovery-stack-legend,
-.recovery-completion-note,
 .comparison-boundary,
-.empty-residual-message strong,
 .checkpoint-power-boundary-badge,
 .checkpoint-power-inadmissible,
 .checkpoint-power-insight > div:last-child strong,
 .checkpoint-energy-insight > div:last-child strong,
 .semantic-consistency-insight > div:last-child strong,
-.rack-dephasing-insight > div:last-child strong,
 .checkpoint-energy-boundary p + p,
-.rack-dephasing-boundary p + p,
 .semantic-mode-label,
 .learning-paired-summary,
 .checkpoint-power-eyebrow,
 .checkpoint-energy-eyebrow,
 .learning-eyebrow,
-.rack-dephasing-eyebrow,
 .event-legend li,
 .equal-work-bridge-class,
 .checkpoint-power-invalidator div,
@@ -361,16 +359,19 @@ details p[role="status"] {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Legibility floor: pixel faces break down under ~11px. The densest    */
+
 /* instrument details ran 9 to 10.5px; raise them to the floor. VT323   */
+
 /* is narrow, so these bumps do not threaten the layouts.               */
+
 /* ------------------------------------------------------------------ */
 
 .equal-work-eyebrow,
 .checkpoint-power-eyebrow,
 .checkpoint-energy-eyebrow,
-.learning-eyebrow,
-.rack-dephasing-eyebrow {
+.learning-eyebrow {
   font-size: 0.8125rem;
 }
 
@@ -400,14 +401,12 @@ details p[role="status"] {
 .decision-ledger table,
 .recovery-stack-legend span,
 .checkpoint-energy-run-selector select,
-.checkpoint-power-run-selector select,
-.rack-dephasing-controls select {
+.checkpoint-power-run-selector select {
   font-size: 0.8125rem;
 }
 
 .checkpoint-power-run-selector label,
 .checkpoint-energy-run-selector label,
-.rack-dephasing-controls label,
 .timeline-controls > label {
   font-size: 0.8125rem;
 }
@@ -421,22 +420,14 @@ details p[role="status"] {
 .semantic-ranking-tick,
 .semantic-ranking-label,
 .semantic-mode-label,
-.semantic-mode-event,
 .recovery-tick,
-.recovery-event-id,
-.residual-axis-labels,
-.residual-axis-labels text,
-.rack-dephasing-axis-label,
-.rack-dephasing-direct-label,
-.rack-dephasing-rail-label,
-.rack-dephasing-event-label {
+.recovery-event-id {
   font-size: 13px;
 }
 
 .equal-work-section-header > span,
 .checkpoint-power-section-header > span,
 .checkpoint-energy-section-header > span,
-.rack-dephasing-section-header > span,
 .semantic-consistency-evidence-grid dt,
 .evidence-key li b,
 .evidence-key li span,
@@ -458,6 +449,7 @@ details p[role="status"] {
 
 /* Unstyled <small> shrinks to ~0.83em of already-small parents; pin it
    to the floor. Classed small rules above still win. */
+
 main small {
   font-size: 0.8125rem;
 }
@@ -466,12 +458,15 @@ main small {
    90-observatory sets dozens of 0.56 to 0.6rem tick and annotation sizes
    behind high-specificity scoped selectors, and pixel faces are simply
    unreadable down there. Nothing in a chart may render below 11px. */
+
 main svg text {
   font-size: 11px !important;
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Controls: OS buttons, not outline pills                              */
+
 /* ------------------------------------------------------------------ */
 
 button,
@@ -485,20 +480,8 @@ button:active {
   border-style: inset;
 }
 
-.depth-control button {
-  font: 600 13px var(--font-body);
-  color: var(--text-dark);
-}
-
-.depth-control button[aria-pressed="true"] {
-  border-style: inset;
-  border-color: var(--button-face);
-  background: var(--title-bar);
-  color: var(--text-light);
-}
-
 /* Header controls sit flush in the toolbar strip. */
-.experiment-picker select,
+
 .share-state,
 .icon-button {
   border: 0;
@@ -520,10 +503,15 @@ summary:focus-visible,
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Freshman translation companions                                      */
+
 /* The artifact verdict stays verbatim above; this box restates it in   */
+
 /* plain words at freshman depth only. Marked visually as commentary,   */
+
 /* never as data: gold well, labeled, no evidence tag.                  */
+
 /* ------------------------------------------------------------------ */
 
 .plain-words {
@@ -545,6 +533,7 @@ body[data-depth="freshman"] .plain-words.has-text {
    .semantic-consistency-insight > div:last-child p (0,2,2). The translation
    box is always gold, so its ink must always be dark regardless of the card
    it sits in; three classes plus the element outrank every card rule. */
+
 .obs-window-content p.plain-words.has-text {
   color: var(--text-dark);
   font-size: 15px;
@@ -561,7 +550,9 @@ body[data-depth="freshman"] .plain-words.has-text {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Taskbar labels                                                       */
+
 /* ------------------------------------------------------------------ */
 
 .taskbar .task-button {
@@ -574,10 +565,15 @@ body[data-depth="freshman"] .plain-words.has-text {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Scenario band micro-motion                                           */
+
 /* The curtailment event and WAN traffic become something you watch.    */
+
 /* Meaning never depends on the motion: the outage chip and evidence    */
+
 /* tags carry it statically.                                            */
+
 /* ------------------------------------------------------------------ */
 
 .site-outage-chip {
@@ -592,6 +588,7 @@ body[data-depth="freshman"] .plain-words.has-text {
 
 /* The assumed interruption: the site periodically drops dark for a
    slice of the loop, matching the scenario's outage-then-recovery shape. */
+
 @keyframes site-curtail {
   0%,
   58%,
@@ -613,6 +610,7 @@ body[data-depth="freshman"] .plain-words.has-text {
 
 /* WAN traffic: a gold packet sweeps along the link. Paint-only
    background-position animation on a 14px strip. */
+
 .wan-packet {
   position: absolute;
   right: 6px;
@@ -649,7 +647,7 @@ body[data-depth="freshman"] .plain-words.has-text {
 
 @media (prefers-reduced-motion: reduce) {
   .site-button.has-assumed-outage,
-  .wan-packet {
+.wan-packet {
     animation: none;
   }
 
@@ -659,7 +657,9 @@ body[data-depth="freshman"] .plain-words.has-text {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Small screens: the desktop margin collapses, the window fills        */
+
 /* ------------------------------------------------------------------ */
 
 @media (max-width: 620px) {
