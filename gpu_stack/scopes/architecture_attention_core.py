@@ -10,14 +10,14 @@ visited keys, breaking the quadratic.
 
 Second, how much memory does generation need? The KV cache stores key and
 value states for every past token, per layer. Grouped-query attention (fewer
-KV heads than query heads) and MLA (a compressed latent of width d_latent)
+KV heads than query heads) and MLA (a compressed latent plus a RoPE key, d_latent = d_c + d_R)
 both shrink the stored width, and the compression-ratio variable measures the
 saving. The gpu_memory and parallelism scopes consume these byte counts.
 """
 
 import sympy as sp
 
-from ..core import eq, var
+from ..core import Reference, eq, var
 from ..core.units import FLOP, byte
 
 from .architecture_embeddings import (
@@ -35,6 +35,15 @@ from .architecture_attention_refs import (
     DIMENSIONLESS,
     KV_CACHE_REF,
     SPARSE_ATTENTION_REF,
+)
+
+DEEPSEEK_V2_REF = Reference(
+    "DeepSeek-AI, DeepSeek-V2: A Strong, Economical, and Efficient "
+    "Mixture-of-Experts Language Model, 2024, Sec. 2.1 and Table 1: the MLA "
+    "KV cache holds (d_c + d_h^R) elements per token per layer.",
+    kind="paper",
+    url="https://arxiv.org/abs/2405.04434",
+    year=2024,
 )
 
 
@@ -90,7 +99,8 @@ attn_flops_sparse_per_layer = var(
 )
 d_latent_mla = var(
     "arch.mla.d_latent", "d_latent_mla_arch", "dim",
-    "MLA latent KV dimension.",
+    "Cached MLA elements per token per layer: the shared compressed KV latent d_c plus the "
+    "decoupled RoPE key d_R (DeepSeek-V2: 512 + 64 = 576). Not the latent alone.",
     scope="architecture",
 )
 bytes_per_param_kv = var(
@@ -224,8 +234,10 @@ eq_kv_gqa = eq(
 eq_kv_mla = eq(
     "arch.eq.kv_mla",
     kv_bytes_per_tok_layer_mla.symbol,
-    2 * d_latent_mla.symbol * bytes_per_param_kv.symbol,
-    "MLA stores compressed latent K and V states rather than per-head full-width KV tensors.",
+    d_latent_mla.symbol * bytes_per_param_kv.symbol,
+    "MLA caches one shared compressed KV latent plus a decoupled RoPE key per token per layer, "
+    "(d_c + d_R) elements, not separate K and V latents (DeepSeek-V2, Table 1).",
+    references=[DEEPSEEK_V2_REF],
     check_units=True,
 )
 

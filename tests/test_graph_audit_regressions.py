@@ -98,6 +98,32 @@ def test_hierarchical_allreduce_equals_reducescatter_plus_allgather():
     assert ar == pytest.approx(rs + ag, rel=1e-12)
 
 
+def test_mla_kv_cache_is_latent_plus_rope_key_per_token_per_layer():
+    """DeepSeek-V2 (arXiv:2405.04434) Table 1: MLA caches (d_c + d_h^R)
+    elements per token per layer, with d_c = 512 and d_h^R = 64."""
+    d_c, d_r, nbytes = 512, 64, 2
+    r = resolve(
+        "arch.kv.bytes_per_tok_layer_mla",
+        assignments={"arch.mla.d_latent": d_c + d_r, "arch.kv.bytes_per_val": nbytes},
+    )
+    assert float(r.value) == (d_c + d_r) * nbytes == 1152
+
+
+def test_mla_cache_is_smaller_than_gqa_cache_by_the_reference_ratio():
+    """Compression ratio is GQA elements over MLA elements: a GQA cache with
+    8 KV heads of dim 128 holds 2*128*8 = 2048 elements, MLA holds 576."""
+    r = resolve(
+        "arch.kv.compression_ratio",
+        assignments={
+            "arch.mla.d_latent": 576,
+            "arch.kv.bytes_per_val": 2,
+            "arch.n_kv_heads": 8,
+            "arch.head_dim": 128,
+        },
+    )
+    assert float(r.value) == pytest.approx(2048 / 576, rel=1e-12)
+
+
 def _bubble_share(name, **assign):
     return float(resolve(f"par.pp.bubble_{name}", assignments=assign).value)
 
