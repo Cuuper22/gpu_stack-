@@ -1,13 +1,17 @@
-/* Readability layer. Loads last on both pages.
+/* Lab readability layer. Loads last.
    Rules:
    - Pixelify Sans is window chrome only (see 00-foundation.css tokens).
    - Paragraph text is 15px or more. Small labels and table cells are 13px or
      more. SVG text is 12px or more.
    - Headlines wrap between words, never inside them.
-   - Secondary panels (WebMCP queue, receipts) stay out of the way. */
+   - The first screen is one question, one answer and one chart. Everything
+     else is folded, and the agent panels (WebMCP queue, receipts) stay
+     hidden until asked for. */
 
 /* ------------------------------------------------------------------ */
+
 /* Headlines: break between words only                                  */
+
 /* ------------------------------------------------------------------ */
 
 h1,
@@ -20,24 +24,10 @@ h4 {
   text-wrap: balance;
 }
 
-/* Index section titles are pixel display type in narrow columns. Size them
-   from the column so the longest word always fits on its own line. */
-.section-copy,
-.primer-copy,
-.dialog-body {
-  container-type: inline-size;
-}
-
-.section-copy h2,
-.primer-copy h2,
-.dialog-body h2 {
-  font-size: clamp(24px, 12cqw, 40px);
-  line-height: 1.12;
-  overflow-wrap: break-word;
-}
-
 /* ------------------------------------------------------------------ */
+
 /* Text floor                                                           */
+
 /* ------------------------------------------------------------------ */
 
 html {
@@ -52,7 +42,7 @@ body {
 /* Prose is 15px. Labels, tags and units stay at 13px, table cells and
    values at 14px. These use !important because 90-observatory sets sizes
    per component behind long selectors. */
-main p:not(.control-label):not([class*="eyebrow"]):not([class*="kicker"]):not(.artifact-state):not([class*="-meta"]),
+
 main summary,
 main li,
 main .depth-freshman,
@@ -82,119 +72,294 @@ main pre {
   font-size: 14px !important;
 }
 
-.logo-version {
-  font: 600 12px/1 var(--font-body);
-  letter-spacing: 0.06em;
-}
-
-/* ------------------------------------------------------------------ */
-/* Observatory question band: the question and the result come first    */
 /* ------------------------------------------------------------------ */
 
-.question-copy h1 {
-  max-width: 32ch;
-  margin-right: auto;
-  margin-left: auto;
-  font-size: clamp(1.5rem, 1rem + 1.4vw, 2.125rem);
-  line-height: 1.15;
-}
-
-.plain-answer {
-  font-size: 1.0625rem;
-  line-height: 1.55;
-}
-
-.artifact-state {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  overflow-wrap: anywhere;
-}
+/* Lab shell: one window, one question, folded detail                   */
 
 /* ------------------------------------------------------------------ */
-/* Mission bar and rail: secondary to the experiment                    */
-/* ------------------------------------------------------------------ */
 
-:root {
-  --mission-rail: clamp(280px, 20vw, 340px);
+.obs-window-content {
+  display: block;
 }
 
-.mission-toggle[aria-expanded="true"] {
-  border-style: inset;
-}
-
-.mission-sidecar {
-  background: var(--chrome-well);
-}
-
-.mission-panel {
-  box-shadow: none;
-}
-
-.mission-empty {
+.obs-header {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
   min-height: 0;
-  padding: 9px 10px;
-  border-color: var(--frame-line);
-  background: transparent;
+  padding: 6px 12px;
 }
 
-.mission-empty--receipt {
-  min-height: 0;
+.obs-identity {
+  flex: 1 1 auto;
+  padding: 0;
 }
 
-.mission-empty strong {
-  font-size: 13px;
+.obs-wordmark {
+  font: 700 1.5rem/1 var(--font-display);
 }
 
-.mission-empty p,
-.mission-human-boundary {
-  font-size: 13px;
+.obs-nav {
+  height: auto;
 }
 
-.mission-list,
-.receipt-list {
-  max-height: min(28vh, 260px);
+.obs-nav a {
+  padding: 12px 14px;
+  font: 600 1rem var(--font-display);
 }
 
-body[data-rail="closed"] .mission-sidecar {
+.obs-nav a.is-current::after {
+  right: 10px;
+  left: 10px;
+}
+
+.share-state[hidden] {
   display: none;
 }
 
-body[data-rail="closed"] .obs-window-content {
-  grid-template-columns: minmax(0, 1fr);
+.agent-tools-toggle {
+  min-height: 32px;
+  padding: 4px 10px;
+  color: var(--text-dark);
+  font: 600 13px var(--font-body);
+  cursor: pointer;
 }
 
-body[data-rail="closed"] #observatory-main {
-  grid-column: 1 / -1;
+.agent-tools-toggle[aria-expanded="true"] {
+  border-style: inset;
+}
+
+/* Agent panels: closed until asked for, then a plain block above the page. */
+
+.agent-tools {
+  border-bottom: 2px solid var(--inset-dark);
+  background: var(--chrome-well);
+}
+
+.agent-tools[hidden] {
+  display: none;
+}
+
+.agent-tools .mission-control {
+  position: static;
+  top: auto;
+}
+
+.agent-tools .mission-sidecar {
+  position: static;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-height: none;
+  overflow: visible;
+}
+
+#mission-toggle {
+  display: none;
+}
+
+#observatory-main {
   border-right: 0;
 }
 
-@media (max-width: 900px) {
-  /* On a phone the bar shows one line plus the toggle until opened. */
-  body[data-rail="closed"] .mission-objective-block,
-  body[data-rail="closed"] .mission-policy,
-  body[data-rail="closed"] .mission-live-block {
-    display: none !important;
+/* First screen */
+
+.lab-first,
+.lab-deeper {
+  width: 100%;
+  min-width: 0;
+  order: 0;
+}
+
+.lab-first {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: clamp(20px, 3vw, 36px) clamp(16px, 3vw, 32px) 8px;
+}
+
+.lab-first h1 {
+  max-width: 24ch;
+  margin: 0 0 14px;
+  color: var(--title-bar);
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  line-height: 1.15;
+}
+
+.lab-answer {
+  max-width: 65ch;
+  margin: 0 0 24px;
+  font-size: 18px !important;
+  line-height: 1.7 !important;
+}
+
+.lab-placeholder {
+  color: var(--text-soft);
+  background: var(--gold-wash);
+  outline: 2px dashed var(--gold-line);
+  outline-offset: 2px;
+}
+
+.lab-first .recovery-v2-band {
+  margin: 0 -4px;
+}
+
+/* Folds */
+
+.evidence-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lab-deeper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px clamp(16px, 3vw, 32px) 56px;
+}
+
+.lab-deeper-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.lab-deeper-head h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.lab-deeper-lede {
+  margin: 6px 0 16px;
+  color: var(--text-soft);
+}
+
+.detail-toggle {
+  min-height: 34px;
+  padding: 4px 12px;
+  color: var(--text-dark);
+  font: 600 14px var(--font-body);
+  cursor: pointer;
+}
+
+.detail-toggle[aria-pressed="true"] {
+  border-style: inset;
+  background: var(--title-bar);
+  color: var(--text-light);
+}
+
+.lab-fold {
+  border: 2px solid var(--chrome-border);
+  background: var(--pane-bright);
+}
+
+.lab-fold + .lab-fold {
+  margin-top: 10px;
+}
+
+.lab-fold > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.lab-fold > summary::-webkit-details-marker {
+  display: none;
+}
+
+.lab-fold > summary::before {
+  content: "+";
+  flex: 0 0 auto;
+  width: 1.2em;
+  font: 700 20px var(--font-mono);
+}
+
+.lab-fold[open] > summary::before {
+  content: "-";
+}
+
+.lab-fold-title {
+  flex: 1 1 18ch;
+  font: 700 19px/1.3 var(--font-body);
+}
+
+.lab-fold-hint {
+  color: var(--text-soft);
+  font: 500 14px var(--font-body);
+}
+
+.lab-fold[open] > summary {
+  border-bottom: 2px solid var(--chrome-border);
+  background: var(--chrome-well);
+}
+
+.lab-fold-loading {
+  display: none;
+  margin: 0;
+  padding: 16px;
+}
+
+.lab-fold[data-state="loading"] .lab-fold-loading {
+  display: block;
+}
+
+.lab-more {
+  margin: 14px 0 0;
+  border: 1px solid var(--chrome-border);
+  background: var(--pane-bright);
+}
+
+.lab-more > summary {
+  padding: 10px 14px;
+  font: 600 15px var(--font-body);
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  body {
+    padding-bottom: 0;
+    background: var(--window-body);
+    background-image: none;
   }
 
-  body[data-rail="closed"] .mission-utility-actions #mission-tour,
-  body[data-rail="closed"] .mission-utility-actions #mission-reset {
+  .desktop-logo,
+body .taskbar,
+.title-bar,
+.obs-nav {
     display: none;
   }
 
-  .mission-control > div {
-    min-height: 40px;
+  .obs-desktop {
+    width: 100%;
+    padding-top: 0;
   }
-}
 
-/* Stacked layout: when open, the rail sits under the bar, before the page. */
-@media (max-width: 1280px) {
-  body[data-rail="open"] .mission-sidecar {
+  .obs-app-window,
+.obs-window-content {
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+    max-width: 100%;
+  }
+
+  .agent-tools .mission-sidecar {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lab-answer {
+    font-size: 17px !important;
   }
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Causal diagram: labels at 12px or more, diagram larger              */
+
 /* ------------------------------------------------------------------ */
 
 .causal-svg-wrap {
@@ -257,6 +422,7 @@ main .causal-svg .edge-label {
 /* Charts: user-unit text is only readable if the chart is not shrunk below
    about 85% of its design width. Wider than the column? It scrolls sideways
    inside its own frame instead of shrinking the labels. */
+
 main svg[viewBox^="0 0 1000"] {
   display: block;
   width: 100%;
@@ -274,17 +440,20 @@ main :has(> svg[viewBox="0 0 720 330"]) {
 }
 
 /* Two charts side by side left each about 60% of design width. One per row. */
+
 main .learning-visual-grid {
   grid-template-columns: minmax(0, 1fr) !important;
 }
 
 /* Chart text floor, raised from 11px to 13px (about 11px after scaling). */
+
 main svg text {
   font-size: 13px !important;
 }
 
 /* Wide screens: the causal field gets the width. The numbered reading
    moves under it as a three-column strip; the inspector stays on the right. */
+
 @media (min-width: 1100px) {
   main .research-band {
     grid-template-columns: minmax(0, 1fr) minmax(300px, 350px);
@@ -331,14 +500,18 @@ main svg text {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Clock digits are numbers: pixel 3 and 8 look alike, so use the mono face. */
+
 .taskbar-clock {
   font-family: var(--font-mono);
   font-weight: 600;
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Raw trace gate                                                       */
+
 /* ------------------------------------------------------------------ */
 
 .raw-load-button {
@@ -359,7 +532,9 @@ main svg text {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Gate badges: a text label beside every gate value, never color alone */
+
 /* ------------------------------------------------------------------ */
 
 .gate-badge {
@@ -371,10 +546,8 @@ main svg text {
   letter-spacing: 0.04em;
 }
 
-.gate-badge[data-badge="pass"] { color: var(--obs-teal-dark, #075560); }
-.gate-badge[data-badge="fail"] { color: var(--obs-red, #b52720); }
-.gate-badge[data-badge="undetermined"] { color: #7a4a00; background: rgba(240, 169, 47, 0.2); }
+.gate-badge[data-badge="met"] { color: var(--obs-teal-dark, #075560); }
 
-.gate-note {
-  font-style: italic;
-}
+.gate-badge[data-badge="not-met"] { color: var(--obs-red, #b52720); }
+
+.gate-badge[data-badge="unclear"] { color: #7a4a00; background: rgba(240, 169, 47, 0.2); }

@@ -247,9 +247,21 @@
     );
   }
 
+  // Evidence can sit inside a folded section; open every fold around it first.
+  function revealFolds(target) {
+    let fold = target && target.closest ? target.closest("details") : null;
+    while (fold) {
+      fold.open = true;
+      fold = fold.parentElement ? fold.parentElement.closest("details") : null;
+    }
+  }
+
   function scrollToId(id) {
     const target = document.getElementById(id);
-    if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (target) {
+      revealFolds(target);
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   }
 
   function clearHighlights() {
@@ -260,6 +272,7 @@
     clearHighlights();
     const target = document.querySelector(selector);
     if (target) {
+      revealFolds(target);
       target.classList.add("is-mission-evidence");
       target.scrollIntoView({ behavior: "smooth", block: "center" });
     }
@@ -1142,7 +1155,8 @@
     renderMission();
     refreshRegistrationStatus();
     try {
-      await Promise.all([semanticArtifact(), screeningArtifact(), observatory()]);
+      // The evidence files load on the first tool call, not on page load.
+      await observatory();
       refreshRegistrationStatus();
     } catch (error) {
       setStatus(`Evidence unavailable · ${error.message}`, "error");

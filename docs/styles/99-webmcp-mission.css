@@ -17,6 +17,7 @@ body[data-mission-mode="active"] .obs-desktop {
 }
 
 /* Reserve a real column for the rail. It never floats over evidence. */
+
 .obs-window-content {
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--mission-rail);
@@ -24,8 +25,7 @@ body[data-mission-mode="active"] .obs-desktop {
 }
 
 .obs-header,
-.mission-control,
-.obs-footer {
+.mission-control {
   grid-column: 1 / -1;
 }
 
@@ -50,12 +50,10 @@ body[data-mission-mode="active"] .obs-desktop {
   grid-column: 2;
 }
 
-.obs-footer {
-  grid-row: 4;
-}
-
 /* ------------------------------------------------------------------ */
+
 /* Mission bar                                                         */
+
 /* ------------------------------------------------------------------ */
 
 .mission-control {
@@ -222,7 +220,9 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Human decision rail                                                 */
+
 /* ------------------------------------------------------------------ */
 
 .mission-sidecar {
@@ -333,6 +333,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 
 /* The bridge can render either class names or semantic data attributes.
    Both receive the same compact, evidence-first card treatment. */
+
 .mission-change,
 .pending-change,
 #pending-changes > [data-change-id] {
@@ -473,12 +474,13 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Receipts                                                            */
+
 /* ------------------------------------------------------------------ */
 
 .receipt-list > li:not(.mission-empty),
-.webmcp-receipt,
-.receipt-item {
+.webmcp-receipt {
   position: relative;
   min-width: 0;
   padding: 9px 10px 9px 27px;
@@ -489,8 +491,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 }
 
 .receipt-list > li:not(.mission-empty)::before,
-.webmcp-receipt::before,
-.receipt-item::before {
+.webmcp-receipt::before {
   position: absolute;
   top: 12px;
   left: 10px;
@@ -527,7 +528,6 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 
 .receipt-list code,
 .receipt-list time,
-.receipt-id,
 .receipt-delta {
   font-family: var(--font-mono);
 }
@@ -544,6 +544,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 
 /* Agent-read paths are a temporary cyan spotlight, never a new evidence
    class. The node's original evidence label and glyph remain untouched. */
+
 #causal-svg .causal-node.is-mission-path .node-frame {
   fill: var(--mission-cyan-wash);
   stroke: var(--accent-cyan-deep);
@@ -566,6 +567,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 
 /* Family rows and effect cards opened by an agent keep their original
    PASS/FAIL and evidence state; this gold focus band only shows location. */
+
 .is-mission-evidence:not(tr) {
   position: relative;
   z-index: 1;
@@ -596,7 +598,9 @@ tr.is-mission-evidence > :last-child {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Responsive                                                          */
+
 /* ------------------------------------------------------------------ */
 
 @media (max-width: 1380px) {
@@ -616,16 +620,16 @@ tr.is-mission-evidence > :last-child {
 
 /* Below a wide desktop, an inline rail gives the dense observatory its full
    width. This deliberately switches before any research grid can collide. */
+
 @media (max-width: 1280px) {
   .obs-window-content {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .obs-header,
-  .mission-control,
-  .mission-sidecar,
-  #observatory-main,
-  .obs-footer {
+.mission-control,
+.mission-sidecar,
+#observatory-main {
     grid-column: 1;
   }
 
@@ -653,12 +657,8 @@ tr.is-mission-evidence > :last-child {
     border-right: 0;
   }
 
-  .obs-footer {
-    grid-row: 5;
-  }
-
   .mission-list,
-  .receipt-list {
+.receipt-list {
     max-height: 250px;
   }
 }
@@ -730,16 +730,16 @@ tr.is-mission-evidence > :last-child {
   }
 
   .mission-objective-block,
-  .mission-policy,
-  .mission-live-block {
+.mission-policy,
+.mission-live-block {
     display: grid !important;
     grid-template-columns: 1fr;
     gap: 3px !important;
   }
 
   .mission-objective-block strong,
-  .mission-live-copy,
-  .mission-policy strong {
+.mission-live-copy,
+.mission-policy strong {
     overflow: visible;
     white-space: normal;
   }
@@ -762,8 +762,8 @@ tr.is-mission-evidence > :last-child {
 
 @media (prefers-reduced-motion: reduce) {
   .mission-meter i,
-  #causal-svg .causal-edge.is-mission-path,
-  .is-mission-evidence:not(tr) {
+#causal-svg .causal-edge.is-mission-path,
+.is-mission-evidence:not(tr) {
     animation: none;
   }
 }
