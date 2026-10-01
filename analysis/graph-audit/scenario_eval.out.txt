@@ -1,0 +1,154 @@
+
+== dense_training_cost_fixture  status=ok issues=0
+   step_time            training.t_step                = 0.15   trace_eqs=7 missing=0 
+   tokens_per_second    training.tokens_per_sec        = 6.66667e+06   trace_eqs=8 missing=0 
+   wallclock            training.wallclock             = 1.5   trace_eqs=10 missing=0 
+   job_dc_power         econ.job.dc_power              = 5200   trace_eqs=8 missing=0 
+   run_power_cost       econ.run.power_cost            = 0.00078   trace_eqs=21 missing=0 
+   run_cost             econ.run.total_cost            = 30.0008   trace_eqs=23 missing=0 
+   cost_per_token       econ.cost.per_token            = 3.00008e-06   trace_eqs=24 missing=0 
+
+== pythia_70m_dgx_h100_us_2024_industrial_power  status=issues issues=33
+   tokens_per_second    training.tokens_per_sec        = 1.26898e+06   trace_eqs=21 missing=0 
+   job_dc_power         econ.job.dc_power              = 10200   trace_eqs=4 missing=0 
+   run_power_cost       econ.run.power_cost            = 54.4378   trace_eqs=30 missing=0 
+   cost_per_token       econ.cost.per_token            = 7.88036776119403e-7*Cdot_net + 7.88036776119403e-7*Cdot_staff/u_site + 2.23277086567164e-12*I_CO2*p_CO2 + 2.49884822463027e-14*f_maint_y*(8*C_cap_GPU + C_chassis_node + C_cpu_node + C_dram_node + C_fac_site + C_nic_node + C_pdu_rack + C_spine + C_stor_node + C_stor_site + C_sw_rack)/u_site + 7.88036776119403e-7*p_L*(f_drift*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node - f_reuse*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node + 5600.0) + 5600.0)/h_fg + (8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node - f_reuse*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node + 5600.0) + 5600.0)/h_fg + (8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node - f_reuse*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node + 5600.0) + 5600.0)/(h_fg*(N_coc - 1)))/rho_wL + 3.10107064676617e-12*p_cap + 1.81524271379104e-10 + (1890612.03887254*C_cap_GPU + 236326.504859067*C_chassis_node + 236326.504859067*C_cpu_node + 236326.504859067*C_dram_node + 236326.504859067*C_fac_site + 236326.504859067*C_nic_node + 236326.504859067*C_pdu_rack + 236326.504859067*C_spine + 236326.504859067*C_stor_node + 236326.504859067*C_stor_site + 236326.504859067*C_sw_rack - 236326.504859067*f_resid*(8*C_cap_GPU + C_chassis_node + C_cpu_node + C_dram_node + C_fac_site + C_nic_node + C_pdu_rack + C_spine + C_stor_node + C_stor_site + C_sw_rack))/(299892736000*T_life*u_site)   trace_eqs=69 missing=33 
+
+== pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost  status=ok issues=0
+   tokens_per_second    training.tokens_per_sec        = 1.26898e+06   trace_eqs=21 missing=0 
+   job_dc_power         econ.job.dc_power              = 10200   trace_eqs=4 missing=0 
+   run_power_cost       econ.run.power_cost            = 54.4378   trace_eqs=30 missing=0 
+   cost_per_token       econ.cost.per_token            = 1.81524e-10   trace_eqs=33 missing=0 
+
+== pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption  status=ok issues=0
+   tokens_per_second    training.tokens_per_sec        = 1.26898e+06   trace_eqs=21 missing=0 
+   job_dc_power         econ.job.dc_power              = 10200   trace_eqs=4 missing=0 
+   run_power_cost       econ.run.power_cost            = 54.4378   trace_eqs=30 missing=0 
+   cost_per_token       econ.cost.per_token            = 3.7383e-09   trace_eqs=75 missing=0 
+
+== euv_tin120_lpp_source_context_assumption  status=ok issues=0
+   source_proton_count  physical.lithography.source_proton_count = 50   trace_eqs=0 missing=0 
+   source_neutron_count physical.lithography.source_neutron_count = 70   trace_eqs=0 missing=0 
+   pulse_repetition_rate physical.lithography.source_plasma_pulse_repetition_rate = 50000   trace_eqs=1 missing=0 
+
+== pythia_160m_dgx_h100_us_2024_industrial_power  status=issues issues=33
+   tokens_per_second    training.tokens_per_sec        = 550630   trace_eqs=21 missing=0 
+   job_dc_power         econ.job.dc_power              = 10200   trace_eqs=4 missing=0 
+   run_power_cost       econ.run.power_cost            = 125.457   trace_eqs=30 missing=0 
+   cost_per_token       econ.cost.per_token            = 1.81610220895522e-6*Cdot_net + 1.81610220895522e-6*Cdot_staff/u_site + 5.14562292537313e-12*I_CO2*p_CO2 + 5.75882232672255e-14*f_maint_y*(8*C_cap_GPU + C_chassis_node + C_cpu_node + C_dram_node + C_fac_site + C_nic_node + C_pdu_rack + C_spine + C_stor_node + C_stor_site + C_sw_rack)/u_site + 1.81610220895522e-6*p_L*(f_drift*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node - f_reuse*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node + 5600.0) + 5600.0)/h_fg + (8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node - f_reuse*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node + 5600.0) + 5600.0)/h_fg + (8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node - f_reuse*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node + 5600.0) + 5600.0)/(h_fg*(N_coc - 1)))/rho_wL + 7.14669850746269e-12*p_cap + 4.18339143832836e-10 + (4357086.88239381*C_cap_GPU + 544635.860299226*C_chassis_node + 544635.860299226*C_cpu_node + 544635.860299226*C_dram_node + 544635.860299226*C_fac_site + 544635.860299226*C_nic_node + 544635.860299226*C_pdu_rack + 544635.860299226*C_spine + 544635.860299226*C_stor_node + 544635.860299226*C_stor_site + 544635.860299226*C_sw_rack - 544635.860299226*f_resid*(8*C_cap_GPU + C_chassis_node + C_cpu_node + C_dram_node + C_fac_site + C_nic_node + C_pdu_rack + C_spine + C_stor_node + C_stor_site + C_sw_rack))/(299892736000*T_life*u_site)   trace_eqs=69 missing=33 
+
+== pythia_160m_dgx_h100_us_2024_industrial_energy_floor_cost  status=ok issues=0
+   tokens_per_second    training.tokens_per_sec        = 550630   trace_eqs=21 missing=0 
+   job_dc_power         econ.job.dc_power              = 10200   trace_eqs=4 missing=0 
+   run_power_cost       econ.run.power_cost            = 125.457   trace_eqs=30 missing=0 
+   cost_per_token       econ.cost.per_token            = 4.18339e-10   trace_eqs=33 missing=0 
+
+== pythia_70m_dgx_h100_us_2024_commercial_power  status=issues issues=33
+   tokens_per_second    training.tokens_per_sec        = 1.26898e+06   trace_eqs=21 missing=0 
+   job_dc_power         econ.job.dc_power              = 10200   trace_eqs=4 missing=0 
+   run_power_cost       econ.run.power_cost            = 85.3729   trace_eqs=30 missing=0 
+   cost_per_token       econ.cost.per_token            = 7.88036776119403e-7*Cdot_net + 7.88036776119403e-7*Cdot_staff/u_site + 2.23277086567164e-12*I_CO2*p_CO2 + 2.49884822463027e-14*f_maint_y*(8*C_cap_GPU + C_chassis_node + C_cpu_node + C_dram_node + C_fac_site + C_nic_node + C_pdu_rack + C_spine + C_stor_node + C_stor_site + C_sw_rack)/u_site + 7.88036776119403e-7*p_L*(f_drift*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node - f_reuse*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node + 5600.0) + 5600.0)/h_fg + (8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node - f_reuse*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node + 5600.0) + 5600.0)/h_fg + (8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node - f_reuse*(8*P_NIC_card + 8*P_NIC_port + 2000000000000.0*P_RAM_byte + 2*P_cpu_socket + P_misc_fixed + 8*P_misc_gpu + P_stor_node + 5600.0) + 5600.0)/(h_fg*(N_coc - 1)))/rho_wL + 3.10107064676617e-12*p_cap + 2.84678285373134e-10 + (1890612.03887254*C_cap_GPU + 236326.504859067*C_chassis_node + 236326.504859067*C_cpu_node + 236326.504859067*C_dram_node + 236326.504859067*C_fac_site + 236326.504859067*C_nic_node + 236326.504859067*C_pdu_rack + 236326.504859067*C_spine + 236326.504859067*C_stor_node + 236326.504859067*C_stor_site + 236326.504859067*C_sw_rack - 236326.504859067*f_resid*(8*C_cap_GPU + C_chassis_node + C_cpu_node + C_dram_node + C_fac_site + C_nic_node + C_pdu_rack + C_spine + C_stor_node + C_stor_site + C_sw_rack))/(299892736000*T_life*u_site)   trace_eqs=69 missing=33 
+
+== pythia_70m_dgx_h100_us_2024_commercial_energy_floor_cost  status=ok issues=0
+   tokens_per_second    training.tokens_per_sec        = 1.26898e+06   trace_eqs=21 missing=0 
+   job_dc_power         econ.job.dc_power              = 10200   trace_eqs=4 missing=0 
+   run_power_cost       econ.run.power_cost            = 85.3729   trace_eqs=30 missing=0 
+   cost_per_token       econ.cost.per_token            = 2.84678e-10   trace_eqs=33 missing=0 
+
+Union of equations executed by all shipped scenario targets: 78/950
+   architecture                           13
+   cluster                                9
+   economics                              35
+   interconnect                           1
+   physical_lith_plasma_source            1
+   thermal                                8
+   training                               11
+
+Per scenario trace size:
+   dense_training_cost_fixture                                            25
+   pythia_70m_dgx_h100_us_2024_industrial_power                           70
+   pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost               34
+   pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption             76
+   euv_tin120_lpp_source_context_assumption                               1
+   pythia_160m_dgx_h100_us_2024_industrial_power                          70
+   pythia_160m_dgx_h100_us_2024_industrial_energy_floor_cost              34
+   pythia_70m_dgx_h100_us_2024_commercial_power                           70
+   pythia_70m_dgx_h100_us_2024_commercial_energy_floor_cost               34
+
+Trace of pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption (cost_per_token):
+    arch.eq.flops_step_dense
+    arch.eq.head_dim
+    arch.eq.k_proj_params
+    arch.eq.o_proj_params
+    arch.eq.params_attn_per_layer
+    arch.eq.params_block_total
+    arch.eq.params_dense_total
+    arch.eq.params_ffn_per_layer
+    arch.eq.params_norm_per_layer
+    arch.eq.params_output_proj
+    arch.eq.params_token_embed
+    arch.eq.q_proj_params
+    arch.eq.v_proj_params
+    cluster.eq.node_cpu_power
+    cluster.eq.node_misc_power
+    cluster.eq.node_nic_power
+    cluster.eq.node_power
+    cluster.eq.node_ram_power
+    cluster.eq.node_storage_power
+    cluster.eq.rack_gpu_count
+    cluster.eq.rack_power
+    cluster.eq.site_n_gpus
+    cluster.eq.site_power_it
+    econ.eq.allocated_fixed_cost_factor
+    econ.eq.capacity_charge_rate
+    econ.eq.carbon_cost_rate
+    econ.eq.carbon_emission_rate
+    econ.eq.cluster_capex_rate
+    econ.eq.cluster_capex_total
+    econ.eq.cluster_depreciable_base
+    econ.eq.cluster_facility_capex
+    econ.eq.cluster_it_capex
+    econ.eq.cluster_residual_value
+    econ.eq.cost_per_token
+    econ.eq.facility_building_shell_capex
+    econ.eq.facility_cooling_infra_capex
+    econ.eq.facility_power_infra_capex
+    econ.eq.job_capex_rate
+    econ.eq.job_dc_power
+    econ.eq.job_share_of_cluster
+    econ.eq.maintenance_cost_rate
+    econ.eq.network_transit_cost_rate
+    econ.eq.node_capex
+    econ.eq.peak_demand_kw
+    econ.eq.price_kwh
+    econ.eq.rack_capex
+    econ.eq.run_capacity_charge_cost
+    econ.eq.run_carbon_cost
+    econ.eq.run_hw_cost
+    econ.eq.run_maintenance_cost
+    econ.eq.run_network_cost
+    econ.eq.run_opex_misc_cost
+    econ.eq.run_power_cost
+    econ.eq.run_staff_cost
+    econ.eq.run_total
+    econ.eq.run_water_cost
+    econ.eq.water_cost_rate
+    econ.eq.ws_from_kwh
+    thermal.eq.cluster_heat_load
+    thermal.eq.heat_to_reject
+    thermal.eq.recovered_heat_power
+    thermal.eq.water_blowdown_rate
+    thermal.eq.water_drift_rate
+    thermal.eq.water_evap_rate
+    thermal.eq.water_usage_rate
+    training.eq.flops_executed_step
+    training.eq.flops_step_dense
+    training.eq.n_steps
+    training.eq.peak_flops_power_limited
+    training.eq.t_bubbles
+    training.eq.t_compute
+    training.eq.t_step
+    training.eq.t_step_nominal
+    training.eq.tokens_per_sec
+    training.eq.wallclock
+    training.eq.wallclock_nominal

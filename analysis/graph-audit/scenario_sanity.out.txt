@@ -1,0 +1,48 @@
+== A. H100 / DGX H100 hardware presets vs public specs (values as assigned) ==
+gpu.peak_flops (FP32, non-tensor) vs H100 SXM FP32 67 TF       graph=6.7e+13      ref=6.7e+13      ratio= 1.000 
+gpu.peak_flops_sparse vs 1979 TF (FP16 TC with sparsity)       graph=1.979e+15    ref=1.979e+15    ratio= 1.000 
+  dense BF16 TC = sparse/2 = 989.5 TF; ratio dense-TC / assigned peak graph=9.895e+14    ref=6.7e+13      ratio=14.769 <- training runs use tensor cores, graph uses the FP32 number
+gpu.tdp vs 700 W                                               graph=700          ref=700          ratio= 1.000 
+mem.hbm.bw vs 3.35 TB/s                                        graph=3.35e+12     ref=3.35e+12     ratio= 1.000 
+mem.hbm.capacity (80e9 B) vs 80 GiB physical                   graph=8e+10        ref=8.5899e+10   ratio= 0.931 decimal-vs-binary, 7% low
+gpu.nvlink.bw (900e9) vs NVLink4 per-direction 450 GB/s        graph=9e+11        ref=4.5e+11      ratio= 2.000 <- 900 GB/s is bidirectional total; alpha-beta needs per direction
+cluster.node.nic.port_rate vs 400 Gb/s = 50 GB/s per direction graph=5e+10        ref=5e+10        ratio= 1.000 (unidirectional, inconsistent with NVLink above)
+cluster.node.hbm_capacity vs 640 GB                            graph=6.4e+11      ref=6.4e+11      ratio= 1.000 
+
+== B. Known-model FLOP accounting through the graph (6 N D) ==
+GPT-3 params from graph vs 175e9                               graph=1.7457e+11   ref=1.75e+11     ratio= 0.998 
+GPT-3 6*N*D (D=300e9) vs published 3.14e23 FLOP                graph=3.1422e+23   ref=3.14e+23     ratio= 1.001 
+Llama-3.1-405B params from graph vs 405e9                      graph=4.0585e+11   ref=4.05e+11     ratio= 1.002 
+Llama-3.1-405B 6*N*D (D=15.6e12) vs reported 3.8e25 FLOP       graph=3.7988e+25   ref=3.8e+25      ratio= 1.000 
+
+== C. Pythia-70M on one DGX H100 (shipped industrial pack) ==
+Pythia-70M params vs model card 70,426,624                     graph=7.0398e+07   ref=7.0427e+07   ratio= 1.000 
+tokens/s = 8 GPUs * 67 TF / (6 N)  (ideal, 100% MFU of FP32 peak) graph=1.269e+06    ref=1.269e+06    ratio= 1.000 
+graph FLOP/token vs exact 3x forward FLOP/token                graph=4.2239e+08   ref=3.4328e+08   ratio= 1.230 <- embedding table counted as matmul params
+wallclock = D / tokens_per_s                                   graph=2.3633e+05   ref=2.3633e+05   ratio= 1.000 
+  wallclock in hours (graph)                                   graph=65.646       ref=65.646       ratio= 1.000 
+power cost = 10.2 kW * wallclock * $0.0813/kWh                 graph=54.438       ref=54.438       ratio= 1.000 
+energy-floor cost per token = power cost / D                   graph=1.8152e-10   ref=1.8152e-10   ratio= 1.000 
+   energy per token = 8.04 mJ; at real bf16 tensor-core speeds the same run is ~15x shorter
+
+== D. Full-TCO pack: where does the cost come from? ==
+   econ.run.hw_cost                   $    725.07   64.7%
+   econ.run.power_cost                $     54.44    4.9%
+   econ.run.capacity_charge_cost      $      7.44    0.7%
+   econ.run.maintenance_cost          $     61.10    5.5%
+   econ.run.staff_cost                $    249.61   22.3%
+   econ.run.water_cost                $      4.53    0.4%
+   econ.run.network_cost              $     18.91    1.7%
+   econ.run.carbon_cost               $      0.00    0.0%
+   total $1121.09; cost/token 3.738e-09; site capex $366900
+hw cost hand check = capex*(1-resid)/life/util*wall (f_job=1)  graph=725.07       ref=725.07       ratio= 1.000 
+   facility capex shares the 4-year IT life; demand charge (capacity_charge) is added on top of an EIA average price
+   that the economics preset says already blends demand charges (double count).
+
+== E. Fixture: dense_training_cost_fixture ==
+   training.t_step              0.15
+   training.tokens_per_sec      6.66667e+06
+   econ.job.dc_power            5200
+   econ.run.total_cost          30.0008
+   econ.cost.per_token          3.00008e-06
+   capex_rate = $20/s = $631M per year of one 8-GPU node: round-number fixture, not a price.
