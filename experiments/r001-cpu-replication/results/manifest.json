@@ -1,0 +1,61 @@
+{
+ "study_id": "R001-cpu-replication",
+ "git_head": "456a75511804ee92ec647b747b95e5ceb2daf0cc",
+ "started_at": "2026-10-01T20:29:37.655998Z",
+ "scenario_sha256": "4ae6490e94be98d3597315e12090cf7570d70d541eacc0f2c976eaf2927510ce",
+ "protocol_sha256": "6985f0bab87423a4109d88a0161c5ae880f7b1cb3e0548debc9ee99b74f4732f",
+ "dataset_sha256": "77cf780cebe52b6e83e3a2ac84bc56d8059363113e41d17a023f1d8b2ed0fc0b",
+ "dataset_expected_sha256": "77cf780cebe52b6e83e3a2ac84bc56d8059363113e41d17a023f1d8b2ed0fc0b",
+ "engine_sha256": {
+  "e001_learning_calibration.py": "dc2fe3e559e8be2cad9a7e31f02b3be221d96e98f00ab25b1139df8799b60da2",
+  "e001_lc2_quality_target.py": "bb70784cd766ae14c2439ac868eb97003ff2ab589ad6a4496bdbf031c1fd5c26",
+  "e001_lc3_equal_work.py": "ac1cf2d00398d162a3062cb86f3816fa6af5b22dd73cba903675276f07bd574e",
+  "e001_semantic_consistency.py": "0162275ff567f4cdf55ae44b0677acff7a4932cff74f217142c0d38e7300a430"
+ },
+ "study_code_sha256": {
+  "analyze.py": "7ca133bf035dba044cea5bd598f14a893da91deddbdf87f8a9e528f8a78719fd",
+  "cpu_runtime.py": "5f4b4e276edb12fc6f56e1ace2511d96f15c4a814e485ff6bcb6108c47e9f986",
+  "lc3_cpu.py": "ace3c971de94bb73183c3b4c39306c4012e13d662e83c358c169420884bbc6ff",
+  "make_scenario.py": "387546d733c5a00620686e0df2ccabddf6d1ae70aa475765e4d65e508eda43cb",
+  "power.py": "bb47f3902b76f2a7a3f524c9c0992be70f95e3f581a30616b311e7f156752a7d",
+  "run.py": "63c19e778a6efc79112a0e41e3be1b97a99eb735f48745f019669f48b4537527",
+  "sc1_cpu.py": "607b80c46f521d97e67b7e84d645fed9858d271a09d5a90ec8c5d60f3f8ae527",
+  "selftest.py": "62f754c5ba17f1880396e9ea0cce695876c99dc6c74b7dae5a79f21ba671bd42"
+ },
+ "calibration_warm_seeds_all": [
+  9101,
+  9102,
+  9103
+ ],
+ "evaluation_warm_seeds_all": [
+  8101,
+  8102,
+  8103,
+  8104,
+  8105,
+  8106
+ ],
+ "torch_version": "2.14.1+cpu",
+ "python": "3.11.15",
+ "cpu": "x86_64",
+ "cpu_count": 4,
+ "threads_per_worker": 1,
+ "workers": 4,
+ "level": "L2",
+ "level_definition": {
+  "calibration_warm_seeds": [
+   9101,
+   9102
+  ],
+  "evaluation_warm_seeds": [
+   8101,
+   8102,
+   8103,
+   8104,
+   8105
+  ],
+  "optional_arms": false
+ },
+ "finished_at": "2026-10-01T22:30:28.954443Z",
+ "wall_seconds": 7251.085788593
+}

@@ -1,0 +1,51 @@
+{
+ "calibration_warm_seeds_valid": [
+  9101,
+  9102
+ ],
+ "calibration_warm_seeds_dropped": [],
+ "fixed_no_failure_final_nll": [
+  1.0337838176637888,
+  1.0288770608603954,
+  1.0252111097797751,
+  1.014322335831821,
+  1.0186156621202826,
+  1.0142020136117935
+ ],
+ "fixed_nll_sd": 0.008076637773671997,
+ "variance_components": {
+  "within_warm_seed_sd": 0.0035229509568222165,
+  "between_warm_seed_sd": 0.009382687451092393
+ },
+ "margin_rule": {
+  "original_nll": 0.01,
+  "multiplier_on_sd": 2.0,
+  "round_up_to": 0.001,
+  "floor_nll": 0.003,
+  "cap_nll": 0.01
+ },
+ "noninferiority_margin_nll": 0.01,
+ "no_failure_equivalence": [
+  {
+   "warm_seed": 9101,
+   "final_nll_identical": true,
+   "attempted_tokens_identical": true,
+   "curve_identical": true
+  },
+  {
+   "warm_seed": 9102,
+   "final_nll_identical": true,
+   "attempted_tokens_identical": true,
+   "curve_identical": true
+  }
+ ],
+ "sc1_calibration_mean_ema_nll_by_decay": {
+  "0.9": 1.0215828141663224,
+  "0.95": 1.00902144680731,
+  "0.98": 0.9961927135009319,
+  "0.99": 0.9899972891435027
+ },
+ "ema_decay_selected": "0.99",
+ "sc1_calibration_sync_minus_local_mean": 0.02046476467512548,
+ "sha256": "2bc162c7e956e11044a4571242560f31f02763c706e6a7ccbffcb82aace74fec"
+}
