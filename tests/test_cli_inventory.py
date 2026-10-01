@@ -1,14 +1,8 @@
-"""Tests for the ``list-presets`` and ``next-work`` CLI commands.
+"""Tests for the ``list-presets`` CLI command.
 
 ``list-presets`` enumerates the preset packs users can run, so we check
 that a representative sample from every family (hardware, materials,
-lithography, workload, economics, scenarios) shows up. ``next-work`` is the
-project compass — it reports graph size and ranked priorities — so we pin
-its section headings, its exact graph counts, and the JSON shape external
-tooling consumes.
-"""
-
-import json
+lithography, workload, economics, scenarios) shows up."""
 
 from gpu_stack.cli import main
 from tests.helpers.cli import captured_stdout
@@ -32,38 +26,3 @@ def test_list_presets_shows_representative_dynamic_inventory():
         "scenarios.pythia_70m_dgx_h100_us_2024_industrial_power",
     ):
         assert preset_name in out
-
-
-def test_next_work_text_prints_live_compass_sections():
-    with captured_stdout() as buf:
-        rc = main(["next-work"])
-
-    out = buf.getvalue()
-    assert rc == 0
-    assert "Next work:" in out
-    assert "graph evidence: variables=1517 equations=950 root_inputs=619" in out
-    assert "Top 3 highest impact:" in out
-    assert "4 best implementations:" in out
-    assert "10 active experiment risks:" in out
-    assert "Preserve E001-SC1's rejected controller as the baseline result" in out
-    assert "Run E001-SC2 on a held-out model or optimizer family" in out
-    assert "Use physical collaboration only as optional calibration" in out
-    assert "Legacy diagnostics (not scientific priorities):" in out
-    assert "Close the sourced Pythia cost frontier" in out
-    assert "cost_per_token has" in out
-    assert "Pay down the heaviest root-debt family" in out
-
-
-def test_next_work_json_shape_matches_public_compass_contract():
-    with captured_stdout() as buf:
-        rc = main(["next-work", "--json"])
-
-    payload = json.loads(buf.getvalue())
-    assert rc == 0
-    assert set(payload) == {"highest_impact", "best_implementations", "bug_risks"}
-    assert len(payload["highest_impact"]) == 3
-    assert len(payload["best_implementations"]) == 4
-    assert len(payload["bug_risks"]) == 10
-    assert payload["highest_impact"][0]["title"] == (
-        "Preserve E001-SC1's rejected controller as the baseline result"
-    )

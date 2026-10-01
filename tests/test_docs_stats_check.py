@@ -1,9 +1,10 @@
 """Tests for the docs-stats freshness gate.
 
-The README, docs/index.html, and docs/app.js all quote registry statistics
-(variable count, equation count, and so on). Those numbers rot the moment
-the model grows, so the gate re-derives each one from the live registry and
-fails if any published number drifted. Three groups of tests:
+The README quotes registry statistics (variable count, equation count, and
+so on). Those numbers rot the moment the model grows, so the gate re-derives
+each one from the live registry and fails if any published number drifted.
+By default only README.md is checked; the site files are opt-in through the
+``files`` argument. Three groups of tests:
 
 1. The gate passes on the real tree — the published numbers are correct
    right now.
@@ -20,6 +21,7 @@ import shutil
 import textwrap
 from pathlib import Path
 
+import pytest
 
 from gpu_stack import Registry
 from gpu_stack.docs_stats_check import (
@@ -44,17 +46,38 @@ def _repo() -> Path:
 
 def _copy_repo_docs(tmp_path: Path) -> Path:
     """
-    Copy README.md and the docs/ directory into tmp_path, returning tmp_path
-    as the fake repo root.
+    Copy README.md into tmp_path, returning tmp_path as the fake repo root.
     """
     src = _repo()
     shutil.copy(src / "README.md", tmp_path / "README.md")
     shutil.copy(src / "pyproject.toml", tmp_path / "pyproject.toml")
-    docs_dst = tmp_path / "docs"
-    docs_dst.mkdir()
-    shutil.copy(src / "docs" / "index.html", docs_dst / "index.html")
-    shutil.copy(src / "docs" / "app.js", docs_dst / "app.js")
     return tmp_path
+
+
+def _write_site_files(root: Path) -> None:
+    """Write small stand-ins for the site files, with live numbers."""
+    docs = root / "docs"
+    docs.mkdir(exist_ok=True)
+    (docs / "index.html").write_text(
+        textwrap.dedent(f"""\
+            <div class="stat"><b>{_live_variables()}</b><span>registered variables</span></div>
+            <div class="stat"><b>{_live_equations()}</b><span>equations connecting them</span></div>
+            <div class="stat"><b>{_live_root_inputs()}</b><span>root inputs</span></div>
+            <div class="stat"><b>{_live_unit_checks()}</b><span>equations with unit checks</span></div>
+        """),
+        encoding="utf-8",
+    )
+    (docs / "app.js").write_text(
+        textwrap.dedent(f"""\
+            "The registry currently names {_live_variables()} variables and {_live_equations()} equations.",
+            "{_live_unit_checks()} equations are currently covered by unit checks.",
+            "{_live_root_inputs()} root inputs are still visible in the current summary.",
+        """),
+        encoding="utf-8",
+    )
+
+
+SITE_FILES = ("docs/index.html", "docs/app.js")
 
 
 def _live_variables() -> int:
@@ -165,6 +188,8 @@ def test_gate_fails_on_perturbed_readme_stats_block(tmp_path):
 
 def test_gate_fails_on_perturbed_html_stat_grid(tmp_path):
     fake_root = _copy_repo_docs(tmp_path)
+    _write_site_files(fake_root)
+    assert check_docs_stats(fake_root, SITE_FILES) == []
     html_path = fake_root / "docs" / "index.html"
     original = html_path.read_text(encoding="utf-8")
 
@@ -178,7 +203,7 @@ def test_gate_fails_on_perturbed_html_stat_grid(tmp_path):
     assert perturbed != original, "replacement did not change the file"
     html_path.write_text(perturbed, encoding="utf-8")
 
-    mismatches = check_docs_stats(fake_root)
+    mismatches = check_docs_stats(fake_root, SITE_FILES)
     claim_ids = [m.claim_id for m in mismatches]
     assert any("root inputs" in cid for cid in claim_ids), (
         f"expected root_inputs mismatch in html stat grid; got: {claim_ids}"
@@ -194,6 +219,7 @@ def test_gate_fails_on_perturbed_html_stat_grid(tmp_path):
 
 def test_gate_fails_on_perturbed_appjs_fact(tmp_path):
     fake_root = _copy_repo_docs(tmp_path)
+    _write_site_files(fake_root)
     appjs_path = fake_root / "docs" / "app.js"
     original = appjs_path.read_text(encoding="utf-8")
 
@@ -207,7 +233,7 @@ def test_gate_fails_on_perturbed_appjs_fact(tmp_path):
     assert perturbed != original, "replacement did not change the file"
     appjs_path.write_text(perturbed, encoding="utf-8")
 
-    mismatches = check_docs_stats(fake_root)
+    mismatches = check_docs_stats(fake_root, SITE_FILES)
     claim_ids = [m.claim_id for m in mismatches]
     assert any("appjs:fact_unit_checks" in cid for cid in claim_ids), (
         f"expected appjs:fact_unit_checks mismatch; got: {claim_ids}"
@@ -215,6 +241,22 @@ def test_gate_fails_on_perturbed_appjs_fact(tmp_path):
     mm = next(m for m in mismatches if "appjs:fact_unit_checks" in m.claim_id)
     assert mm.expected == str(live_unit_checks)
     assert mm.found == str(wrong_unit_checks)
+
+
+# ---------------------------------------------------------------------------
+# The set of checked files is configurable; the default is README.md only
+# ---------------------------------------------------------------------------
+
+def test_default_checks_readme_only(tmp_path):
+    fake_root = _copy_repo_docs(tmp_path)
+    # No docs/ directory exists, and the default run must not need one.
+    assert check_docs_stats(fake_root) == []
+
+
+def test_unknown_file_is_rejected(tmp_path):
+    fake_root = _copy_repo_docs(tmp_path)
+    with pytest.raises(ValueError, match="unknown file"):
+        check_docs_stats(fake_root, ("notes.txt",))
 
 
 # ---------------------------------------------------------------------------

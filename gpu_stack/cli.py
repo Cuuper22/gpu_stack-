@@ -10,7 +10,6 @@ Subcommands:
   stats              Print Registry.stats() and the coverage report.
   audit              Print graph-integrity and metadata audit signals.
   root-debt          Rank unresolved root inputs by downstream blast radius.
-  next-work          Print a live continuation compass from graph evidence.
   experiment-protocol
                      Print a preregistered research protocol.
   experiment-run     Execute a virtual research experiment from an explicit
@@ -60,54 +59,6 @@ from gpu_stack.cli_verify import (
     _run_verify_gate,
     cmd_verify as _cmd_verify,
 )
-
-
-def cmd_next_work(args: argparse.Namespace) -> int:
-    from gpu_stack.cli_common import _require_source_tree
-    from gpu_stack.next_work import build_next_work_plan
-
-    _require_source_tree("next-work")
-
-    plan = build_next_work_plan()
-    if args.json:
-        import json
-
-        print(json.dumps(plan.to_dict(), indent=2, sort_keys=True))
-        return 0
-
-    sections = (
-        ("Top 3 highest impact", plan.highest_impact),
-        ("4 best implementations", plan.best_implementations),
-        ("10 active experiment risks", plan.bug_risks),
-    )
-    print("Next work:")
-    print(
-        "  graph evidence: "
-        f"variables={plan.graph_evidence['variables']} "
-        f"equations={plan.graph_evidence['equations']} "
-        f"root_inputs={plan.graph_evidence['root_inputs']}"
-    )
-    for title, items in sections:
-        print()
-        print(f"{title}:")
-        for index, item in enumerate(items, start=1):
-            print(f"  {index}. {item.title}")
-            print(f"     evidence: {item.evidence}")
-            if item.command:
-                print(f"     command: {item.command}")
-            if item.path:
-                print(f"     path: {item.path}")
-    if plan.legacy_diagnostics:
-        print()
-        print("Legacy diagnostics (not scientific priorities):")
-        for index, item in enumerate(plan.legacy_diagnostics, start=1):
-            print(f"  {index}. {item.title}")
-            print(f"     evidence: {item.evidence}")
-            if item.command:
-                print(f"     command: {item.command}")
-            if item.path:
-                print(f"     path: {item.path}")
-    return 0
 
 
 def cmd_verify(args: argparse.Namespace) -> int:
@@ -162,17 +113,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_roots.set_defaults(func=cmd_root_debt)
 
-    p_next_work = subparsers.add_parser(
-        "next-work",
-        help="print the research-first priority, implementation, and risk compass",
-    )
-    p_next_work.add_argument(
-        "--json",
-        action="store_true",
-        help="emit the live next-work compass as structured JSON",
-    )
-    p_next_work.set_defaults(func=cmd_next_work)
-
     p_experiment_protocol = subparsers.add_parser(
         "experiment-protocol",
         help="print a preregistered research protocol and falsifiers",
@@ -183,10 +123,6 @@ def build_parser() -> argparse.ArgumentParser:
             "E001",
             "E001-RECOVERY-V2",
             "E002",
-            "E003",
-            "E004",
-            "E005",
-            "E006",
         ),
         help="experiment identifier",
     )
