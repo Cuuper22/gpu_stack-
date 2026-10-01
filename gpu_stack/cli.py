@@ -16,6 +16,8 @@ Subcommands:
   experiment-run     Execute a virtual research experiment from an explicit
                      scenario artifact.
   verify             Run a compact local verification profile.
+  estimate           Estimate training time, energy and cost (the calculator);
+                     `--explain` shows what each number is made of.
   list-presets       List the named presets under gpu_stack.presets.*.
   export-graph-json  Export dependency-cone JSON for portfolio page viewer.
   resolve TARGET     Resolve a target variable. Supply `--assign k=v` to
@@ -43,6 +45,7 @@ from gpu_stack.cli_audit import (
     cmd_stats,
 )
 from gpu_stack.cli_common import _iter_presets  # noqa: F401  (imported by tests)
+from gpu_stack.cli_estimate import add_estimate_parser
 from gpu_stack.cli_resolve import cmd_resolve
 from gpu_stack.cli_root_debt import (
     cmd_root_debt,
@@ -508,6 +511,8 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     p_resolve.set_defaults(func=cmd_resolve)
+
+    add_estimate_parser(subparsers)
     return parser
 
 
