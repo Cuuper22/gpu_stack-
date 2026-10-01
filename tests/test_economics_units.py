@@ -10,8 +10,11 @@ variables against their expected composite units.
 
 from gpu_stack.scopes import economics as econ
 from gpu_stack.scopes.economics_capex import USD
-from gpu_stack.scopes.economics_opex import ENERGY_PRICE, USD_RATE
-from gpu_stack.core.units import KILOGRAM, SECOND, WATT, byte
+from gpu_stack.scopes.economics_opex import ENERGY_PRICE, ENERGY_PRICE_KWH, USD_RATE
+from gpu_stack.core.units import (
+    GIGABYTE, KILOGRAM, KILOWATT, KWH, LITER, MONTH, SECOND, TONNE, WATT, YEAR,
+    byte,
+)
 
 
 OPEX_CHECKED_EQUATIONS = {
@@ -51,15 +54,20 @@ def test_opex_unit_checked_relations_are_explicitly_curated():
 
 def test_opex_units_cover_power_network_water_and_carbon_paths():
     assert econ.job_dc_power.sp_units == WATT
-    assert econ.price_kwh.sp_units == ENERGY_PRICE
+    # Display-unit variables carry their display-unit scale (kWh, kW, GB, ...).
+    assert econ.price_kwh.sp_units == ENERGY_PRICE_KWH
+    assert econ.peak_demand_kw.sp_units == KILOWATT
+    assert econ.capacity_charge_kw_month.sp_units == USD / (KILOWATT * MONTH)
+    assert econ.water_price_per_liter.sp_units == USD / LITER
+    assert econ.maintenance_fraction_per_year.sp_units == 1 / YEAR
     assert econ.cost_per_watt_sec.sp_units == ENERGY_PRICE
     assert econ.capacity_charge_rate.sp_units == USD_RATE
     assert econ.water_cost_rate.sp_units == USD_RATE
-    assert econ.network_transit_price_per_gb.sp_units == USD / byte
+    assert econ.network_transit_price_per_gb.sp_units == USD / GIGABYTE
     assert econ.network_egress_bytes_per_s.sp_units == byte / SECOND
-    assert econ.carbon_intensity_kg_per_kwh.sp_units == KILOGRAM / (WATT * SECOND)
+    assert econ.carbon_intensity_kg_per_kwh.sp_units == KILOGRAM / KWH
     assert econ.carbon_emission_rate.sp_units == KILOGRAM / SECOND
-    assert econ.carbon_price_per_tonne.sp_units == USD / KILOGRAM
+    assert econ.carbon_price_per_tonne.sp_units == USD / TONNE
 
 
 def test_finance_variables_and_equations_have_metadata():

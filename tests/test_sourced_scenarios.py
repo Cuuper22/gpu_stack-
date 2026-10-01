@@ -24,7 +24,7 @@ import pytest
 from gpu_stack import Registry
 from gpu_stack.core import Preset
 from gpu_stack.core.resolver import AmbiguousVariant, ResolverError, Underdetermined
-from gpu_stack.presets import hardware, lithography, materials, scenarios
+from gpu_stack.presets import hardware, lithography, materials, scenarios  # noqa: F401  (registers presets)
 
 
 USER_FACING_TARGETS: Mapping[str, str] = {

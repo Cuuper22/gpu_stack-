@@ -18,7 +18,7 @@ import pytest
 from gpu_stack import resolve
 from tests.helpers.lithography_medium_formula import (
     dependency_names,
-    medium_formula_case,
+    medium_formula_case,  # noqa: F401  (pytest fixture)
     medium_formula_variables,
 )
 

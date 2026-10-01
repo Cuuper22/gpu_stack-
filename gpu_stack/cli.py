@@ -34,48 +34,20 @@ point in pyproject.toml is `gpu-stack`.
 from __future__ import annotations
 
 import argparse
-import subprocess
+import subprocess  # noqa: F401  (tests patch cli.subprocess)
 import sys
 
 from gpu_stack.cli_audit import (
-    _large_project_files,
-    _large_scope_files,
+    _large_project_files,  # noqa: F401  (imported by tests)
     cmd_audit,
     cmd_stats,
 )
-from gpu_stack.cli_common import (
-    _coerce_value,
-    _format_inputs,
-    _iter_presets,
-    _lookup_preset,
-    _missing_family_groups,
-    _parse_kv,
-    _print_missing_family_groups,
-    _print_unresolved_inputs,
-    _print_violated_constraints,
-    _repo_root,
-    _short_list,
-)
+from gpu_stack.cli_common import _iter_presets  # noqa: F401  (imported by tests)
 from gpu_stack.cli_resolve import cmd_resolve
 from gpu_stack.cli_root_debt import (
-    RootDebtEntry,
-    RootDebtFamily,
-    _format_weighted_roots,
-    _root_debt_families,
-    _root_debt_families_json,
-    _root_debt_family_json,
-    _root_debt_json,
-    _root_debt_row_json,
     cmd_root_debt,
 )
 from gpu_stack.cli_scenario import (
-    DEFAULT_SCENARIO_REPORT_TARGETS,
-    _coerce_json_value,
-    _parse_report_targets,
-    _scenario_audit_json_dict,
-    _scenario_audit_presets,
-    _scenario_audit_targets,
-    _scenario_report_json_dict,
     cmd_list_presets,
     cmd_scenario_audit,
     cmd_scenario_report,
@@ -83,27 +55,18 @@ from gpu_stack.cli_scenario import (
 from gpu_stack.cli_export_graph import cmd_export_graph
 from gpu_stack.cli_research import cmd_experiment_protocol, cmd_experiment_run
 from gpu_stack.cli_verify import (
-    DEFAULT_GATE_TIMEOUT_SECONDS,
-    VERIFY_TIMEOUT_RETURN_CODE,
-    VerifyGate,
-    VerifyGateResult,
-    _coerce_timeout_text,
-    _format_command,
-    _format_timeout,
-    _gate_timeout,
-    _python_command,
-    _pytest_command,
-    _read_only_env,
+    VERIFY_TIMEOUT_RETURN_CODE,  # noqa: F401  (imported by tests)
+    VerifyGate,  # noqa: F401  (imported by tests)
     _run_verify_gate,
-    _syntax_check_command,
-    _tail,
-    _verify_gates,
     cmd_verify as _cmd_verify,
 )
 
 
 def cmd_next_work(args: argparse.Namespace) -> int:
+    from gpu_stack.cli_common import _require_source_tree
     from gpu_stack.next_work import build_next_work_plan
+
+    _require_source_tree("next-work")
 
     plan = build_next_work_plan()
     if args.json:

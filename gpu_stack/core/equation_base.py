@@ -105,7 +105,7 @@ class Equation:
             v.used_in(self)
 
     def _check_units(self) -> None:
-        from .units import check_dimensional_consistency, infer_expr_units
+        from .units import check_equation_units, infer_expr_units_with_coefficient
 
         lhs_v = self.lhs_variable()
         if lhs_v is not None and lhs_v.sp_units is None:
@@ -113,12 +113,12 @@ class Equation:
 
         unit_lookup = self._unit_lookup_for_exprs([self.lhs, self.rhs])
         lhs_units = (
-            lhs_v.sp_units
+            (lhs_v.sp_units, 1.0)
             if lhs_v is not None
-            else infer_expr_units(self.lhs, unit_lookup, self.name)
+            else infer_expr_units_with_coefficient(self.lhs, unit_lookup, self.name)
         )
-        rhs_units = infer_expr_units(self.rhs, unit_lookup, self.name)
-        check_dimensional_consistency(lhs_units, rhs_units, self.name)
+        rhs_units = infer_expr_units_with_coefficient(self.rhs, unit_lookup, self.name)
+        check_equation_units(lhs_units, rhs_units, self.name)
 
     # ----- introspection -----
 

@@ -136,6 +136,7 @@ def test_lithography_source_quantum_numeric_chain_resolves_binding_terms():
     ).value) == pytest.approx(0.0)
 
 
+@pytest.mark.slow
 def test_lithography_source_quantum_numeric_chain_resolves_electronic_shell_terms():
     case = source_quantum_numeric_case()
 
@@ -208,6 +209,7 @@ def test_lithography_source_quantum_numeric_chain_resolves_electronic_shell_term
     assert float(screening_result.value) == pytest.approx(2.5)
 
 
+@pytest.mark.slow
 def test_lithography_source_quantum_numeric_chain_resolves_photon_energy():
     case = source_quantum_numeric_case()
 

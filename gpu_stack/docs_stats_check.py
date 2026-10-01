@@ -35,7 +35,6 @@ from typing import Dict, List, Optional, Tuple
 
 def _live_stats(repo_root: Optional[Path] = None) -> Dict[str, int]:
     """Return registry stats, coverage, and derived audit numbers."""
-    import gpu_stack
     from gpu_stack import Registry, find_cycles, topological_sort
     from importlib.metadata import version as _pkg_version
 
@@ -458,7 +457,7 @@ def run_docs_stats_gate(repo_root: Path) -> int:
 def main(argv: Optional[List[str]] = None) -> int:
     """Stand-alone entry point."""
     import argparse
-    from gpu_stack.cli_common import _repo_root
+    from gpu_stack.cli_common import _repo_root, _require_source_tree
 
     parser = argparse.ArgumentParser(
         prog="docs-stats-check",
@@ -469,7 +468,10 @@ def main(argv: Optional[List[str]] = None) -> int:
         help="path to the repository root; defaults to auto-detected repo root",
     )
     args = parser.parse_args(argv)
-    root = Path(args.repo_root).resolve() if args.repo_root else _repo_root()
+    root = _require_source_tree(
+        "docs_stats_check",
+        Path(args.repo_root).resolve() if args.repo_root else _repo_root(),
+    )
     return run_docs_stats_gate(root)
 
 

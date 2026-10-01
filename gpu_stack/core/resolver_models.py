@@ -10,7 +10,7 @@ module lets every resolver_* module share them without import cycles.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Mapping, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import sympy as sp
 

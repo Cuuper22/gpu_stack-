@@ -21,11 +21,11 @@ What it provides:
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Iterable, TYPE_CHECKING
+from typing import Dict, List, Optional, TYPE_CHECKING
 import sympy as sp
 
 if TYPE_CHECKING:
-    from .variable import Variable, Constant
+    from .variable import Variable
     from .equation import Equation
     from .system import System
 

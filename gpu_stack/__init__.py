@@ -14,6 +14,7 @@ there is no second, hard-coded import list here to drift out of date.
 """
 
 from importlib import import_module, reload
+from importlib.metadata import PackageNotFoundError, version as _distribution_version
 import sys
 
 from . import constants, core, scopes
@@ -99,7 +100,14 @@ def bootstrap() -> dict[str, int]:
     return Registry.stats()
 
 
+try:
+    __version__ = _distribution_version("gpu_stack")
+except PackageNotFoundError:  # running from a source tree that is not installed
+    __version__ = "0+unknown"
+
+
 __all__ = [
+    "__version__",
     "core",
     "constants",
     "scopes",

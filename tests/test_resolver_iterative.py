@@ -14,7 +14,7 @@ import sympy as sp
 from gpu_stack import Registry, resolve
 from gpu_stack.core import IterativeEquation, var
 from gpu_stack.core.resolver import _value_dependencies
-from tests.helpers.registry import registry_snapshot
+from tests.helpers.registry import registry_snapshot  # noqa: F401  (pytest fixture)
 
 
 def test_registered_iteration_variable_assignment_does_not_replace_binder(registry_snapshot):

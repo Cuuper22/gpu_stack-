@@ -21,7 +21,10 @@ of these into the total run cost.
 
 import sympy as sp
 from ..core import Reference, eq, var
-from ..core.units import KILOGRAM, METER, SECOND, WATT, byte
+from ..core.units import (
+    GIGABYTE, KILOGRAM, KILOWATT, KWH, LITER, METER, MONTH, SECOND, TONNE, WATT,
+    YEAR, byte,
+)
 
 from .thermal import dc_total_power, water_usage_rate
 from .training import T_wallclock
@@ -31,6 +34,9 @@ from .economics_capex import USD, cluster_capex_total, job_share_of_cluster
 DIMENSIONLESS = sp.Integer(1)
 USD_RATE = USD / SECOND
 ENERGY_PRICE = USD / (WATT * SECOND)
+# Display-unit prices: values are USD per kWh, USD per liter, and so on, so the
+# unit expressions carry those scales (see core/units.py).
+ENERGY_PRICE_KWH = USD / KWH
 VOLUME = METER**3
 
 POWER_TARIFF_REF = Reference(
@@ -67,14 +73,14 @@ price_kwh_peak = var(
     "econ.power.price_kwh_peak", "p_kWh_peak", "USD/(kW*h)",
     "Peak-period electricity price.",
     scope="economics",
-    sp_units=ENERGY_PRICE,
+    sp_units=ENERGY_PRICE_KWH,
     references=[POWER_TARIFF_REF],
 )
 price_kwh_offpeak = var(
     "econ.power.price_kwh_offpeak", "p_kWh_off", "USD/(kW*h)",
     "Off-peak electricity price.",
     scope="economics",
-    sp_units=ENERGY_PRICE,
+    sp_units=ENERGY_PRICE_KWH,
     references=[POWER_TARIFF_REF],
 )
 peak_energy_fraction = var(
@@ -88,7 +94,7 @@ price_kwh = var(
     "econ.power.price_kwh", "p_kWh", "USD/(kW*h)",
     "Blended electricity price after peak and off-peak weighting.",
     scope="economics",
-    sp_units=ENERGY_PRICE,
+    sp_units=ENERGY_PRICE_KWH,
     references=[POWER_TARIFF_REF],
 )
 cost_per_watt_sec = var(
@@ -102,14 +108,14 @@ peak_demand_kw = var(
     "econ.power.peak_demand_kw", "P_job_peak_kW", "kW",
     "Allocated peak demand of the training job for capacity-charge accounting.",
     scope="economics",
-    sp_units=WATT,
+    sp_units=KILOWATT,
     references=[POWER_TARIFF_REF],
 )
 capacity_charge_kw_month = var(
     "econ.power.capacity_charge_kw_month", "p_cap", "USD/(kW*month)",
     "Capacity charge per kilowatt of peak demand per month.",
     scope="economics",
-    sp_units=ENERGY_PRICE,
+    sp_units=USD / (KILOWATT * MONTH),
     references=[POWER_TARIFF_REF],
 )
 capacity_charge_rate = var(
@@ -123,7 +129,7 @@ water_price_per_liter = var(
     "econ.water.price_per_liter", "p_L", "USD/L",
     "Water price per liter including treatment and discharge costs.",
     scope="economics",
-    sp_units=USD / VOLUME,
+    sp_units=USD / LITER,
     references=[WATER_OPEX_REF],
 )
 water_cost_rate = var(
@@ -137,7 +143,7 @@ maintenance_fraction_per_year = var(
     "econ.maintenance.fraction_per_year", "f_maint_y", "1/year",
     "Annual maintenance cost as a fraction of total site capex.",
     scope="economics",
-    sp_units=sp.Integer(1) / SECOND,
+    sp_units=sp.Integer(1) / YEAR,
     references=[SITE_OPEX_REF],
 )
 maintenance_cost_rate = var(
@@ -158,7 +164,7 @@ network_transit_price_per_gb = var(
     "econ.network.transit_price_per_gb", "p_GB_transit", "USD/GB",
     "Network transit price per gigabyte.",
     scope="economics",
-    sp_units=USD / byte,
+    sp_units=USD / GIGABYTE,
     references=[SITE_OPEX_REF],
 )
 network_egress_bytes_per_s = var(
@@ -179,7 +185,7 @@ carbon_intensity_kg_per_kwh = var(
     "econ.carbon.intensity_kg_per_kwh", "I_CO2", "kg/(kW*h)",
     "Grid carbon intensity in kilograms of CO2e per kilowatt-hour.",
     scope="economics",
-    sp_units=KILOGRAM / (WATT * SECOND),
+    sp_units=KILOGRAM / KWH,
     references=[SITE_OPEX_REF],
 )
 carbon_emission_rate = var(
@@ -193,7 +199,7 @@ carbon_price_per_tonne = var(
     "econ.carbon.price_per_tonne", "p_CO2", "USD/t",
     "Actual or shadow carbon price per metric tonne of CO2e.",
     scope="economics",
-    sp_units=USD / KILOGRAM,
+    sp_units=USD / TONNE,
     references=[SITE_OPEX_REF],
 )
 carbon_cost_rate = var(
