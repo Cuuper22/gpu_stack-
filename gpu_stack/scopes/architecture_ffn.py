@@ -72,7 +72,7 @@ flops_per_tok_dense = var(
 )
 flops_step_dense = var(
     "arch.flops.step_dense", "F_step_dense_arch", "FLOP",
-    "Dense-model training FLOPs per step.",
+    "Dense-model training FLOPs per step, approximated as 6 * total parameters * tokens per step (embeddings included, attention score FLOPs omitted).",
     scope="architecture",
 )
 
@@ -105,8 +105,26 @@ eq_flops_step_dense = eq(
     "arch.eq.flops_step_dense",
     flops_step_dense.symbol,
     6 * params_dense_total.symbol * n_tokens_step.symbol,
-    "The standard dense-training estimate is 6 times parameter count times tokens per step.",
-    references=["Kaplan et al., Scaling Laws for Neural Language Models, 2020."],
+    "Common approximation: 6 * N_total * T. N_total includes the embedding table(s), and the attention "
+    "score and value matmuls (which scale with context length) are left out. Kaplan et al. 2020 write "
+    "C ~ 6 N B S with N the non-embedding parameters, so this is not their form. The two errors partly "
+    "cancel: against exact Megatron accounting without recompute (Narayanan et al. 2021 Eq. 4 times 3/4) "
+    "it is within 3% from about 1B parameters (GPT-3 175B: -2.7%) and 23% high for Pythia-70M, where the "
+    "embedding table is most of the parameters.",
+    references=[
+        Reference(
+            "Kaplan et al., Scaling Laws for Neural Language Models, 2020, Table 1: C ~ 6 N B S "
+            "with N the non-embedding parameter count. The graph uses total parameters instead.",
+            kind="paper", url="https://arxiv.org/abs/2001.08361", year=2020,
+        ),
+        Reference(
+            "Narayanan et al., Efficient Large-Scale Language Model Training on GPU Clusters "
+            "Using Megatron-LM, SC21, Eq. 4: exact per-iteration FLOPs, "
+            "96 B s l h^2 (1 + s/(6h) + V/(16 l h)) with activation recompute.",
+            kind="paper", url="https://arxiv.org/abs/2104.04473", year=2021,
+            doi="10.1145/3458817.3476209",
+        ),
+    ],
     check_units=True,
 )
 

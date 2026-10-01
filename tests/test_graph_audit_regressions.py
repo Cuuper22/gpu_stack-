@@ -124,6 +124,43 @@ def test_mla_cache_is_smaller_than_gqa_cache_by_the_reference_ratio():
     assert float(r.value) == pytest.approx(2048 / 576, rel=1e-12)
 
 
+def _step_flops_graph_and_reference(l, h, v, heads, untied, s=2048):
+    """Graph 6*N_total*T versus Narayanan et al. SC21 Eq. 4 without
+    activation recompute: 72 B s l h^2 (1 + s/(6h)) + 6 B s h V, B = 1."""
+    a = {
+        "arch.n_layers": l,
+        "arch.d_model": h,
+        "arch.d_ffn": 4 * h,
+        "arch.n_heads": heads,
+        "arch.vocab": v,
+        "arch.output.untied_factor": untied,
+        "arch.n_kv_heads": heads,
+        "arch.ffn.weight_matrices": 2,
+        "arch.norm.param_multiplier": 4,
+        "arch.tokens_per_step": s,
+    }
+    n_total = float(resolve("arch.params_total_dense", assignments=a).value)
+    graph = float(resolve("arch.flops.step_dense", assignments=a).value)
+    assert graph == pytest.approx(6 * n_total * s, rel=1e-12)
+    ref = 72 * s * l * h * h * (1 + s / (6 * h)) + 6 * s * h * v
+    return graph, ref
+
+
+def test_flops_step_dense_is_6_n_total_t_and_matches_exact_at_large_scale():
+    """The equation is the 6 * N_total * T approximation, not Kaplan's
+    non-embedding form. At GPT-3 scale it is within 3% of exact Megatron
+    accounting (Narayanan et al. 2021 Eq. 4, no recompute)."""
+    graph, ref = _step_flops_graph_and_reference(96, 12288, 50257, 96, 0)
+    assert graph / ref == pytest.approx(1.0, abs=0.03)
+
+
+def test_flops_step_dense_overcounts_when_embeddings_dominate():
+    """Documented regime limit: Pythia-70M has 51.5M of 70.4M parameters in
+    the embedding tables, and the approximation is about 23% high."""
+    graph, ref = _step_flops_graph_and_reference(6, 512, 50304, 8, 1)
+    assert 1.15 < graph / ref < 1.30
+
+
 def _bubble_share(name, **assign):
     return float(resolve(f"par.pp.bubble_{name}", assignments=assign).value)
 
