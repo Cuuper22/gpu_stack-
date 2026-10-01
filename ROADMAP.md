@@ -195,7 +195,8 @@ Portfolio form-and-deliverable polish is implemented, verified, and
 source-clean. The wave was landed as PR #5 and merged to main.
 
 - Scope: docs site typography and metadata, README example accuracy, and
-  historical agent-session memory consolidation under `archive/`.
+  historical agent-session memory consolidation (those files were later
+  removed from the tree; see git history).
 - Docs site: three-font system (IBM Plex Sans for body copy, Pixelify Sans for
   OS chrome and headings, IBM Plex Mono for commands); absolute Open Graph
   metadata (`og:image`, `og:url`, `og:type`, `twitter:card`); leaked markdown
@@ -206,7 +207,8 @@ source-clean. The wave was landed as PR #5 and merged to main.
   comparing `Variable` objects directly; `evaluate_targets` example uses real
   variable name `training.tokens_per_sec`; root-debt block notes live
   `top_roots` column.
-- Session memory files moved to `archive/` for provenance without root clutter.
+- Session memory files moved out of the repo root (later removed from the
+  tree; see git history).
 - Full pytest: `670 passed in 157.12s`.
 - Audit gate: PASS; systems 16, variables 1517, constants 24, equations 959,
   root inputs 619, leaves 253, cycles 0, hard failures 0, large scope files 0,
@@ -249,7 +251,7 @@ Physical root-debt boundary hardening is implemented, verified, read-only
 verified, and source-clean.
 
 - Runtime capped live workers at six; bounded write lanes were tracked through
-  a pseudo-git coordination ledger (now archived at `archive/AGENT_GITLOG.md`).
+  a pseudo-git coordination ledger (later removed from the tree; see git history).
 - MOSFET, interconnect, lithography source/species, and medium-response source
   surfaces gained boundary hardening.
 - Process geometry, SEMF/nuclear coefficients, source-plasma drive, medium

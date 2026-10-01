@@ -12,7 +12,7 @@ over every registered inequality, guarantee ``as_sympy()`` keeps a real
 Relational.
 
 Second, a variable with several defining equations is only usable if each
-equation's role is known. The audited table from IMPROVEMENT_MAP.md pins the
+equation's role is known. The audited table below pins the
 exact identity/constraint/approximation/variant counts per multi-definition
 variable, checks the role accessors partition all defining equations with
 none unclassified, and requires distinct variant keys. Constructor tests
@@ -64,8 +64,7 @@ def test_no_inequality_collapses_to_true():
 
 # Each tuple: (variable_name, expected_identity_count, expected_constraint_count,
 #              expected_approximation_count, expected_variant_count)
-# The counts reflect the audited variables from IMPROVEMENT_MAP.md after
-# role tagging in this batch.
+# The counts reflect the audited multi-definition variables after role tagging.
 MULTI_DEFINITION_EXPECTATIONS = [
     ("physical.lithography.source_plasma_species_number_density", 0, 1, 1, 0),
     ("physical.lithography.source_plasma_species_thermal_speed", 0, 2, 1, 0),
