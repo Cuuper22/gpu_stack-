@@ -1,5 +1,12 @@
 # Results log
 
+> **Read this first.** [EVIDENCE.md](../../EVIDENCE.md) is now the authoritative, re-judged
+> ledger of every run below. This log records artifacts, hashes and the original verdicts
+> as they were written then. Those verdict strings and the surrounding prose (for example
+> "preregistered", "abstained", "attributed", "every frozen gate failed") are kept as
+> history, and several are qualified, marked undetermined or marked invalid in the ledger. Where the two disagree,
+> the ledger wins.
+
 This is the lab notebook. Every completed experiment run, its exact numbers,
 its artifact path, and its content hash live here. The
 [README](../../README.md) tells the story; this file is the evidence locker.

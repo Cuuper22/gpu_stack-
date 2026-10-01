@@ -357,3 +357,24 @@ main svg text {
   cursor: progress;
   opacity: 0.65;
 }
+
+/* ------------------------------------------------------------------ */
+/* Gate badges: a text label beside every gate value, never color alone */
+/* ------------------------------------------------------------------ */
+
+.gate-badge {
+  display: inline-block;
+  margin: 2px 0 6px;
+  padding: 2px 7px;
+  border: 2px solid currentColor;
+  font: 700 0.8125rem/1.3 var(--font-value, monospace);
+  letter-spacing: 0.04em;
+}
+
+.gate-badge[data-badge="pass"] { color: var(--obs-teal-dark, #075560); }
+.gate-badge[data-badge="fail"] { color: var(--obs-red, #b52720); }
+.gate-badge[data-badge="undetermined"] { color: #7a4a00; background: rgba(240, 169, 47, 0.2); }
+
+.gate-note {
+  font-style: italic;
+}

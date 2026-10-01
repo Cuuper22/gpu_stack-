@@ -1,78 +1,60 @@
 # gpu_stack
 
-![A wide visual map of the training stack descending from datacenters through GPU systems, lithography, atoms, and particle-like root assumptions.](docs/assets/readme-hero.png)
+gpu_stack is an equation graph of the AI training stack, 1517 variables and 950 equations from datacenter cost down to chip physics, plus a small experimental program: a 1.9M-parameter model trained on one laptop GPU, and a simulator of what that training would do across several datacenters. The scale is small, and AI agents wrote most of it and judged their own results, unreliably in both directions. So the project was audited and re-judged from the raw files, in public. What is worth your time is that record: what failed, what was under-sold, and how each claim gets checked. The graph is not a validated predictor. Every number below links to the file it came from.
 
-**Website:** <https://cuuper22.github.io/gpu_stack-/><br>
-**Causal observatory:** <https://cuuper22.github.io/gpu_stack-/observatory.html><br>
-**Repository:** <https://github.com/Cuuper22/gpu_stack-><br>
-**Research program:** [RESEARCH.md](RESEARCH.md)
+![A wide map of the training stack, from datacenters down through GPU systems, lithography and atoms.](docs/assets/readme-hero.png)
 
-## WebMCP Challenge 2026
+**Site:** <https://cuuper22.github.io/gpu_stack-/> | **Observatory:** <https://cuuper22.github.io/gpu_stack-/observatory.html> | **Ledger:** [EVIDENCE.md](EVIDENCE.md) | **Program:** [RESEARCH.md](RESEARCH.md) | **Next steps:** [ROADMAP.md](ROADMAP.md)
 
-GPUSTACK's [Causal Observatory](https://cuuper22.github.io/gpu_stack-/observatory.html) is now a shared evidence-audit surface for people and browser agents. Eight WebMCP tools let an agent compare the immutable E001-SC1 results, inspect bounded run traces, follow claims through the causal evidence graph, and stage a review conclusion while the human keeps control of approval and undo.
+## What holds up
 
-See [CHALLENGE.md](CHALLENGE.md) for the exact pre-challenge baseline, challenge-window work, tool contracts, architecture, tests, and demo path.
+| Finding | Number | Source |
+|---|---|---|
+| `periodic_local` (two sites train alone, average weights every 8 steps) beat synchronous training on held-out loss (NLL, lower is better) in every stress family. Cause unknown: no control arm exists. | 10 of 10 families, -0.0187 [-0.0201, -0.0174], at 0.375x the bytes | [EVIDENCE](EVIDENCE.md#sc1-the-controller-loses-the-gates-were-mostly-unreachable) |
+| Sparse checkpointing with survivor continuation used a little less energy, with a valid meter. Small, six pairs, one GPU. | energy 0.970 [0.940, 0.999], work -3.0%, NLL +0.0033 | [EVIDENCE](EVIDENCE.md#pw2-real-but-narrower-than-stated) |
+| The graph counts a model's parameters from its architecture. | median error 0.0003 on 11 published models | [V002](experiments/v002-graph-published-runs/RESULT.md) |
+| Hand checks of the economics path and 6ND FLOPs (6 x parameters x tokens) match published values. | two Pythia cost packs to 4 digits | [audit](analysis/graph-audit/REPORT.md) |
+| Self-checks worked: two LC2 runs stopped on invalid setups, PW1 threw out its own power data. NVML (the GPU power API) updates every 0.494 s, not the 20 ms requested. | 25x slower than asked | [EVIDENCE](EVIDENCE.md#good-results-that-were-under-sold) |
 
-`gpu_stack` started as a curiosity project in the overlap between my AI work and my physics brain.
+## What doesn't
 
-The question was simple enough to be annoying: if frontier training is supposedly "more GPUs, more data, more money," where does that sentence actually bottom out?
+| Claim | What the evidence says | Source |
+|---|---|---|
+| The adaptive controller beats the simple baseline. | It lost to `periodic_local`: worse NLL in 6 of 6 families, 2.05x the bytes. | [EVIDENCE](EVIDENCE.md#sc1-the-controller-loses-the-gates-were-mostly-unreachable) |
+| The controller "abstained" when out of its depth (104 times). | Scenario setup put the compute rate below the calibration floor. Abstaining changed no action. | [EVIDENCE](EVIDENCE.md#sc1-the-controller-loses-the-gates-were-mostly-unreachable) |
+| LC1 falsified survivor continuation. | LC1 never tested it: the per-FLOP estimator was biased and every run hit the target at tick 32. | [EVIDENCE](EVIDENCE.md#lc1-the-test-could-not-see-the-hypothesis) |
+| LC3 showed adaptive costs more energy. | Undetermined. 1.068 [1.002, 1.134] on a sampled meter, 1.023 [0.985, 1.063] on the valid counter. The 1.05 bar passed only 38% of the time with zero real difference. | [EVIDENCE](EVIDENCE.md#lc3-one-noisy-gate-decided-the-verdict) |
+| PW2 attributed the energy penalty to checkpoint snapshots. | Replay compute is the biggest term (57%, snapshots 23%), and one of three gates is vacuous. | [EVIDENCE](EVIDENCE.md#pw2-real-but-narrower-than-stated) |
+| The graph predicts training time. | As shipped it was 3x too fast (median error 0.682). With a 40% MFU (hardware utilization) prior it gets 0.218, the same as plain 6ND at 40% MFU (0.219). | [V002](experiments/v002-graph-published-runs/RESULT.md) |
+| Root debt (how many variables depend on a root input) ranks what matters. | The top 20 are all lithography, and none of them moves cost per token. | [S001](experiments/s001-graph-sensitivity/RESULT.md) |
+| 950 equations model the stack. | 538 (57%) reach no headline number. Shipped scenarios run 78. The nuclear and quark layer has zero numeric effect. | [audit](analysis/graph-audit/REPORT.md) |
+| Equations are trustworthy. | The audit found 4 wrong ones (pipeline bubbles, hierarchical allgather, MLA KV cache, interleaved bubble). All 4 are fixed and have regression tests. | [audit](analysis/graph-audit/REPORT.md) |
+| E003-E006 are ready to run. | Their gates cannot pass or fail as written (some need 299 or more clean events, some are too lax to ever fail). | [P001](experiments/p001-protocol-power-audit/RESULT.md) |
+| The simulator is checked. | Until V001 reports, it is not. Its builder found a legal failure trace that makes the recovery runtime raise. | [V001 protocol](experiments/v001-simulator-known-results/protocol.md) |
 
-Not rhetorically. Physically.
+## How the project checks itself
 
-A token passes through model architecture, kernels, collectives, memory bandwidth, transistor switching, lithography, materials, thermals, power delivery, and eventually a cost line item that someone has to pay. Each of those layers is usually explained on its own, in a slice. I wanted the version where the slices have to talk to each other.
+- **Frozen protocols.** For P001, S001, V002, V001 and R001, the protocol was committed before any result. Results landed later in git for P001 (`c3dfe91` then `d1d58c8`), S001 (`99c2e95` then `de57f2f`) and V002 (`c8801ea` then `0866736`). V001 (`38babe1`) and R001 (`0540632`) are running. Check with `git log`. Git order is checkable, not tamper-proof.
+- **The old runs were not preregistered.** For E001 and E002, protocol and results share commits, minutes to hours after the runs. Only the E003-E006 protocols (`7b13f73`) predate results, and they have none. The word is not used for the early runs here.
+- **An evidence ledger.** [EVIDENCE.md](EVIDENCE.md) re-judges every run with results. It copies each original verdict verbatim, then says HOLDS, OVERTURNED, UNDETERMINED or MEASUREMENT INVALID, with a confidence and what would settle it. It reproduces all 39 original bootstrap intervals exactly.
+- **History is kept.** Result files and original verdicts are never edited. New analysis is added beside them and labeled post-hoc. The [results log](docs/research/results-log.md) records artifacts and hashes.
 
-## What This Is Now, And How It Got Here
+## The graph
 
-The project grew in three stages. Once you know the stages, everything else in this README makes sense.
+![A dependency cone from datacenter economics down through GPUs, transistors, lithography and atoms.](docs/assets/readme-equation-cone.svg)
 
-First it was an equation graph: thousands of physics and engineering relations wired together, so that a question like "what does one token cost" could be traced all the way down instead of stopping at a vendor slide.
+Pick one number at the top, such as `econ.cost.per_token`, and collect everything it depends on. The shape is a cone: one question at the tip, hundreds of inputs at the base. Every variable has units and a reference. A root input is a variable nothing in the graph defines, so a person has to supply it. Only 24 universal constants are constants. Everything else is a variable.
 
-Then the graph learned to move. Events, failures, checkpoints, power draw, multi-site traffic. The static graph became a small virtual datacenter that can replay what a training run does over time.
+**Good for:** tracing which inputs and equations sit under a number; checking units (884 of 950 equations have a unit check); finding which scenario values a result silently depends on; reproducing a hand calculation like 6ND FLOPs.
 
-Now it is a lab. The virtual datacenter runs preregistered experiments. Preregistered means the pass/fail line is frozen before the run starts, so I cannot move the goalposts after seeing the result. Measurements calibrate the engine. The engine powers the explanation. The explanation exposes its own assumptions. Experiments produce new measurements. That loop is the whole point now.
+**Not good for:** predicting a real run's time, power or money (see the tables above); ranking what to measure next by root debt; anything about lithography, nuclear or quark physics, which no preset connects to a headline number.
 
-So in one sentence: GPUSTACK is a virtual AI datacenter you can interrogate. It predicts what a training run does to time, power, and money, says how sure it is, and can show you what every one of its numbers is made of.
+## Try it in 60 seconds
 
-That is a lot of machinery for one question about GPU training. It grew this way one honest step at a time, which is more or less how the project happened.
-
-## The Shape Of The Stack
-
-![Dependency cone from datacenter economics down through GPU systems, transistor physics, lithography, atoms, nucleons, quarks, and equations.](docs/assets/readme-equation-cone.svg)
-
-`gpu_stack` treats the training stack as one inspectable dependency cone. Pick a single number at the top, collect everything it depends on, and the shape that falls out is a cone: one question at the tip, hundreds of assumptions at the base.
-
-At the wide end are questions people actually ask:
-
-- What sets `econ.cost.per_token`?
-- Why did `training.tokens_per_second` move?
-- How much site power disappears into cooling?
-- Which missing assumptions matter most downstream?
-
-The bridge between the two ends is the same chain every time. Cooling depends on chip heat. Chip heat depends on how transistors switch. Switching depends on how the transistors were manufactured. Manufacturing depends on physics that does not care about anyone's roadmap.
-
-At the narrow end are the things the model refuses to pretend away: how the chip was etched (lithography), how the etching light is generated (a plasma source), what that light lands on (the imaging medium), the transistor's gate constraints, and below all of it the proton and neutron counts and quark composition that decide what atoms even are, sitting next to the universal constants.
-
-Most tooling stops at the first satisfying number. `gpu_stack` keeps asking: what is that number made of?
-
-The answer can be an equation, a sourced scenario value, a universal constant, or a root input. A root input is a value the model needs but cannot yet derive, so it names the value instead of hiding it. A root input is not a failure. It is modeling debt made visible, and visible debt is much safer than hidden debt.
-
-## The Central Idea
-
-The core object is a registry-backed equation graph. The registry is one global catalog: every variable and every equation in the model checks itself in there, so anything can be looked up, traced, and audited from one place.
-
-Variables carry identity, units, descriptions, scope metadata, symbolic assumptions, and back-references for graph traversal. Equations define relations between variables. Constants are reserved for universal physics constants. Everything else, including clocks, voltages, tensor shapes, optimizer hyperparameters, GPU counts, tariffs, and facility assumptions, remains a variable.
-
-That choice matters.
-
-A variable with no defining value relation is a root input. Some roots should eventually be decomposed into lower-level physics. Some should remain scenario boundaries. Some require sourced calibration before the model is allowed to assign them.
-
-This is why root count alone is not the score. Decomposing one vague root into several primitive roots can make the count rise while making the model more honest.
-
-The research score is held-out predictive error, uncertainty coverage, configuration ranking, intervention regret, time to a learning or service target, facility energy and power behavior, and whether a preregistered hypothesis survives evidence. Held-out means the data was never used to tune the model, so the model cannot grade its own homework. Regret is the gap between the decision the model recommended and the best decision in hindsight. Equation count, root count, and passing tests are diagnostics. They are not research results.
-
-## What The Graph Knows Right Now
-
-Fresh local `stats` output reports:
+```bash
+python -m pip install -e ".[dev]"
+python -m gpu_stack.cli stats
+```
 
 ```text
 Registry stats:
@@ -87,67 +69,60 @@ Coverage:
   non_constant_variables         1493
   with_sp_units                  1493
   with_references                1493
-  equations                      950
   equations_with_references      950
   equations_with_unit_check      884
 ```
 
-Leaves are variables nothing else depends on, the end of the line in the graph.
-
-The model spans:
-
-| Layer | What lives there |
-|---|---|
-| Physical roots | lithography source structure, imaging-medium composition, process geometry, local thermal behavior, semiconductor transport, MOSFET behavior, interconnect physics, CMOS logic, noise |
-| Memory | SRAM, DRAM, flip-flops, register file, shared memory, Tensor Memory, L1, L2, HBM capacity and bandwidth |
-| Numeric formats | IEEE formats, low-bit precision, microscaling, stochastic rounding |
-| Parallelism | data, tensor, pipeline, expert, context, and FSDP style sharding |
-| Model architecture | attention, embeddings, FFN, MoE, positions, KV cache, transformer parameter and token math |
-| Arithmetic and kernels | ALU, FMA, Tensor Core MMA, roofline, GEMM, attention kernels, occupancy |
-| Communication | NVLink, InfiniBand, Spectrum-X-style scale-out, collectives, alpha-beta costs |
-| Training | compute time, communication time, bubbles, MFU, tokens per second |
-| Cluster and facility | nodes, racks, bisection, storage, reliability, power, cooling, PUE |
-| Economics | capex, opex, amortization, power cost, run cost, cost per token |
-
-MFU means Model FLOPs Utilization. HBM means High Bandwidth Memory. PUE means Power Usage Effectiveness. You should not need to arrive already knowing datacenter abbreviations, so this README defines them. If half the other words in that table are new to you, that is fine. The table is a map of where things live, not a quiz.
-
-## Try It Without Believing Me
-
-Install in editable mode:
+Leaves are variables nothing else depends on. Next, root debt by family (output trimmed to the first five columns):
 
 ```bash
-python -m pip install -e ".[dev]"
+python -m gpu_stack.cli root-debt --families --limit 5
 ```
 
-Run the quick health check:
+```text
+total_weight  root_count  family                                      boundary_category  primitive_boundary
+        3000          15  physical.lithography.medium                 primitive-root     True
+        2185          11  physical.lithography                        primitive-root     True
+        1943           8  physical.lithography.source_plasma_drive    primitive-root     True
+        1866          18  physical.mosfet                             primitive-root     True
+        1293           8  physical.process                            primitive-root     True
+```
+
+Three of the five top families are lithography, which S001 found has no influence on cost per token. Treat this ranking as a count, not an importance.
 
 ```bash
-python -m gpu_stack.cli stats
+python -m gpu_stack.cli scenario-report scenarios.pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost
 ```
 
-Run the verifier while iterating:
-
-```bash
-python -m gpu_stack.cli verify --profile fast
-python -B -m gpu_stack.cli verify --profile fast --read-only
+```text
+  tokens_per_second: ok target=training.tokens_per_sec value=7495672.60138477 missing=0 ...
+  job_dc_power: ok target=econ.job.dc_power value=10200.0000000000 missing=0 ...
+  run_power_cost: ok target=econ.run.power_cost value=9.21602308575190 missing=0 ...
+  cost_per_token: ok target=econ.cost.per_token value=3.07310647422680e-11 missing=0 ...
 ```
 
-Before broader graph edits, use the full verifier:
+That is Pythia-70M on one 8-GPU H100 node: 7.5M tokens/s, 10.2 kW, about $9 of electricity for the run (US 2024 industrial price). The cost line is electricity only, so a lower bound. These are model outputs, not measurements. The throughput uses a 40% MFU, an assumption labeled in the preset ([S001](experiments/s001-graph-sensitivity/RESULT.md) found the pinned FLOP rate is one of the inputs that moves cost per token most). Run `python -m pytest -q` for the tests (a few minutes).
 
-```bash
-python -m gpu_stack.cli verify --profile full
-```
+## Experiments
 
-The installed entry point is also available as:
+| Code | Question | Status |
+|---|---|---|
+| E001 | Can a run spread across flaky datacenters keep learning as well as one cluster? | Ran as LC1-LC3 and SC1, plus two modeled screens that only read their inputs back. Mixed. [Ledger](EVIDENCE.md). |
+| E002 | Can checkpoint timing shape a rack's power draw? | PW1 invalid, PW2 a small valid local result, PW3 (real rack) never run: no hardware. |
+| E003 | Can failures be handled by how much they hurt learning? | Protocol only. P001 says its gates cannot pass or fail as written. |
+| E004 | Should an inference fleet move requests while serving them? | Protocol only. Same P001 finding. |
+| E005 | Can mixed hardware plus architecture co-design win under a power cap? | Protocol only. Same P001 finding. |
+| E006 | Can an inference fleet act as a firm, grid-responsive load? | Protocol only. Same P001 finding. |
+| R001 | Do the LC3 and SC1 learning results replicate on CPU with fresh seeds and an averaging control? | Running, protocol frozen at `0540632`. <!-- R001-RESULT --> |
+| V001 | Does the simulator reproduce known results (Young/Daly checkpointing, queueing theory, Llama 3 failure rate)? | Running, protocol frozen at `38babe1`. <!-- V001-RESULT --> |
+| V002 | Does the graph match published training runs? | Done. Fails as shipped, equals 6ND with a prior. [Result](experiments/v002-graph-published-runs/RESULT.md). |
+| S001 | Which inputs move the headline outputs? | Done. Not lithography. [Result](experiments/s001-graph-sensitivity/RESULT.md). |
+| P001 | Can the E003-E006 gates pass or fail at all? | Done. All four inadequate as written. [Result](experiments/p001-protocol-power-audit/RESULT.md). |
 
-```bash
-gpu-stack stats
-gpu-stack verify --profile fast
-```
+Codes: **LC** is learning calibration, **PW** power waveform, **SC** semantic consistency, **NLL** held-out loss in nats per byte (lower is better), **MFU** model FLOPs utilization, the share of peak math speed a run reaches.
 
-## See One Output As A Cone
-
-Start with a target such as `econ.cost.per_token`.
+<details>
+<summary>Python examples (each one runs)</summary>
 
 ```python
 import gpu_stack
@@ -155,210 +130,83 @@ from gpu_stack import Registry, subgraph
 
 target = Registry.variables["econ.cost.per_token"]
 cone = subgraph(target, direction="dependencies")
-
-print(target.name)
-print(f"{len(cone)} variables upstream")
-print("first few roots:")
-
+print(target.name, len(cone))   # econ.cost.per_token 698 (289 of them root inputs)
 roots = sorted((v for v in cone if v.is_root_input), key=lambda v: v.name)
-for var in roots[:12]:
-    print("  ", var.name, f"[{var.units}]")
+for var in roots[:3]:
+    print(var.name, f"[{var.units}]")
 ```
-
-The exact count is not the important part. The posture is. Every cost number has an ancestry, and every unresolved ancestor is named.
-
-## Root Debt
-
-`root-debt` ranks unresolved root inputs by downstream blast radius: how many other variables would feel it if this assumption moved.
-
-```bash
-python -m gpu_stack.cli root-debt --families --limit 5
-```
-
-Observed summary:
-
-```text
-Root-debt family ranking:
-  total_roots        619
-  include_constraints False
-  grouped_roots      619
-  family_count       151
-  shown              5
-
-total_weight  root_count  family                                      boundary_category  primitive_boundary
-        3014          15  physical.lithography.medium                 primitive-root     True
-        2185          11  physical.lithography                        primitive-root     True
-        1943           8  physical.lithography.source_plasma_drive    primitive-root     True
-        1866          18  physical.mosfet                             primitive-root     True
-        1293           8  physical.process                            primitive-root     True
-```
-
-Reading the columns: `total_weight` is how many downstream variables depend on the family's roots, `family` is the group of related roots, and `primitive_boundary` marks families sitting at the edge of what the model can currently derive. The live table also appends a `top_roots` column naming the heaviest individual roots per family, truncated here for line width.
-
-This is one of the more useful commands, because it stops the project from adding equations wherever it feels interesting. The graph itself can tell you which unknowns are currently expensive.
-
-## Scenario Reports
-
-Presets can evaluate named targets and return structured artifacts. A preset is a saved bundle of scenario assignments, so a run is reproducible instead of a matter of memory.
 
 ```python
 from gpu_stack.presets import scenarios
 
 report = scenarios.dense_training_cost_fixture.evaluate_targets([
     ("tokens_per_second", "training.tokens_per_sec"),
-    ("job_dc_power", "econ.job.dc_power"),
-    ("run_power_cost", "econ.run.power_cost"),
     ("cost_per_token", "econ.cost.per_token"),
 ])
-
-print(report.status)
-for target in report.targets:
-    print(target.label, target.status, target.missing_count)
+print(report.status)  # ok; 6666666.67 tokens/s and 3.000078e-06 $/token
 ```
 
-The CLI equivalent:
+That fixture is synthetic round numbers for testing the resolver. It is not vendor data.
 
-```bash
-python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --json
+```python
+import sympy as sp
+from gpu_stack import Registry
+
+node = Registry.equations["cluster.eq.node_peak_flops"].evaluate_rhs({
+    Registry.variables["cluster.node.n_gpus"].symbol: 8,
+    Registry.variables["gpu.peak_flops"].symbol: sp.Float(15e15),
+})
+rack = Registry.equations["cluster.eq.rack_peak_flops"].evaluate_rhs({
+    Registry.variables["cluster.rack.n_nodes"].symbol: 9,
+    Registry.variables["cluster.node.peak_flops"].symbol: node,
+})
+print(sp.N(rack))  # 1.08e+18
 ```
 
-Observed summary:
+```python
+from gpu_stack import Registry, subgraph, to_dot, find_cycles, topological_sort
 
-```json
-{
-  "preset": "dense_training_cost_fixture",
-  "status": "ok",
-  "assignment_count": 30,
-  "target_count": 4,
-  "ok_count": 4,
-  "error_count": 0,
-  "issue_count": 0,
-  "ok_target_labels": [
-    "tokens_per_second",
-    "job_dc_power",
-    "run_power_cost",
-    "cost_per_token"
-  ]
-}
+print(find_cycles(), len(topological_sort()))   # [] 1517
+cone = sorted(subgraph(Registry.variables["econ.cost.per_token"], direction="dependencies"), key=lambda v: v.name)
+print(to_dot(cone)[:120])                       # Graphviz text
 ```
 
-Representative resolved values:
+</details>
+
+<details>
+<summary>Design rules</summary>
+
+1. Only universal physics constants are `Constant`s. Clocks, voltages, GPU counts and tariffs are `Variable`s.
+2. Every scope registers itself on import, so nothing exists off the books. `gpu_stack.scopes.SCOPE_MODULES` is the load order.
+3. A root input is visible modeling debt: decompose it, source it, or leave it as a named scenario boundary.
+4. Measurements, assumptions, modeled values and priors are different artifact classes.
+5. Calibration and evaluation IDs may not overlap. A policy sees observable state, never simulator truth.
+6. A virtual screen can reject a mechanism. It cannot validate a real datacenter claim.
+7. A result with missing evidence stays inconclusive, even when one threshold looks good.
+
+</details>
+
+<details>
+<summary>Repository layout</summary>
 
 ```text
-training.tokens_per_sec = 6666666.66666667
-econ.job.dc_power       = 5200.0
-econ.run.power_cost     = 0.00078
-econ.cost.per_token     = 3.000078e-06
+.
+├── README.md  EVIDENCE.md  RESEARCH.md  ROADMAP.md  PRODUCT.md  DESIGN.md  CHALLENGE.md
+├── analysis/      graph audit and the re-analysis script behind EVIDENCE.md
+├── experiments/   protocols and results: e001-e006, r001, v001, v002, s001, p001
+├── docs/          GitHub Pages site (index, observatory), data, results log
+├── evals/         WebMCP eval cases
+├── scripts/       data projection for the site
+├── tests/
+└── gpu_stack/     core/ scopes/ presets/ research/ (simulator and experiment engines), cli*.py
 ```
 
-That last line reads as three millionths of a dollar per token: for this synthetic scenario, a million tokens costs about three dollars of datacenter.
-
-That fixture is synthetic. A fixture is a fixed test anchor: deterministic on purpose, not vendor truth, historical data, or a price recommendation. The distinction matters. A synthetic number wearing the costume of a measurement is exactly the kind of hidden assumption this project exists to avoid.
-
-## Resolver Workflows
-
-Resolve a target with explicit assignments:
-
-```bash
-python -m gpu_stack.cli resolve physical.gate.elmore_delay \
-  --assign physical.gate.r_on=1 \
-  --assign physical.gate.fanout=1 \
-  --assign physical.gate.c_input=1 \
-  --assign physical.interconnect.c_total=1 \
-  --assign physical.interconnect.r_per_length=0 \
-  --assign physical.interconnect.c_per_length=1 \
-  --assign physical.wire_length=1 \
-  --assign physical.clock_frequency=0.1 \
-  --constraints
-```
-
-For stricter runs, pair `--constraints` with `--fail-on-violated-constraints`. Invalid assignments report named feasibility relations before returning nonzero.
-
-Scenario-audit surfaces are also available:
-
-```bash
-python -m gpu_stack.cli scenario-audit --json
-python -m gpu_stack.cli scenario-audit --missing-families
-```
-
-## The Research Program
-
-Six questions, each frozen as a machine-readable protocol before it has results:
-
-```bash
-python -m gpu_stack.cli experiment-protocol E001 --json
-```
-
-Each protocol freezes its falsifiers up front. A falsifier is the specific outcome that kills the hypothesis, written down before the run so the experiment can actually lose. Missing mandatory evidence makes a run inconclusive; a failed computable gate fails the virtual screen instead of being hidden by unrelated missing evidence.
-
-In plain words, the six questions:
-
-| Code | The question | Where it stands |
-|---|---|---|
-| E001 | Can you pretrain one model across several unreliable datacenters without giving up the learning efficiency of one tight cluster? | Ran, repeatedly. The clever adaptive controller has so far lost to the boring baseline, and outside its calibrated territory it abstained rather than guessing. Next step is SC2, a frozen risk predictor. |
-| E002 | Can checkpoint timing be used to shape a rack's power draw? | First measurement attempt threw itself out (broken power meter sampling). Second attempt produced a valid local attribution. The physical rack test waits on hardware this machine does not have. |
-| E003 | Can a training system treat failures by how much they hurt learning, instead of treating every failure the same? | Protocol frozen. Not run. |
-| E004 | Should an inference fleet move requests around while they are being served? | Protocol frozen. Not run. |
-| E005 | Under a fixed power envelope, can mixed hardware plus architecture co-design beat a uniform cluster? | Protocol frozen. Not run. |
-| E006 | Can an inference fleet behave as a firm, grid-responsive electrical load? | Protocol frozen. Not run. |
-
-A few experiment codes appear throughout the project: LC stands for learning calibration, PW for power waveform, SC for semantic consistency. E001-LC3 is just "the third learning-calibration run of experiment one."
-
-Two results are worth telling as stories, because they show the project behaving the way it was designed to.
-
-The first: E001-SC1 stress-tested the adaptive controller across six failure patterns it had never seen. In three of them, the controller recognized it was outside its calibrated experience, 104 times, and each time it recorded an abstention: a logged "I do not know" plus a fallback to the safe baseline, instead of a guess. The persisted conclusion is `abstain_without_policy_claim`. The system declined to claim a win it could not support. That refusal is the result, and it is the most honest thing in this repository.
-
-The second: E002-PW1 completed all 32 runs and then invalidated itself, because its power meter turned out to sample 25 times slower than requested. The favorable-looking raw numbers were thrown out as inadmissible instead of being quietly kept. The rerun with a valid meter, PW2, is the result that counts.
-
-Every number behind those stories, with intervals, artifact paths, and content hashes, lives in the [results log](docs/research/results-log.md). The log exists so any claim above can be checked against the exact artifact that produced it.
-
-## Design Rules
-
-These rules keep the package honest:
-
-1. Only universal physics constants are `Constant`s.
-2. Everything else is a `Variable`, including clocks, voltages, tensor shapes, GPU counts, tariffs, and optimizer hyperparameters.
-3. Every scope self-registers on import: loading a domain module is what adds its variables and equations to the registry, so nothing exists off the books.
-4. `gpu_stack.scopes.SCOPE_MODULES` is the authoritative load order.
-5. The project is symbolic first. It is a graph of definitions, constraints, approximations, variants, iterative updates, and stochastic relations.
-6. A root input is visible modeling debt. It should be decomposed, sourced, or intentionally left as a scenario boundary.
-7. Observations, scenario assumptions, modeled values, priors, and unmeasured claims are different artifact classes.
-8. Calibration and evaluation IDs may not overlap: nothing used to tune the model is allowed to grade it.
-9. A policy sees deployable observable state, never hidden simulator truth or future traces.
-10. A virtual screen can reject a mechanism. It cannot validate a real datacenter claim by itself.
-11. A result with missing evidence stays inconclusive even when one numerical threshold looks favorable.
-12. Root-debt work enters the research queue only through a measured residual, decision-relevant uncertainty, or experiment dependency.
-
-## What This Is Good For Now
-
-- Recording immutable measured observations with instrumentation uncertainty and provenance.
-- Enforcing calibration/evaluation separation and reporting residuals, interval coverage, configuration ranking, and decision regret.
-- Replaying causally ordered compute, collective, state-transfer, checkpoint, outage, facility-power, cooling, and grid events across multiple sites.
-- Executing matched recovery policies through explicit failure, preemption, checkpoint restore, replay, membership rejoin, and durable frontier recovery with exact work conservation.
-- Applying observable-only membership, cadence, parallelism, configuration, migration, and power-cap interventions at explicit decision epochs.
-- Producing content-addressed experiment artifacts while keeping measured, modeled, assumed, prior, inadmissible, and unmeasured quantities distinct.
-- Reporting site base plus accelerator-compute energy while explicitly excluding unmodeled network, checkpoint, storage, host, and cooling energy.
-- Inspecting symbolic dependencies across hardware, software, thermal, and economic layers.
-- Writing and checking new equations in a single registry.
-- Ranking unresolved roots by downstream blast radius.
-- Resolving selected scenario targets with variant selection, equation traces, missing-family reporting, constraints, and approximation-validity feedback.
-- Exporting structured `ScenarioReport` and `ScenarioTargetReport` artifacts.
-- Auditing sourced scenario packs.
-- Demonstrating how training throughput and cost metrics reduce to lower-level assumptions.
-
-## What This Is Not Yet
-
-This is the part where the README earns the numbers above.
-
-GPUSTACK is not yet a calibrated digital twin, meaning a simulation validated to track a specific real facility, and it is not a training-cost oracle. The learning experiments so far ran on one local small-model workload. They do not establish frontier-scale transfer, real multi-site concurrency, WAN or facility energy, topology changes, optimizer correction, or the full joint controller.
-
-The adaptive recovery policy is genuinely better on some axes (much less lost work, less modeled energy) and worse on others (slower, more traffic) than the simple baselines. Nothing so far crowns a single winner, and the honest reading of LC1 through SC1 is that the boring baseline is hard to beat on this workload. The full numbers live in the [results log](docs/research/results-log.md).
-
-The symbolic resolver remains intentionally conservative. It propagates one selected defining relation per variable, does not solve simultaneous systems by default, and does not switch relations when an approximation validity check fails; opt-in flags record those actions in the trace. Unassigned symbolic boundaries are reported as `missing` rather than becoming convenient defaults.
-
-Calibration presets are still skeletal. Some presets are exact composition fixtures. Some are regression anchors. Some are synthetic dense-training cost fixtures. They are useful because they are explicit, not because they are universal.
+</details>
 
 ## Current Snapshot
+
+<details>
+<summary>Registry numbers (checked against the live registry by <code>gpu_stack/docs_stats_check.py</code>)</summary>
 
 | Signal | Value |
 |---|---:|
@@ -378,134 +226,6 @@ Calibration presets are still skeletal. Some presets are exact composition fixtu
 | Root-debt families | 151 |
 | Package version | 0.27.0 |
 
-Test counts can move as the model grows. Recheck locally with:
+</details>
 
-```bash
-python -m pytest --collect-only -q
-```
-
-## Causal Observatory
-
-The observatory is the primary visual artifact, not an equal-weight dashboard. It keeps a plain question, causal mechanism, counterfactual regime, model, evidence, residual, provenance, event trace, and falsifier in one shareable state. Semantic depth changes explanation density, never values or conclusions: the Freshman view and the Full trace view describe the same result, one in plain language and one with every number exposed.
-
-The first screen is E001, Beyond One Datacenter. It makes the experiment sequence legible at three depths: LC3 exposed the energy failure, PW1 rejected an undersampled meter, and PW2 attributed the supported local effect to checkpoint cadence while sparse continuation passed all gates. Researcher and Full trace views expose paired effects, support counts, falsifier outcomes, learning curves, work conservation, checkpoint overhead, source hashes, assumptions, and the observed/modeled evidence boundary.
-
-## Core Types
-
-This section is for people writing code against the package. Skip it freely if that is not you.
-
-- `Variable`: identity, units, description, scope, symbol assumptions, metadata, and dependency back-references.
-- `Constant`: an immutable `Variable` with a fixed numeric value. This should stay rare.
-- `Equation`: a relation over variables.
-- `Inequality`: a feasibility constraint.
-- `Approximation`: a relation with a validity regime.
-- `PiecewiseEquation`, `DifferentialEquation`, `IterativeEquation`, `StochasticRelation`: richer relation types for the parts of reality that refuse to be one clean line.
-- `System`: a scope-level collection of variables and equations.
-- `Registry`: the global lookup surface.
-- `Preset`: scenario assignments, variants, and target evaluation support.
-- `Observation`, `CalibrationSplit`, `EvaluationSplit`: measured evidence and leakage-safe partitions.
-- `PredictionRecord`, `ResidualMetrics`, `StratifiedIntervalCoverage`, `KendallTauB`, `DecisionRegret`, `BenchmarkAggregation`: held-out error, confidence-level coverage, ranking, replicated-panel aggregation, and the consequence of decisions induced by the model.
-- `TemporalEvent`, `EventTimeline`, `VirtualDatacenter`: causal event and shared-resource mechanics.
-- `Intervention`, `Policy`, `VisibleDatacenterState`: observable-only control boundary.
-- `ExperimentProtocol`, `ExperimentRunArtifact`: frozen hypotheses, falsifiers, and evidence status.
-- `EvidenceRequirementSpec`, `EvidenceRequirementResult`: mandatory vector, transfer, causal, accounting, and panel gates that cannot be omitted from a run artifact just because they lack one honest scalar threshold.
-
-## Inspect The Registry In Python
-
-```python
-import gpu_stack
-from gpu_stack import Registry, find_cycles, topological_sort
-
-print(Registry.stats())
-print(find_cycles())
-print(len(topological_sort()))
-```
-
-Rebuild after a registry reset:
-
-```python
-import gpu_stack
-from gpu_stack import Registry
-
-Registry.reset()
-stats = gpu_stack.bootstrap()
-print(stats)
-```
-
-Inspect defining equations:
-
-```python
-from gpu_stack import Registry
-
-peak_gpu = Registry.variables["gpu.peak_flops"]
-for eq in peak_gpu.defining_equations:
-    print(eq.name)
-    print(eq.as_sympy())
-    print(eq.description)
-```
-
-Substitute numeric values into one equation:
-
-```python
-import sympy as sp
-from gpu_stack import Registry
-
-node_eq = Registry.equations["cluster.eq.node_peak_flops"]
-rack_eq = Registry.equations["cluster.eq.rack_peak_flops"]
-
-node_peak = node_eq.evaluate_rhs({
-    Registry.variables["cluster.node.n_gpus"].symbol: 8,
-    Registry.variables["gpu.peak_flops"].symbol: sp.Float(15e15),
-})
-
-rack_peak = rack_eq.evaluate_rhs({
-    Registry.variables["cluster.rack.n_nodes"].symbol: 9,
-    Registry.variables["cluster.node.peak_flops"].symbol: node_peak,
-})
-
-print(sp.N(rack_peak))
-# 1.08e18
-```
-
-Export a graph slice:
-
-```python
-from gpu_stack import Registry, subgraph, to_dot
-
-root = Registry.variables["econ.cost.per_token"]
-cone = sorted(subgraph(root, direction="dependencies"), key=lambda v: v.name)
-dot_text = to_dot(cone)
-print(dot_text[:400])
-```
-
-## Repository Layout
-
-```text
-.
-├── README.md
-├── PRODUCT.md
-├── DESIGN.md
-├── RESEARCH.md
-├── ROADMAP.md
-├── pyproject.toml
-├── docs/            GitHub Pages site, data, research notes
-├── experiments/     preregistered protocols and persisted results
-├── process/         agent-session ledgers, not reader-facing
-├── tests/
-└── gpu_stack/
-    ├── __init__.py
-    ├── constants.py
-    ├── core/
-    ├── presets/
-    └── scopes/
-```
-
-## Project Status Docs
-
-The README is the front door. The deeper records live here:
-
-- [`RESEARCH.md`](./RESEARCH.md): the research program and its rules.
-- [`ROADMAP.md`](./ROADMAP.md): where the work is headed.
-- [`docs/research/results-log.md`](./docs/research/results-log.md): every completed run, every number, every hash.
-- [`CHANGELOG.md`](./CHANGELOG.md): version history.
-- [`process/`](./process/): session ledgers for the agent workflow that builds this. Continuity notes, not documentation.
+[CHANGELOG.md](CHANGELOG.md) has version history. The WebMCP challenge entry for the observatory is in [CHALLENGE.md](CHALLENGE.md).
