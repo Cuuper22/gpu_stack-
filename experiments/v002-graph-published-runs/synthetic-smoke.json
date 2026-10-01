@@ -1,0 +1,199 @@
+{
+ "schema_version": 1,
+ "study": "v002-graph-published-runs",
+ "description": "SYNTHETIC made-up run for smoke-testing the code only. Not data. Numbers are invented.",
+ "hardware_specs": {
+  "A100-SXM-80GB": {
+   "peak_flops_dense_16bit": 312000000000000.0,
+   "tdp_w": 400.0
+  }
+ },
+ "records": [
+  {
+   "id": "synthetic-1",
+   "name": "SYNTHETIC made-up run",
+   "family": "synthetic",
+   "tier": "A",
+   "stratum": "dense",
+   "used_in": [
+    "T1",
+    "T2",
+    "E1",
+    "E2",
+    "S2"
+   ],
+   "kind": "full_run",
+   "params": {
+    "value": 7000000000.0
+   },
+   "tokens": {
+    "value": 1000000000000.0
+   },
+   "accelerator": "A100-SXM-80GB",
+   "accel_count": {
+    "value": 512
+   },
+   "time": {
+    "accel_hours": {
+     "value": 110000.0
+    },
+    "wall_days": {
+     "value": 9.0
+    }
+   },
+   "mfu_reported": {
+    "value": 0.35
+   },
+   "energy": {
+    "scope": "system_incl_host_and_pue",
+    "avg_power_per_accel_w": {
+     "value": 380.0
+    },
+    "pue": {
+     "value": 1.15
+    },
+    "energy_mwh": {
+     "value": 55.0
+    },
+    "gpu_energy_raw_mwh": {
+     "value": 30.0
+    }
+   },
+   "arch": {
+    "n_layers": 32,
+    "d_model": 4096,
+    "d_ffn": 11008,
+    "n_heads": 32,
+    "n_kv_heads": 32,
+    "vocab": 32000,
+    "ffn_weight_matrices": 3,
+    "untied_output": true,
+    "norm_param_multiplier": 2
+   }
+  },
+  {
+   "id": "synthetic-2",
+   "name": "SYNTHETIC made-up run 2",
+   "family": "synthetic-b",
+   "tier": "A",
+   "stratum": "dense",
+   "used_in": [
+    "T1",
+    "T2",
+    "E1",
+    "E2",
+    "S2"
+   ],
+   "kind": "full_run",
+   "params": {
+    "value": 13000000000.0
+   },
+   "tokens": {
+    "value": 2000000000000.0
+   },
+   "accelerator": "A100-SXM-80GB",
+   "accel_count": {
+    "value": 1024
+   },
+   "time": {
+    "accel_hours": {
+     "value": 500000.0
+    },
+    "wall_days": {
+     "value": 20.0
+    }
+   },
+   "mfu_reported": {
+    "value": 0.3
+   },
+   "energy": {
+    "scope": "system_incl_host_and_pue",
+    "avg_power_per_accel_w": {
+     "value": 380.0
+    },
+    "pue": {
+     "value": 1.15
+    },
+    "energy_mwh": {
+     "value": 250.0
+    },
+    "gpu_energy_raw_mwh": {
+     "value": 140.0
+    }
+   },
+   "arch": {
+    "n_layers": 40,
+    "d_model": 5120,
+    "d_ffn": 13824,
+    "n_heads": 40,
+    "n_kv_heads": 40,
+    "vocab": 32000,
+    "ffn_weight_matrices": 3,
+    "untied_output": true,
+    "norm_param_multiplier": 2
+   }
+  },
+  {
+   "id": "synthetic-3",
+   "name": "SYNTHETIC made-up run",
+   "family": "synthetic-c",
+   "tier": "A",
+   "stratum": "dense",
+   "used_in": [
+    "T1",
+    "T2",
+    "E1",
+    "E2",
+    "S2"
+   ],
+   "kind": "full_run",
+   "params": {
+    "value": 3000000000.0
+   },
+   "tokens": {
+    "value": 600000000000.0
+   },
+   "accelerator": "A100-SXM-80GB",
+   "accel_count": {
+    "value": 128
+   },
+   "time": {
+    "accel_hours": {
+     "value": 30000.0
+    },
+    "wall_days": {
+     "value": 10.0
+    }
+   },
+   "mfu_reported": {
+    "value": 0.35
+   },
+   "energy": {
+    "scope": "system_incl_host_and_pue",
+    "avg_power_per_accel_w": {
+     "value": 380.0
+    },
+    "pue": {
+     "value": 1.15
+    },
+    "energy_mwh": {
+     "value": 14.0
+    },
+    "gpu_energy_raw_mwh": {
+     "value": 9.0
+    }
+   },
+   "arch": {
+    "n_layers": 32,
+    "d_model": 4096,
+    "d_ffn": 11008,
+    "n_heads": 32,
+    "n_kv_heads": 32,
+    "vocab": 32000,
+    "ffn_weight_matrices": 3,
+    "untied_output": true,
+    "norm_param_multiplier": 2
+   }
+  }
+ ]
+}
