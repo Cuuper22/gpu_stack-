@@ -191,3 +191,58 @@ def test_interleaved_bubble_overhead_is_p_minus_1_over_v_m(p, m, v):
     if v == 1:
         a = {"par.pp.n_stages": p, "par.pp.n_microbatches": m}
         assert phi == pytest.approx(_bubble_share("1f1b", **a), rel=1e-12)
+
+
+def test_flicker_noise_psd_is_dimensionally_consistent_at_gamma_one():
+    """S_v [V^2/Hz] = K_f / (C_ox W L f) with C_ox in F/m^2: K_f must be V^2*F
+    (Tsividis and McAndrew, Operation and Modeling of the MOS Transistor, the
+    1/f noise model). The checker cannot take a symbolic exponent, so the
+    equation is checked here with gamma = 1."""
+    import sympy as sp
+
+    from gpu_stack import Registry
+    from gpu_stack.core.units import (
+        FARAD,
+        HZ,
+        VOLT,
+        check_dimensional_consistency,
+        infer_expr_units,
+    )
+
+    eq = Registry.equations["physical.eq.flicker_noise_psd"]
+    gamma = Registry.variables["physical.noise.flicker_exponent"].symbol
+    rhs = eq.rhs.subs(gamma, 1)
+    lookup = {
+        sym: Registry.lookup_by_symbol(sym).sp_units
+        for sym in rhs.free_symbols
+    }
+    rhs_units = infer_expr_units(rhs, lookup, eq.name)
+    lhs_units = Registry.variables["physical.noise.flicker_psd"].sp_units
+    check_dimensional_consistency(lhs_units, rhs_units, eq.name)
+    assert Registry.variables["physical.noise.flicker_coeff"].sp_units == VOLT**2 * FARAD
+    assert sp.simplify(lhs_units - VOLT**2 / HZ) == 0
+
+
+def test_carrier_continuity_unit_check_handles_the_time_derivative():
+    """dn/dt = G - R: the left side is n divided by time. The check is on, and
+    a rhs with the wrong dimension is rejected."""
+    from gpu_stack import Registry
+    from gpu_stack.core import DifferentialEquation
+    from gpu_stack.core.units import UnitError
+
+    good = Registry.equations["physical.eq.carrier_continuity"]
+    assert good._check_units_flag
+
+    n = Registry.variables["physical.carrier_density"]
+    t = Registry.variables["physical.time"]
+    # n is 1/m^3, so d n / d t = n has the wrong dimension (missing 1/s).
+    with pytest.raises(UnitError):
+        DifferentialEquation(
+            "test.eq.carrier_continuity_bad_units",
+            n.symbol,
+            n.symbol,
+            indep_var=t,
+            order=1,
+            check_units=True,
+        )
+    assert "test.eq.carrier_continuity_bad_units" not in Registry.equations
