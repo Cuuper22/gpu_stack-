@@ -14,9 +14,9 @@ brand
 simulator and experiment program. The goal is a causal, uncertainty-aware virtual
 datacenter. It is not there. The graph is not a validated predictor: as shipped it
 was about 3x too fast against published runs, and with a utilization prior it only
-matches plain 6ND arithmetic (see `experiments/v002-graph-published-runs/RESULT.md`).
-Nothing in the engine is fitted to a measurement. `EVIDENCE.md` is the authority on
-what the experiments show.
+matches plain 6ND arithmetic.
+Nothing in the engine is fitted to a measurement. The main README says what the
+experiments showed.
 
 The same project has three jobs:
 

@@ -1,6 +1,6 @@
 """Repo-only commands must fail clearly outside a source clone.
 
-`verify`, `audit`, `next-work`, and `docs_stats_check` read pyproject.toml,
+`verify`, `audit`, and `docs_stats_check` read pyproject.toml,
 tests/, README.md, and docs/. In a wheel install none of those exist, so each
 command exits with one clear message instead of a confusing missing-file
 error. Also covers `gpu_stack.__version__`.
@@ -33,13 +33,10 @@ def test_require_source_tree_rejects_a_directory_without_a_source_tree(tmp_path)
     assert "pyproject.toml" in message
 
 
-@pytest.mark.parametrize("command", [["audit"], ["next-work"]])
-def test_repo_only_commands_fail_clearly_when_not_in_a_source_tree(
-    command, tmp_path, monkeypatch
-):
+def test_audit_fails_clearly_when_not_in_a_source_tree(tmp_path, monkeypatch):
     monkeypatch.setattr(cli_common, "_repo_root", lambda: tmp_path)
     with pytest.raises(SystemExit) as excinfo:
-        main(command)
+        main(["audit"])
     assert "source clone" in str(excinfo.value)
 
 

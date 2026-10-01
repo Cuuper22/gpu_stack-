@@ -34,7 +34,7 @@ from .resolver_advanced import (
     try_fallback_for_step,
 )
 from .resolver_diagnostics import (
-    _boundary_family,  # noqa: F401  (re-exported for cli_root_debt, next_work)
+    _boundary_family,  # noqa: F401  (re-exported for cli_root_debt)
     _constraint_evaluation_scope,
     _describe_constraint_violations,
     _describe_unresolved_inputs,

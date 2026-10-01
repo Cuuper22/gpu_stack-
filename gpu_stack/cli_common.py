@@ -77,7 +77,7 @@ def _require_source_tree(command: str, root: Path | None = None) -> Path:
     """
     Return the repository root, or exit with a clear message when there is none.
 
-    `verify`, `audit`, `next-work`, and `docs_stats_check` read files that exist
+    `verify`, `audit`, and `docs_stats_check` read files that exist
     only in a source tree (pyproject.toml, tests/, README.md, docs/). In a
     wheel install the package's parent directory is site-packages, so without
     this check they fail with confusing missing-file errors or quietly report on
