@@ -77,7 +77,7 @@
 
 .primer-node small {
   color: var(--text-dark);
-  font: 700 12px/1.2 var(--font-body);
+  font: 700 13px/1.2 var(--font-body);
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
@@ -159,7 +159,7 @@
   margin: 0 0 7px;
   /* Darker than --accent-cyan so 13px labels clear 4.5:1 on the pane. */
   color: var(--accent-cyan-deep);
-  font: 700 13px var(--font-display);
+  font: 700 13px var(--font-body);
 }
 
 h2 {
@@ -251,7 +251,7 @@ h3 {
 }
 
 .cone-layer b {
-  font: 700 14px var(--font-display);
+  font: 700 14px var(--font-body);
   color: var(--title-bar);
   overflow-wrap: anywhere;
 }
@@ -368,7 +368,7 @@ h3 {
 
 .trace-node small {
   color: var(--text-dark);
-  font: 700 12px/1.2 var(--font-body);
+  font: 700 13px/1.2 var(--font-body);
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
@@ -524,7 +524,7 @@ h3 {
 
 .cone-row-meta {
   color: var(--text-soft);
-  font-size: 12px;
+  font-size: 13px;
   text-align: right;
   /* Stays on one line when the row has room; wraps instead of widening
      the whole tree when it does not. */
@@ -536,7 +536,7 @@ h3 {
   display: inline-block;
   background: var(--accent-gold);
   color: var(--text-dark);
-  font: 700 12px/1 var(--font-mono);
+  font: 700 13px/1 var(--font-mono);
   padding: 2px 5px;
   border: 2px solid var(--gold-line);
   text-transform: uppercase;

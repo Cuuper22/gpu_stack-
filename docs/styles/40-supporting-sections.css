@@ -100,7 +100,7 @@
 
 .timeline-row b {
   color: var(--title-bar);
-  font-family: "Pixelify Sans", monospace;
+  font-family: var(--font-mono);
 }
 
 /* Token journey strip: one token walks the stack, station by station, and

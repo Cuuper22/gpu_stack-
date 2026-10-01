@@ -119,13 +119,15 @@
   }
 
   async function fetchArtifact(url) {
-    const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
+    const response = await (window.GPUStackData
+      ? window.GPUStackData.fetch(url)
+      : fetch(url, { headers: { Accept: "application/json" } }));
     if (!response.ok) throw new MissionError("ARTIFACT_UNAVAILABLE", `${url} returned HTTP ${response.status}.`);
     return response.json();
   }
 
   async function fetchGzipArtifact(url) {
-    const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/gzip" } });
+    const response = await fetch(url, { headers: { Accept: "application/gzip" } });
     if (!response.ok) throw new MissionError("ARTIFACT_UNAVAILABLE", `${url} returned HTTP ${response.status}.`);
     if (typeof DecompressionStream !== "function") {
       throw new MissionError("DECOMPRESSION_UNAVAILABLE", "This browser cannot open the bounded gzip projection.");
