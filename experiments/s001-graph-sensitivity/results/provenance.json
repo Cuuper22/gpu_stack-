@@ -1,0 +1,29 @@
+{
+ "git_head": "2cb4e618f884fc3ca6c22d558003507ee2bc9110",
+ "git_status_gpu_stack": "",
+ "gpu_stack_py_tree_sha256": "852d4fb480ff6024b8e82d3f14360201f0136abb8d21453c9fcfdda0c57888a0",
+ "script_sha256": {
+  "run.py": "20d85df1590dabe2788f0929048c0b928be57400b99db383c2f89a63e09f867b",
+  "sens_lib.py": "6927de74dc274f1ede5bfa8ea071f8425ef1ae139175ad235b6e795642b296a3",
+  "protocol.md": "f95ada7f48bd03131e92fc6379849561ccfd3f84beb13bfe3bd40b67eb2f4af8"
+ },
+ "preset_sha256": {
+  "P1_pythia70m_full_tco": "97784def52ee11840bde9507fad46575dcb53fc309ac53cb1792b228fdcc0119",
+  "P2_dense_fixture": "f8c0b9889e65ea2e419b9fdc9e349dd7b596773e6ad870afe2981641c8674082",
+  "P3_pythia160m_energy_floor": "e38f9dec2a5ac5cdbf503ac1c9bc467b3a07d715e9ef95873eb8ec668814ec09"
+ },
+ "seeds": {
+  "main": 20261001,
+  "replicates": [
+   20261002,
+   20261003
+  ]
+ },
+ "versions": {
+  "python": "3.11.15",
+  "numpy": "2.4.6",
+  "scipy": "1.17.1",
+  "sympy": "1.14.0"
+ },
+ "runtime_seconds": 853.4629316329956
+}

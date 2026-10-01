@@ -1,0 +1,1324 @@
+{
+ "P1_pythia70m_full_tco/cost_per_token": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 277,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 272,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 80,
+   "roots": {
+    "roots": 65,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 15
+  },
+  "in_resolved_formula": {
+   "inputs_total": 71,
+   "roots": {
+    "roots": 62,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 9,
+   "present_root_names": [
+    "arch.d_ffn",
+    "arch.d_model",
+    "arch.ffn.weight_matrices",
+    "arch.n_heads",
+    "arch.n_kv_heads",
+    "arch.n_layers",
+    "arch.norm.param_multiplier",
+    "arch.output.untied_factor",
+    "arch.vocab",
+    "cluster.node.cpu.power_per_cpu",
+    "cluster.node.local_ssd.count",
+    "cluster.node.local_ssd.power_per_drive",
+    "cluster.node.misc.fixed_power",
+    "cluster.node.misc.power_per_gpu",
+    "cluster.node.n_cpus",
+    "cluster.node.n_gpus",
+    "cluster.node.nic.count",
+    "cluster.node.nic.ports_per_nic",
+    "cluster.node.nic.power_per_nic",
+    "cluster.node.nic.power_per_port",
+    "cluster.node.ram",
+    "cluster.node.ram.power_per_byte",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks",
+    "econ.asset.residual_fraction",
+    "econ.asset.useful_life",
+    "econ.carbon.intensity_kg_per_kwh",
+    "econ.carbon.price_per_tonne",
+    "econ.cluster.spine_network_capex",
+    "econ.cluster.storage_capex",
+    "econ.cluster.utilization",
+    "econ.facility.building_shell_unit_cost",
+    "econ.facility.cooling_infra_unit_cost",
+    "econ.facility.power_infra_unit_cost",
+    "econ.gpu.capex",
+    "econ.maintenance.fraction_per_year",
+    "econ.network.egress_bytes_per_s",
+    "econ.network.transit_price_per_gb",
+    "econ.node.chassis_capex",
+    "econ.node.cpu_capex",
+    "econ.node.dram_capex",
+    "econ.node.nic_capex",
+    "econ.node.storage_capex",
+    "econ.power.capacity_charge_kw_month",
+    "econ.power.peak_energy_fraction",
+    "econ.power.price_kwh_offpeak",
+    "econ.power.price_kwh_peak",
+    "econ.rack.power_distribution_capex",
+    "econ.rack.switch_capex",
+    "econ.staff.cost_rate",
+    "econ.water.price_per_liter",
+    "thermal.facility.cooling_design_capacity",
+    "thermal.facility.floor_area",
+    "thermal.facility.heat_reuse_fraction",
+    "thermal.facility.power_design_capacity",
+    "thermal.water.cycles_of_concentration",
+    "thermal.water.density",
+    "thermal.water.drift_fraction",
+    "thermal.water.latent_heat",
+    "training.cluster_availability",
+    "training.optimizer_flop_multiplier",
+    "training.total_tokens"
+   ],
+   "present_pin_names": [
+    "arch.tokens_per_step",
+    "gpu.peak_flops_power_limited",
+    "gpu.power.total",
+    "par.n_gpus",
+    "thermal.dc.total_power",
+    "training.overhead_fraction",
+    "training.recompute_overhead",
+    "training.t_exposed_comm",
+    "training.t_mem_bound"
+   ]
+  },
+  "cut_points_in_formula": {
+   "arch.tokens_per_step": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "gpu.peak_flops_power_limited": {
+    "roots_beneath": 133,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "gpu.power.total": {
+    "roots_beneath": 127,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.dc.total_power": {
+    "roots_beneath": 162,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "training.overhead_fraction": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.recompute_overhead": {
+    "roots_beneath": 1,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_exposed_comm": {
+    "roots_beneath": 38,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_mem_bound": {
+    "roots_beneath": 31,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   }
+  },
+  "mean_root_debt_present_roots": 28.338709677419356,
+  "nominal_target_value": 3.738296622236423e-09,
+  "build_seconds": 13.587304830551147
+ },
+ "P1_pythia70m_full_tco/tokens_per_sec": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 206,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 201,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 80,
+   "roots": {
+    "roots": 65,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 15
+  },
+  "in_resolved_formula": {
+   "inputs_total": 17,
+   "roots": {
+    "roots": 10,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 7,
+   "present_root_names": [
+    "arch.d_ffn",
+    "arch.d_model",
+    "arch.ffn.weight_matrices",
+    "arch.n_heads",
+    "arch.n_kv_heads",
+    "arch.n_layers",
+    "arch.norm.param_multiplier",
+    "arch.output.untied_factor",
+    "arch.vocab",
+    "training.optimizer_flop_multiplier"
+   ],
+   "present_pin_names": [
+    "arch.tokens_per_step",
+    "gpu.peak_flops_power_limited",
+    "par.n_gpus",
+    "training.overhead_fraction",
+    "training.recompute_overhead",
+    "training.t_exposed_comm",
+    "training.t_mem_bound"
+   ]
+  },
+  "cut_points_in_formula": {
+   "arch.tokens_per_step": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "gpu.peak_flops_power_limited": {
+    "roots_beneath": 133,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.overhead_fraction": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.recompute_overhead": {
+    "roots_beneath": 1,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_exposed_comm": {
+    "roots_beneath": 38,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_mem_bound": {
+    "roots_beneath": 31,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   }
+  },
+  "mean_root_debt_present_roots": 46.9,
+  "nominal_target_value": 1268976.3096138553,
+  "build_seconds": 0.6549379825592041
+ },
+ "P1_pythia70m_full_tco/dc_power": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 167,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 167,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 80,
+   "roots": {
+    "roots": 65,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 15
+  },
+  "in_resolved_formula": {
+   "inputs_total": 5,
+   "roots": {
+    "roots": 3,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 2,
+   "present_root_names": [
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks"
+   ],
+   "present_pin_names": [
+    "par.n_gpus",
+    "thermal.dc.total_power"
+   ]
+  },
+  "cut_points_in_formula": {
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.dc.total_power": {
+    "roots_beneath": 162,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   }
+  },
+  "mean_root_debt_present_roots": 84.33333333333333,
+  "nominal_target_value": 10200.0,
+  "build_seconds": 0.09593605995178223
+ },
+ "P1_pythia70m_full_tco/run_power_cost": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 246,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 241,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 80,
+   "roots": {
+    "roots": 65,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 15
+  },
+  "in_resolved_formula": {
+   "inputs_total": 26,
+   "roots": {
+    "roots": 18,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 8,
+   "present_root_names": [
+    "arch.d_ffn",
+    "arch.d_model",
+    "arch.ffn.weight_matrices",
+    "arch.n_heads",
+    "arch.n_kv_heads",
+    "arch.n_layers",
+    "arch.norm.param_multiplier",
+    "arch.output.untied_factor",
+    "arch.vocab",
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks",
+    "econ.power.peak_energy_fraction",
+    "econ.power.price_kwh_offpeak",
+    "econ.power.price_kwh_peak",
+    "training.cluster_availability",
+    "training.optimizer_flop_multiplier",
+    "training.total_tokens"
+   ],
+   "present_pin_names": [
+    "arch.tokens_per_step",
+    "gpu.peak_flops_power_limited",
+    "par.n_gpus",
+    "thermal.dc.total_power",
+    "training.overhead_fraction",
+    "training.recompute_overhead",
+    "training.t_exposed_comm",
+    "training.t_mem_bound"
+   ]
+  },
+  "cut_points_in_formula": {
+   "arch.tokens_per_step": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "gpu.peak_flops_power_limited": {
+    "roots_beneath": 133,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.dc.total_power": {
+    "roots_beneath": 162,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "training.overhead_fraction": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.recompute_overhead": {
+    "roots_beneath": 1,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_exposed_comm": {
+    "roots_beneath": 38,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_mem_bound": {
+    "roots_beneath": 31,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   }
+  },
+  "mean_root_debt_present_roots": 43.72222222222222,
+  "nominal_target_value": 54.43781039428612,
+  "build_seconds": 1.1330070495605469
+ },
+ "P2_dense_fixture/cost_per_token": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 277,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 272,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 30,
+   "roots": {
+    "roots": 9,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 21
+  },
+  "in_resolved_formula": {
+   "inputs_total": 30,
+   "roots": {
+    "roots": 9,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 21,
+   "present_root_names": [
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks",
+    "econ.power.peak_energy_fraction",
+    "econ.power.price_kwh_offpeak",
+    "econ.power.price_kwh_peak",
+    "training.cluster_availability",
+    "training.optimizer_flop_multiplier",
+    "training.total_tokens"
+   ],
+   "present_pin_names": [
+    "arch.flops.step_dense",
+    "arch.tokens_per_step",
+    "cluster.node.cpu_power",
+    "cluster.node.misc_power",
+    "cluster.node.nic_power",
+    "cluster.node.ram_power",
+    "cluster.node.storage_power",
+    "econ.job.capex_rate",
+    "econ.run.opex_misc_cost",
+    "gpu.peak_flops_power_limited",
+    "gpu.power.total",
+    "par.n_gpus",
+    "thermal.facility.cooling_power",
+    "thermal.facility.lighting",
+    "thermal.facility.misc",
+    "thermal.facility.transformer_loss",
+    "thermal.facility.ups_loss",
+    "training.overhead_fraction",
+    "training.recompute_overhead",
+    "training.t_exposed_comm",
+    "training.t_mem_bound"
+   ]
+  },
+  "cut_points_in_formula": {
+   "arch.flops.step_dense": {
+    "roots_beneath": 11,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "arch.tokens_per_step": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.cpu_power": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.misc_power": {
+    "roots_beneath": 3,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.nic_power": {
+    "roots_beneath": 4,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.ram_power": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.storage_power": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "econ.job.capex_rate": {
+    "roots_beneath": 27,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "econ.run.opex_misc_cost": {
+    "roots_beneath": 267,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "gpu.peak_flops_power_limited": {
+    "roots_beneath": 133,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "gpu.power.total": {
+    "roots_beneath": 127,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.facility.cooling_power": {
+    "roots_beneath": 158,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "thermal.facility.lighting": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.facility.misc": {
+    "roots_beneath": 143,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "thermal.facility.transformer_loss": {
+    "roots_beneath": 143,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "thermal.facility.ups_loss": {
+    "roots_beneath": 143,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "training.overhead_fraction": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.recompute_overhead": {
+    "roots_beneath": 1,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_exposed_comm": {
+    "roots_beneath": 38,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_mem_bound": {
+    "roots_beneath": 31,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   }
+  },
+  "mean_root_debt_present_roots": 38.77777777777778,
+  "nominal_target_value": 3.000078e-06,
+  "build_seconds": 3.1962215900421143
+ },
+ "P2_dense_fixture/tokens_per_sec": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 206,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 201,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 30,
+   "roots": {
+    "roots": 9,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 21
+  },
+  "in_resolved_formula": {
+   "inputs_total": 9,
+   "roots": {
+    "roots": 1,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 8,
+   "present_root_names": [
+    "training.optimizer_flop_multiplier"
+   ],
+   "present_pin_names": [
+    "arch.flops.step_dense",
+    "arch.tokens_per_step",
+    "gpu.peak_flops_power_limited",
+    "par.n_gpus",
+    "training.overhead_fraction",
+    "training.recompute_overhead",
+    "training.t_exposed_comm",
+    "training.t_mem_bound"
+   ]
+  },
+  "cut_points_in_formula": {
+   "arch.flops.step_dense": {
+    "roots_beneath": 11,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "arch.tokens_per_step": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "gpu.peak_flops_power_limited": {
+    "roots_beneath": 133,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.overhead_fraction": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.recompute_overhead": {
+    "roots_beneath": 1,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_exposed_comm": {
+    "roots_beneath": 38,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_mem_bound": {
+    "roots_beneath": 31,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   }
+  },
+  "mean_root_debt_present_roots": 31.0,
+  "nominal_target_value": 6666666.666666667,
+  "build_seconds": 0.12491917610168457
+ },
+ "P2_dense_fixture/dc_power": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 167,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 167,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 30,
+   "roots": {
+    "roots": 9,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 21
+  },
+  "in_resolved_formula": {
+   "inputs_total": 15,
+   "roots": {
+    "roots": 3,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 12,
+   "present_root_names": [
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks"
+   ],
+   "present_pin_names": [
+    "cluster.node.cpu_power",
+    "cluster.node.misc_power",
+    "cluster.node.nic_power",
+    "cluster.node.ram_power",
+    "cluster.node.storage_power",
+    "gpu.power.total",
+    "par.n_gpus",
+    "thermal.facility.cooling_power",
+    "thermal.facility.lighting",
+    "thermal.facility.misc",
+    "thermal.facility.transformer_loss",
+    "thermal.facility.ups_loss"
+   ]
+  },
+  "cut_points_in_formula": {
+   "cluster.node.cpu_power": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.misc_power": {
+    "roots_beneath": 3,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.nic_power": {
+    "roots_beneath": 4,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.ram_power": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.storage_power": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "gpu.power.total": {
+    "roots_beneath": 127,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.facility.cooling_power": {
+    "roots_beneath": 158,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "thermal.facility.lighting": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.facility.misc": {
+    "roots_beneath": 143,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "thermal.facility.transformer_loss": {
+    "roots_beneath": 143,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "thermal.facility.ups_loss": {
+    "roots_beneath": 143,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   }
+  },
+  "mean_root_debt_present_roots": 84.33333333333333,
+  "nominal_target_value": 5200.0,
+  "build_seconds": 0.22928857803344727
+ },
+ "P2_dense_fixture/run_power_cost": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 246,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 241,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 30,
+   "roots": {
+    "roots": 9,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 21
+  },
+  "in_resolved_formula": {
+   "inputs_total": 28,
+   "roots": {
+    "roots": 9,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 19,
+   "present_root_names": [
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks",
+    "econ.power.peak_energy_fraction",
+    "econ.power.price_kwh_offpeak",
+    "econ.power.price_kwh_peak",
+    "training.cluster_availability",
+    "training.optimizer_flop_multiplier",
+    "training.total_tokens"
+   ],
+   "present_pin_names": [
+    "arch.flops.step_dense",
+    "arch.tokens_per_step",
+    "cluster.node.cpu_power",
+    "cluster.node.misc_power",
+    "cluster.node.nic_power",
+    "cluster.node.ram_power",
+    "cluster.node.storage_power",
+    "gpu.peak_flops_power_limited",
+    "gpu.power.total",
+    "par.n_gpus",
+    "thermal.facility.cooling_power",
+    "thermal.facility.lighting",
+    "thermal.facility.misc",
+    "thermal.facility.transformer_loss",
+    "thermal.facility.ups_loss",
+    "training.overhead_fraction",
+    "training.recompute_overhead",
+    "training.t_exposed_comm",
+    "training.t_mem_bound"
+   ]
+  },
+  "cut_points_in_formula": {
+   "arch.flops.step_dense": {
+    "roots_beneath": 11,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "arch.tokens_per_step": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.cpu_power": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.misc_power": {
+    "roots_beneath": 3,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.nic_power": {
+    "roots_beneath": 4,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.ram_power": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "cluster.node.storage_power": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "gpu.peak_flops_power_limited": {
+    "roots_beneath": 133,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "gpu.power.total": {
+    "roots_beneath": 127,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.facility.cooling_power": {
+    "roots_beneath": 158,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "thermal.facility.lighting": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.facility.misc": {
+    "roots_beneath": 143,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "thermal.facility.transformer_loss": {
+    "roots_beneath": 143,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "thermal.facility.ups_loss": {
+    "roots_beneath": 143,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "training.overhead_fraction": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.recompute_overhead": {
+    "roots_beneath": 1,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_exposed_comm": {
+    "roots_beneath": 38,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_mem_bound": {
+    "roots_beneath": 31,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   }
+  },
+  "mean_root_debt_present_roots": 38.77777777777778,
+  "nominal_target_value": 0.0007799999999999999,
+  "build_seconds": 1.4164133071899414
+ },
+ "P3_pythia160m_energy_floor/cost_per_token": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 277,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 272,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 42,
+   "roots": {
+    "roots": 25,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 17
+  },
+  "in_resolved_formula": {
+   "inputs_total": 28,
+   "roots": {
+    "roots": 18,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 10,
+   "present_root_names": [
+    "arch.d_ffn",
+    "arch.d_model",
+    "arch.ffn.weight_matrices",
+    "arch.n_heads",
+    "arch.n_kv_heads",
+    "arch.n_layers",
+    "arch.norm.param_multiplier",
+    "arch.output.untied_factor",
+    "arch.vocab",
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks",
+    "econ.power.peak_energy_fraction",
+    "econ.power.price_kwh_offpeak",
+    "econ.power.price_kwh_peak",
+    "training.cluster_availability",
+    "training.optimizer_flop_multiplier",
+    "training.total_tokens"
+   ],
+   "present_pin_names": [
+    "arch.tokens_per_step",
+    "econ.job.capex_rate",
+    "econ.run.opex_misc_cost",
+    "gpu.peak_flops_power_limited",
+    "par.n_gpus",
+    "thermal.dc.total_power",
+    "training.overhead_fraction",
+    "training.recompute_overhead",
+    "training.t_exposed_comm",
+    "training.t_mem_bound"
+   ]
+  },
+  "cut_points_in_formula": {
+   "arch.tokens_per_step": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "econ.job.capex_rate": {
+    "roots_beneath": 27,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "econ.run.opex_misc_cost": {
+    "roots_beneath": 267,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "gpu.peak_flops_power_limited": {
+    "roots_beneath": 133,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.dc.total_power": {
+    "roots_beneath": 162,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "training.overhead_fraction": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.recompute_overhead": {
+    "roots_beneath": 1,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_exposed_comm": {
+    "roots_beneath": 38,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_mem_bound": {
+    "roots_beneath": 31,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   }
+  },
+  "mean_root_debt_present_roots": 43.72222222222222,
+  "nominal_target_value": 4.183391438328358e-10,
+  "build_seconds": 2.292841911315918
+ },
+ "P3_pythia160m_energy_floor/tokens_per_sec": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 206,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 201,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 42,
+   "roots": {
+    "roots": 25,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 17
+  },
+  "in_resolved_formula": {
+   "inputs_total": 17,
+   "roots": {
+    "roots": 10,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 7,
+   "present_root_names": [
+    "arch.d_ffn",
+    "arch.d_model",
+    "arch.ffn.weight_matrices",
+    "arch.n_heads",
+    "arch.n_kv_heads",
+    "arch.n_layers",
+    "arch.norm.param_multiplier",
+    "arch.output.untied_factor",
+    "arch.vocab",
+    "training.optimizer_flop_multiplier"
+   ],
+   "present_pin_names": [
+    "arch.tokens_per_step",
+    "gpu.peak_flops_power_limited",
+    "par.n_gpus",
+    "training.overhead_fraction",
+    "training.recompute_overhead",
+    "training.t_exposed_comm",
+    "training.t_mem_bound"
+   ]
+  },
+  "cut_points_in_formula": {
+   "arch.tokens_per_step": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "gpu.peak_flops_power_limited": {
+    "roots_beneath": 133,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.overhead_fraction": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.recompute_overhead": {
+    "roots_beneath": 1,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_exposed_comm": {
+    "roots_beneath": 38,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_mem_bound": {
+    "roots_beneath": 31,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   }
+  },
+  "mean_root_debt_present_roots": 46.9,
+  "nominal_target_value": 550629.8021493432,
+  "build_seconds": 0.6852946281433105
+ },
+ "P3_pythia160m_energy_floor/dc_power": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 167,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 167,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 42,
+   "roots": {
+    "roots": 25,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 17
+  },
+  "in_resolved_formula": {
+   "inputs_total": 5,
+   "roots": {
+    "roots": 3,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 2,
+   "present_root_names": [
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks"
+   ],
+   "present_pin_names": [
+    "par.n_gpus",
+    "thermal.dc.total_power"
+   ]
+  },
+  "cut_points_in_formula": {
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.dc.total_power": {
+    "roots_beneath": 162,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   }
+  },
+  "mean_root_debt_present_roots": 84.33333333333333,
+  "nominal_target_value": 10200.0,
+  "build_seconds": 0.03990054130554199
+ },
+ "P3_pythia160m_energy_floor/run_power_cost": {
+  "total_roots": 619,
+  "structurally_connected_any_equation": {
+   "roots": 246,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "structurally_connected_selected_equation": {
+   "roots": 241,
+   "lithography": 43,
+   "nuclear_quark": 11
+  },
+  "assigned_in_preset": {
+   "all_inputs": 42,
+   "roots": {
+    "roots": 25,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 17
+  },
+  "in_resolved_formula": {
+   "inputs_total": 26,
+   "roots": {
+    "roots": 18,
+    "lithography": 0,
+    "nuclear_quark": 0
+   },
+   "derived_pins": 8,
+   "present_root_names": [
+    "arch.d_ffn",
+    "arch.d_model",
+    "arch.ffn.weight_matrices",
+    "arch.n_heads",
+    "arch.n_kv_heads",
+    "arch.n_layers",
+    "arch.norm.param_multiplier",
+    "arch.output.untied_factor",
+    "arch.vocab",
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks",
+    "econ.power.peak_energy_fraction",
+    "econ.power.price_kwh_offpeak",
+    "econ.power.price_kwh_peak",
+    "training.cluster_availability",
+    "training.optimizer_flop_multiplier",
+    "training.total_tokens"
+   ],
+   "present_pin_names": [
+    "arch.tokens_per_step",
+    "gpu.peak_flops_power_limited",
+    "par.n_gpus",
+    "thermal.dc.total_power",
+    "training.overhead_fraction",
+    "training.recompute_overhead",
+    "training.t_exposed_comm",
+    "training.t_mem_bound"
+   ]
+  },
+  "cut_points_in_formula": {
+   "arch.tokens_per_step": {
+    "roots_beneath": 2,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "gpu.peak_flops_power_limited": {
+    "roots_beneath": 133,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "par.n_gpus": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "thermal.dc.total_power": {
+    "roots_beneath": 162,
+    "lithography_beneath": 43,
+    "nuclear_quark_beneath": 11
+   },
+   "training.overhead_fraction": {
+    "roots_beneath": 5,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.recompute_overhead": {
+    "roots_beneath": 1,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_exposed_comm": {
+    "roots_beneath": 38,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   },
+   "training.t_mem_bound": {
+    "roots_beneath": 31,
+    "lithography_beneath": 0,
+    "nuclear_quark_beneath": 0
+   }
+  },
+  "mean_root_debt_present_roots": 43.72222222222222,
+  "nominal_target_value": 125.45687041992663,
+  "build_seconds": 0.9675617218017578
+ }
+}

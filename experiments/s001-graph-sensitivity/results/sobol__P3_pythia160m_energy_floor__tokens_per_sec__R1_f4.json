@@ -1,0 +1,1075 @@
+{
+ "preset": "pythia_160m_dgx_h100_us_2024_industrial_energy_floor_cost",
+ "target": "training.tokens_per_sec",
+ "rule": "R1_f4",
+ "seed": 20261001,
+ "n_pow": 14,
+ "n_rows": 16384,
+ "n_valid_rows": 16384,
+ "k_factors": 15,
+ "held_inputs": {
+  "training.t_exposed_comm": "zero nominal",
+  "training.t_mem_bound": "zero nominal",
+  "training.overhead_fraction": "zero nominal",
+  "arch.output.untied_factor": "binary switch"
+ },
+ "tied": {
+  "par.n_gpus": [
+   "cluster.node.n_gpus",
+   "cluster.rack.n_nodes",
+   "cluster.site.n_racks"
+  ]
+ },
+ "n_boot": 500,
+ "expr_ops": 50,
+ "status": "ok",
+ "n_used_for_indices": 16384,
+ "variance_log_target": 3.394377884750686,
+ "sum_S1": 0.985234175303023,
+ "sum_ST": 1.0128444604103444,
+ "factors": [
+  {
+   "name": "arch.n_layers",
+   "is_root": true,
+   "units": "layers",
+   "family": "arch",
+   "root_debt": 44,
+   "dependents": 44,
+   "nominal": 12.0,
+   "lo": 3.0,
+   "hi": 48.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.059116908262362856,
+   "ST": 0.0681958292740312,
+   "S1_ci": [
+    0.053664762048177835,
+    0.06470036468636184
+   ],
+   "ST_ci": [
+    0.0663074776150667,
+    0.0699300777245859
+   ],
+   "ST_raw_Y": 0.12702666899631915,
+   "ST_raw_Y_ci": [
+    0.07695159351927551,
+    0.19457805200822703
+   ],
+   "class": "minor",
+   "elasticity_nominal": -0.5237446015255998
+  },
+  {
+   "name": "arch.ffn.weight_matrices",
+   "is_root": true,
+   "units": "matrices",
+   "family": "arch.ffn",
+   "root_debt": 44,
+   "dependents": 44,
+   "nominal": 2.0,
+   "lo": 2.0,
+   "hi": 3.0,
+   "log_uniform": false,
+   "integer": true,
+   "note": "fixed discrete range",
+   "in_resolved_formula": true,
+   "S1": 0.0018974037539066298,
+   "ST": 0.0025400584943972254,
+   "S1_ci": [
+    0.0008306716595003392,
+    0.002959655862482486
+   ],
+   "ST_ci": [
+    0.0024650330228250705,
+    0.002613175413089104
+   ],
+   "ST_raw_Y": 0.005110204284490173,
+   "ST_raw_Y_ci": [
+    0.0031926100136197553,
+    0.007505272213909643
+   ],
+   "class": "negligible",
+   "elasticity_nominal": -0.34901159971045814
+  },
+  {
+   "name": "gpu.peak_flops_power_limited",
+   "is_root": false,
+   "units": "FLOP/s",
+   "family": null,
+   "root_debt": null,
+   "dependents": 46,
+   "nominal": 67000000000000.0,
+   "lo": 16750000000000.0,
+   "hi": 268000000000000.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.18829735532168845,
+   "ST": 0.18872501961379876,
+   "S1_ci": [
+    0.17984390058573121,
+    0.19769980961808797
+   ],
+   "ST_ci": [
+    0.18424053544158064,
+    0.1928433114852533
+   ],
+   "ST_raw_Y": 0.3213261114272746,
+   "ST_raw_Y_ci": [
+    0.1969453175569163,
+    0.5112004926301801
+   ],
+   "class": "major",
+   "elasticity_nominal": 1.000000000000334
+  },
+  {
+   "name": "arch.tokens_per_step",
+   "is_root": false,
+   "units": "tokens",
+   "family": null,
+   "root_debt": null,
+   "dependents": 37,
+   "nominal": 2097152.0,
+   "lo": 524288.0,
+   "hi": 8388608.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": -2.5935147337616756e-18,
+   "ST": 3.813557912001151e-32,
+   "S1_ci": [
+    -6.895329452497145e-18,
+    1.437602776697514e-18
+   ],
+   "ST_ci": [
+    3.590947853960895e-32,
+    4.0240738765591657e-32
+   ],
+   "ST_raw_Y": 1.7640091207569524e-32,
+   "ST_raw_Y_ci": [
+    1.0593166858877655e-32,
+    2.7480785454549536e-32
+   ],
+   "class": "negligible",
+   "elasticity_nominal": 0.0
+  },
+  {
+   "name": "arch.vocab",
+   "is_root": true,
+   "units": "tokens",
+   "family": "arch",
+   "root_debt": 42,
+   "dependents": 42,
+   "nominal": 50304.0,
+   "lo": 12576.0,
+   "hi": 201216.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.036961386770456364,
+   "ST": 0.0455153908795433,
+   "S1_ci": [
+    0.03248716071206368,
+    0.04141883686906122
+   ],
+   "ST_ci": [
+    0.04424590440007032,
+    0.04694082830148887
+   ],
+   "ST_raw_Y": 0.14657435018148118,
+   "ST_raw_Y_ci": [
+    0.09533652590558193,
+    0.23509075353012876
+   ],
+   "class": "minor",
+   "elasticity_nominal": -0.47625539847562237
+  },
+  {
+   "name": "arch.d_ffn",
+   "is_root": true,
+   "units": "dim",
+   "family": "arch",
+   "root_debt": 46,
+   "dependents": 46,
+   "nominal": 3072.0,
+   "lo": 768.0,
+   "hi": 12288.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.029149341543444854,
+   "ST": 0.035957527688808076,
+   "S1_ci": [
+    0.025205642206425363,
+    0.033295089790609134
+   ],
+   "ST_ci": [
+    0.0348209832103589,
+    0.036968880908594265
+   ],
+   "ST_raw_Y": 0.09169875457912025,
+   "ST_raw_Y_ci": [
+    0.04900346614428012,
+    0.1672857989844656
+   ],
+   "class": "minor",
+   "elasticity_nominal": -0.34901159971045814
+  },
+  {
+   "name": "arch.d_model",
+   "is_root": true,
+   "units": "dim",
+   "family": "arch",
+   "root_debt": 69,
+   "dependents": 69,
+   "nominal": 768.0,
+   "lo": 192.0,
+   "hi": 3072.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.25039599371343046,
+   "ST": 0.25235969204889,
+   "S1_ci": [
+    0.24058807017371478,
+    0.2615574427254509
+   ],
+   "ST_ci": [
+    0.2468980713848943,
+    0.2580882846836508
+   ],
+   "ST_raw_Y": 0.5312684657324811,
+   "ST_raw_Y_ci": [
+    0.30689941226040496,
+    0.8809636318233434
+   ],
+   "class": "major",
+   "elasticity_nominal": -1.17450580976719
+  },
+  {
+   "name": "arch.n_kv_heads",
+   "is_root": true,
+   "units": "heads",
+   "family": "arch",
+   "root_debt": 53,
+   "dependents": 53,
+   "nominal": 12.0,
+   "lo": 3.0,
+   "hi": 12.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "capped at nominal: [nominal / f, nominal]",
+   "in_resolved_formula": true,
+   "S1": 0.0003064810894922638,
+   "ST": 0.0004619085889097689,
+   "S1_ci": [
+    -0.00016118875775813414,
+    0.0007908277303347972
+   ],
+   "ST_ci": [
+    0.00043538751222511353,
+    0.0004903274686415065
+   ],
+   "ST_raw_Y": 0.00034927818838668696,
+   "ST_raw_Y_ci": [
+    0.00021377356232972069,
+    0.000564714275255588
+   ],
+   "class": "negligible",
+   "elasticity_nominal": -0.08725290802580332
+  },
+  {
+   "name": "arch.n_heads",
+   "is_root": true,
+   "units": "heads",
+   "family": "arch",
+   "root_debt": 57,
+   "dependents": 57,
+   "nominal": 12.0,
+   "lo": 3.0,
+   "hi": 48.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.0008158531530275826,
+   "ST": 0.001389409986298972,
+   "S1_ci": [
+    1.795813150590866e-05,
+    0.0017547095544745118
+   ],
+   "ST_ci": [
+    0.001317554006376394,
+    0.0014627001081766503
+   ],
+   "ST_raw_Y": 0.0010836100092006299,
+   "ST_raw_Y_ci": [
+    0.0005084700989387005,
+    0.002068609755574506
+   ],
+   "class": "negligible",
+   "elasticity_nominal": 0.08725290802580332
+  },
+  {
+   "name": "arch.norm.param_multiplier",
+   "is_root": true,
+   "units": "dimensionless",
+   "family": "arch.norm",
+   "root_debt": 42,
+   "dependents": 42,
+   "nominal": 4.0,
+   "lo": 1.0,
+   "hi": 4.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "capped at nominal: [nominal / f, nominal]",
+   "in_resolved_formula": true,
+   "S1": 1.6024952641776166e-08,
+   "ST": 1.0516451313270074e-09,
+   "S1_ci": [
+    -7.359850345612891e-07,
+    6.364536592878008e-07
+   ],
+   "ST_ci": [
+    1.0024074199723626e-09,
+    1.0971510374105212e-09
+   ],
+   "ST_raw_Y": 9.918983896477776e-09,
+   "ST_raw_Y_ci": [
+    2.8174475936211554e-09,
+    2.1006748260267436e-08
+   ],
+   "class": "negligible",
+   "elasticity_nominal": -0.0002272211236942212
+  },
+  {
+   "name": "training.optimizer_flop_multiplier",
+   "is_root": true,
+   "units": "dimensionless",
+   "family": "training",
+   "root_debt": 31,
+   "dependents": 31,
+   "nominal": 1.0,
+   "lo": 1.0,
+   "hi": 4.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "multiplier >= 1: [nominal, nominal x f]",
+   "in_resolved_formula": true,
+   "S1": 0.04716377471907055,
+   "ST": 0.04718125384886629,
+   "S1_ci": [
+    0.04195419941283211,
+    0.05165960745248845
+   ],
+   "ST_ci": [
+    0.04611522327614304,
+    0.04820926274902257
+   ],
+   "ST_raw_Y": 0.11103167957548095,
+   "ST_raw_Y_ci": [
+    0.06551759972481626,
+    0.17609336174075255
+   ],
+   "class": "minor",
+   "elasticity_nominal": -1.000000000000334
+  },
+  {
+   "name": "training.recompute_overhead",
+   "is_root": false,
+   "units": "dimensionless",
+   "family": null,
+   "root_debt": null,
+   "dependents": 31,
+   "nominal": 1.0,
+   "lo": 1.0,
+   "hi": 4.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "multiplier >= 1: [nominal, nominal x f]",
+   "in_resolved_formula": true,
+   "S1": 0.047298449323022886,
+   "ST": 0.04718125384886634,
+   "S1_ci": [
+    0.04214849993650846,
+    0.05234900259662008
+   ],
+   "ST_ci": [
+    0.04615936849071023,
+    0.04820039689748684
+   ],
+   "ST_raw_Y": 0.13401366417274074,
+   "ST_raw_Y_ci": [
+    0.07621411454257014,
+    0.2065064544771416
+   ],
+   "class": "minor",
+   "elasticity_nominal": -1.000000000000334
+  },
+  {
+   "name": "cluster.node.n_gpus",
+   "is_root": true,
+   "units": "GPUs",
+   "family": "cluster.node",
+   "root_debt": 81,
+   "dependents": 81,
+   "nominal": 8.0,
+   "lo": 2.0,
+   "hi": 32.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "",
+   "in_resolved_formula": false,
+   "S1": 0.19378494167574906,
+   "ST": 0.1936441132678592,
+   "S1_ci": [
+    0.18483736534670342,
+    0.203073544007276
+   ],
+   "ST_ci": [
+    0.18904618249683156,
+    0.19782961982487682
+   ],
+   "ST_raw_Y": 0.2660935821296004,
+   "ST_raw_Y_ci": [
+    0.17787781372534936,
+    0.3901508700000055
+   ],
+   "class": "major",
+   "elasticity_nominal": null
+  },
+  {
+   "name": "cluster.rack.n_nodes",
+   "is_root": true,
+   "units": "nodes/rack",
+   "family": "cluster.rack",
+   "root_debt": 93,
+   "dependents": 93,
+   "nominal": 1.0,
+   "lo": 0.25,
+   "hi": 4.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "",
+   "in_resolved_formula": false,
+   "S1": 0.06492442536170491,
+   "ST": 0.06484755465576329,
+   "S1_ci": [
+    0.05975818402999008,
+    0.0698835335438947
+   ],
+   "ST_ci": [
+    0.06333341425564797,
+    0.06644721869848132
+   ],
+   "ST_raw_Y": 0.20370248957424117,
+   "ST_raw_Y_ci": [
+    0.119649149021526,
+    0.3112092640989813
+   ],
+   "class": "minor",
+   "elasticity_nominal": null
+  },
+  {
+   "name": "cluster.site.n_racks",
+   "is_root": true,
+   "units": "racks",
+   "family": "cluster.site",
+   "root_debt": 79,
+   "dependents": 79,
+   "nominal": 1.0,
+   "lo": 0.25,
+   "hi": 4.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "",
+   "in_resolved_formula": false,
+   "S1": 0.06512184459071373,
+   "ST": 0.06484544716266694,
+   "S1_ci": [
+    0.05992160888291277,
+    0.07025652569830676
+   ],
+   "ST_ci": [
+    0.06321045116423128,
+    0.06642369229438301
+   ],
+   "ST_raw_Y": 0.2532313291061833,
+   "ST_raw_Y_ci": [
+    0.15436400885143325,
+    0.3682887028314021
+   ],
+   "class": "minor",
+   "elasticity_nominal": null
+  }
+ ],
+ "groups": {
+  "domain:arch": {
+   "members": [
+    "arch.n_layers",
+    "arch.ffn.weight_matrices",
+    "arch.tokens_per_step",
+    "arch.vocab",
+    "arch.d_ffn",
+    "arch.d_model",
+    "arch.n_kv_heads",
+    "arch.n_heads",
+    "arch.norm.param_multiplier"
+   ],
+   "ST_group": 0.392347527349567,
+   "ST_group_ci": [
+    0.3841631741951791,
+    0.4008328577874216
+   ],
+   "ST_group_raw_Y": 0.5160091679841083,
+   "sum_individual_ST": 0.4064198180125237
+  },
+  "domain:cluster": {
+   "members": [
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks"
+   ],
+   "ST_group": 0.32344213071085093,
+   "ST_group_ci": [
+    0.3157517377828263,
+    0.33041364956962466
+   ],
+   "ST_group_raw_Y": 0.5163716906728286,
+   "sum_individual_ST": 0.32333711508628943
+  },
+  "domain:gpu": {
+   "members": [
+    "gpu.peak_flops_power_limited"
+   ],
+   "ST_group": 0.18872501961379876,
+   "ST_group_ci": [
+    0.18424053544158064,
+    0.1928433114852533
+   ],
+   "ST_group_raw_Y": 0.3213261114272746,
+   "sum_individual_ST": 0.18872501961379876
+  },
+  "domain:training": {
+   "members": [
+    "training.optimizer_flop_multiplier",
+    "training.recompute_overhead"
+   ],
+   "ST_group": 0.09436250769773265,
+   "ST_group_ci": [
+    0.09211276647979941,
+    0.0966251208442893
+   ],
+   "ST_group_raw_Y": 0.23538028682081294,
+   "sum_individual_ST": 0.09436250769773263
+  },
+  "ALL_ROOTS": {
+   "members": [
+    "arch.n_layers",
+    "arch.ffn.weight_matrices",
+    "arch.vocab",
+    "arch.d_ffn",
+    "arch.d_model",
+    "arch.n_kv_heads",
+    "arch.n_heads",
+    "arch.norm.param_multiplier",
+    "training.optimizer_flop_multiplier",
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks"
+   ],
+   "ST_group": 0.7633472916412507,
+   "ST_group_ci": [
+    0.7490431710528784,
+    0.7773318412534838
+   ],
+   "ST_group_raw_Y": 0.7873547960901468,
+   "sum_individual_ST": 0.7769381869476795
+  },
+  "ALL_PINS": {
+   "members": [
+    "gpu.peak_flops_power_limited",
+    "arch.tokens_per_step",
+    "training.recompute_overhead"
+   ],
+   "ST_group": 0.23590627346266377,
+   "ST_group_ci": [
+    0.23054039781389743,
+    0.2408801352098974
+   ],
+   "ST_group_raw_Y": 0.3737383805491332,
+   "sum_individual_ST": 0.2359062734626651
+  },
+  "family:arch": {
+   "members": [
+    "arch.n_layers",
+    "arch.vocab",
+    "arch.d_ffn",
+    "arch.d_model",
+    "arch.n_kv_heads",
+    "arch.n_heads"
+   ],
+   "ST_group": 0.3904750862534182,
+   "ST_group_ci": [
+    0.3823918153384843,
+    0.39856983639269333
+   ],
+   "ST_group_raw_Y": 0.522903330933476,
+   "sum_individual_ST": 0.40387975846648133
+  },
+  "family:arch.ffn": {
+   "members": [
+    "arch.ffn.weight_matrices"
+   ],
+   "ST_group": 0.0025400584943972254,
+   "ST_group_ci": [
+    0.0024650330228250705,
+    0.002613175413089104
+   ],
+   "ST_group_raw_Y": 0.005110204284490173,
+   "sum_individual_ST": 0.0025400584943972254
+  },
+  "family:arch.norm": {
+   "members": [
+    "arch.norm.param_multiplier"
+   ],
+   "ST_group": 1.0516451313270074e-09,
+   "ST_group_ci": [
+    1.0024074199723626e-09,
+    1.0971510374105212e-09
+   ],
+   "ST_group_raw_Y": 9.918983896477776e-09,
+   "sum_individual_ST": 1.0516451313270074e-09
+  },
+  "family:cluster.node": {
+   "members": [
+    "cluster.node.n_gpus"
+   ],
+   "ST_group": 0.1936441132678592,
+   "ST_group_ci": [
+    0.18904618249683156,
+    0.19782961982487682
+   ],
+   "ST_group_raw_Y": 0.2660935821296004,
+   "sum_individual_ST": 0.1936441132678592
+  },
+  "family:cluster.rack": {
+   "members": [
+    "cluster.rack.n_nodes"
+   ],
+   "ST_group": 0.06484755465576329,
+   "ST_group_ci": [
+    0.06333341425564797,
+    0.06644721869848132
+   ],
+   "ST_group_raw_Y": 0.20370248957424117,
+   "sum_individual_ST": 0.06484755465576329
+  },
+  "family:cluster.site": {
+   "members": [
+    "cluster.site.n_racks"
+   ],
+   "ST_group": 0.06484544716266694,
+   "ST_group_ci": [
+    0.06321045116423128,
+    0.06642369229438301
+   ],
+   "ST_group_raw_Y": 0.2532313291061833,
+   "sum_individual_ST": 0.06484544716266694
+  },
+  "family:training": {
+   "members": [
+    "training.optimizer_flop_multiplier"
+   ],
+   "ST_group": 0.04718125384886629,
+   "ST_group_ci": [
+    0.04611522327614304,
+    0.04820926274902257
+   ],
+   "ST_group_raw_Y": 0.11103167957548095,
+   "sum_individual_ST": 0.04718125384886629
+  },
+  "LITHOGRAPHY": {
+   "members": [],
+   "ST_group": 0.0,
+   "ST_group_ci": [
+    0.0,
+    0.0
+   ],
+   "note": "no member is a factor of this target: exactly zero by construction"
+  },
+  "NUCLEAR_QUARK": {
+   "members": [],
+   "ST_group": 0.0,
+   "ST_group_ci": [
+    0.0,
+    0.0
+   ],
+   "note": "no member is a factor of this target: exactly zero by construction"
+  }
+ },
+ "convergence": {
+  "1024": {
+   "ST": [
+    0.06870546422909189,
+    0.002547541982861373,
+    0.18915553151682674,
+    4.196876866086434e-32,
+    0.045637617041528404,
+    0.035745915984477156,
+    0.2535218534013629,
+    0.000458532320303663,
+    0.0013346490588786602,
+    1.192497077088545e-09,
+    0.04728901857118669,
+    0.04728888367091624,
+    0.19476289585866202,
+    0.06510663805380662,
+    0.06463567477471295
+   ],
+   "S1": [
+    0.05817126845516786,
+    0.0038300436420974243,
+    0.18643753967801063,
+    -1.2110012183942027e-17,
+    0.047854412673094815,
+    0.028826265036894023,
+    0.25349282333234846,
+    0.0014558941648303999,
+    0.0004387804707369732,
+    7.043449139885606e-07,
+    0.048555426427799926,
+    0.04751147772114864,
+    0.1938024964993336,
+    0.06350247752773618,
+    0.06279203625229872
+   ]
+  },
+  "2048": {
+   "ST": [
+    0.06852607048191624,
+    0.002548424312174725,
+    0.18924224788126906,
+    3.902950411634848e-32,
+    0.04568458496237058,
+    0.03569965876940497,
+    0.2534167974249856,
+    0.00047212126593101006,
+    0.001392706132181658,
+    1.1802900733457325e-09,
+    0.047310562233652924,
+    0.047310560647442754,
+    0.19396620657942118,
+    0.06485943674096399,
+    0.06483183566334558
+   ],
+   "S1": [
+    0.05840890678176354,
+    0.0023601074547096243,
+    0.18636343731430566,
+    -1.1453540988775777e-17,
+    0.036983559554252386,
+    0.028492249428961468,
+    0.25032095000319576,
+    -8.785682514259034e-06,
+    0.0009673949756833335,
+    4.778341315044841e-07,
+    0.04761367372648929,
+    0.04757926901161998,
+    0.1925821433258856,
+    0.06622092420489425,
+    0.06380372556663225
+   ]
+  },
+  "4096": {
+   "ST": [
+    0.0683624377268443,
+    0.002541874662395183,
+    0.18886898341119032,
+    3.9605515638238916e-32,
+    0.04557924890561028,
+    0.036001517916263465,
+    0.25269372559770986,
+    0.0004603998520774193,
+    0.0013887804114592899,
+    1.0968108429209485e-09,
+    0.0472172458517669,
+    0.04721724479637928,
+    0.1936512330097322,
+    0.0648099865059161,
+    0.06474181918538198
+   ],
+   "S1": [
+    0.05912508910628737,
+    0.0020025432991252943,
+    0.1860470072089449,
+    -7.418211232761689e-18,
+    0.03782128524185857,
+    0.029340577214341305,
+    0.25003755533712274,
+    8.784431873625437e-05,
+    0.0013376244967186557,
+    2.3742606209173148e-08,
+    0.047152179869851756,
+    0.047266214899272435,
+    0.1932307059556585,
+    0.065762202933066,
+    0.0652326814449986
+   ]
+  },
+  "8192": {
+   "ST": [
+    0.06832979550459374,
+    0.0025408487103850885,
+    0.18877043490395606,
+    3.8818691788422944e-32,
+    0.04553100714485261,
+    0.0359776608184461,
+    0.25237736794785615,
+    0.00046174419146532687,
+    0.0013726991816416444,
+    1.1020146298237005e-09,
+    0.04719260767115178,
+    0.047192607671151916,
+    0.1936949442370048,
+    0.06480036401984889,
+    0.06485386880702161
+   ],
+   "S1": [
+    0.05904793759623234,
+    0.0019156518521649564,
+    0.18782652860221544,
+    -5.159935089476278e-18,
+    0.03742478702744167,
+    0.029424459283195536,
+    0.25031608065714395,
+    0.00013475631829179842,
+    0.0008653129428754089,
+    4.6259628734225906e-08,
+    0.04719313431132761,
+    0.04729832390208082,
+    0.19332878013983174,
+    0.06510309600183882,
+    0.06518577180750786
+   ]
+  },
+  "16384": {
+   "ST": [
+    0.0681958292740312,
+    0.0025400584943972254,
+    0.18872501961379876,
+    3.813557912001151e-32,
+    0.0455153908795433,
+    0.035957527688808076,
+    0.25235969204889,
+    0.0004619085889097689,
+    0.001389409986298972,
+    1.0516451313270074e-09,
+    0.04718125384886629,
+    0.04718125384886634,
+    0.1936441132678592,
+    0.06484755465576329,
+    0.06484544716266694
+   ],
+   "S1": [
+    0.059116908262362856,
+    0.0018974037539066298,
+    0.18829735532168845,
+    -2.5935147337616756e-18,
+    0.036961386770456364,
+    0.029149341543444854,
+    0.25039599371343046,
+    0.0003064810894922638,
+    0.0008158531530275826,
+    1.6024952641776166e-08,
+    0.04716377471907055,
+    0.047298449323022886,
+    0.19378494167574906,
+    0.06492442536170491,
+    0.06512184459071373
+   ]
+  }
+ },
+ "nominal_target_value": 550629.8021493432,
+ "tau": {
+  "a_present_roots": {
+   "n": 12,
+   "tau_b": 0.27695585470349865,
+   "ci90_two_sided": [
+    -0.06575378219618729,
+    0.5517241379310344
+   ],
+   "ci95_two_sided": [
+    -0.13921279404538794,
+    0.6065573770491803
+   ],
+   "verdict_vs_0.30": "inconclusive"
+  },
+  "b_all_619_roots": {
+   "n": 619,
+   "tau_b": 0.1053225178372914,
+   "ci90_two_sided": [
+    0.07484005879789268,
+    0.131860870463938
+   ],
+   "ci95_two_sided": [
+    0.06917278925212837,
+    0.13755622656130523
+   ],
+   "verdict_vs_0.30": "supported"
+  },
+  "c_all_factors_dependents": {
+   "n": 15,
+   "tau_b": 0.3010276286188539,
+   "ci90_two_sided": [
+    -0.011768153059897915,
+    0.5307884053090818
+   ],
+   "ci95_two_sided": [
+    -0.07637373220562775,
+    0.5707622997862037
+   ],
+   "verdict_vs_0.30": "inconclusive"
+  },
+  "d_family_level": {
+   "n": 7,
+   "tau_b": 0.6190476190476191,
+   "families": [
+    "family:arch",
+    "family:arch.ffn",
+    "family:arch.norm",
+    "family:cluster.node",
+    "family:cluster.rack",
+    "family:cluster.site",
+    "family:training"
+   ]
+  },
+  "f_top20_root_debt": {
+   "names": [
+    "physical.lithography.source_proton_count",
+    "physical.lithography.source_neutron_count",
+    "physical.lithography.source_plasma_drive_objective_pupil_radius",
+    "physical.lithography.source_plasma_drive_edge_detuning_ratio",
+    "physical.lithography.source_plasma_drive_objective_focal_length",
+    "physical.lithography.source_plasma_drive_pupil_beam_fill_factor",
+    "physical.lithography.source_plasma_drive_far_field_divergence_half_angle",
+    "physical.lithography.source_plasma_species_gas_temperature",
+    "physical.lithography.source_plasma_pulse_period",
+    "physical.lithography.source_plasma_drive_pulse_duty_factor",
+    "physical.lithography.nuclear_binding_coulomb_coefficient",
+    "physical.lithography.source_plasma_species_partial_pressure",
+    "physical.lithography.source_plasma_drive_pulse_rise_fraction",
+    "physical.lithography.source_plasma_drive_pulse_fluence",
+    "physical.lithography.source_plasma_electron_heating_fraction",
+    "physical.lithography.source_plasma_free_electron_inventory_charge_fraction",
+    "physical.lithography.medium_component_a_proton_count",
+    "physical.lithography.medium_component_b_proton_count",
+    "physical.lithography.nuclear_pairing_gap_reference_energy",
+    "physical.lithography.nuclear_binding_asymmetry_coefficient"
+   ],
+   "is_factor": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "not_negligible": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "g_top10_ST_roots_debt_rank": [
+   {
+    "name": "arch.d_model",
+    "ST": 0.25235969204889,
+    "debt_rank_of_619": 131
+   },
+   {
+    "name": "cluster.node.n_gpus",
+    "ST": 0.1936441132678592,
+    "debt_rank_of_619": 129
+   },
+   {
+    "name": "arch.n_layers",
+    "ST": 0.0681958292740312,
+    "debt_rank_of_619": 158
+   },
+   {
+    "name": "cluster.rack.n_nodes",
+    "ST": 0.06484755465576329,
+    "debt_rank_of_619": 116
+   },
+   {
+    "name": "cluster.site.n_racks",
+    "ST": 0.06484544716266694,
+    "debt_rank_of_619": 130
+   },
+   {
+    "name": "training.optimizer_flop_multiplier",
+    "ST": 0.04718125384886629,
+    "debt_rank_of_619": 215
+   },
+   {
+    "name": "arch.vocab",
+    "ST": 0.0455153908795433,
+    "debt_rank_of_619": 162
+   },
+   {
+    "name": "arch.d_ffn",
+    "ST": 0.035957527688808076,
+    "debt_rank_of_619": 151
+   },
+   {
+    "name": "arch.ffn.weight_matrices",
+    "ST": 0.0025400584943972254,
+    "debt_rank_of_619": 158
+   },
+   {
+    "name": "arch.n_heads",
+    "ST": 0.001389409986298972,
+    "debt_rank_of_619": 139
+   }
+  ]
+ },
+ "seconds": 5.43691086769104
+}

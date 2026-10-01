@@ -1,0 +1,512 @@
+{
+ "preset": "pythia_160m_dgx_h100_us_2024_industrial_energy_floor_cost",
+ "target": "econ.job.dc_power",
+ "rule": "R1",
+ "seed": 20261001,
+ "n_pow": 15,
+ "n_rows": 32768,
+ "n_valid_rows": 32768,
+ "k_factors": 4,
+ "held_inputs": {},
+ "tied": {
+  "par.n_gpus": [
+   "cluster.node.n_gpus",
+   "cluster.rack.n_nodes",
+   "cluster.site.n_racks"
+  ]
+ },
+ "n_boot": 1000,
+ "expr_ops": 4,
+ "status": "ok",
+ "n_used_for_indices": 32768,
+ "variance_log_target": 0.16015344838708703,
+ "sum_S1": 0.9999847412109416,
+ "sum_ST": 0.9999847412109341,
+ "factors": [
+  {
+   "name": "cluster.node.n_gpus",
+   "is_root": true,
+   "units": "GPUs",
+   "family": "cluster.node",
+   "root_debt": 81,
+   "dependents": 81,
+   "nominal": 8.0,
+   "lo": 4.0,
+   "hi": 16.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": -3.398127044795596e-18,
+   "ST": 1.2055592862300663e-31,
+   "S1_ci": [
+    -8.63686650810122e-18,
+    1.7819587575059117e-18
+   ],
+   "ST_ci": [
+    1.0930371143410334e-31,
+    1.3188210187525757e-31
+   ],
+   "ST_raw_Y": 9.904396386425845e-33,
+   "ST_raw_Y_ci": [
+    9.507708819679871e-33,
+    1.0271248533137928e-32
+   ],
+   "class": "negligible",
+   "elasticity_nominal": -1.000000000000334,
+   "morris_mu_star": 0.0,
+   "morris_sigma": 0.0
+  },
+  {
+   "name": "cluster.rack.n_nodes",
+   "is_root": true,
+   "units": "nodes/rack",
+   "family": "cluster.rack",
+   "root_debt": 93,
+   "dependents": 93,
+   "nominal": 1.0,
+   "lo": 0.5,
+   "hi": 2.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.0,
+   "ST": 0.0,
+   "S1_ci": [
+    0.0,
+    0.0
+   ],
+   "ST_ci": [
+    0.0,
+    0.0
+   ],
+   "ST_raw_Y": 0.0,
+   "ST_raw_Y_ci": [
+    0.0,
+    0.0
+   ],
+   "class": "negligible",
+   "elasticity_nominal": -1.000000000000334,
+   "morris_mu_star": 0.0,
+   "morris_sigma": 0.0
+  },
+  {
+   "name": "cluster.site.n_racks",
+   "is_root": true,
+   "units": "racks",
+   "family": "cluster.site",
+   "root_debt": 79,
+   "dependents": 79,
+   "nominal": 1.0,
+   "lo": 0.5,
+   "hi": 2.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.0,
+   "ST": 0.0,
+   "S1_ci": [
+    0.0,
+    0.0
+   ],
+   "ST_ci": [
+    0.0,
+    0.0
+   ],
+   "ST_raw_Y": 0.0,
+   "ST_raw_Y_ci": [
+    0.0,
+    0.0
+   ],
+   "class": "negligible",
+   "elasticity_nominal": -1.000000000000334,
+   "morris_mu_star": 0.0,
+   "morris_sigma": 0.0
+  },
+  {
+   "name": "thermal.dc.total_power",
+   "is_root": false,
+   "units": "W",
+   "family": null,
+   "root_debt": null,
+   "dependents": 16,
+   "nominal": 10200.0,
+   "lo": 5100.0,
+   "hi": 20400.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.9999847412109416,
+   "ST": 0.9999847412109341,
+   "S1_ci": [
+    0.9870435461394095,
+    1.0122371267235122
+   ],
+   "ST_ci": [
+    0.9899039301494732,
+    1.0112917378847088
+   ],
+   "ST_raw_Y": 0.9999847408531197,
+   "ST_raw_Y_ci": [
+    0.988684612661148,
+    1.0107668731722914
+   ],
+   "class": "major",
+   "elasticity_nominal": 1.000000000000334,
+   "morris_mu_star": 1.3862943611198912,
+   "morris_sigma": 2.2316322462394834e-15
+  }
+ ],
+ "groups": {
+  "domain:cluster": {
+   "members": [
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks"
+   ],
+   "ST_group": 1.2055592862300663e-31,
+   "ST_group_ci": [
+    1.0930371143410334e-31,
+    1.3188210187525757e-31
+   ],
+   "ST_group_raw_Y": 9.904396386425845e-33,
+   "sum_individual_ST": 1.2055592862300663e-31
+  },
+  "domain:thermal": {
+   "members": [
+    "thermal.dc.total_power"
+   ],
+   "ST_group": 0.9999847412109341,
+   "ST_group_ci": [
+    0.9899039301494732,
+    1.0112917378847088
+   ],
+   "ST_group_raw_Y": 0.9999847408531197,
+   "sum_individual_ST": 0.9999847412109341
+  },
+  "ALL_ROOTS": {
+   "members": [
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks"
+   ],
+   "ST_group": 1.2055592862300663e-31,
+   "ST_group_ci": [
+    1.0930371143410334e-31,
+    1.3188210187525757e-31
+   ],
+   "ST_group_raw_Y": 9.904396386425845e-33,
+   "sum_individual_ST": 1.2055592862300663e-31
+  },
+  "ALL_PINS": {
+   "members": [
+    "thermal.dc.total_power"
+   ],
+   "ST_group": 0.9999847412109341,
+   "ST_group_ci": [
+    0.9899039301494732,
+    1.0112917378847088
+   ],
+   "ST_group_raw_Y": 0.9999847408531197,
+   "sum_individual_ST": 0.9999847412109341
+  },
+  "family:cluster.node": {
+   "members": [
+    "cluster.node.n_gpus"
+   ],
+   "ST_group": 1.2055592862300663e-31,
+   "ST_group_ci": [
+    1.0930371143410334e-31,
+    1.3188210187525757e-31
+   ],
+   "ST_group_raw_Y": 9.904396386425845e-33,
+   "sum_individual_ST": 1.2055592862300663e-31
+  },
+  "family:cluster.rack": {
+   "members": [
+    "cluster.rack.n_nodes"
+   ],
+   "ST_group": 0.0,
+   "ST_group_ci": [
+    0.0,
+    0.0
+   ],
+   "ST_group_raw_Y": 0.0,
+   "sum_individual_ST": 0.0
+  },
+  "family:cluster.site": {
+   "members": [
+    "cluster.site.n_racks"
+   ],
+   "ST_group": 0.0,
+   "ST_group_ci": [
+    0.0,
+    0.0
+   ],
+   "ST_group_raw_Y": 0.0,
+   "sum_individual_ST": 0.0
+  },
+  "LITHOGRAPHY": {
+   "members": [],
+   "ST_group": 0.0,
+   "ST_group_ci": [
+    0.0,
+    0.0
+   ],
+   "note": "no member is a factor of this target: exactly zero by construction"
+  },
+  "NUCLEAR_QUARK": {
+   "members": [],
+   "ST_group": 0.0,
+   "ST_group_ci": [
+    0.0,
+    0.0
+   ],
+   "note": "no member is a factor of this target: exactly zero by construction"
+  }
+ },
+ "convergence": {
+  "1024": {
+   "ST": [
+    1.7308570474889827e-31,
+    0.0,
+    0.0,
+    0.999511718749998
+   ],
+   "S1": [
+    -1.0052601952905046e-17,
+    0.0,
+    0.0,
+    0.9995117187500012
+   ]
+  },
+  "2048": {
+   "ST": [
+    1.5389154012847816e-31,
+    0.0,
+    0.0,
+    0.9997558593749999
+   ],
+   "S1": [
+    -8.765719977027491e-18,
+    0.0,
+    0.0,
+    0.9997558593750023
+   ]
+  },
+  "4096": {
+   "ST": [
+    1.3948123683828831e-31,
+    0.0,
+    0.0,
+    0.9998779296874993
+   ],
+   "S1": [
+    -7.076894696374294e-18,
+    0.0,
+    0.0,
+    0.999877929687501
+   ]
+  },
+  "8192": {
+   "ST": [
+    1.2145228331731285e-31,
+    0.0,
+    0.0,
+    0.9999389648437502
+   ],
+   "S1": [
+    -5.836069276529299e-18,
+    0.0,
+    0.0,
+    0.9999389648437471
+   ]
+  },
+  "16384": {
+   "ST": [
+    1.1604458447924306e-31,
+    0.0,
+    0.0,
+    0.9999694824218691
+   ],
+   "S1": [
+    -4.6615008886982156e-18,
+    0.0,
+    0.0,
+    0.9999694824218781
+   ]
+  },
+  "32768": {
+   "ST": [
+    1.2055592862300663e-31,
+    0.0,
+    0.0,
+    0.9999847412109341
+   ],
+   "S1": [
+    -3.398127044795596e-18,
+    0.0,
+    0.0,
+    0.9999847412109416
+   ]
+  }
+ },
+ "nominal_target_value": 10200.0,
+ "tau": {
+  "a_present_roots": {
+   "n": 3,
+   "tau_b": 0.0,
+   "ci90_two_sided": [
+    -0.9999999999999999,
+    0.9999999999999999
+   ],
+   "ci95_two_sided": [
+    -0.9999999999999999,
+    0.9999999999999999
+   ],
+   "verdict_vs_0.30": "inconclusive"
+  },
+  "b_all_619_roots": {
+   "n": 619,
+   "tau_b": 0.03413445371804423,
+   "ci90_two_sided": [
+    0.03155854411917847,
+    0.06258627209648181
+   ],
+   "ci95_two_sided": [
+    0.030918416437615413,
+    0.06586493247226019
+   ],
+   "verdict_vs_0.30": "supported"
+  },
+  "c_all_factors_dependents": {
+   "n": 4,
+   "tau_b": -0.5477225575051662,
+   "ci90_two_sided": [
+    -1.0,
+    0.25819888974716115
+   ],
+   "ci95_two_sided": [
+    -1.0,
+    1.0
+   ],
+   "verdict_vs_0.30": "supported"
+  },
+  "d_family_level": {
+   "n": 3,
+   "tau_b": 0.816496580927726,
+   "families": [
+    "family:cluster.node",
+    "family:cluster.rack",
+    "family:cluster.site"
+   ]
+  },
+  "e_morris_mu_star_vs_ST": {
+   "n": 4,
+   "tau_b": 0.7745966692414834
+  },
+  "f_top20_root_debt": {
+   "names": [
+    "physical.lithography.source_proton_count",
+    "physical.lithography.source_neutron_count",
+    "physical.lithography.source_plasma_drive_objective_pupil_radius",
+    "physical.lithography.source_plasma_drive_edge_detuning_ratio",
+    "physical.lithography.source_plasma_drive_objective_focal_length",
+    "physical.lithography.source_plasma_drive_pupil_beam_fill_factor",
+    "physical.lithography.source_plasma_drive_far_field_divergence_half_angle",
+    "physical.lithography.source_plasma_species_gas_temperature",
+    "physical.lithography.source_plasma_pulse_period",
+    "physical.lithography.source_plasma_drive_pulse_duty_factor",
+    "physical.lithography.nuclear_binding_coulomb_coefficient",
+    "physical.lithography.source_plasma_species_partial_pressure",
+    "physical.lithography.source_plasma_drive_pulse_rise_fraction",
+    "physical.lithography.source_plasma_drive_pulse_fluence",
+    "physical.lithography.source_plasma_electron_heating_fraction",
+    "physical.lithography.source_plasma_free_electron_inventory_charge_fraction",
+    "physical.lithography.medium_component_a_proton_count",
+    "physical.lithography.medium_component_b_proton_count",
+    "physical.lithography.nuclear_pairing_gap_reference_energy",
+    "physical.lithography.nuclear_binding_asymmetry_coefficient"
+   ],
+   "is_factor": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "not_negligible": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "g_top10_ST_roots_debt_rank": [
+   {
+    "name": "cluster.node.n_gpus",
+    "ST": 1.2055592862300663e-31,
+    "debt_rank_of_619": 129
+   },
+   {
+    "name": "cluster.rack.n_nodes",
+    "ST": 0.0,
+    "debt_rank_of_619": 116
+   },
+   {
+    "name": "cluster.site.n_racks",
+    "ST": 0.0,
+    "debt_rank_of_619": 130
+   }
+  ]
+ },
+ "seconds": 16.732444763183594,
+ "convergence_checks": {
+  "ladder": [
+   1024,
+   2048,
+   4096,
+   8192,
+   16384,
+   32768
+  ],
+  "C1_max_abs_change_last_doubling_nonnegligible": 1.525878906494249e-05,
+  "C1_pass": true,
+  "C2_max_ci_halfwidth": 0.010693903867617816,
+  "C2_pass": true
+ }
+}

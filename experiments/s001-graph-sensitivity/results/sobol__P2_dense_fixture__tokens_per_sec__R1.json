@@ -1,0 +1,795 @@
+{
+ "preset": "dense_training_cost_fixture",
+ "target": "training.tokens_per_sec",
+ "rule": "R1",
+ "seed": 20261001,
+ "n_pow": 15,
+ "n_rows": 32768,
+ "n_valid_rows": 32768,
+ "k_factors": 9,
+ "held_inputs": {
+  "training.t_mem_bound": "zero nominal",
+  "training.overhead_fraction": "zero nominal"
+ },
+ "tied": {
+  "par.n_gpus": [
+   "cluster.node.n_gpus",
+   "cluster.rack.n_nodes",
+   "cluster.site.n_racks"
+  ]
+ },
+ "n_boot": 1000,
+ "expr_ops": 17,
+ "status": "ok",
+ "n_used_for_indices": 32768,
+ "variance_log_target": 0.6875607316605354,
+ "sum_S1": 0.9928710457461027,
+ "sum_ST": 1.0083561540496795,
+ "factors": [
+  {
+   "name": "arch.flops.step_dense",
+   "is_root": false,
+   "units": "FLOP",
+   "family": null,
+   "root_debt": null,
+   "dependents": 34,
+   "nominal": 1000000000000000.0,
+   "lo": 500000000000000.0,
+   "hi": 2000000000000000.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.169114229456402,
+   "ST": 0.1718536805073427,
+   "S1_ci": [
+    0.1629500028846692,
+    0.1751941571310146
+   ],
+   "ST_ci": [
+    0.1690844368610143,
+    0.1747987592698749
+   ],
+   "ST_raw_Y": 0.18408754689590748,
+   "ST_raw_Y_ci": [
+    0.17822697742511853,
+    0.1902978163134731
+   ],
+   "class": "major",
+   "elasticity_nominal": -0.8333333179013636,
+   "morris_mu_star": 1.143760523035522,
+   "morris_sigma": 0.2111827201697135
+  },
+  {
+   "name": "gpu.peak_flops_power_limited",
+   "is_root": false,
+   "units": "FLOP/s",
+   "family": null,
+   "root_debt": null,
+   "dependents": 46,
+   "nominal": 1000000000000000.0,
+   "lo": 500000000000000.0,
+   "hi": 2000000000000000.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.16918402793024714,
+   "ST": 0.17185057631777187,
+   "S1_ci": [
+    0.16310475648573503,
+    0.17505321853323397
+   ],
+   "ST_ci": [
+    0.16907756253593673,
+    0.1747532474360644
+   ],
+   "ST_raw_Y": 0.18368801980185412,
+   "ST_raw_Y_ci": [
+    0.1778647739337811,
+    0.18991931360031933
+   ],
+   "class": "major",
+   "elasticity_nominal": 0.8333333179013636,
+   "morris_mu_star": 1.1571959469350992,
+   "morris_sigma": 0.18252040104252007
+  },
+  {
+   "name": "training.t_exposed_comm",
+   "is_root": false,
+   "units": "s",
+   "family": null,
+   "root_debt": null,
+   "dependents": 29,
+   "nominal": 0.025,
+   "lo": 0.0125,
+   "hi": 0.05,
+   "log_uniform": true,
+   "integer": false,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.005107627348601121,
+   "ST": 0.007737932245203206,
+   "S1_ci": [
+    0.003708266554008199,
+    0.006411656708380448
+   ],
+   "ST_ci": [
+    0.007530887408457263,
+    0.007946095244590239
+   ],
+   "ST_raw_Y": 0.03786384346731059,
+   "ST_raw_Y_ci": [
+    0.035203463790847385,
+    0.04064164568743627
+   ],
+   "class": "negligible",
+   "elasticity_nominal": -0.16666668209808222,
+   "morris_mu_star": 0.25648902730729534,
+   "morris_sigma": 0.21847681617036172
+  },
+  {
+   "name": "arch.tokens_per_step",
+   "is_root": false,
+   "units": "tokens",
+   "family": null,
+   "root_debt": null,
+   "dependents": 37,
+   "nominal": 1000000.0,
+   "lo": 500000.0,
+   "hi": 2000000.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "",
+   "in_resolved_formula": true,
+   "S1": 0.23305696194316308,
+   "ST": 0.2329263398341826,
+   "S1_ci": [
+    0.22607893419823516,
+    0.24011224226613692
+   ],
+   "ST_ci": [
+    0.22945252929603724,
+    0.23668624302638505
+   ],
+   "ST_raw_Y": 0.30569262728612906,
+   "ST_raw_Y_ci": [
+    0.29547407815386995,
+    0.3146723031641285
+   ],
+   "class": "major",
+   "elasticity_nominal": 1.000000000000334,
+   "morris_mu_star": 1.3862943611198923,
+   "morris_sigma": 2.3075552236602768e-15
+  },
+  {
+   "name": "training.optimizer_flop_multiplier",
+   "is_root": true,
+   "units": "dimensionless",
+   "family": "training",
+   "root_debt": 31,
+   "dependents": 31,
+   "nominal": 1.0,
+   "lo": 1.0,
+   "hi": 2.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "multiplier >= 1: [nominal, nominal x f]",
+   "in_resolved_formula": true,
+   "S1": 0.041980919382120216,
+   "ST": 0.04289150945016091,
+   "S1_ci": [
+    0.038928604283431194,
+    0.04502183779211349
+   ],
+   "ST_ci": [
+    0.04219622572409983,
+    0.04366217153042921
+   ],
+   "ST_raw_Y": 0.04793592132951192,
+   "ST_raw_Y_ci": [
+    0.04635536082163084,
+    0.04973213563055581
+   ],
+   "class": "minor",
+   "elasticity_nominal": -0.8333333179013636,
+   "morris_mu_star": 0.559534716830515,
+   "morris_sigma": 0.11490385566982743
+  },
+  {
+   "name": "training.recompute_overhead",
+   "is_root": false,
+   "units": "dimensionless",
+   "family": null,
+   "root_debt": null,
+   "dependents": 31,
+   "nominal": 1.0,
+   "lo": 1.0,
+   "hi": 2.0,
+   "log_uniform": true,
+   "integer": false,
+   "note": "multiplier >= 1: [nominal, nominal x f]",
+   "in_resolved_formula": true,
+   "S1": 0.04216296058311577,
+   "ST": 0.042880103694737,
+   "S1_ci": [
+    0.03867993458022822,
+    0.045020134568972185
+   ],
+   "ST_ci": [
+    0.042147111207353205,
+    0.043668711615074685
+   ],
+   "ST_raw_Y": 0.047963387610832936,
+   "ST_raw_Y_ci": [
+    0.046359329123287316,
+    0.049671892170920696
+   ],
+   "class": "minor",
+   "elasticity_nominal": -0.8333333179013636,
+   "morris_mu_star": 0.5785164097803844,
+   "morris_sigma": 0.10125095217771012
+  },
+  {
+   "name": "cluster.node.n_gpus",
+   "is_root": true,
+   "units": "GPUs",
+   "family": "cluster.node",
+   "root_debt": 81,
+   "dependents": 81,
+   "nominal": 8.0,
+   "lo": 4.0,
+   "hi": 16.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "",
+   "in_resolved_formula": false,
+   "S1": 0.1748652490696319,
+   "ST": 0.17749399033120006,
+   "S1_ci": [
+    0.16896551002637575,
+    0.18142808182722212
+   ],
+   "ST_ci": [
+    0.17461130737817385,
+    0.18024916213001255
+   ],
+   "ST_raw_Y": 0.18789878848402664,
+   "ST_raw_Y_ci": [
+    0.18147317572631447,
+    0.194189287254215
+   ],
+   "class": "major",
+   "elasticity_nominal": null,
+   "morris_mu_star": 1.1521437805331045,
+   "morris_sigma": 0.21165179767344094
+  },
+  {
+   "name": "cluster.rack.n_nodes",
+   "is_root": true,
+   "units": "nodes/rack",
+   "family": "cluster.rack",
+   "root_debt": 93,
+   "dependents": 93,
+   "nominal": 1.0,
+   "lo": 0.5,
+   "hi": 2.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "",
+   "in_resolved_formula": false,
+   "S1": 0.07857908816541422,
+   "ST": 0.08031164575512288,
+   "S1_ci": [
+    0.07438465233451827,
+    0.08308789225644485
+   ],
+   "ST_ci": [
+    0.07886887566757306,
+    0.08182374346113076
+   ],
+   "ST_raw_Y": 0.11554938688642837,
+   "ST_raw_Y_ci": [
+    0.11168557395774183,
+    0.11953642444558278
+   ],
+   "class": "minor",
+   "elasticity_nominal": null,
+   "morris_mu_star": 0.4019528717054788,
+   "morris_sigma": 0.4318090652314303
+  },
+  {
+   "name": "cluster.site.n_racks",
+   "is_root": true,
+   "units": "racks",
+   "family": "cluster.site",
+   "root_debt": 79,
+   "dependents": 79,
+   "nominal": 1.0,
+   "lo": 0.5,
+   "hi": 2.0,
+   "log_uniform": true,
+   "integer": true,
+   "note": "",
+   "in_resolved_formula": false,
+   "S1": 0.07881998186740725,
+   "ST": 0.08041037591395835,
+   "S1_ci": [
+    0.07440218880945539,
+    0.08325850133359032
+   ],
+   "ST_ci": [
+    0.0788951175741547,
+    0.0819404518318158
+   ],
+   "ST_raw_Y": 0.11520749856842331,
+   "ST_raw_Y_ci": [
+    0.11132809940493839,
+    0.11903208413661195
+   ],
+   "class": "minor",
+   "elasticity_nominal": null,
+   "morris_mu_star": 0.35426407033101237,
+   "morris_sigma": 0.4205129157244046
+  }
+ ],
+ "groups": {
+  "domain:arch": {
+   "members": [
+    "arch.flops.step_dense",
+    "arch.tokens_per_step"
+   ],
+   "ST_group": 0.4047788735332061,
+   "ST_group_ci": [
+    0.39858082002273515,
+    0.4112177970638957
+   ],
+   "ST_group_raw_Y": 0.46495918404776687,
+   "sum_individual_ST": 0.40478002034152527
+  },
+  "domain:cluster": {
+   "members": [
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks"
+   ],
+   "ST_group": 0.3370419145219895,
+   "ST_group_ci": [
+    0.3311052522248631,
+    0.3420130185131187
+   ],
+   "ST_group_raw_Y": 0.402294215636073,
+   "sum_individual_ST": 0.3382160120002813
+  },
+  "domain:gpu": {
+   "members": [
+    "gpu.peak_flops_power_limited"
+   ],
+   "ST_group": 0.17185057631777187,
+   "ST_group_ci": [
+    0.16907756253593673,
+    0.1747532474360644
+   ],
+   "ST_group_raw_Y": 0.18368801980185412,
+   "sum_individual_ST": 0.17185057631777187
+  },
+  "domain:training": {
+   "members": [
+    "training.t_exposed_comm",
+    "training.optimizer_flop_multiplier",
+    "training.recompute_overhead"
+   ],
+   "ST_group": 0.09315490612983932,
+   "ST_group_ci": [
+    0.09162488091550548,
+    0.09479423236958438
+   ],
+   "ST_group_raw_Y": 0.13051932107413539,
+   "sum_individual_ST": 0.09350954539010112
+  },
+  "ALL_ROOTS": {
+   "members": [
+    "training.optimizer_flop_multiplier",
+    "cluster.node.n_gpus",
+    "cluster.rack.n_nodes",
+    "cluster.site.n_racks"
+   ],
+   "ST_group": 0.3796775768532059,
+   "ST_group_ci": [
+    0.3731872644030119,
+    0.38525190445483726
+   ],
+   "ST_group_raw_Y": 0.44707514541408505,
+   "sum_individual_ST": 0.3811075214504422
+  },
+  "ALL_PINS": {
+   "members": [
+    "arch.flops.step_dense",
+    "gpu.peak_flops_power_limited",
+    "training.t_exposed_comm",
+    "arch.tokens_per_step",
+    "training.recompute_overhead"
+   ],
+   "ST_group": 0.6247512082024075,
+   "ST_group_ci": [
+    0.6157121626112992,
+    0.6337234823266953
+   ],
+   "ST_group_raw_Y": 0.676916955814459,
+   "sum_individual_ST": 0.6272486325992375
+  },
+  "family:cluster.node": {
+   "members": [
+    "cluster.node.n_gpus"
+   ],
+   "ST_group": 0.17749399033120006,
+   "ST_group_ci": [
+    0.17461130737817385,
+    0.18024916213001255
+   ],
+   "ST_group_raw_Y": 0.18789878848402664,
+   "sum_individual_ST": 0.17749399033120006
+  },
+  "family:cluster.rack": {
+   "members": [
+    "cluster.rack.n_nodes"
+   ],
+   "ST_group": 0.08031164575512288,
+   "ST_group_ci": [
+    0.07886887566757306,
+    0.08182374346113076
+   ],
+   "ST_group_raw_Y": 0.11554938688642837,
+   "sum_individual_ST": 0.08031164575512288
+  },
+  "family:cluster.site": {
+   "members": [
+    "cluster.site.n_racks"
+   ],
+   "ST_group": 0.08041037591395835,
+   "ST_group_ci": [
+    0.0788951175741547,
+    0.0819404518318158
+   ],
+   "ST_group_raw_Y": 0.11520749856842331,
+   "sum_individual_ST": 0.08041037591395835
+  },
+  "family:training": {
+   "members": [
+    "training.optimizer_flop_multiplier"
+   ],
+   "ST_group": 0.04289150945016091,
+   "ST_group_ci": [
+    0.04219622572409983,
+    0.04366217153042921
+   ],
+   "ST_group_raw_Y": 0.04793592132951192,
+   "sum_individual_ST": 0.04289150945016091
+  },
+  "LITHOGRAPHY": {
+   "members": [],
+   "ST_group": 0.0,
+   "ST_group_ci": [
+    0.0,
+    0.0
+   ],
+   "note": "no member is a factor of this target: exactly zero by construction"
+  },
+  "NUCLEAR_QUARK": {
+   "members": [],
+   "ST_group": 0.0,
+   "ST_group_ci": [
+    0.0,
+    0.0
+   ],
+   "note": "no member is a factor of this target: exactly zero by construction"
+  }
+ },
+ "convergence": {
+  "1024": {
+   "ST": [
+    0.17272344890781,
+    0.1730624745476776,
+    0.008516857294778194,
+    0.23524077043417263,
+    0.04311305394682183,
+    0.04329799900700539,
+    0.18040758080808963,
+    0.08151602161170582,
+    0.08022281616777381
+   ],
+   "S1": [
+    0.17373307600645138,
+    0.16767162521569057,
+    0.007948860278849796,
+    0.23695016255210283,
+    0.04238184123296592,
+    0.04275471207047052,
+    0.17487944298728633,
+    0.07459514144771157,
+    0.0770771531405165
+   ]
+  },
+  "2048": {
+   "ST": [
+    0.17312444127334867,
+    0.17293897948725545,
+    0.008357679693591939,
+    0.23429461244480698,
+    0.04305782509918344,
+    0.043236709021141684,
+    0.1790795595322437,
+    0.08105646339846628,
+    0.08071793792757048
+   ],
+   "S1": [
+    0.17133598365512517,
+    0.1697304892051414,
+    0.0061394850610459566,
+    0.23455895018261785,
+    0.041098751537113266,
+    0.042477660784901276,
+    0.1749847414632422,
+    0.07438195283195664,
+    0.07869675840759481
+   ]
+  },
+  "4096": {
+   "ST": [
+    0.17194075161480193,
+    0.17170642692532734,
+    0.007669203608651196,
+    0.23281238949335975,
+    0.042806945954918824,
+    0.042865470758804,
+    0.1772658044189017,
+    0.08021877537603159,
+    0.07998712979300555
+   ],
+   "S1": [
+    0.16968361799157755,
+    0.1691809360319783,
+    0.005188167134198591,
+    0.23337465878411742,
+    0.04230987343171812,
+    0.042163191655077835,
+    0.17551907931371077,
+    0.0778079095862059,
+    0.07791823884741386
+   ]
+  },
+  "8192": {
+   "ST": [
+    0.1718137054162346,
+    0.17181913082067646,
+    0.007742117198160171,
+    0.2329425252362804,
+    0.0428433145796014,
+    0.04288132118206737,
+    0.17737133691803325,
+    0.08029678170384365,
+    0.0801120243420109
+   ],
+   "S1": [
+    0.16933171108164566,
+    0.16882338839435623,
+    0.005425418575025832,
+    0.2331573514646509,
+    0.04225158959264487,
+    0.042215965704218365,
+    0.1751729040135078,
+    0.0780676146562754,
+    0.07875914770483593
+   ]
+  },
+  "16384": {
+   "ST": [
+    0.171850279056123,
+    0.17184652437250178,
+    0.0077447445411014055,
+    0.2329119161749713,
+    0.04288917670472188,
+    0.04287753172945252,
+    0.1774452375834111,
+    0.08031207067777954,
+    0.08031634203229272
+   ],
+   "S1": [
+    0.16925560539412896,
+    0.16898143687850078,
+    0.005386169496704936,
+    0.23324965390438362,
+    0.04204167068123742,
+    0.04228532688419036,
+    0.17472213290566638,
+    0.0787339281030357,
+    0.07859980745420099
+   ]
+  },
+  "32768": {
+   "ST": [
+    0.1718536805073427,
+    0.17185057631777187,
+    0.007737932245203206,
+    0.2329263398341826,
+    0.04289150945016091,
+    0.042880103694737,
+    0.17749399033120006,
+    0.08031164575512288,
+    0.08041037591395835
+   ],
+   "S1": [
+    0.169114229456402,
+    0.16918402793024714,
+    0.005107627348601121,
+    0.23305696194316308,
+    0.041980919382120216,
+    0.04216296058311577,
+    0.1748652490696319,
+    0.07857908816541422,
+    0.07881998186740725
+   ]
+  }
+ },
+ "nominal_target_value": 6666666.666666667,
+ "tau": {
+  "a_present_roots": {
+   "n": 4,
+   "tau_b": 0.3333333333333334,
+   "ci90_two_sided": [
+    -1.0,
+    1.0
+   ],
+   "ci95_two_sided": [
+    -1.0,
+    1.0
+   ],
+   "verdict_vs_0.30": "inconclusive"
+  },
+  "b_all_619_roots": {
+   "n": 619,
+   "tau_b": 0.061224051245684336,
+   "ci90_two_sided": [
+    0.03325034534073145,
+    0.0866249872132938
+   ],
+   "ci95_two_sided": [
+    0.026296952760553348,
+    0.09325279454398164
+   ],
+   "verdict_vs_0.30": "supported"
+  },
+  "c_all_factors_dependents": {
+   "n": 9,
+   "tau_b": 0.36623351038235713,
+   "ci90_two_sided": [
+    -0.12499999999999999,
+    0.870967741935484
+   ],
+   "ci95_two_sided": [
+    -0.31249999999999994,
+    0.9310919540229885
+   ],
+   "verdict_vs_0.30": "inconclusive"
+  },
+  "d_family_level": {
+   "n": 4,
+   "tau_b": 0.0,
+   "families": [
+    "family:cluster.node",
+    "family:cluster.rack",
+    "family:cluster.site",
+    "family:training"
+   ]
+  },
+  "e_morris_mu_star_vs_ST": {
+   "n": 9,
+   "tau_b": 0.5555555555555556
+  },
+  "f_top20_root_debt": {
+   "names": [
+    "physical.lithography.source_proton_count",
+    "physical.lithography.source_neutron_count",
+    "physical.lithography.source_plasma_drive_objective_pupil_radius",
+    "physical.lithography.source_plasma_drive_edge_detuning_ratio",
+    "physical.lithography.source_plasma_drive_objective_focal_length",
+    "physical.lithography.source_plasma_drive_pupil_beam_fill_factor",
+    "physical.lithography.source_plasma_drive_far_field_divergence_half_angle",
+    "physical.lithography.source_plasma_species_gas_temperature",
+    "physical.lithography.source_plasma_pulse_period",
+    "physical.lithography.source_plasma_drive_pulse_duty_factor",
+    "physical.lithography.nuclear_binding_coulomb_coefficient",
+    "physical.lithography.source_plasma_species_partial_pressure",
+    "physical.lithography.source_plasma_drive_pulse_rise_fraction",
+    "physical.lithography.source_plasma_drive_pulse_fluence",
+    "physical.lithography.source_plasma_electron_heating_fraction",
+    "physical.lithography.source_plasma_free_electron_inventory_charge_fraction",
+    "physical.lithography.medium_component_a_proton_count",
+    "physical.lithography.medium_component_b_proton_count",
+    "physical.lithography.nuclear_pairing_gap_reference_energy",
+    "physical.lithography.nuclear_binding_asymmetry_coefficient"
+   ],
+   "is_factor": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ],
+   "not_negligible": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "g_top10_ST_roots_debt_rank": [
+   {
+    "name": "cluster.node.n_gpus",
+    "ST": 0.17749399033120006,
+    "debt_rank_of_619": 129
+   },
+   {
+    "name": "cluster.site.n_racks",
+    "ST": 0.08041037591395835,
+    "debt_rank_of_619": 130
+   },
+   {
+    "name": "cluster.rack.n_nodes",
+    "ST": 0.08031164575512288,
+    "debt_rank_of_619": 116
+   },
+   {
+    "name": "training.optimizer_flop_multiplier",
+    "ST": 0.04289150945016091,
+    "debt_rank_of_619": 215
+   }
+  ]
+ },
+ "seconds": 36.15245819091797,
+ "convergence_checks": {
+  "ladder": [
+   1024,
+   2048,
+   4096,
+   8192,
+   16384,
+   32768
+  ],
+  "C1_max_abs_change_last_doubling_nonnegligible": 9.403388166562276e-05,
+  "C1_pass": true,
+  "C2_max_ci_halfwidth": 0.0036168568651739064,
+  "C2_pass": true
+ }
+}
