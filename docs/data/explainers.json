@@ -8,8 +8,10 @@
       "title": "Token",
       "body": "A chunk of text, about three quarters of a word on average. Common words are one token and rare names can take several. Models read tokens, not letters, and training cost is counted per token.",
       "visual": "tokens",
-      "aliases": ["tokens"],
-      "review": "draft"
+      "aliases": [
+        "tokens"
+      ],
+      "review": "edited"
     },
     {
       "id": "parameters",
@@ -17,18 +19,27 @@
       "title": "Parameters",
       "body": "The numbers a model learns, like dials that start random and get nudged toward better values. Llama 3.1 405B has about 405 billion, which is where its name comes from. Nobody sets them by hand, and more of them means more math per token.",
       "visual": "params",
-      "aliases": ["parameter", "model size", "weights"],
-      "link": { "href": "https://arxiv.org/abs/2001.08361", "label": "Scaling laws paper" },
-      "review": "draft"
+      "aliases": [
+        "parameter",
+        "model size",
+        "weights"
+      ],
+      "link": {
+        "href": "https://arxiv.org/abs/2001.08361",
+        "label": "Scaling laws paper"
+      },
+      "review": "edited"
     },
     {
       "id": "gpu",
       "term": "GPU",
       "title": "GPU",
-      "body": "A chip that does the same small piece of math on thousands of numbers at once. A CPU has a few fast generalists, a GPU has thousands of simpler workers. Training is mostly one multiplication repeated on a huge pile of numbers, and video game graphics turned out to need the same thing.",
+      "body": "A chip that does the same small piece of math on thousands of numbers at once. A CPU has a few fast generalists; a GPU has thousands of simpler workers. GPUs were built for video game graphics, and AI training turned out to need the same kind of math.",
       "visual": "gpu",
-      "aliases": ["GPUs"],
-      "review": "draft"
+      "aliases": [
+        "GPUs"
+      ],
+      "review": "edited"
     },
     {
       "id": "h100",
@@ -36,8 +47,10 @@
       "title": "H100",
       "body": "The data center GPU Meta used for Llama 3.1, made by NVIDIA. It carries 80 GB of its own memory and can draw up to 700 watts, about a microwave oven, running around the clock.",
       "visual": "h100",
-      "aliases": ["H100s"],
-      "review": "draft"
+      "aliases": [
+        "H100s"
+      ],
+      "review": "edited"
     },
     {
       "id": "gpu-hour",
@@ -45,8 +58,11 @@
       "title": "GPU-hour",
       "body": "One GPU running for one hour. Llama 3.1 405B used 30.84 million of them. That is about 3,500 years on a single GPU, which is why they used about 16,000 at once and finished in months instead of millennia.",
       "visual": "gpuhour",
-      "aliases": ["GPU-hours", "gpu hours"],
-      "review": "draft"
+      "aliases": [
+        "GPU-hours",
+        "gpu hours"
+      ],
+      "review": "edited"
     },
     {
       "id": "flop",
@@ -54,9 +70,16 @@
       "title": "FLOP",
       "body": "One floating-point operation: a single multiply or add on decimal numbers. Total FLOP is the work a run needs, FLOP per second is how fast a chip does it, and work divided by speed gives time. People mix up FLOPs and FLOPS because the final S means 'per second'.",
       "visual": "flop",
-      "aliases": ["FLOPs", "FLOPS", "FLOP/s"],
-      "link": { "href": "https://en.wikipedia.org/wiki/FLOPS", "label": "FLOPS on Wikipedia" },
-      "review": "draft"
+      "aliases": [
+        "FLOPs",
+        "FLOPS",
+        "FLOP/s"
+      ],
+      "link": {
+        "href": "https://en.wikipedia.org/wiki/FLOPS",
+        "label": "FLOPS on Wikipedia"
+      },
+      "review": "edited"
     },
     {
       "id": "6nd",
@@ -64,9 +87,15 @@
       "title": "The 6ND rule",
       "body": "Training costs about 6 math operations per parameter per token: 2 to run the model forward, 4 to work out what it got wrong and fix it. Learning from a mistake costs twice as much as making it. Multiply by parameters and tokens for the total.",
       "visual": "sixnd",
-      "aliases": ["6 x params x tokens", "6 times size times tokens"],
-      "link": { "href": "https://arxiv.org/abs/2001.08361", "label": "Scaling laws paper" },
-      "review": "draft"
+      "aliases": [
+        "6 x params x tokens",
+        "6 times size times tokens"
+      ],
+      "link": {
+        "href": "https://arxiv.org/abs/2001.08361",
+        "label": "Scaling laws paper"
+      },
+      "review": "edited"
     },
     {
       "id": "peak-speed",
@@ -74,8 +103,12 @@
       "title": "Peak speed",
       "body": "The top speed printed on the GPU's spec sheet, measured when it does nothing but math. A real run also waits on memory, on other GPUs and on data, so it never gets there. For the H100 the sheet says about 990 trillion operations a second for training-style math.",
       "visual": "peak",
-      "aliases": ["spec sheet", "top speed", "peak"],
-      "review": "draft"
+      "aliases": [
+        "spec sheet",
+        "top speed",
+        "peak"
+      ],
+      "review": "edited"
     },
     {
       "id": "mfu",
@@ -83,8 +116,11 @@
       "title": "MFU",
       "body": "Model FLOPs utilization: the share of the GPU's top speed a training run actually uses. The spec sheet number is a ceiling, like the last number on a car's speedometer. Meta got 38 to 43 percent on Llama 3, and that is considered good driving.",
       "visual": "mfu",
-      "link": { "href": "https://arxiv.org/abs/2204.02311", "label": "PaLM paper" },
-      "review": "draft"
+      "link": {
+        "href": "https://arxiv.org/abs/2204.02311",
+        "label": "PaLM paper"
+      },
+      "review": "edited"
     },
     {
       "id": "training-run",
@@ -92,8 +128,12 @@
       "title": "Training run",
       "body": "One long job: the model reads text, guesses the next token, is told how wrong it was, and adjusts its parameters, over and over. The error falls fast at first, then slowly. A big run takes weeks to months, and mostly all you can do is watch the curve.",
       "visual": "trainrun",
-      "aliases": ["training runs", "run", "runs"],
-      "review": "draft"
+      "aliases": [
+        "training runs",
+        "run",
+        "runs"
+      ],
+      "review": "edited"
     },
     {
       "id": "cost-per-token",
@@ -101,24 +141,27 @@
       "title": "Cost per token",
       "body": "The price of training on one token of text. It is GPU time, plus electricity, plus a share of the hardware wearing out. Divide a run's whole bill by its tokens and you get the same number from the other direction.",
       "visual": "costpertoken",
-      "review": "draft"
+      "review": "edited"
     },
     {
       "id": "electricity",
       "term": "electricity",
       "title": "Electricity",
-      "body": "Power drawn times hours times the price per kilowatt-hour. A GPU drawing 700 watts for an hour uses 0.7 kilowatt-hours. Multiply by the building's PUE, because the cooling is on the same bill.",
+      "body": "Power drawn times hours times the price per kilowatt-hour, multiplied by the building's PUE because the cooling is on the same bill. In the 7 billion parameter example on this page it comes to about 6 percent of the cost. The hardware is the expensive part.",
       "visual": "pue",
-      "review": "draft"
+      "review": "edited"
     },
     {
       "id": "pue",
       "term": "PUE",
       "title": "PUE",
-      "body": "Power usage effectiveness: how much extra power the building uses beyond the computers, mostly cooling. 1.2 means 20 percent extra. The GPUs make the heat. Someone still pays to throw it outside.",
+      "body": "Power usage effectiveness: how much extra power the building uses beyond the computers, mostly for cooling. 1.2 means 20 percent extra. The GPUs make the heat, and someone still pays to throw it outside.",
       "visual": "pue",
-      "link": { "href": "https://en.wikipedia.org/wiki/Power_usage_effectiveness", "label": "PUE on Wikipedia" },
-      "review": "draft"
+      "link": {
+        "href": "https://en.wikipedia.org/wiki/Power_usage_effectiveness",
+        "label": "PUE on Wikipedia"
+      },
+      "review": "edited"
     },
     {
       "id": "amortization",
@@ -126,17 +169,24 @@
       "title": "Amortization",
       "body": "Counting hardware wearing out as a cost. A GPU is bought once and used for years, so each year is charged a slice of the price. With an assumed four-year life, each year carries a quarter. An idle GPU still ages, so idle time is not free.",
       "visual": "amort",
-      "aliases": ["hardware wearing out", "amortized"],
-      "review": "draft"
+      "aliases": [
+        "hardware wearing out",
+        "amortized"
+      ],
+      "review": "edited"
     },
     {
       "id": "datacenter",
       "term": "datacenter",
       "title": "Datacenter",
-      "body": "A building full of servers. It is mostly a plumbing problem: power in, heat out, data between machines. A big training run stays in one building because the GPUs talk constantly. Llama 3.1 405B used up to about 16,000 GPUs under one roof.",
+      "body": "A building full of servers. Running one is mostly a plumbing problem: power in, heat out, data between machines. A big training run stays in one building because its GPUs talk to each other constantly. Llama 3.1 405B trained on up to about 16,000 GPUs at once.",
       "visual": "datacenter",
-      "aliases": ["datacenters", "data center", "data centers"],
-      "review": "draft"
+      "aliases": [
+        "datacenters",
+        "data center",
+        "data centers"
+      ],
+      "review": "edited"
     },
     {
       "id": "transistor",
@@ -144,9 +194,14 @@
       "title": "Transistor",
       "body": "A tiny electrical switch with no moving parts. A voltage on the gate decides whether current flows from source to drain, which gives a 1 or a 0. An H100 holds about 80 billion of them, and every multiplication it does is built from these switches.",
       "visual": "transistor",
-      "aliases": ["transistors"],
-      "link": { "href": "https://en.wikipedia.org/wiki/Transistor", "label": "Transistor on Wikipedia" },
-      "review": "draft"
+      "aliases": [
+        "transistors"
+      ],
+      "link": {
+        "href": "https://en.wikipedia.org/wiki/Transistor",
+        "label": "Transistor on Wikipedia"
+      },
+      "review": "edited"
     },
     {
       "id": "lithography",
@@ -154,8 +209,11 @@
       "title": "Lithography",
       "body": "How chips are printed. Light shines through a stencil called a mask, a lens shrinks the pattern, and the light changes a coating on a silicon disc called a wafer. The pattern is then etched in. It is a printer where the paper is silicon and the ink is light.",
       "visual": "litho",
-      "link": { "href": "https://en.wikipedia.org/wiki/Photolithography", "label": "Photolithography on Wikipedia" },
-      "review": "draft"
+      "link": {
+        "href": "https://en.wikipedia.org/wiki/Photolithography",
+        "label": "Photolithography on Wikipedia"
+      },
+      "review": "edited"
     },
     {
       "id": "euv",
@@ -163,8 +221,11 @@
       "title": "EUV",
       "body": "Extreme ultraviolet light, 13.5 nanometers. Almost everything absorbs it, including air, so the machines run in a vacuum and bounce the light off mirrors instead of lenses. Each machine costs more than a passenger jet.",
       "visual": "euv",
-      "link": { "href": "https://en.wikipedia.org/wiki/Extreme_ultraviolet_lithography", "label": "EUV lithography on Wikipedia" },
-      "review": "draft"
+      "link": {
+        "href": "https://en.wikipedia.org/wiki/Extreme_ultraviolet_lithography",
+        "label": "EUV lithography on Wikipedia"
+      },
+      "review": "edited"
     },
     {
       "id": "wavelength",
@@ -172,7 +233,7 @@
       "title": "Wavelength",
       "body": "The distance from one peak of a light wave to the next. Shorter light can draw finer detail, the way a thinner pen draws thinner lines. Older chip machines use 193 nanometers, EUV uses 13.5, about 14 times shorter. A nanometer is a billionth of a meter.",
       "visual": "wavelength",
-      "review": "draft"
+      "review": "edited"
     },
     {
       "id": "numerical-aperture",
@@ -180,17 +241,22 @@
       "title": "Numerical aperture",
       "body": "How wide a cone of light the lens gathers and focuses. A wider cone focuses to a smaller spot. Current EUV machines have a numerical aperture of 0.33. The newer high-NA generation has 0.55, which prints finer lines.",
       "visual": "na",
-      "aliases": ["NA"],
-      "link": { "href": "https://en.wikipedia.org/wiki/Numerical_aperture", "label": "Numerical aperture on Wikipedia" },
-      "review": "draft"
+      "aliases": [
+        "NA"
+      ],
+      "link": {
+        "href": "https://en.wikipedia.org/wiki/Numerical_aperture",
+        "label": "Numerical aperture on Wikipedia"
+      },
+      "review": "edited"
     },
     {
       "id": "k1",
       "term": "k1",
       "title": "k1",
-      "body": "The factor in size = k1 × wavelength ÷ NA. It bundles everything clever that is not light or lens: mask tricks, the coating, the process. Engineers call it a fudge factor, then spend years pushing it toward its hard floor of 0.25 for a single exposure.",
+      "body": "The factor in size = k1 × wavelength ÷ NA. It bundles everything clever that isn't the light or the lens: mask tricks, the coating, the process. It looks like a fudge factor, and the industry has spent decades pushing it down toward its floor of about 0.25 for a single exposure.",
       "visual": "k1",
-      "review": "draft"
+      "review": "edited"
     },
     {
       "id": "equation-units",
@@ -198,8 +264,11 @@
       "title": "Equations and units",
       "body": "Each link in the map is an equation with units on every number. Time = work ÷ speed reads as seconds = FLOP ÷ (FLOP per second), and the FLOP cancels. If the units do not cancel to what the left side says, the equation is wrong, which catches mistakes before any arithmetic.",
       "visual": "equation",
-      "aliases": ["equations", "units"],
-      "review": "draft"
+      "aliases": [
+        "equations",
+        "units"
+      ],
+      "review": "edited"
     },
     {
       "id": "rule-of-thumb",
@@ -207,16 +276,19 @@
       "title": "Rule of thumb",
       "body": "A one-line shortcut: total work is about 6 × parameters × tokens, and time is that divided by 40 percent of the GPU's top speed. On 27 published runs it did as well as the whole map. I built the map first and tried the one-liner second.",
       "visual": "rule",
-      "review": "draft"
+      "review": "edited"
     },
     {
       "id": "published-runs",
       "term": "27 published runs",
       "title": "Checked against 27 runs",
-      "body": "I took 27 published training runs (Llama, Pythia, BLOOM, OLMo and others) and gave the calculator only the model size, tokens and hardware from each paper. Then I compared its GPU-hours with what the paper reported. It usually lands within about 22 percent.",
+      "body": "I took 27 published training runs (Llama, Pythia, BLOOM, OLMo and others) and gave the calculator only the model size, tokens and hardware from each paper. Then I compared its GPU-hours with what each paper reported. It usually lands within about a fifth.",
       "visual": "runs27",
-      "aliases": ["published runs", "27 runs"],
-      "review": "draft"
+      "aliases": [
+        "published runs",
+        "27 runs"
+      ],
+      "review": "edited"
     },
     {
       "id": "sync-training",
@@ -224,17 +296,23 @@
       "title": "Synchronous training",
       "body": "Every site finishes its step, they swap results, and only then does anyone start the next step. Everyone stays in exact agreement. The group moves at the pace of its slowest member, like a dinner where nobody eats until the last person sits down.",
       "visual": "sync",
-      "aliases": ["synchronized training", "synchronized"],
-      "review": "draft"
+      "aliases": [
+        "synchronized training",
+        "synchronized"
+      ],
+      "review": "edited"
     },
     {
       "id": "weight-averaging",
       "term": "weight averaging",
       "title": "Weight averaging",
-      "body": "Each site trains on its own, and every few steps every site's weights (its parameters) are replaced by the average across sites. Averaging smooths out the random noise each site picks up. In my tests, doing it every 8 steps beat fully synchronized training.",
+      "body": "Each site trains on its own, and every few steps the sites swap in the average of their weights. Averaging smooths out the random jitter each site picks up. In my tests it beat fully synchronized training, which turned out to be that smoothing and nothing more.",
       "visual": "wavg",
-      "aliases": ["averaging", "average their weights"],
-      "review": "draft"
+      "aliases": [
+        "averaging",
+        "average their weights"
+      ],
+      "review": "edited"
     },
     {
       "id": "learning-rate",
@@ -242,9 +320,15 @@
       "title": "Learning rate",
       "body": "How big a step the model takes each time it corrects itself. Too big and it overshoots. Too small and you are paying for 16,000 GPUs to tiptoe. Keeping it fixed leaves a little noise in the weights, which averaging can remove.",
       "visual": "lr",
-      "aliases": ["fixed learning rate", "constant learning rate"],
-      "link": { "href": "https://en.wikipedia.org/wiki/Learning_rate", "label": "Learning rate on Wikipedia" },
-      "review": "draft"
+      "aliases": [
+        "fixed learning rate",
+        "constant learning rate"
+      ],
+      "link": {
+        "href": "https://en.wikipedia.org/wiki/Learning_rate",
+        "label": "Learning rate on Wikipedia"
+      },
+      "review": "edited"
     },
     {
       "id": "ema",
@@ -252,9 +336,15 @@
       "title": "Running average (EMA)",
       "body": "Averaging the model's recent versions instead of trusting the newest one. It ignores the last twitch and keeps the trend, like judging the weather by the week instead of the last five minutes. EMA stands for exponential moving average.",
       "visual": "ema",
-      "aliases": ["EMA", "exponential moving average"],
-      "link": { "href": "https://en.wikipedia.org/wiki/Exponential_smoothing", "label": "Exponential smoothing on Wikipedia" },
-      "review": "draft"
+      "aliases": [
+        "EMA",
+        "exponential moving average"
+      ],
+      "link": {
+        "href": "https://en.wikipedia.org/wiki/Exponential_smoothing",
+        "label": "Exponential smoothing on Wikipedia"
+      },
+      "review": "edited"
     },
     {
       "id": "seed",
@@ -262,9 +352,15 @@
       "title": "Seed",
       "body": "The number that decides every dice roll in a training run. Same code, new seed, slightly different model. If a result only shows up on one seed, you found a lucky seed.",
       "visual": "seed",
-      "aliases": ["seeds", "random seed"],
-      "link": { "href": "https://en.wikipedia.org/wiki/Random_seed", "label": "Random seed on Wikipedia" },
-      "review": "draft"
+      "aliases": [
+        "seeds",
+        "random seed"
+      ],
+      "link": {
+        "href": "https://en.wikipedia.org/wiki/Random_seed",
+        "label": "Random seed on Wikipedia"
+      },
+      "review": "edited"
     },
     {
       "id": "checkpoint",
@@ -272,17 +368,25 @@
       "title": "Checkpoint",
       "body": "A save file for the model. When something crashes you lose everything since the last save. The save file is hundreds of gigabytes, so saving is not free either.",
       "visual": "checkpoint",
-      "aliases": ["checkpoints", "last save"],
-      "review": "draft"
+      "aliases": [
+        "checkpoints",
+        "last save"
+      ],
+      "review": "edited"
     },
     {
       "id": "outage-rollback",
       "term": "outage",
       "title": "Outage and rollback",
-      "body": "When a site loses power or network, the usual fix is to roll everyone back to the last checkpoint and redo the work since. The alternative is to let the surviving site keep training. In my simulation that did about 3.6 percent less work and learned about 1 percent worse.",
+      "body": "When a site loses power or network, the usual fix is to roll everyone back to the last checkpoint and redo the work since. The alternative is to let the surviving site keep training. In my runs that did about 3.6 percent less work and learned about 1 percent worse.",
       "visual": "outage",
-      "aliases": ["outages", "rollback", "rolling back", "rolling everyone back"],
-      "review": "draft"
+      "aliases": [
+        "outages",
+        "rollback",
+        "rolling back",
+        "rolling everyone back"
+      ],
+      "review": "edited"
     },
     {
       "id": "power-reading",
@@ -290,17 +394,22 @@
       "title": "Power reading",
       "body": "The GPU reports how much power it draws through a sensor. I asked for a reading every 20 milliseconds. The sensor only refreshed every half second, so it smoothed over the fast changes I wanted to see. Thirty-two runs of energy data went in the trash.",
       "visual": "power",
-      "aliases": ["power sensor"],
-      "review": "draft"
+      "aliases": [
+        "power sensor"
+      ],
+      "review": "edited"
     },
     {
       "id": "coding-agents",
       "term": "AI coding agents",
       "title": "AI coding agents",
-      "body": "Programs that write and run code on their own while you watch or do something else. They are fast. They also grade their own homework badly: they set bars nothing could pass and praised accidents as insight. Check their verdicts, not only their code.",
+      "body": "Programs that write and run code on their own while you watch or do something else. They're fast. They also grade their own work unreliably: some pass marks they set could not be met, and some accidents got written up as insights. I ended up re-checking every result from the raw files.",
       "visual": "agents",
-      "aliases": ["coding agents", "agents"],
-      "review": "draft"
+      "aliases": [
+        "coding agents",
+        "agents"
+      ],
+      "review": "edited"
     }
   ]
 }

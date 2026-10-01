@@ -73,7 +73,7 @@ test("every entry has the required fields and an existing visual", () => {
       assert.ok(e[key].length > 0, e.id + ": empty " + key);
     }
     assert.match(e.id, /^[a-z0-9][a-z0-9-]*$/, e.id + ": id must be kebab case");
-    assert.equal(e.review, "draft", e.id + ": review must be draft");
+    assert.ok(["draft", "edited"].includes(e.review), e.id + ": review must be draft or edited");
     assert.ok(visuals.has(e.visual), e.id + ": unknown visual " + e.visual);
     if (e.link) {
       assert.match(e.link.href, /^(https:\/\/|#|\.{0,2}\/)/, e.id + ": bad link");

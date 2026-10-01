@@ -27,6 +27,7 @@
   <!-- The Calculator ships as its own script and stylesheet. Until both exist, the window says "coming soon". -->
   <link rel="stylesheet" href="styles/calculator.css">
   <link rel="stylesheet" href="styles/figures.css">
+  <link rel="stylesheet" href="styles/explain.css">
   <script defer src="calculator.js"></script>
   <script defer src="app.js"></script>
   <script defer src="figures/index.js"></script>
@@ -37,6 +38,8 @@
   <script defer src="figures/accuracy.js"></script>
   <script defer src="figures/flaky-sites.js"></script>
   <script defer src="figures/agents-report-card.js"></script>
+  <script defer src="explain-visuals.js"></script>
+  <script defer src="explain.js" data-manual></script>
   <script defer src="story-init.js"></script>
 </head>
 <body>
@@ -112,7 +115,7 @@
             </figure>
             <p>Once everything was connected, most of the map turned out to collapse into one short line: the math per token, divided by how fast your GPUs really run, times what an hour of GPU costs you. The chip's <span class="term" data-term="peak-speed">speed on paper</span>, the share of that speed you actually get, and the size of the model move the cost by the same amount, because each one shows up in that line exactly once. After those comes how long you keep the hardware before replacing it.</p>
             <p>The share of speed you actually get is called <span class="term" data-term="mfu">MFU</span>, and it's the one I underestimated. The spec sheet number is a ceiling. Meta reports about 40 percent for Llama 3, and that counts as good.</p>
-            <p>Electricity was the surprise. For a 7 billion parameter model trained on 2 trillion tokens with 1,024 <span class="term" data-term="h100">H100s</span>, the power bill, cooling included (<span class="term" data-term="pue">PUE</span>), comes to about 6 percent of the cost. The rest is expensive hardware gradually becoming old hardware.</p>
+            <p>Electricity was the surprise. For a 7 billion parameter model trained on 2 trillion tokens with 1,024 <span class="term" data-term="h100">H100s</span>, the <span class="term" data-term="electricity">power bill</span>, cooling included (<span class="term" data-term="pue">PUE</span>), comes to about 6 percent of the cost. The rest is expensive hardware gradually becoming old hardware.</p>
             <p class="go-deeper"><a href="#calculator" data-open="calculator">Try your own numbers in the Calculator</a></p>
           </section>
 
@@ -145,7 +148,7 @@
               <figcaption>Three ways to train across two sites when one keeps going down. Schematic, not data.</figcaption>
             </figure>
             <p>Large training runs stay in one <span class="term" data-term="datacenter">building</span> because the GPUs talk to each other constantly. I wanted to see what happens if you spread a run across sites that go down now and then. I don't have a datacenter, so I trained a very small model on my laptop's GPU and simulated the sites and the outages around it.</p>
-            <p>I wrote a controller that changed how the sites stayed in sync based on what it could observe. It lost to the plain option, where each site trains on its own and they <span class="term" data-term="weight-averaging">average their weights</span> every 8 steps. The plain option also beat keeping the sites in perfect <span class="term" data-term="synchronous-training">lockstep</span>, which looked like a discovery for about a day. A rerun on fresh <span class="term" data-term="seed">seeds</span> explained it: averaging smooths out the jitter that comes from training at a fixed <span class="term" data-term="learning-rate">learning rate</span>. That effect is already known, and ordinary training with a <span class="term" data-term="ema">running average</span> of its weights did even better.</p>
+            <p>I wrote a controller that changed how the sites stayed in sync based on what it could observe. It lost to the plain option, where each site trains on its own and they <span class="term" data-term="weight-averaging">average their weights</span> every 8 steps. The plain option also beat keeping the sites in perfect <span class="term" data-term="sync-training">lockstep</span>, which looked like a discovery for about a day. A rerun on fresh <span class="term" data-term="seed">seeds</span> explained it: averaging smooths out the jitter that comes from training at a fixed <span class="term" data-term="learning-rate">learning rate</span>. That effect is already known, and ordinary training with a <span class="term" data-term="ema">running average</span> of its weights did even better.</p>
             <p>Letting the surviving site keep training through an <span class="term" data-term="outage-rollback">outage</span>, instead of rolling both back to the last <span class="term" data-term="checkpoint">save</span>, did a few percent less work and learned about 1 percent worse. Whether that trade is worth it depends on what your time costs. One thing I didn't expect: the GPU's <span class="term" data-term="power-reading">power sensor</span> only refreshed every half second, not every 20 milliseconds as I asked, so the first batch of energy measurements went in the bin.</p>
             <p class="go-deeper"><a href="observatory.html">Open the Lab</a></p>
           </section>
@@ -156,7 +159,7 @@
               <div class="figure-slot" data-figure="agents-report-card"></div>
               <figcaption>The agents' own grades, after I checked them.</figcaption>
             </figure>
-            <p>I built this with <span class="term" data-term="ai-agents">AI coding agents</span>. They write quickly, and they grade their own work unreliably in both directions: some real results were marked as failures because the pass mark was impossible, and some accidents were written up as insights. Going back through every result from the raw files taught me more than building the map did, and it's why the conclusions on this page are smaller than the early drafts claimed.</p>
+            <p>I built this with <span class="term" data-term="coding-agents">AI coding agents</span>. They write quickly, and they grade their own work unreliably in both directions: some real results were marked as failures because the pass mark was impossible, and some accidents were written up as insights. Going back through every result from the raw files taught me more than building the map did, and it's why the conclusions on this page are smaller than the early drafts claimed.</p>
             <p class="go-deeper"><a href="https://github.com/Cuuper22/gpu_stack-">The code is on GitHub</a></p>
           </section>
 <!-- STORY END -->
