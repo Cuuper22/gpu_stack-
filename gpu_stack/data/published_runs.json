@@ -1,0 +1,832 @@
+{
+ "description": "27 published training runs with a reported or directly derived GPU-hour count, used to check how close the calculator comes. Time is accelerator-hours (GPUs, or TPU chips). Three MT-NLG rows are one-step throughput measurements.",
+ "how_used": "gpu_stack.calculator.check_against_published(): predict GPU-hours = 6 x params x tokens / (peak FLOP/s x 40% utilization) and compare with gpu_hours.",
+ "hardware": {
+  "A100-SXM-40GB": {
+   "peak_flops_dense_16bit": 312000000000000.0,
+   "tdp_w": 400.0,
+   "cite": [
+    {
+     "src": "a100ds",
+     "where": "PDF p1, spec table",
+     "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (*with sparsity); Max TDP SXM 400W"
+    }
+   ]
+  },
+  "A100-SXM-80GB": {
+   "peak_flops_dense_16bit": 312000000000000.0,
+   "tdp_w": 400.0,
+   "cite": [
+    {
+     "src": "a100ds",
+     "where": "PDF p1, spec table",
+     "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+    },
+    {
+     "src": "luccioni",
+     "where": "PDF p4 s4.2",
+     "quote": "A100 SXM4 80GB TDP of 400W"
+    }
+   ]
+  },
+  "H100-SXM-80GB": {
+   "peak_flops_dense_16bit": 989000000000000.0,
+   "tdp_w": 700.0,
+   "cite": [
+    {
+     "src": "h100page",
+     "where": "Product Specifications table, H100 SXM column",
+     "quote": "BFLOAT16 Tensor Core* 1,979 teraFLOPS (*with sparsity); Max TDP up to 700W"
+    },
+    {
+     "src": "llama3",
+     "where": "PDF p9",
+     "quote": "each running at 700W TDP"
+    }
+   ]
+  },
+  "TPUv3": {
+   "peak_flops_dense_16bit": 123000000000000.0,
+   "tdp_w": 450.0,
+   "cite": [
+    {
+     "src": "patterson",
+     "where": "PDF p6, Table 4 and its footnote 12",
+     "quote": "TDP 450 W; peak TeraFLOPS/second is ... 123 for TPU v3"
+    }
+   ]
+  },
+  "TPUv4": {
+   "peak_flops_dense_16bit": 275000000000000.0,
+   "tdp_w": null,
+   "cite": [
+    {
+     "src": "palm",
+     "where": "PDF p66, App. B",
+     "quote": "(238.3 x 6 x 540)/(275 x 6144)"
+    }
+   ]
+  }
+ },
+ "sources": {
+  "a100ds": {
+   "what": "NVIDIA A100 datasheet",
+   "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+  },
+  "bloom": {
+   "what": "BigScience 2022, BLOOM",
+   "url": "https://arxiv.org/abs/2211.05100"
+  },
+  "bloomberg": {
+   "what": "Wu et al. 2023, BloombergGPT",
+   "url": "https://arxiv.org/abs/2303.17564"
+  },
+  "gopher": {
+   "what": "Rae et al. 2021, Gopher",
+   "url": "https://arxiv.org/abs/2112.11446"
+  },
+  "h100page": {
+   "what": "NVIDIA H100 product page, fetched via r.jina.ai on 2026-10-01 (Product Specifications table)",
+   "url": "https://www.nvidia.com/en-us/data-center/h100/"
+  },
+  "hf_api": {
+   "what": "Hugging Face model API, safetensors.total and sha (revisions listed per record)",
+   "url": "https://huggingface.co/api/models/<org>/<model>"
+  },
+  "llama1": {
+   "what": "Touvron et al. 2023, LLaMA",
+   "url": "https://arxiv.org/abs/2302.13971"
+  },
+  "llama2": {
+   "what": "Touvron et al. 2023, Llama 2",
+   "url": "https://arxiv.org/abs/2307.09288"
+  },
+  "llama3": {
+   "what": "Llama Team 2024, The Llama 3 Herd of Models",
+   "url": "https://arxiv.org/abs/2407.21783"
+  },
+  "llama31card": {
+   "what": "Meta Llama 3.1 model card (raw file fetched 2026-10-01)",
+   "url": "https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md"
+  },
+  "luccioni": {
+   "what": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+   "url": "https://arxiv.org/abs/2211.02001"
+  },
+  "mpt7b_blog": {
+   "what": "MosaicML/Databricks MPT-7B announcement, 2023-05-05",
+   "url": "https://www.databricks.com/blog/mpt-7b"
+  },
+  "mtnlg": {
+   "what": "Smith et al. 2022, Megatron-Turing NLG 530B",
+   "url": "https://arxiv.org/abs/2201.11990"
+  },
+  "palm": {
+   "what": "Chowdhery et al. 2022, PaLM",
+   "url": "https://arxiv.org/abs/2204.02311"
+  },
+  "patterson": {
+   "what": "Patterson et al. 2021, Carbon emissions and large neural network training",
+   "url": "https://arxiv.org/abs/2104.10350"
+  },
+  "pythia": {
+   "what": "Biderman et al. 2023, Pythia",
+   "url": "https://arxiv.org/abs/2304.01373"
+  },
+  "pythia_readme": {
+   "what": "Pythia README (raw file fetched 2026-10-01)",
+   "url": "https://github.com/EleutherAI/pythia"
+  },
+  "smollm3_blog": {
+   "what": "Hugging Face SmolLM3 blog",
+   "url": "https://huggingface.co/blog/smollm3"
+  },
+  "starcoder": {
+   "what": "Li et al. 2023, StarCoder",
+   "url": "https://arxiv.org/abs/2305.06161"
+  }
+ },
+ "runs": [
+  {
+   "id": "llama1-7b",
+   "name": "LLaMA-7B",
+   "family": "llama1",
+   "params": 6700000000.0,
+   "tokens": 1000000000000.0,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": null,
+   "gpu_hours": 82432,
+   "cite": [
+    {
+     "src": "llama1",
+     "where": "PDF p11, Table 15",
+     "quote": "A100-80GB 400W GPU-hours 82,432"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "llama1",
+     "where": "PDF p3, Table 2"
+    }
+   ]
+  },
+  {
+   "id": "llama1-13b",
+   "name": "LLaMA-13B",
+   "family": "llama1",
+   "params": 13000000000.0,
+   "tokens": 1000000000000.0,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": null,
+   "gpu_hours": 135168,
+   "cite": [
+    {
+     "src": "llama1",
+     "where": "PDF p11, Table 15",
+     "quote": "A100-80GB 400W GPU-hours 135,168"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "llama1",
+     "where": "PDF p3, Table 2"
+    }
+   ]
+  },
+  {
+   "id": "llama1-33b",
+   "name": "LLaMA-33B",
+   "family": "llama1",
+   "params": 32500000000.0,
+   "tokens": 1400000000000.0,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": null,
+   "gpu_hours": 530432,
+   "cite": [
+    {
+     "src": "llama1",
+     "where": "PDF p11, Table 15",
+     "quote": "A100-80GB 400W GPU-hours 530,432"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "llama1",
+     "where": "PDF p3, Table 2"
+    }
+   ]
+  },
+  {
+   "id": "llama1-65b",
+   "name": "LLaMA-65B",
+   "family": "llama1",
+   "params": 65200000000.0,
+   "tokens": 1400000000000.0,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": 2048,
+   "gpu_hours": 1022362,
+   "cite": [
+    {
+     "src": "llama1",
+     "where": "PDF p11, Table 15",
+     "quote": "A100-80GB 400W GPU-hours 1,022,362"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "llama1",
+     "where": "PDF p3, Table 2"
+    }
+   ]
+  },
+  {
+   "id": "llama2-7b",
+   "name": "Llama 2 7B",
+   "family": "llama2",
+   "params": 6738417664,
+   "tokens": 2000000000000.0,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": null,
+   "gpu_hours": 184320,
+   "cite": [
+    {
+     "src": "llama2",
+     "where": "PDF p7, Table 2",
+     "quote": "7B GPU hours 184320"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "hf_api",
+     "where": "https://huggingface.co/api/models/meta-llama/Llama-2-7b-hf field safetensors.total, revision 01c7f73d771dfac7d292323805ebc428287df4f9"
+    }
+   ]
+  },
+  {
+   "id": "llama2-13b",
+   "name": "Llama 2 13B",
+   "family": "llama2",
+   "params": 13015866880,
+   "tokens": 2000000000000.0,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": null,
+   "gpu_hours": 368640,
+   "cite": [
+    {
+     "src": "llama2",
+     "where": "PDF p7, Table 2",
+     "quote": "13B GPU hours 368640"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "hf_api",
+     "where": "https://huggingface.co/api/models/meta-llama/Llama-2-13b-hf field safetensors.total, revision 5c31dfb671ce7cfe2d7bb7c04375e44c55e815b1"
+    }
+   ]
+  },
+  {
+   "id": "llama2-34b",
+   "name": "Llama 2 34B",
+   "family": "llama2",
+   "params": 34000000000.0,
+   "tokens": 2000000000000.0,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": null,
+   "gpu_hours": 1038336,
+   "cite": [
+    {
+     "src": "llama2",
+     "where": "PDF p7, Table 2",
+     "quote": "34B GPU hours 1038336"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "llama2",
+     "where": "PDF p6, Table 1"
+    }
+   ]
+  },
+  {
+   "id": "llama2-70b",
+   "name": "Llama 2 70B",
+   "family": "llama2",
+   "params": 68976653312,
+   "tokens": 2000000000000.0,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": null,
+   "gpu_hours": 1720320,
+   "cite": [
+    {
+     "src": "llama2",
+     "where": "PDF p7, Table 2",
+     "quote": "70B GPU hours 1720320"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "hf_api",
+     "where": "https://huggingface.co/api/models/meta-llama/Llama-2-70b-hf field safetensors.total, revision 3aba440b59558f995867ba6e1f58f21d0336b5bb"
+    }
+   ]
+  },
+  {
+   "id": "llama31-405b",
+   "name": "Llama 3.1 405B",
+   "family": "llama3",
+   "params": 405853388800,
+   "tokens": 15600000000000.0,
+   "accelerator": "H100-SXM-80GB",
+   "n_gpus": 16384,
+   "gpu_hours": 30840000.0,
+   "cite": [
+    {
+     "src": "llama31card",
+     "where": "Training Time (GPU hours) table",
+     "quote": "Llama 3.1 405B 30.84M"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "hf_api",
+     "where": "https://huggingface.co/api/models/meta-llama/Llama-3.1-405B field safetensors.total, revision b906e4dc842aa489c962f9db26554dcfdde901fe"
+    }
+   ]
+  },
+  {
+   "id": "pythia-70m",
+   "name": "Pythia 70M",
+   "family": "pythia",
+   "params": 70426624,
+   "tokens": 299892736000,
+   "accelerator": "A100-SXM-40GB",
+   "n_gpus": 32,
+   "gpu_hours": 510,
+   "cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p21, Table 5",
+     "quote": "total GPU hours 510 (iteration time x iterations x GPUs / 3600)"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p2, Table 1"
+    },
+    {
+     "src": "pythia_readme",
+     "where": "README Models table + HF config"
+    }
+   ]
+  },
+  {
+   "id": "pythia-160m",
+   "name": "Pythia 160M",
+   "family": "pythia",
+   "params": 162322944,
+   "tokens": 299892736000,
+   "accelerator": "A100-SXM-40GB",
+   "n_gpus": 32,
+   "gpu_hours": 1030,
+   "cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p21, Table 5",
+     "quote": "total GPU hours 1,030 (iteration time x iterations x GPUs / 3600)"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p2, Table 1"
+    },
+    {
+     "src": "pythia_readme",
+     "where": "README Models table + HF config"
+    }
+   ]
+  },
+  {
+   "id": "pythia-410m",
+   "name": "Pythia 410M",
+   "family": "pythia",
+   "params": 405334016,
+   "tokens": 299892736000,
+   "accelerator": "A100-SXM-40GB",
+   "n_gpus": 32,
+   "gpu_hours": 2540,
+   "cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p21, Table 5",
+     "quote": "total GPU hours 2,540 (iteration time x iterations x GPUs / 3600)"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p2, Table 1"
+    },
+    {
+     "src": "pythia_readme",
+     "where": "README Models table + HF config"
+    }
+   ]
+  },
+  {
+   "id": "pythia-1b",
+   "name": "Pythia 1B",
+   "family": "pythia",
+   "params": 1011781632,
+   "tokens": 299892736000,
+   "accelerator": "A100-SXM-40GB",
+   "n_gpus": 64,
+   "gpu_hours": 4830,
+   "cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p21, Table 5",
+     "quote": "total GPU hours 4,830 (iteration time x iterations x GPUs / 3600)"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p2, Table 1"
+    },
+    {
+     "src": "pythia_readme",
+     "where": "README Models table + HF config"
+    }
+   ]
+  },
+  {
+   "id": "pythia-1.4b",
+   "name": "Pythia 1.4B",
+   "family": "pythia",
+   "params": 1414647808,
+   "tokens": 299892736000,
+   "accelerator": "A100-SXM-40GB",
+   "n_gpus": 64,
+   "gpu_hours": 7120,
+   "cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p21, Table 5",
+     "quote": "total GPU hours 7,120 (iteration time x iterations x GPUs / 3600)"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p2, Table 1"
+    },
+    {
+     "src": "pythia_readme",
+     "where": "README Models table + HF config"
+    }
+   ]
+  },
+  {
+   "id": "pythia-2.8b",
+   "name": "Pythia 2.8B",
+   "family": "pythia",
+   "params": 2775208960,
+   "tokens": 299892736000,
+   "accelerator": "A100-SXM-40GB",
+   "n_gpus": 64,
+   "gpu_hours": 14240,
+   "cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p21, Table 5",
+     "quote": "total GPU hours 14,240 (iteration time x iterations x GPUs / 3600)"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p2, Table 1"
+    },
+    {
+     "src": "pythia_readme",
+     "where": "README Models table + HF config"
+    }
+   ]
+  },
+  {
+   "id": "pythia-6.9b",
+   "name": "Pythia 6.9B",
+   "family": "pythia",
+   "params": 6856253440,
+   "tokens": 299892736000,
+   "accelerator": "A100-SXM-40GB",
+   "n_gpus": 128,
+   "gpu_hours": 33500,
+   "cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p21, Table 5",
+     "quote": "total GPU hours 33,500 (iteration time x iterations x GPUs / 3600)"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p2, Table 1"
+    },
+    {
+     "src": "pythia_readme",
+     "where": "README Models table + HF config"
+    }
+   ]
+  },
+  {
+   "id": "pythia-12b",
+   "name": "Pythia 12B",
+   "family": "pythia",
+   "params": 11842140160,
+   "tokens": 299892736000,
+   "accelerator": "A100-SXM-40GB",
+   "n_gpus": 256,
+   "gpu_hours": 72300,
+   "cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p21, Table 5",
+     "quote": "total GPU hours 72,300 (iteration time x iterations x GPUs / 3600)"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "pythia",
+     "where": "PDF p2, Table 1"
+    },
+    {
+     "src": "pythia_readme",
+     "where": "README Models table + HF config"
+    }
+   ]
+  },
+  {
+   "id": "bloom-176b",
+   "name": "BLOOM 176B",
+   "family": "bloom",
+   "params": 176247000000.0,
+   "tokens": 366000000000.0,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": 384,
+   "gpu_hours": 1082990,
+   "cite": [
+    {
+     "src": "bloom",
+     "where": "PDF p18",
+     "quote": "consumed 1,082,990 compute hours"
+    },
+    {
+     "src": "luccioni",
+     "where": "PDF p2, Table 1",
+     "quote": "Total training time 118 days, 5 hours, 41 min; GPU hours 1,082,990"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "bloom",
+     "where": "PDF p21, hyperparameter table"
+    }
+   ]
+  },
+  {
+   "id": "palm-540b",
+   "name": "PaLM 540B",
+   "family": "palm",
+   "params": 540350000000.0,
+   "tokens": 780000000000.0,
+   "accelerator": "TPUv4",
+   "n_gpus": 6144,
+   "gpu_hours": 8404992,
+   "cite": [
+    {
+     "src": "palm",
+     "where": "PDF p66",
+     "quote": "6144 TPU v4 chips for 1200 hours and 3072 TPU v4 chips for 336 hours including some downtime and repeated steps"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "palm",
+     "where": "PDF p6, Table 1"
+    }
+   ],
+   "note": "6144*1200 + 3072*336 = 8,404,992 chip-hours"
+  },
+  {
+   "id": "gopher-280b",
+   "name": "Gopher 280B",
+   "family": "gopher",
+   "params": 280000000000.0,
+   "tokens": 300000000000.0,
+   "accelerator": "TPUv3",
+   "n_gpus": 4096,
+   "gpu_hours": 3768320,
+   "cite": [
+    {
+     "src": "gopher",
+     "where": "PDF p103",
+     "quote": "We trained Gopher for 920 hours"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "gopher",
+     "where": "PDF p6, Table 1"
+    }
+   ],
+   "note": "4096 chips * 920 h = 3,768,320 chip-hours (assumes all 920 h on 4096 chips)"
+  },
+  {
+   "id": "mpt-7b",
+   "name": "MPT-7B",
+   "family": "mpt",
+   "params": 6700000000.0,
+   "tokens": 1000000000000.0,
+   "accelerator": "A100-SXM-40GB",
+   "n_gpus": 440,
+   "gpu_hours": 100320.0,
+   "cite": [
+    {
+     "src": "mpt7b_blog",
+     "where": "blog text + Table 3",
+     "quote": "~9.5 days ... 440xA100-40GB; Time to Train is total runtime incl. restarts"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "mpt7b_blog",
+     "where": "blog text"
+    }
+   ],
+   "note": "440 * 9.5 d * 24 = 100,320 GPU-hours (days given to 0.5 d)"
+  },
+  {
+   "id": "smollm3-3b",
+   "name": "SmolLM3 3B",
+   "family": "smollm3",
+   "params": 3075098624,
+   "tokens": 11200000000000.0,
+   "accelerator": "H100-SXM-80GB",
+   "n_gpus": 384,
+   "gpu_hours": 221184,
+   "cite": [
+    {
+     "src": "smollm3_blog",
+     "where": "blog text",
+     "quote": "384 H100 GPUs for 24 days"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "hf_api",
+     "where": "https://huggingface.co/api/models/HuggingFaceTB/SmolLM3-3B-Base field safetensors.total, revision d78a42f79198603e614095753484a04c10c2b940"
+    }
+   ],
+   "note": "384 * 24 d * 24 = 221,184 GPU-hours (days given to the day)"
+  },
+  {
+   "id": "bloomberggpt-50b",
+   "name": "BloombergGPT 50B",
+   "family": "bloomberg",
+   "params": 50600000000.0,
+   "tokens": 569000000000.0,
+   "accelerator": "A100-SXM-40GB",
+   "n_gpus": 512,
+   "gpu_hours": 651264,
+   "cite": [
+    {
+     "src": "bloomberg",
+     "where": "PDF p16",
+     "quote": "139,200 steps (~53 days)"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "bloomberg",
+     "where": "PDF p11, Table 4"
+    }
+   ],
+   "note": "512 * 53 d * 24 = 651,264 GPU-hours; cross-check 139,200 steps x 32.5 s = 52.4 d (Table 4 step time)"
+  },
+  {
+   "id": "starcoderbase-15b",
+   "name": "StarCoderBase 15.5B",
+   "family": "starcoder",
+   "params": 15500000000.0,
+   "tokens": 1000000000000.0,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": 512,
+   "gpu_hours": 320256,
+   "cite": [
+    {
+     "src": "starcoder",
+     "where": "PDF p17, s5.7",
+     "quote": "total number of GPU hours that training took (320,256)"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "starcoder",
+     "where": "PDF p17, Table 11"
+    }
+   ]
+  },
+  {
+   "id": "mtnlg-530b-280n",
+   "name": "MT-NLG 530B throughput, 280 DGX A100 nodes",
+   "family": "mtnlg",
+   "params": 530000000000.0,
+   "tokens": 3932160,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": 2240,
+   "gpu_hours": 37.39555555555555,
+   "cite": [
+    {
+     "src": "mtnlg",
+     "where": "PDF p7, s2.4",
+     "quote": "iteration times of 60.1, 50.2, and 44.4 seconds (280, 350, 420 servers, batch 1920)"
+    },
+    {
+     "src": "mtnlg",
+     "where": "PDF p10, s3.2",
+     "quote": "sequence length 2048, global batch size 1920"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "mtnlg",
+     "where": "PDF p10, s3.2"
+    }
+   ],
+   "note": "one training step: 2240 GPUs x 60.1 s; tokens are one step of tokens"
+  },
+  {
+   "id": "mtnlg-530b-350n",
+   "name": "MT-NLG 530B throughput, 350 DGX A100 nodes",
+   "family": "mtnlg",
+   "params": 530000000000.0,
+   "tokens": 3932160,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": 2800,
+   "gpu_hours": 39.044444444444444,
+   "cite": [
+    {
+     "src": "mtnlg",
+     "where": "PDF p7, s2.4",
+     "quote": "iteration times of 60.1, 50.2, and 44.4 seconds (280, 350, 420 servers, batch 1920)"
+    },
+    {
+     "src": "mtnlg",
+     "where": "PDF p10, s3.2",
+     "quote": "sequence length 2048, global batch size 1920"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "mtnlg",
+     "where": "PDF p10, s3.2"
+    }
+   ],
+   "note": "one training step: 2800 GPUs x 50.2 s; tokens are one step of tokens"
+  },
+  {
+   "id": "mtnlg-530b-420n",
+   "name": "MT-NLG 530B throughput, 420 DGX A100 nodes",
+   "family": "mtnlg",
+   "params": 530000000000.0,
+   "tokens": 3932160,
+   "accelerator": "A100-SXM-80GB",
+   "n_gpus": 3360,
+   "gpu_hours": 41.44,
+   "cite": [
+    {
+     "src": "mtnlg",
+     "where": "PDF p7, s2.4",
+     "quote": "iteration times of 60.1, 50.2, and 44.4 seconds (280, 350, 420 servers, batch 1920)"
+    },
+    {
+     "src": "mtnlg",
+     "where": "PDF p10, s3.2",
+     "quote": "sequence length 2048, global batch size 1920"
+    }
+   ],
+   "params_cite": [
+    {
+     "src": "mtnlg",
+     "where": "PDF p10, s3.2"
+    }
+   ],
+   "note": "one training step: 3360 GPUs x 44.4 s; tokens are one step of tokens"
+  }
+ ]
+}

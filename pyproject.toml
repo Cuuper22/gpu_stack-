@@ -64,7 +64,7 @@ include = ["gpu_stack*"]
 exclude = ["tests*", "__pycache__", "*.__pycache__"]
 
 [tool.setuptools.package-data]
-gpu_stack = ["data/observations/literature/e001-one-step-delay/*.json"]
+gpu_stack = ["data/observations/literature/e001-one-step-delay/*.json", "data/published_runs.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
