@@ -5,8 +5,13 @@ their provenance attached. The tests hold them to that: each preset's
 source string must quote the exact NVIDIA figures it encodes (67 teraFLOPS
 FP32, 3.35 TB/s HBM bandwidth, 700 W, and so on), the assignment dicts must
 match the expected values exactly and be frozen against mutation, and
-derived quantities must follow — 8 GPUs times 67e12 FLOPS gives the node
-peak, 8 NICs at 50e9 give the raw NIC bandwidth.
+derived quantities must follow — 8 GPUs times 989.4e12 dense BF16 FLOPS gives
+the node peak, 8 NICs at 50e9 give the raw NIC bandwidth.
+
+Three values are deliberate readings of the vendor strings, not copies:
+dense BF16 peak is the sparsity-footnoted 1,979 TFLOPS halved (989.4 TFLOPS),
+NVLink 900 GB/s is a bidirectional total so the per-direction value is
+450 GB/s, and "80GB" memory is 80 GiB.
 """
 
 import pytest
@@ -16,18 +21,18 @@ from gpu_stack.presets import hardware
 
 
 H100_SXM_80GB_ASSIGNMENTS = {
-    "gpu.peak_flops": 67e12,
+    "gpu.peak_flops": 989.4e12,
     "gpu.peak_flops_sparse": 1_979e12,
     "gpu.tdp": 700.0,
-    "gpu.nvlink.bw": 900e9,
-    "mem.hbm.capacity": 80e9,
+    "gpu.nvlink.bw": 900e9 / 2,
+    "mem.hbm.capacity": 80 * 2**30,
     "mem.hbm.bw": 3.35e12,
 }
 
 DGX_H100_8GPU_NODE_ASSIGNMENTS = {
     **H100_SXM_80GB_ASSIGNMENTS,
     "cluster.node.n_gpus": 8,
-    "cluster.node.hbm_capacity": 640e9,
+    "cluster.node.hbm_capacity": 640 * 2**30,
     "cluster.node.n_cpus": 2,
     "cluster.node.ram": 2e12,
     "cluster.node.nic.count": 8,
@@ -103,10 +108,10 @@ def test_hardware_preset_assignments_are_registered_numeric_and_frozen(preset):
         preset.assignments[first_key] = 0
 
 
-def test_dgx_h100_node_resolves_peak_flops_from_h100_fp32_fact():
+def test_dgx_h100_node_resolves_peak_flops_from_h100_dense_bf16_fact():
     result = hardware.dgx_h100_8gpu_node.resolve("cluster.node.peak_flops")
 
-    assert float(result.value) == pytest.approx(8 * 67e12)
+    assert float(result.value) == pytest.approx(8 * 989.4e12)
     assert any(step.equation == "cluster.eq.node_peak_flops" for step in result.trace)
 
 
@@ -115,3 +120,23 @@ def test_dgx_h100_node_resolves_cluster_nic_raw_bandwidth():
 
     assert float(result.value) == pytest.approx(8 * 1 * 50e9)
     assert any(step.equation == "cluster.eq.node_nic_bw_raw" for step in result.trace)
+
+
+def test_h100_dense_bf16_peak_is_half_the_sparse_figure():
+    """NVIDIA's 1,979 TFLOPS FP16/BF16 Tensor Core figure carries a sparsity
+    footnote. Structured sparsity doubles it, so dense is half (989.4 is the
+    whitepaper's 1,978.9 / 2, rounded)."""
+    a = hardware.h100_sxm_80gb_gpu.assignments
+    assert a["gpu.peak_flops"] == pytest.approx(a["gpu.peak_flops_sparse"] / 2, rel=1e-3)
+    assert a["gpu.peak_flops"] > 67e12
+
+
+def test_h100_nvlink_is_per_direction_half_of_vendor_bidirectional_total():
+    a = hardware.h100_sxm_80gb_gpu.assignments
+    assert a["gpu.nvlink.bw"] == 900e9 / 2
+    assert any("bidirectional" in note for note in hardware.h100_sxm_80gb_gpu.notes)
+
+
+def test_dgx_node_memory_is_eight_gpus_of_the_per_gpu_capacity():
+    a = hardware.dgx_h100_8gpu_node.assignments
+    assert a["cluster.node.hbm_capacity"] == 8 * a["mem.hbm.capacity"]

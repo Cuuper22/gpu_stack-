@@ -40,26 +40,53 @@ _H100_SXM_80GB_SOURCE = (
     "Footnote: * With sparsity."
 )
 
+# Dense BF16 tensor-core peak, the number a training run is actually bound by.
+# NVIDIA lists FP16/BF16 Tensor Core 1,979 teraFLOPS "with sparsity" for H100
+# SXM (footnote in the source string above). Dense is half of the sparse figure:
+# 989.4 teraFLOPS (1,978.9 / 2 in NVIDIA's H100 architecture whitepaper table).
+H100_SXM_BF16_DENSE_FLOPS = 989.4e12
+
+# Assumption, not a vendor fact: sustained model-FLOPs utilization (MFU) of the
+# dense BF16 peak that scenario closures apply when they need an effective
+# training throughput. Published large-run MFU is roughly 38-43% for BF16 Llama 3
+# on H100 (Dubey et al., The Llama 3 Herd of Models, 2024, Table 4) and 46% for
+# PaLM on TPU v4 (Chowdhery et al., 2022). Small models on one node can be
+# lower. Change it per scenario; it is not measured for any preset here.
+ASSUMED_TRAINING_MFU = 0.40
+
+_GIB = 2**30
+
 _H100_UNIT_NOTE = (
-    "Vendor GB/TB/GB/s/TB/s strings are converted with decimal SI prefixes: "
-    "80GB -> 80e9 byte, 3.35TB/s -> 3.35e12 byte/s, and "
-    "900GB/s -> 900e9 byte/s."
+    "Bandwidth and rate strings are converted with decimal SI prefixes: "
+    "3.35TB/s -> 3.35e12 byte/s. Memory is the exception: NVIDIA's 80GB "
+    "(and 640 GB for eight GPUs) is read as 80 GiB = 85,899,345,920 byte "
+    "(and 640 GiB), inferred because HBM dies are sized in binary Gib; the "
+    "datasheet does not state the base. A decimal reading would be 7% lower."
+)
+
+_H100_NVLINK_NOTE = (
+    "NVLink 900GB/s is NVIDIA's bidirectional total (inferred from NVIDIA's "
+    "NVLink convention of counting both directions: 18 links x 50 GB/s). "
+    "gpu.nvlink.bw is assigned per direction, 450e9 byte/s, because the "
+    "collective beta term (1 / effective bandwidth) charges bytes moved in "
+    "one direction."
 )
 
 _H100_PRECISION_NOTE = (
-    "FP32 67 teraFLOPS is assigned to gpu.peak_flops. The FP16 Tensor Core "
-    "1,979 teraFLOPS entry carries NVIDIA's sparsity footnote, so it is "
-    "assigned only to gpu.peak_flops_sparse rather than to the generic dense "
-    "peak variable."
+    "gpu.peak_flops is the dense BF16 Tensor Core peak, 989.4 teraFLOPS, "
+    "which is the sparsity-footnoted 1,979 teraFLOPS figure halved. The "
+    "listed FP32 67 teraFLOPS is not assigned: it is the CUDA-core rate and "
+    "is not what a BF16 training run uses. The 1,979 teraFLOPS sparse value "
+    "stays on gpu.peak_flops_sparse."
 )
 
 _H100_SXM_80GB_ASSIGNMENTS = _registered_assignments(
     {
-        "gpu.peak_flops": 67e12,
+        "gpu.peak_flops": H100_SXM_BF16_DENSE_FLOPS,
         "gpu.peak_flops_sparse": 1_979e12,
         "gpu.tdp": 700.0,
-        "gpu.nvlink.bw": 900e9,
-        "mem.hbm.capacity": 80e9,
+        "gpu.nvlink.bw": 450e9,
+        "mem.hbm.capacity": 80 * _GIB,
         "mem.hbm.bw": 3.35e12,
     }
 )
@@ -80,7 +107,7 @@ _DGX_H100_NODE_ASSIGNMENTS = _registered_assignments(
     {
         **_H100_SXM_80GB_ASSIGNMENTS,
         "cluster.node.n_gpus": 8,
-        "cluster.node.hbm_capacity": 640e9,
+        "cluster.node.hbm_capacity": 640 * _GIB,
         "cluster.node.n_cpus": 2,
         "cluster.node.ram": 2e12,
         "cluster.node.nic.count": 8,
@@ -119,13 +146,15 @@ h100_sxm_80gb_gpu = Preset(
     name="h100_sxm_80gb_gpu",
     description=(
         "Official NVIDIA H100 SXM per-GPU specification bundle for the "
-        "80GB part: FP32 peak, sparsity-footnoted FP16 Tensor Core peak, "
-        "TDP, NVLink bandwidth, and HBM capacity/bandwidth."
+        "80GB part: dense BF16 Tensor Core peak, sparsity-footnoted FP16 "
+        "Tensor Core peak, TDP, per-direction NVLink bandwidth, and HBM "
+        "capacity/bandwidth."
     ),
     assignments=_H100_SXM_80GB_ASSIGNMENTS,
     source=_H100_SXM_80GB_SOURCE,
     notes=(
         _H100_UNIT_NOTE,
+        _H100_NVLINK_NOTE,
         _H100_PRECISION_NOTE,
         "This preset does not assign lower-level HBM stack/channel/pin "
         "parameters or protocol efficiencies because those are not present "
@@ -145,6 +174,7 @@ dgx_h100_8gpu_node = Preset(
     source=f"{_H100_SXM_80GB_SOURCE} {_DGX_H100_NODE_SOURCE}",
     notes=(
         _H100_UNIT_NOTE,
+        _H100_NVLINK_NOTE,
         _H100_PRECISION_NOTE,
         "DGX cluster networking is assigned as 8 single-port ConnectX-7 "
         "cards at 400Gbps each, converted to 50e9 byte/s per port; no "
@@ -157,4 +187,10 @@ dgx_h100_8gpu_node = Preset(
 )
 
 
-__all__ = ["demo_rack", "h100_sxm_80gb_gpu", "dgx_h100_8gpu_node"]
+__all__ = [
+    "ASSUMED_TRAINING_MFU",
+    "H100_SXM_BF16_DENSE_FLOPS",
+    "demo_rack",
+    "dgx_h100_8gpu_node",
+    "h100_sxm_80gb_gpu",
+]
