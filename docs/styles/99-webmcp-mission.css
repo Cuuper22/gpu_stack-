@@ -71,7 +71,7 @@ body[data-mission-mode="active"] .obs-desktop {
   background: var(--pane-bright);
   box-shadow: 0 2px 0 oklch(0.18 0.006 250 / 0.14);
   color: var(--text-dark);
-  font: 600 13px/1.2 var(--font-display);
+  font: 600 13px/1.2 var(--font-body);
 }
 
 .mission-control > div {
@@ -262,7 +262,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 .mission-panel-header h2 {
   margin: 0;
   color: var(--text-dark);
-  font: 700 14px/1.1 var(--font-display);
+  font: 700 14px/1.1 var(--font-body);
   letter-spacing: 0.035em;
   text-transform: uppercase;
 }
@@ -270,7 +270,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 .mission-count {
   flex: 0 0 auto;
   color: var(--text-soft);
-  font: 500 12px/1 var(--font-mono);
+  font: 500 13px/1 var(--font-mono);
 }
 
 .mission-list,
@@ -322,13 +322,13 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
   display: block;
   margin-bottom: 3px;
   color: var(--text-dark);
-  font: 700 12px/1.25 var(--font-display);
+  font: 700 13px/1.25 var(--font-body);
   text-transform: uppercase;
 }
 
 .mission-empty p {
   margin: 0;
-  font: 500 12px/1.35 var(--font-display);
+  font: 500 13px/1.35 var(--font-body);
 }
 
 /* The bridge can render either class names or semantic data attributes.
@@ -365,14 +365,14 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 .pending-change h3,
 #pending-changes > [data-change-id] h3 {
   margin: 0 0 8px;
-  font: 700 13px/1.25 var(--font-display);
+  font: 700 13px/1.25 var(--font-body);
 }
 
 .mission-change p,
 .pending-change p,
 #pending-changes > [data-change-id] p {
   margin: 4px 0;
-  font: 500 12px/1.35 var(--font-display);
+  font: 500 13px/1.35 var(--font-body);
   overflow-wrap: anywhere;
 }
 
@@ -394,7 +394,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
   border-radius: 0;
   background: var(--pane-bright);
   color: var(--text-dark);
-  font: 500 13px/1.45 var(--font-display);
+  font: 500 13px/1.45 var(--font-body);
 }
 
 .mission-claim-editor:focus-visible {
@@ -427,7 +427,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
   border-radius: 0;
   background: var(--button-face);
   color: var(--text-dark);
-  font: 700 12px/1 var(--font-display);
+  font: 700 13px/1 var(--font-body);
   letter-spacing: 0.025em;
   text-transform: uppercase;
 }
@@ -451,7 +451,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 .mission-button--compact {
   min-height: 28px;
   padding: 4px 7px;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .mission-button--reject:not(:disabled) {
@@ -468,7 +468,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
   border-top: 2px solid var(--inset-dark);
   background: var(--chrome-well);
   color: var(--text-dark);
-  font: 600 11px/1.3 var(--font-display);
+  font: 600 13px/1.3 var(--font-body);
   text-align: center;
 }
 
@@ -485,7 +485,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
   border: 1px solid var(--chrome-border);
   background: var(--pane-bright);
   color: var(--text-dark);
-  font: 500 12px/1.35 var(--font-display);
+  font: 500 13px/1.35 var(--font-body);
 }
 
 .receipt-list > li:not(.mission-empty)::before,
@@ -722,7 +722,7 @@ tr.is-mission-evidence > :last-child {
   }
 
   .mission-control {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .mission-control > div {
@@ -756,7 +756,7 @@ tr.is-mission-evidence > :last-child {
     min-height: 36px;
     padding-right: 5px;
     padding-left: 5px;
-    font-size: 11px;
+    font-size: 13px;
   }
 }
 

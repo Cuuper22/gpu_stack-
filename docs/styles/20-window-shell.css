@@ -48,7 +48,7 @@
   background: var(--button-face);
   color: var(--text-dark);
   padding: 0;
-  font: 700 12px "Pixelify Sans", monospace;
+  font: 700 13px "Pixelify Sans", monospace;
 }
 
 .window-btn:active {
@@ -91,7 +91,7 @@
 
 .tree-label {
   color: var(--text-soft);
-  font-size: 12px;
+  font-size: 13px;
   margin: 2px 0 4px;
   overflow-wrap: anywhere;
 }
@@ -137,6 +137,7 @@
 .retro-btn {
   justify-content: center;
   max-width: 100%;
+  font: 600 15px var(--font-body);
 }
 
 .app-main {
@@ -173,10 +174,15 @@
 }
 
 h1,
-h2,
-h3 {
-  font-family: "Pixelify Sans", monospace;
+h2 {
+  font-family: var(--font-display);
   line-height: 1.05;
+  letter-spacing: 0;
+}
+
+h3 {
+  font-family: var(--font-body);
+  line-height: 1.2;
   letter-spacing: 0;
 }
 

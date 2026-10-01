@@ -20,20 +20,20 @@ typography:
     lineHeight: 1.05
     letterSpacing: "0"
   body:
-    fontFamily: "Pixelify Sans, IBM Plex Sans, system-ui, sans-serif"
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 500
     lineHeight: 1.6
     letterSpacing: "0"
   reading:
-    fontFamily: "Pixelify Sans, IBM Plex Sans, system-ui, sans-serif"
+    fontFamily: "IBM Plex Sans, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 500
     lineHeight: 1.62
     letterSpacing: "0"
   mono:
     fontFamily: "IBM Plex Mono, Courier New, monospace"
-    fontSize: "13px"
+    fontSize: "14px"
     fontWeight: 500
     lineHeight: 1.55
     letterSpacing: "0"
@@ -75,7 +75,7 @@ The README stays a GitHub-rendered article. But any browser page for the project
 
 **Key Characteristics:**
 - Pixel OS chrome first, modern landing-page composition never.
-- Display type uses Pixelify Sans. Reading copy uses IBM Plex Sans. Commands use IBM Plex Mono.
+- Pixelify Sans is for window chrome only. Reading copy and labels use IBM Plex Sans. Numbers, IDs, and commands use IBM Plex Mono.
 - Border radius is zero. Depth comes from outset, inset, and 2px pixel shadows.
 - The site teaches the stack by making files, windows, controls, and dependency panes inspectable.
 
@@ -103,24 +103,28 @@ The palette comes straight from the portfolio OS: teal desktop, gray chrome, ind
 
 ## 3. Typography
 
-**The Font Law (portfolio-wide, per Cuper):** every rendered glyph, at every size and in every role, comes from the approved pixel set: DotGothic16, Pixelify Sans, VT323, Handjet, or Silkscreen. No other typeface ever renders. No exceptions for paragraphs, tables, code, or fine print.
+**The Font Rule (what ships in `docs/styles/00-foundation.css`):**
 
-**Current mapping:** Pixelify Sans carries the interface and all prose (headings, buttons, labels, status lines, paragraphs). VT323, the terminal face, carries commands, identifiers, numeric values, intervals, tables, and console output. The other three approved faces are available but unused here.
+- **Pixelify Sans (pixel) is for window chrome only:** title bars, the wordmark and desktop logo, menus and the nav bar, the taskbar and Start button, window buttons, and very large display titles on the index page. Nothing a reader has to read closely is set in it.
+- **IBM Plex Sans** carries every paragraph, list, label, button, status line, and heading inside a window.
+- **IBM Plex Mono** carries numbers, IDs, hashes, tables, intervals, code, and console output. The taskbar clock uses it too.
 
-**Legibility floor:** pixel faces break down under about 11px, so nothing renders smaller. Dense instrument fine print sits at 0.7rem minimum, chart ticks at 11px.
+**Why:** at small sizes the pixel face misreads. C looks like O, and E looks like a euro sign, so "E001-SC1" rendered as "€001-S01". This replaces the earlier all-pixel "Font Law", which contradicted the typography table above and made data hard to read.
 
-**Character:** The pixel face IS the voice of the OS, everywhere, at every size.
+**Size floor:** prose is 15px or more. Labels, tags, and units are 13px or more. Table cells and values are 14px. Text inside SVG charts is 13px in chart units, and charts keep at least about 85% of their design width (they scroll sideways in their frame instead of shrinking).
+
+**Headlines** wrap between words only. Section titles in narrow columns are sized from the column width so the longest word fits.
 
 ### Hierarchy
 - **Display** (700, `clamp(48px, 8vw, 98px)`, 1.05): page title and very large OS labels only.
 - **Headline** (700, `clamp(30px, 4vw, 50px)`, 1.05): window-section titles.
 - **Title** (700, `20px`, 1.05): pane titles and dialog headings.
 - **Body** (500, `15px`, 1.62): explanatory prose, capped near 65-75 characters when possible.
-- **Label** (700, `13px`, 1.2): file paths, status labels, tabs, window title text.
+- **Label** (700, `13px`, 1.2): status labels, tabs, small captions. Window title text is the one pixel exception.
 
 ### Named Rules
 
-**The Pixel Display Rule.** Pixelify Sans carries chrome, titles, buttons, labels, and all interface copy, exactly like the portfolio. Only two things escape it: multi-sentence reading paragraphs (Plex Sans) and data values, commands, and identifiers (Plex Mono).
+**The Pixel Display Rule.** Pixelify Sans carries chrome only: title bars, wordmark, menus, taskbar, and very large display titles. Everything read closely is Plex Sans, and data values, commands, and identifiers are Plex Mono.
 
 **The No Negative Tracking Rule.** Letter spacing stays at `0`.
 
@@ -167,7 +171,7 @@ Depth here is not blur, glass, or soft shadow. It is the physical model of a ret
 
 ### Do:
 - **Do** preserve the CuperOS desktop metaphor from the portfolio.
-- **Do** use Pixelify Sans for OS chrome and IBM Plex Sans for readable explanation.
+- **Do** use Pixelify Sans for OS chrome only, IBM Plex Sans for readable explanation, and IBM Plex Mono for numbers and IDs.
 - **Do** show the stack before explaining the stack.
 - **Do** expose root inputs as visible modeling debt.
 - **Do** make interactive controls look like OS controls, not SaaS pills.

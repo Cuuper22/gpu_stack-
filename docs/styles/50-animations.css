@@ -79,38 +79,40 @@
   animation-delay: calc(var(--i, 0) * 70ms), calc(var(--i, 0) * 70ms + 380ms);
 }
 
-/* Scroll reveal: sections rise 10px as they enter the viewport. The hidden
-   state only exists when JS has confirmed IntersectionObserver support and
-   motion is allowed (html.js-anim), so no-JS readers see everything. */
-html.js-anim .reveal {
-  opacity: 0;
-  transform: translateY(10px);
-  transition:
-    opacity 560ms var(--ease-mech),
-    transform 560ms var(--ease-mech);
-  transition-delay: calc(var(--reveal-i, 0) * 60ms);
+/* Scroll reveal, as an enhancement only. Everything is visible by default,
+   so screenshot tools, print and fast skimmers always see the whole page.
+   app.js adds .reveal.in-view when a section below the first screen scrolls
+   into view, and these one-shot animations play then. Nothing ever sits in
+   a hidden state waiting for a scroll. Reduced motion never gets the class. */
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes reveal-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 
 html.js-anim .reveal.in-view {
-  opacity: 1;
-  transform: translateY(0);
+  animation: reveal-rise 560ms var(--ease-mech) backwards;
+  animation-delay: calc(var(--reveal-i, 0) * 60ms);
 }
 
-/* Cone layers stack in top-down as their section reveals, so the cone
-   visibly builds from the question toward the physical floor. */
-html.js-anim .reveal .cone-layer {
-  opacity: 0;
-  transform: translateY(8px);
-  transition:
-    opacity 420ms var(--ease-mech),
-    transform 420ms var(--ease-mech),
-    background 160ms var(--ease-snap);
-  transition-delay: calc(var(--i, 0) * 80ms + 180ms), calc(var(--i, 0) * 80ms + 180ms), 0ms;
-}
-
+/* Cone layers stack in top-down as their section reveals. */
 html.js-anim .reveal.in-view .cone-layer {
-  opacity: 1;
-  transform: translateY(0);
+  animation: reveal-rise 420ms var(--ease-mech) backwards;
+  animation-delay: calc(var(--i, 0) * 80ms + 180ms);
 }
 
 /* Trace meter fills by transform, never width. */
@@ -142,15 +144,10 @@ html.js-anim .reveal.in-view .cone-layer {
   transform: scaleY(1.35);
 }
 
-html.js-anim .reveal .impact-bar::after {
-  transform-origin: left center;
-  transform: scaleX(0);
-  transition: transform 720ms var(--ease-mech);
-  transition-delay: calc(var(--reveal-i, 0) * 90ms + 220ms);
-}
-
 html.js-anim .reveal.in-view .impact-bar::after {
-  transform: scaleX(1);
+  transform-origin: left center;
+  animation: reveal-grow 720ms var(--ease-mech) backwards;
+  animation-delay: calc(var(--reveal-i, 0) * 90ms + 220ms);
 }
 
 /* Token journey: one square token walks the stations top of the page style,

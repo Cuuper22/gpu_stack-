@@ -1,0 +1,359 @@
+/* Readability layer. Loads last on both pages.
+   Rules:
+   - Pixelify Sans is window chrome only (see 00-foundation.css tokens).
+   - Paragraph text is 15px or more. Small labels and table cells are 13px or
+     more. SVG text is 12px or more.
+   - Headlines wrap between words, never inside them.
+   - Secondary panels (WebMCP queue, receipts) stay out of the way. */
+
+/* ------------------------------------------------------------------ */
+/* Headlines: break between words only                                  */
+/* ------------------------------------------------------------------ */
+
+h1,
+h2,
+h3,
+h4 {
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  hyphens: manual;
+  text-wrap: balance;
+}
+
+/* Index section titles are pixel display type in narrow columns. Size them
+   from the column so the longest word always fits on its own line. */
+.section-copy,
+.primer-copy,
+.dialog-body {
+  container-type: inline-size;
+}
+
+.section-copy h2,
+.primer-copy h2,
+.dialog-body h2 {
+  font-size: clamp(24px, 12cqw, 40px);
+  line-height: 1.12;
+  overflow-wrap: break-word;
+}
+
+/* ------------------------------------------------------------------ */
+/* Text floor                                                           */
+/* ------------------------------------------------------------------ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-size: 15px;
+}
+
+/* Prose is 15px. Labels, tags and units stay at 13px, table cells and
+   values at 14px. These use !important because 90-observatory sets sizes
+   per component behind long selectors. */
+main p:not(.control-label):not([class*="eyebrow"]):not([class*="kicker"]):not(.artifact-state):not([class*="-meta"]),
+main summary,
+main li,
+main .depth-freshman,
+main .depth-researcher,
+main .depth-full_trace,
+main [class*="plain-body"],
+main [class*="plain-detail"],
+main [class*="effect-meaning"],
+main [class*="gate-label"],
+main .comparison-boundary,
+main .causal-fallback-button,
+main .causal-reading small,
+main details > div > p {
+  font-size: 15px !important;
+  line-height: 1.55;
+}
+
+main td,
+main th,
+main dd,
+main pre {
+  font-size: 14px !important;
+}
+
+.mission-sidecar p,
+.mission-sidecar .mission-human-boundary {
+  font-size: 14px !important;
+}
+
+.logo-version {
+  font: 600 12px/1 var(--font-body);
+  letter-spacing: 0.06em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Observatory question band: the question and the result come first    */
+/* ------------------------------------------------------------------ */
+
+.question-copy h1 {
+  max-width: 32ch;
+  margin-right: auto;
+  margin-left: auto;
+  font-size: clamp(1.5rem, 1rem + 1.4vw, 2.125rem);
+  line-height: 1.15;
+}
+
+.plain-answer {
+  font-size: 1.0625rem;
+  line-height: 1.55;
+}
+
+.artifact-state {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mission bar and rail: secondary to the experiment                    */
+/* ------------------------------------------------------------------ */
+
+:root {
+  --mission-rail: clamp(280px, 20vw, 340px);
+}
+
+.mission-toggle[aria-expanded="true"] {
+  border-style: inset;
+}
+
+.mission-sidecar {
+  background: var(--chrome-well);
+}
+
+.mission-panel {
+  box-shadow: none;
+}
+
+.mission-empty {
+  min-height: 0;
+  padding: 9px 10px;
+  border-color: var(--frame-line);
+  background: transparent;
+}
+
+.mission-empty--receipt {
+  min-height: 0;
+}
+
+.mission-empty strong {
+  font-size: 13px;
+}
+
+.mission-empty p,
+.mission-human-boundary {
+  font-size: 13px;
+}
+
+.mission-list,
+.receipt-list {
+  max-height: min(28vh, 260px);
+}
+
+body[data-rail="closed"] .mission-sidecar {
+  display: none;
+}
+
+body[data-rail="closed"] .obs-window-content {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+body[data-rail="closed"] #observatory-main {
+  grid-column: 1 / -1;
+  border-right: 0;
+}
+
+@media (max-width: 900px) {
+  /* On a phone the bar shows one line plus the toggle until opened. */
+  body[data-rail="closed"] .mission-objective-block,
+  body[data-rail="closed"] .mission-policy,
+  body[data-rail="closed"] .mission-live-block {
+    display: none !important;
+  }
+
+  body[data-rail="closed"] .mission-utility-actions #mission-tour,
+  body[data-rail="closed"] .mission-utility-actions #mission-reset {
+    display: none;
+  }
+
+  .mission-control > div {
+    min-height: 40px;
+  }
+}
+
+/* Stacked layout: when open, the rail sits under the bar, before the page. */
+@media (max-width: 1280px) {
+  body[data-rail="open"] .mission-sidecar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Causal diagram: labels at 12px or more, diagram larger              */
+/* ------------------------------------------------------------------ */
+
+.causal-svg-wrap {
+  min-height: 0;
+  overflow-x: auto;
+}
+
+.causal-svg {
+  display: block;
+  width: 100%;
+  min-width: 700px;
+  height: auto;
+  aspect-ratio: 860 / 520;
+}
+
+.causal-svg[data-layout="stacked"] {
+  min-width: 0;
+  aspect-ratio: auto;
+}
+
+main .causal-svg .node-title {
+  font: 600 16px var(--font-body) !important;
+}
+
+main .causal-svg .node-evidence {
+  font: 700 15px var(--font-body) !important;
+  letter-spacing: 0.02em;
+}
+
+main .causal-svg .node-detail,
+main .causal-svg .empty-label {
+  font: 500 15px var(--font-mono) !important;
+}
+
+main .causal-svg .edge-label {
+  font: 500 15px var(--font-body) !important;
+  paint-order: stroke;
+  stroke: var(--obs-paper);
+  stroke-width: 4px;
+}
+
+@media (max-width: 760px) {
+  .causal-svg-wrap {
+    min-height: 0;
+  }
+
+  .causal-svg {
+    height: auto;
+  }
+
+  main .causal-svg .node-title {
+    font-size: 16px !important;
+  }
+
+  main .causal-svg .node-detail {
+    font-size: 15px !important;
+  }
+}
+
+/* Charts: user-unit text is only readable if the chart is not shrunk below
+   about 85% of its design width. Wider than the column? It scrolls sideways
+   inside its own frame instead of shrinking the labels. */
+main svg[viewBox^="0 0 1000"] {
+  display: block;
+  width: 100%;
+  min-width: 850px;
+  height: auto;
+}
+
+main svg[viewBox="0 0 720 330"] {
+  min-width: 620px;
+}
+
+main :has(> svg[viewBox^="0 0 1000"]),
+main :has(> svg[viewBox="0 0 720 330"]) {
+  overflow-x: auto;
+}
+
+/* Two charts side by side left each about 60% of design width. One per row. */
+main .learning-visual-grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+/* Chart text floor, raised from 11px to 13px (about 11px after scaling). */
+main svg text {
+  font-size: 13px !important;
+}
+
+/* Wide screens: the causal field gets the width. The numbered reading
+   moves under it as a three-column strip; the inspector stays on the right. */
+@media (min-width: 1100px) {
+  main .research-band {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 350px);
+    grid-template-areas:
+      "core inspector"
+      "reading inspector";
+    min-height: 0;
+  }
+
+  main .research-band.inspector-hidden {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "core" "reading";
+  }
+
+  main .research-band .research-core {
+    grid-area: core;
+  }
+
+  main .research-band .causal-reading {
+    grid-area: reading;
+    border-top: 1px solid var(--obs-rule);
+    border-right: 0;
+    padding: 16px var(--obs-gutter) 18px;
+  }
+
+  main .research-band .evidence-inspector {
+    grid-area: inspector;
+  }
+
+  main .causal-reading > ol {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 22px;
+  }
+
+  main .causal-reading > ol::before {
+    display: none;
+  }
+
+  main .causal-reading .evidence-key ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Clock digits are numbers: pixel 3 and 8 look alike, so use the mono face. */
+.taskbar-clock {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ */
+/* Raw trace gate                                                       */
+/* ------------------------------------------------------------------ */
+
+.raw-load-button {
+  margin: 8px 0 0;
+  padding: 8px 14px;
+  color: var(--text-dark);
+  font: 600 15px var(--font-body);
+  cursor: pointer;
+}
+
+.raw-load-button:hover:not(:disabled) {
+  background: var(--button-hover);
+}
+
+.raw-load-button:disabled {
+  cursor: progress;
+  opacity: 0.65;
+}

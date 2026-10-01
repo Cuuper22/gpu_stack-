@@ -17,12 +17,6 @@
 /* ------------------------------------------------------------------ */
 
 :root {
-  /* Pixelify carries everything here too, matching the portfolio and the
-     index. --font-reading stays as the one-line seam to soften long prose
-     back to Plex Sans if that ever becomes the call. */
-  --font-reading: "Pixelify Sans", "VT323", monospace;
-  --font-value: "VT323", "Pixelify Sans", monospace;
-  --font-identity: "Pixelify Sans", "VT323", monospace;
   --obs-paper: var(--window-body);
   --obs-paper-raised: var(--pane-bright);
   --obs-paper-deep: var(--chrome-well);
@@ -82,7 +76,7 @@ body::before {
 
 .logo-version {
   color: var(--gold-soft);
-  font: 600 11px/1 var(--font-display);
+  font: 600 13px/1 var(--font-display);
   text-shadow: 1px 1px 0 var(--pixel-ink);
 }
 
@@ -139,7 +133,7 @@ body::before {
   background: var(--button-face);
   color: var(--text-dark);
   padding: 0;
-  font: 700 12px var(--font-display);
+  font: 700 13px var(--font-display);
 }
 
 .obs-window-content {
@@ -181,14 +175,14 @@ main {
 }
 
 /* ------------------------------------------------------------------ */
-/* Display typography: Pixelify carries titles, Plex carries reading    */
+/* Typography: Pixelify only for window chrome; Plex for everything read */
 /* ------------------------------------------------------------------ */
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   letter-spacing: 0;
   font-weight: 700;
 }
@@ -199,48 +193,47 @@ h1 {
 }
 
 /* ------------------------------------------------------------------ */
-/* Portfolio type rule: Pixelify carries every label, control, and      */
-/* nav item. Plex Sans stays only on multi-sentence reading             */
-/* paragraphs; mono stays only on values, intervals, identifiers,       */
-/* and tables.                                                          */
+/* Type rule: Pixelify carries only the wordmark, nav menu and window   */
+/* chrome. Labels, controls and paragraphs are Plex Sans; values, IDs,  */
+/* intervals and tables are Plex Mono.                                  */
 /* ------------------------------------------------------------------ */
 
 .obs-nav a {
-  font: 600 0.95rem var(--font-display);
+  font: 600 1rem var(--font-display);
 }
 
 .experiment-picker select {
-  font: 600 0.9rem var(--font-display);
+  font: 600 0.9rem var(--font-body);
 }
 
 .share-state {
-  font: 600 0.9rem var(--font-display);
+  font: 600 0.9rem var(--font-body);
 }
 
 .control-label {
-  font: 700 0.8rem/1.2 var(--font-display);
+  font: 700 0.8125rem/1.2 var(--font-body);
   letter-spacing: 0.04em;
 }
 
 .experiment-kicker,
 .stage-boundary,
 .equal-work-eyebrow {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
 }
 
 .obs-product {
-  font: 600 0.85rem var(--font-display);
+  font: 600 0.95rem var(--font-body);
 }
 
 .obs-footer,
 .obs-footer span {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-size: 0.85rem;
 }
 
 .site-button .site-name,
 .site-name {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 700;
 }
 
@@ -300,7 +293,7 @@ h1 {
 .semantic-consistency-evidence-grid h4,
 .rack-dephasing-section-header h3,
 .rack-dephasing-boundary h3 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
 }
 
 .skip-link,
@@ -364,7 +357,7 @@ h1 {
 .checkpoint-power-trace-warning,
 .checkpoint-energy-effect-meaning,
 details p[role="status"] {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
 }
 
 /* ------------------------------------------------------------------ */
@@ -378,24 +371,24 @@ details p[role="status"] {
 .checkpoint-energy-eyebrow,
 .learning-eyebrow,
 .rack-dephasing-eyebrow {
-  font-size: 0.78rem;
+  font-size: 0.8125rem;
 }
 
 .checkpoint-power-plain-label,
 .checkpoint-energy-plain-label {
-  font-size: 0.74rem;
+  font-size: 0.8125rem;
 }
 
 .equal-work-effect-status,
 .checkpoint-energy-gate-state,
 .equal-work-gate-state,
 .learning-gate-state {
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
 }
 
 .equal-work-effect-interval,
 .equal-work-effect-bound {
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
 }
 
 .equal-work-trace-table,
@@ -409,14 +402,14 @@ details p[role="status"] {
 .checkpoint-energy-run-selector select,
 .checkpoint-power-run-selector select,
 .rack-dephasing-controls select {
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
 }
 
 .checkpoint-power-run-selector label,
 .checkpoint-energy-run-selector label,
 .rack-dephasing-controls label,
 .timeline-controls > label {
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
 }
 
 .timeline-svg .axis-text,
@@ -437,7 +430,7 @@ details p[role="status"] {
 .rack-dephasing-direct-label,
 .rack-dephasing-rail-label,
 .rack-dephasing-event-label {
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .equal-work-section-header > span,
@@ -452,7 +445,7 @@ details p[role="status"] {
 .site-outage-chip,
 .checkpoint-energy-raw-panel p,
 .checkpoint-power-raw-panel p {
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
 }
 
 .equal-work-trace pre,
@@ -460,13 +453,13 @@ details p[role="status"] {
 .checkpoint-power-trace pre,
 .learning-trace pre,
 .raw-trace pre {
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
 }
 
 /* Unstyled <small> shrinks to ~0.83em of already-small parents; pin it
    to the floor. Classed small rules above still win. */
 main small {
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
 }
 
 /* Hard legibility floor for chart text. The !important is deliberate:
@@ -493,7 +486,7 @@ button:active {
 }
 
 .depth-control button {
-  font: 600 13px var(--font-display);
+  font: 600 13px var(--font-body);
   color: var(--text-dark);
 }
 
@@ -562,7 +555,7 @@ body[data-depth="freshman"] .plain-words.has-text {
   content: "In plain words";
   display: block;
   margin-bottom: 4px;
-  font: 700 11px/1.2 var(--font-display);
+  font: 700 13px/1.2 var(--font-body);
   text-transform: uppercase;
   color: oklch(0.45 0.09 88);
 }
@@ -593,7 +586,7 @@ body[data-depth="freshman"] .plain-words.has-text {
   padding: 2px 6px;
   border: 2px dashed oklch(0.52 0.12 88);
   color: oklch(0.45 0.09 88);
-  font: 700 11px/1.2 var(--font-value);
+  font: 700 13px/1.2 var(--font-value);
   text-transform: uppercase;
 }
 

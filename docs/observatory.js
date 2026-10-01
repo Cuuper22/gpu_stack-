@@ -16,13 +16,20 @@
   const CHECKPOINT_ENERGY_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-checkpoint-energy.v2";
   const CHECKPOINT_ENERGY_RAW_ARTIFACT_URL = "data/e002-checkpoint-energy-raw-v2.json";
   const CHECKPOINT_ENERGY_RAW_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-checkpoint-energy.raw.v2";
-  const RACK_DEPHASING_ARTIFACT_URL = "data/e002-rack-dephasing-v3.json";
+  // E002-PW3 has a protocol but no result file yet (experiments/e002-power-waveform-shaping/results/
+  // holds only checkpoint-power-v1 and checkpoint-energy-v2). Set this to a data/ path once a result is
+  // published; until then the band stays hidden and no request is made.
+  const RACK_DEPHASING_ARTIFACT_URL = null;
   const RACK_DEPHASING_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-rack-dephasing.v3";
   const SEMANTIC_CONSISTENCY_ARTIFACT_URL = "data/e001-semantic-consistency-v1.json";
   const SEMANTIC_CONSISTENCY_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001-semantic-consistency.v1";
   const SEMANTIC_CONSISTENCY_RAW_ARTIFACT_URL = "data/e001-semantic-consistency-raw-v1.json";
   const SEMANTIC_CONSISTENCY_RAW_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001-semantic-consistency.raw.v1";
   const SVG_NS = "http://www.w3.org/2000/svg";
+  // data-cache.js shares one download per file with webmcp-mission.js; fall back to plain fetch.
+  const sharedFetch = (url) => (window.GPUStackData
+    ? window.GPUStackData.fetch(url)
+    : fetch(url, { headers: { Accept: "application/json" } }));
   const VALID_DEPTHS = new Set(["freshman", "researcher", "full_trace"]);
   const VALID_EXPERIMENTS = new Set(["E001-SC1", "E001"]);
   const VALID_POLICIES = new Set(["synchronous", "fixed_local", "adaptive_cadence"]);
@@ -692,7 +699,7 @@
 
   async function loadArtifact() {
     try {
-      const response = await fetch(ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(ARTIFACT_URL);
       if (!response.ok) throw new Error(`artifact request returned ${response.status}`);
       artifact = validateArtifact(await response.json());
       artifactError = null;
@@ -705,9 +712,23 @@
     renderAll();
   }
 
+  let e001ArtifactsRequested = false;
+
+  // recovery-v2 is 4.2 MB and the learning, equal-work and checkpoint results are another 0.5 MB.
+  // Only the E001 view shows them, so they load when that view first opens.
+  function ensureE001Artifacts() {
+    if (e001ArtifactsRequested || state.experiment !== "E001") return;
+    e001ArtifactsRequested = true;
+    loadRecoveryArtifact();
+    loadLearningArtifact();
+    loadEqualWorkArtifact();
+    loadCheckpointPowerArtifact();
+    loadCheckpointEnergyArtifact();
+  }
+
   async function loadRecoveryArtifact() {
     try {
-      const response = await fetch(RECOVERY_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(RECOVERY_ARTIFACT_URL);
       if (!response.ok) throw new Error(`recovery artifact request returned ${response.status}`);
       recoveryArtifact = validateRecoveryArtifact(await response.json());
       recoveryArtifactError = null;
@@ -722,7 +743,7 @@
 
   async function loadLearningArtifact() {
     try {
-      const response = await fetch(LEARNING_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(LEARNING_ARTIFACT_URL);
       if (!response.ok) throw new Error(`learning artifact request returned ${response.status}`);
       learningArtifact = validateLearningArtifact(await response.json());
       learningArtifactError = null;
@@ -737,7 +758,7 @@
 
   async function loadEqualWorkArtifact() {
     try {
-      const response = await fetch(EQUAL_WORK_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(EQUAL_WORK_ARTIFACT_URL);
       if (!response.ok) throw new Error(`equal-work artifact request returned ${response.status}`);
       equalWorkArtifact = validateEqualWorkArtifact(await response.json());
       equalWorkArtifactError = null;
@@ -752,7 +773,7 @@
 
   async function loadCheckpointPowerArtifact() {
     try {
-      const response = await fetch(CHECKPOINT_POWER_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(CHECKPOINT_POWER_ARTIFACT_URL);
       if (!response.ok) throw new Error(`checkpoint-power artifact request returned ${response.status}`);
       checkpointPowerArtifact = validateCheckpointPowerArtifact(await response.json());
       checkpointPowerArtifactError = null;
@@ -771,7 +792,7 @@
     dom.checkpointpowerrawstate.textContent = "Loading the separate raw point artifact…";
     checkpointPowerRawLoad = (async () => {
       try {
-        const response = await fetch(CHECKPOINT_POWER_RAW_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+        const response = await sharedFetch(CHECKPOINT_POWER_RAW_ARTIFACT_URL);
         if (!response.ok) throw new Error(`checkpoint-power raw artifact request returned ${response.status}`);
         checkpointPowerRawArtifact = validateCheckpointPowerRawArtifact(await response.json());
         checkpointPowerRawArtifactError = null;
@@ -793,7 +814,7 @@
 
   async function loadCheckpointEnergyArtifact() {
     try {
-      const response = await fetch(CHECKPOINT_ENERGY_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(CHECKPOINT_ENERGY_ARTIFACT_URL);
       if (!response.ok) throw new Error(`checkpoint-energy artifact request returned ${response.status}`);
       checkpointEnergyArtifact = validateCheckpointEnergyArtifact(await response.json());
       checkpointEnergyArtifactError = null;
@@ -812,7 +833,7 @@
     dom.checkpointenergyrawstate.textContent = "Loading the separate cumulative-counter point artifact…";
     checkpointEnergyRawLoad = (async () => {
       try {
-        const response = await fetch(CHECKPOINT_ENERGY_RAW_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+        const response = await sharedFetch(CHECKPOINT_ENERGY_RAW_ARTIFACT_URL);
         if (!response.ok) throw new Error(`checkpoint-energy raw artifact request returned ${response.status}`);
         checkpointEnergyRawArtifact = validateCheckpointEnergyRawArtifact(await response.json());
         checkpointEnergyRawArtifactError = null;
@@ -833,8 +854,15 @@
   }
 
   async function loadRackDephasingArtifact() {
+    if (!RACK_DEPHASING_ARTIFACT_URL) {
+      rackDephasingArtifact = null;
+      rackDephasingArtifactError = null;
+      document.body.dataset.rackDephasingState = "not-run";
+      renderRackDephasingV3();
+      return;
+    }
     try {
-      const response = await fetch(RACK_DEPHASING_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(RACK_DEPHASING_ARTIFACT_URL);
       if (!response.ok) throw new Error(`rack-dephasing artifact request returned ${response.status}`);
       rackDephasingArtifact = validateRackDephasingArtifact(await response.json());
       rackDephasingArtifactError = null;
@@ -849,7 +877,7 @@
 
   async function loadSemanticConsistencyArtifact() {
     try {
-      const response = await fetch(SEMANTIC_CONSISTENCY_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(SEMANTIC_CONSISTENCY_ARTIFACT_URL);
       if (!response.ok) throw new Error(`semantic-consistency artifact request returned ${response.status}`);
       semanticConsistencyArtifact = validateSemanticConsistencyArtifact(await response.json());
       semanticConsistencyArtifactError = null;
@@ -870,7 +898,7 @@
       try {
         const binding = semanticConsistencyArtifact && semanticConsistencyArtifact.full_trace.raw_trace_artifact;
         const uri = binding && typeof binding.uri === "string" && binding.uri ? binding.uri : SEMANTIC_CONSISTENCY_RAW_ARTIFACT_URL;
-        const response = await fetch(uri.startsWith("data/") ? uri : `data/${uri}`, { cache: "no-store", headers: { Accept: "application/json" } });
+        const response = await sharedFetch(uri.startsWith("data/") ? uri : `data/${uri}`);
         if (!response.ok) throw new Error(`semantic-consistency raw artifact request returned ${response.status}`);
         semanticConsistencyRawArtifact = validateSemanticConsistencyRawArtifact(await response.json());
         semanticConsistencyRawArtifactError = null;
@@ -988,18 +1016,12 @@
       renderCheckpointPowerPhaseMetrics();
       if (checkpointPowerRawArtifact) renderCheckpointPowerRawTrace();
     });
-    dom.checkpointpowerrawdetails.addEventListener("toggle", () => {
-      if (!dom.checkpointpowerrawdetails.open || state.depth !== "full_trace") return;
-      loadCheckpointPowerRawArtifact().catch(() => {});
-    });
+    dom.checkpointpowerrawdetails.addEventListener("toggle", renderRawGates);
     dom.checkpointenergyrunselect.addEventListener("change", () => {
       renderCheckpointEnergyPhaseMetrics();
       if (checkpointEnergyRawArtifact) renderCheckpointEnergyRawTrace();
     });
-    dom.checkpointenergyrawdetails.addEventListener("toggle", () => {
-      if (!dom.checkpointenergyrawdetails.open || state.depth !== "full_trace") return;
-      loadCheckpointEnergyRawArtifact().catch(() => {});
-    });
+    dom.checkpointenergyrawdetails.addEventListener("toggle", renderRawGates);
     dom.rackdephasingblockselect.addEventListener("change", () => {
       commitState({ rackBlock: dom.rackdephasingblockselect.value });
     });
@@ -1012,10 +1034,7 @@
     dom.semanticconsistencyrunselect.addEventListener("change", () => {
       commitState({ semanticRun: dom.semanticconsistencyrunselect.value });
     });
-    dom.semanticconsistencyrawdetails.addEventListener("toggle", () => {
-      if (!dom.semanticconsistencyrawdetails.open || state.depth !== "full_trace") return;
-      loadSemanticConsistencyRawArtifact().catch(() => {});
-    });
+    dom.semanticconsistencyrawdetails.addEventListener("toggle", renderRawGates);
     dom.timelineviewport.addEventListener("keydown", (event) => {
       if (event.target !== dom.timelineviewport) return;
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -1049,17 +1068,79 @@
     }, { passive: true });
   }
 
+  // Raw traces are large (sizes measured from docs/data/*.json). They download only when the
+  // reader presses the button, and the button says how big the file is first.
+  const RAW_TRACES = [
+    { key: "semantic-consistency", bytes: 72194752, details: "semanticconsistencyrawdetails", status: "semanticconsistencyrawstate", loaded: () => semanticConsistencyRawArtifact, loading: () => semanticConsistencyRawLoad, failed: () => semanticConsistencyRawArtifactError, load: () => loadSemanticConsistencyRawArtifact() },
+    { key: "checkpoint-energy", bytes: 19255860, details: "checkpointenergyrawdetails", status: "checkpointenergyrawstate", loaded: () => checkpointEnergyRawArtifact, loading: () => checkpointEnergyRawLoad, failed: () => checkpointEnergyRawArtifactError, load: () => loadCheckpointEnergyRawArtifact() },
+    { key: "checkpoint-power", bytes: 8774472, details: "checkpointpowerrawdetails", status: "checkpointpowerrawstate", loaded: () => checkpointPowerRawArtifact, loading: () => checkpointPowerRawLoad, failed: () => checkpointPowerRawArtifactError, load: () => loadCheckpointPowerRawArtifact() },
+  ];
+
+  function formatMegabytes(bytes) {
+    return `${(bytes / 1e6).toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} MB`;
+  }
+
+  function renderRawGates() {
+    RAW_TRACES.forEach((trace) => {
+      const details = dom[trace.details];
+      const status = dom[trace.status];
+      if (!details || !status) return;
+      let button = document.getElementById(`${trace.key}-raw-load`);
+      if (trace.loaded() || trace.loading()) {
+        if (button) button.hidden = true;
+        return;
+      }
+      const size = formatMegabytes(trace.bytes);
+      if (!button) {
+        button = element("button", "raw-load-button", "");
+        button.id = `${trace.key}-raw-load`;
+        button.type = "button";
+        button.addEventListener("click", () => {
+          button.disabled = true;
+          trace.load().catch(() => {}).finally(() => { button.disabled = false; renderRawGates(); });
+        });
+        status.after(button);
+      }
+      button.hidden = false;
+      button.textContent = trace.failed() ? `Try again (${size})` : `Load exact trace (${size})`;
+      if (!trace.failed()) status.textContent = `Not loaded. This file is ${size} and downloads only if you press the button.`;
+    });
+  }
+
+  // The mission bar details and the review queue / receipts rail are secondary to the question and
+  // result. They start closed on narrow screens and open on wide desktops, and they open by
+  // themselves when something is staged for human review.
+  function bindMissionRail() {
+    const toggle = document.getElementById("mission-toggle");
+    if (!toggle) return;
+    const wide = window.matchMedia ? window.matchMedia("(min-width: 1281px)") : { matches: true };
+    const setOpen = (open) => {
+      document.body.dataset.rail = open ? "open" : "closed";
+      toggle.setAttribute("aria-expanded", String(open));
+    };
+    const refreshLabel = () => {
+      const staged = document.getElementById("pending-change-count");
+      const stagedCount = staged ? parseInt(staged.textContent, 10) || 0 : 0;
+      toggle.textContent = stagedCount ? `Review queue (${stagedCount})` : "Review queue";
+      return stagedCount;
+    };
+    setOpen(wide.matches);
+    toggle.addEventListener("click", () => setOpen(document.body.dataset.rail !== "open"));
+    const staged = document.getElementById("pending-change-count");
+    if (staged && typeof MutationObserver === "function") {
+      new MutationObserver(() => { if (refreshLabel() > 0) setOpen(true); })
+        .observe(staged, { childList: true, characterData: true, subtree: true });
+    }
+    refreshLabel();
+  }
+
   function init() {
     cacheDOM();
+    bindMissionRail();
     bindStaticInteractions();
     writeStateToURL(true);
     renderAll();
     loadArtifact();
-    loadRecoveryArtifact();
-    loadLearningArtifact();
-    loadEqualWorkArtifact();
-    loadCheckpointPowerArtifact();
-    loadCheckpointEnergyArtifact();
     loadRackDephasingArtifact();
     loadSemanticConsistencyArtifact();
     resolveObservatoryReady();
@@ -1092,9 +1173,8 @@
     renderRackDephasingV3();
     renderSemanticConsistencyV1();
     renderExperimentView();
-    if (state.experiment === "E001-SC1" && state.depth === "full_trace" && dom.semanticconsistencyrawdetails?.open && semanticConsistencyArtifact && !semanticConsistencyRawArtifact && !semanticConsistencyRawLoad && !semanticConsistencyRawArtifactError) {
-      loadSemanticConsistencyRawArtifact().catch(() => {});
-    }
+    ensureE001Artifacts();
+    renderRawGates();
   }
 
   function renderExperimentView() {
@@ -1405,7 +1485,7 @@
       dom.recoveryv2.hidden = true;
       return;
     }
-    dom.recoveryv2.hidden = false;
+    dom.recoveryv2.hidden = state.experiment !== dom.recoveryv2.dataset.experimentView;
     const status = recoveryArtifact.status || {};
     const protocol = String(recoveryArtifact.protocol_hash || "not reported").slice(0, 12);
     dom.recoveryv2state.textContent = `${String(status.conclusion || "inconclusive").replaceAll("_", " ")} · MODELED mechanics · protocol ${protocol}`;
@@ -1788,7 +1868,7 @@
       dom.learningv1.hidden = true;
       return;
     }
-    dom.learningv1.hidden = false;
+    dom.learningv1.hidden = state.experiment !== dom.learningv1.dataset.experimentView;
     const conclusion = learningArtifact.conclusion;
     const hash = String(learningArtifact.artifact_sha256).replace(/^sha256:/, "").slice(0, 12);
     dom.learningv1state.textContent = `${String(conclusion.status).replaceAll("_", " ")} · OBSERVED learning · artifact ${hash}`;
@@ -2060,7 +2140,7 @@
       dom.equalworkv1.hidden = true;
       return;
     }
-    dom.equalworkv1.hidden = false;
+    dom.equalworkv1.hidden = state.experiment !== dom.equalworkv1.dataset.experimentView;
     const conclusion = equalWorkArtifact.conclusion;
     dom.equalworkv1state.textContent = `${String(conclusion.status).replaceAll("_", " ")} · OBSERVED local learning · artifact ${equalWorkArtifact.artifact_sha256.slice(0, 12)}`;
     dom.equalworkinsighttitle.textContent = "Adaptive kept the learning and saved work, but missed the energy bound";
@@ -2355,7 +2435,7 @@
       dom.checkpointpowerv1.hidden = true;
       return;
     }
-    dom.checkpointpowerv1.hidden = false;
+    dom.checkpointpowerv1.hidden = state.experiment !== dom.checkpointpowerv1.dataset.experimentView;
     const freshman = checkpointPowerArtifact.freshman;
     dom.checkpointpowerv1state.textContent = `measurement invalid · 32/32 runs · artifact ${checkpointPowerArtifact.artifact_sha256.slice(0, 12)}`;
     dom.checkpointpowerinsighttitle.textContent = freshman.headline;
@@ -2644,7 +2724,7 @@
       dom.checkpointenergyv2.hidden = true;
       return;
     }
-    dom.checkpointenergyv2.hidden = false;
+    dom.checkpointenergyv2.hidden = state.experiment !== dom.checkpointenergyv2.dataset.experimentView;
     const freshman = checkpointEnergyArtifact.freshman;
     dom.checkpointenergyv2state.textContent = `measurement valid · 11/11 gates pass · artifact ${checkpointEnergyArtifact.artifact_sha256.slice(0, 12)}`;
     dom.checkpointenergyinsighttitle.textContent = freshman.headline;
@@ -3130,7 +3210,10 @@
     dom.semanticconsistencyeyebrow.textContent = `${semanticConsistencyArtifact.work_contract.canonical_tokens.toLocaleString("en-US")} canonical tokens · ${familyCount} untouched families`;
     dom.semanticconsistencyinsighttitle.textContent = freshman.headline;
     dom.semanticconsistencyplainanswer.textContent = freshman.plain_answer;
-    setPlainWords("semantic-consistency-plain-words", status.conclusion);
+    // The question band above already shows this answer and the "In plain words" box for E001-SC1,
+    // so repeating either here would show the same text twice in a row.
+    dom.semanticconsistencyplainanswer.hidden = freshman.plain_answer === status.plain_answer;
+    setPlainWords("semantic-consistency-plain-words", null);
     dom.semanticconsistencyboundaryshort.textContent = freshman.boundary;
     dom.semanticconsistencyfreshmancopy.textContent = freshman.explanation;
     dom.semanticconsistencyresearchercopy.textContent = semanticConsistencyArtifact.researcher.explanation;
@@ -3715,7 +3798,7 @@
       dom.rackdephasingv3.hidden = true;
       return;
     }
-    dom.rackdephasingv3.hidden = false;
+    dom.rackdephasingv3.hidden = state.experiment !== dom.rackdephasingv3.dataset.experimentView;
     const freshman = rackDephasingArtifact.freshman;
     const researcher = rackDephasingArtifact.researcher;
     const decision = typeof researcher.decision === "string" ? researcher.decision : rackRecord(researcher.decision).conclusion || rackRecord(researcher.decision).status || rackDephasingArtifact.artifact_state;
@@ -3938,26 +4021,26 @@
   function nodeLayout(nodes, mobile) {
     if (mobile) {
       const map = new Map();
-      nodes.forEach((node, index) => map.set(node.node_id, { x: 12, y: 18 + index * 96, width: 336, height: 72 }));
-      return { width: 360, height: Math.max(696, 34 + nodes.length * 96), map };
+      nodes.forEach((node, index) => map.set(node.node_id, { x: 12, y: 18 + index * 112, width: 336, height: 88 }));
+      return { width: 360, height: 36 + nodes.length * 112, map };
     }
     const named = {
-      site_availability: { x: 30, y: 38 },
-      membership: { x: 310, y: 38 },
-      sync_cadence: { x: 310, y: 150 },
-      collective_payload: { x: 30, y: 265 },
-      mechanical_elapsed_time: { x: 310, y: 265 },
-      learning_progress: { x: 590, y: 150 },
-      time_to_target: { x: 590, y: 342 },
+      site_availability: { x: 10, y: 40 },
+      membership: { x: 330, y: 40 },
+      sync_cadence: { x: 330, y: 170 },
+      collective_payload: { x: 10, y: 300 },
+      mechanical_elapsed_time: { x: 330, y: 300 },
+      learning_progress: { x: 650, y: 170 },
+      time_to_target: { x: 650, y: 410 },
     };
     const map = new Map();
     nodes.forEach((node, index) => {
       const fallbackColumn = index % 3;
       const fallbackRow = Math.floor(index / 3);
-      const point = named[node.node_id] || { x: 30 + fallbackColumn * 280, y: 38 + fallbackRow * 112 };
-      map.set(node.node_id, { ...point, width: 220, height: 74 });
+      const point = named[node.node_id] || { x: 10 + fallbackColumn * 320, y: 40 + fallbackRow * 130 };
+      map.set(node.node_id, { ...point, width: 200, height: 88 });
     });
-    return { width: 840, height: 440, map };
+    return { width: 860, height: 520, map };
   }
 
   function causalEdgePath(source, target, mobile) {
@@ -4009,7 +4092,10 @@
     const svg = dom.causalsvg;
     svg.replaceChildren();
     svg.setAttribute("viewBox", `0 0 ${layout.width} ${layout.height}`);
+    // 1 user unit is about 1 CSS pixel: the SVG keeps a minimum width (see 96-readability.css) so the
+    // 13 to 15 unit labels never render below 12px.
     svg.setAttribute("height", String(layout.height));
+    svg.dataset.layout = mobile ? "stacked" : "wide";
 
     const title = svgElement("title", { id: "causal-svg-title" });
     title.textContent = "E001 causal graph";
@@ -4069,9 +4155,9 @@
       group.append(svgElement("rect", { class: "node-frame", x: 0, y: 0, width: box.width, height: box.height, rx: 0 }));
       addSVGEvidenceGlyph(group, kind, 14, 15);
       // Wrap long labels onto two lines instead of letting them escape the
-      // frame. 13px mono advances ~7.8px per character; 60px is glyph + pad.
+      // frame. The 16px sans title advances ~8.8px per character; 60px is glyph + pad.
       const label = String(node.label);
-      const fitChars = Math.max(10, Math.floor((box.width - 60) / 7.8));
+      const fitChars = Math.max(10, Math.floor((box.width - 56) / 8.8));
       let lines = [label];
       if (label.length > fitChars) {
         const mid = Math.floor(label.length / 2);
@@ -4083,16 +4169,16 @@
         if (split > 0) lines = [label.slice(0, split), label.slice(split + 1)];
       }
       const wrapped = lines.length > 1;
-      const titleNode = svgElement("text", { class: "node-title", x: 50, y: wrapped ? 20 : 27 });
+      const titleNode = svgElement("text", { class: "node-title", x: 50, y: wrapped ? 25 : 31 });
       lines.forEach((line, lineIndex) => {
-        const span = svgElement("tspan", { x: 50, dy: lineIndex === 0 ? 0 : 15 });
+        const span = svgElement("tspan", { x: 50, dy: lineIndex === 0 ? 0 : 18 });
         span.textContent = line;
         titleNode.append(span);
       });
-      const evidence = svgElement("text", { class: "node-evidence", x: 50, y: wrapped ? 52 : 47 });
+      const evidence = svgElement("text", { class: "node-evidence", x: 50, y: wrapped ? 62 : 54 });
       evidence.textContent = EVIDENCE_LABELS[kind];
       group.append(titleNode, evidence);
-      const traceId = svgElement("text", { class: "node-detail depth-full_trace", x: 50, y: wrapped ? 66 : 63 });
+      const traceId = svgElement("text", { class: "node-detail depth-full_trace", x: 50, y: wrapped ? 79 : 75 });
       traceId.textContent = String(node.node_id);
       group.append(traceId);
       group.addEventListener("click", () => openInspectorFor(String(node.node_id)));

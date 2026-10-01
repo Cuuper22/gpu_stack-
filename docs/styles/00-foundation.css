@@ -1,7 +1,9 @@
 /* CuperOS docs shell.
-   Pixel-only type system per DESIGN.md: every rendered glyph comes from
-   the approved pixel set (Pixelify Sans for interface and reading, VT323
-   for commands, values, and registry output). No non-pixel faces load. */
+   Type system per DESIGN.md: Pixelify Sans only for window chrome (title bars,
+   wordmark, menus, taskbar, big display titles). IBM Plex Sans for every
+   paragraph, label and button. IBM Plex Mono for numbers, IDs and code.
+   Pixel faces misread C as O and E as a euro sign at small sizes, so they are
+   never used for text people have to read closely. */
 :root {
   color-scheme: light;
   --desktop-bg: oklch(0.45 0.10 195);
@@ -42,13 +44,12 @@
   --max: 1180px;
   --ease-mech: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
-  --font-display: "Pixelify Sans", monospace;
-  /* Portfolio law: only the approved pixel faces render, ever
-     (DotGothic16, Pixelify Sans, VT323, Handjet, Silkscreen). Pixelify
-     carries interface and reading; VT323 carries values and commands. */
-  --font-body: "Pixelify Sans", "VT323", monospace;
-  --font-reading: "Pixelify Sans", "VT323", monospace;
-  --font-mono: "VT323", "Pixelify Sans", monospace;
+  --font-display: "Pixelify Sans", ui-monospace, monospace;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-reading: var(--font-body);
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, "Courier New", monospace;
+  --font-value: var(--font-mono);
+  --font-identity: var(--font-display);
 }
 
 * {
@@ -80,11 +81,17 @@ body {
 .desktop-icon,
 .logo-text,
 .logo-version,
-.tree-label,
-.file-path,
-.eyebrow,
-.stat b {
+.tree-label {
   font-family: var(--font-display);
+}
+
+.file-path,
+.stat b {
+  font-family: var(--font-mono);
+}
+
+.eyebrow {
+  font-family: var(--font-body);
 }
 
 a {

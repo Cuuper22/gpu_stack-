@@ -311,19 +311,19 @@ if (clock) {
   });
 })();
 
-// Scroll reveals. Content is only hidden after html.js-anim is set, so a
-// reader without JS, without IntersectionObserver, or with reduced motion
-// requested always gets the fully visible page. Hiding first and revealing
-// later would break for exactly those readers.
+// Scroll reveals, as an enhancement only. Nothing is ever hidden: sections
+// start visible and only sections below the first screen get a one-shot rise
+// animation when they scroll into view. Reduced motion, no
+// IntersectionObserver, no JS, print and screenshot tools all see the full page.
 (function initReveals() {
   const motionOk = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (!("IntersectionObserver" in window) || !motionOk) {
     return;
   }
-  const targets = document.querySelectorAll(
+  const targets = Array.from(document.querySelectorAll(
     ".primer-panel, .journey-strip, .section-window, .stat-grid .stat, " +
     ".glossary-grid .glossary-term, .dialog-grid .dialog-body, .timeline-row"
-  );
+  )).filter((el) => el.getBoundingClientRect().top > window.innerHeight);
   if (!targets.length) {
     return;
   }
