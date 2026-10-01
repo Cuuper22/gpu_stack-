@@ -305,7 +305,7 @@ def _repo_evidence_signature(repo_root: Path) -> tuple[tuple[str, int, int], ...
     for root, pattern in (
         (repo_root / "gpu_stack", "*.py"),
         (repo_root / "experiments", "*"),
-        (repo_root / "observations", "*.json"),
+        (repo_root / "gpu_stack" / "data" / "observations", "*.json"),
         (repo_root / "docs", "*.html"),
         (repo_root / "docs", "*.js"),
         (repo_root / "docs" / "data", "*.json"),
@@ -1201,7 +1201,7 @@ def _research_artifact_counts(
 ) -> dict[str, int]:
     """Count attached observations and unresolved gates in persisted results."""
 
-    observation_root = repo_root / "observations"
+    observation_root = repo_root / "gpu_stack" / "data" / "observations"
     counts = {
         "observations": (
             len(tuple(observation_root.rglob("*.json")))

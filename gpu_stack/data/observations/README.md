@@ -19,9 +19,7 @@ used to narrow the search, not a fitted result. These observations do not
 identify a mapping from final validation-loss delta to learning progress per
 FLOP, and they cover one-step delay, one 360M model family, and Muon only.
 
-The same three JSON records are bundled under
-`gpu_stack/data/observations/literature/e001-one-step-delay/` as installed
-package data. The command-line interface reads those packaged copies when no
-`--observation` path is supplied, so default provenance still works from a
-wheel or installed distribution. Keep the research copies here and the bundled
-copies byte-for-byte identical; the fixture tests enforce that rule.
+This directory is installed as package data (see `[tool.setuptools.package-data]`
+in `pyproject.toml`). It is the only copy of these records. The command-line
+interface reads it when no `--observation` path is supplied, so default
+provenance works from a wheel or installed distribution.

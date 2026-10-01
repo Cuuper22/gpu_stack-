@@ -303,7 +303,7 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help=(
             "observation JSON to embed in the observatory artifact; repeat for "
-            "multiple. E001 defaults to the repository literature observations"
+            "multiple. E001 defaults to the packaged literature observations"
         ),
     )
     p_experiment_run.set_defaults(func=cmd_experiment_run)
