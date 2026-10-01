@@ -88,7 +88,7 @@
               <p class="file-path">gpu_stack/readme/frontdoor.txt</p>
               <h1 id="page-title">gpu_stack</h1>
               <p class="tagline">
-                A virtual AI datacenter you can question. It estimates what a training run costs in time, power, and money, states how sure it is, and shows you what every number is built from.
+                An equation graph of the AI training stack, plus a small experimental program on one laptop GPU. It shows what every number is built from. It is audited in public, and it is not a validated predictor of time, power or cost.
               </p>
               <div class="action-row">
                 <a class="retro-btn primary" href="observatory.html"><span class="px-icon px-graph"></span> Open observatory</a>
@@ -100,7 +100,7 @@
               <div class="status-light"><span class="led"></span><span>registry import graph coherent</span></div>
               <div class="status-light"><span class="led"></span><span>E001 recovery mechanics published</span></div>
               <div class="status-light"><span class="led"></span><span>LC1-LC3 learning loop measured and recorded</span></div>
-              <div class="status-light"><span class="led warn"></span><span>LC3 kept the learning and saved work and time, but failed on energy</span></div>
+              <div class="status-light"><span class="led warn"></span><span>LC3 energy question undetermined: its meter was too noisy for the bar</span></div>
               <div class="status-light"><span class="led red"></span><span>no frontier-scale multi-site learning evidence yet</span></div>
             </aside>
           </section>
@@ -422,7 +422,7 @@ python -m gpu_stack.cli experiment-run E001 --scenario experiments/e001-beyond-o
             </article>
             <article class="dialog-body">
               <h3>Not finished yet</h3>
-              <p>E001 now has explicit recovery mechanics and three measured learning stages. LC3 held useful work equal across policies: adaptive continuation kept the learning and saved both attempted work and opportunity ticks, the scheduled time it no longer needed, but it went past its frozen device-energy bound. None of that shows a frontier-scale multi-site run converges, and energy measured at one GPU is not energy measured at a facility.</p>
+              <p>E001 has modeled recovery mechanics and three measured learning stages on one laptop GPU. LC3 held useful work equal across policies: adaptive continuation saved about 3% of attempted work but learned slightly worse, and its energy verdict is undetermined because the meter was too noisy for the bar. The simple periodic_local policy beat the adaptive controller. None of that shows a frontier-scale multi-site run converges, and energy measured at one GPU is not energy measured at a facility. The graph itself is not a validated predictor; see EVIDENCE.md.</p>
             </article>
           </section>
 
@@ -431,9 +431,9 @@ python -m gpu_stack.cli experiment-run E001 --scenario experiments/e001-beyond-o
               <p class="eyebrow">next_work.exe</p>
               <h2 id="next-heading">The frontier program is six questions a result could prove wrong.</h2>
             </div>
-            <div class="timeline-row"><b>1. Beyond One Datacenter · energy gate failed</b><span>At equal useful work, adaptive continuation learned just as well and saved work and scheduled time, but its measured RTX energy interval went past the frozen bound. Scaling stays blocked.</span></div>
-            <div class="timeline-row"><b>2. Shape the Power Waveform · next</b><span>Separate checkpoint cadence from survivor continuation, attribute power phase by phase, and test whether scheduling that respects dependencies removes the energy penalty without giving back the measured learning, work, or time gains.</span></div>
-            <div class="timeline-row"><b>3. Semantic Fault Tolerance</b><span>Spend canaries, replay, and redundancy on the faults that would really have hurt learning, not on whatever the fault is labeled.</span></div>
+            <div class="timeline-row"><b>1. Beyond One Datacenter · mixed</b><span>The adaptive controller lost to the simple periodic_local policy. periodic_local beat synchronous training in every stress family, cause unknown. The LC3 energy question is undetermined. A CPU replication is running.</span></div>
+            <div class="timeline-row"><b>2. Shape the Power Waveform · small local result</b><span>Sparse checkpointing with continuation used about 3% less energy on one GPU. Whether snapshots cause the energy penalty is not shown. The rack-level test needs hardware this project does not have.</span></div>
+            <div class="timeline-row"><b>3. Semantic Fault Tolerance · gates need fixing</b><span>Spend canaries, replay, and redundancy on the faults that would really have hurt learning, not on whatever the fault is labeled.</span></div>
             <div class="timeline-row"><b>4. Fluid Inference Topology</b><span>Measure what is gained, and where the behavior flips, when the serving topology changes for every request.</span></div>
             <div class="timeline-row"><b>5. Architecture as a Datacenter Variable</b><span>Design the model's parts and the mixed hardware together, under a single facility power and time budget.</span></div>
             <div class="timeline-row"><b>6. Firm Grid-responsive Inference</b><span>Measure meter-verified demand response with output quality, tail latency, rebound, and hidden work all counted inside the same boundary.</span></div>

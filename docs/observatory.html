@@ -577,10 +577,10 @@
       <section class="learning-gates" aria-labelledby="learning-gates-title">
         <header>
           <div>
-            <p class="control-label">Preregistered decision</p>
+            <p class="control-label">Frozen decision</p>
             <h3 id="learning-gates-title">The gates that could fail this claim</h3>
           </div>
-          <span>every gate was written down before the run and stays visible</span>
+          <span>every gate stays visible; protocol and results share a commit, so "before the run" is not verifiable</span>
         </header>
         <div id="learning-gate-strip" class="learning-gate-strip"></div>
       </section>
@@ -661,7 +661,7 @@
           <header class="equal-work-section-header">
             <div>
               <p class="control-label">Paired 90% intervals</p>
-              <h3 id="equal-work-effects-title">Three wins and one hard stop</h3>
+              <h3 id="equal-work-effects-title">Three gates passed, one failed on a noisy meter</h3>
             </div>
             <span>direct labels · frozen bounds</span>
           </header>
@@ -680,9 +680,9 @@
           <header class="equal-work-section-header">
             <div>
               <p class="control-label">Frozen LC3 decision</p>
-              <h3 id="equal-work-gates-title">Seven gates passed; energy failed</h3>
+              <h3 id="equal-work-gates-title">Seven gates passed; the energy gate failed, but its meter could not resolve a 5% bar</h3>
             </div>
-            <span>the failed gate stays the loudest thing here</span>
+            <span>the failed gate stays visible; the ledger rates energy undetermined</span>
           </header>
           <div class="equal-work-gate-strip" id="equal-work-gate-strip"></div>
         </section>
@@ -905,7 +905,7 @@
       </article>
 
       <div class="checkpoint-energy-depth-copy">
-        <p class="depth-freshman"><strong>Checkpointing less often fixed the measured energy problem without giving back the recovery win.</strong> Both policies kept exactly 524,288 useful tokens. Sparse continuation attempted less work, finished 40 scheduling ticks sooner, and stayed inside the frozen GPU-energy limit. One version of the calculation subtracts an estimated idle baseline; that version is less certain and cannot rule out that the effect is zero.</p>
+        <p class="depth-freshman"><strong>Checkpointing less often looks a little better, and the energy question is not closed.</strong> Both policies kept exactly 524,288 useful tokens. Sparse continuation attempted about 3% less work, finished 40 scheduling ticks sooner (a modeled number), and used about 3% less energy. That checkpoint snapshots caused the earlier penalty is not shown: replaying lost work cost more than writing them. The version that subtracts an estimated idle baseline cannot rule out a zero effect.</p>
         <p class="depth-researcher"><strong>PW2 repeats PW1’s frozen 2×2 design, this time with a cumulative-energy counter the hardware actually supports.</strong> No measurement invalidator fired. Positive total and checkpoint-group interactions pass the frozen primary attribution gates, and sparse continuation holds the learning, work, schedule, and energy gates. The sensitivity-only, idle-subtracted interaction crossed zero, so the result does depend on how the idle baseline is handled.</p>
         <p class="depth-full_trace" id="checkpoint-energy-depth-trace">The 32-run ledger, selected-run counter phases, bound identities, and lazy raw counter points are attached below.</p>
       </div>
@@ -928,7 +928,7 @@
           <header class="checkpoint-energy-section-header">
             <div>
               <p class="control-label">Paired causal contrasts</p>
-              <h3 id="checkpoint-energy-effects-title">The main attribution passed; the baseline question is still open</h3>
+              <h3 id="checkpoint-energy-effects-title">The main interaction passed its gate; replay, not snapshots, is the biggest term</h3>
             </div>
             <span>six frozen evaluation blocks · 90% intervals</span>
           </header>
@@ -951,7 +951,7 @@
           <header class="checkpoint-energy-section-header">
             <div>
               <p class="control-label">Frozen decision</p>
-              <h3 id="checkpoint-energy-gates-title">All 3 mechanism gates and all 8 salvage gates passed</h3>
+              <h3 id="checkpoint-energy-gates-title">All 11 gates passed as written; one mechanism gate is vacuous</h3>
             </div>
             <span>eleven independent checks remain visible</span>
           </header>
@@ -1103,7 +1103,7 @@
         <section class="rack-dephasing-gates" aria-labelledby="rack-dephasing-gates-title">
           <header class="rack-dephasing-section-header">
             <div>
-              <p class="control-label">Preregistered decision</p>
+              <p class="control-label">Frozen decision</p>
               <h3 id="rack-dephasing-gates-title">Every electrical and semantic gate counts</h3>
             </div>
             <span id="rack-dephasing-gate-summary">Decision loading</span>

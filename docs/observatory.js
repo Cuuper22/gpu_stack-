@@ -272,22 +272,44 @@
   // companion. Nothing here changes a value or a verdict; it only restates.
   const PLAIN_WORDS = {
     abstain_without_policy_claim:
-      "We stress-tested the controller in conditions it had never seen. It noticed it was out of its depth, logged an honest fallback 104 times, and declined to call itself the winner. That refusal is the result, and it is the most trustworthy behavior a controller can show.",
+      "The adaptive controller lost to a simpler rule, periodic_local, where two sites train on their own and average their weights every 8 steps. On held-out learning it was worse in 6 of 6 test families and it sent about twice the data between sites. Separately, periodic_local itself beat fully synchronous training in all 10 families, and we do not yet know why. The 104 abstentions came from how the test scenarios were set up. They did not change any decision.",
     candidate_falsified_equal_canonical_work:
-      "With the workload held exactly equal, the adaptive policy kept learning quality and finished sooner, but drew more energy than the rule frozen before the run allowed. The experiment's own rule killed the claim. That is the system working.",
+      "At equal work, the adaptive policy learned slightly worse (worse in 6 of 6 schedules, by a small margin) and saved about 3% of the work. Its energy came out 1.07 times higher on a meter too noisy for the 1.05 bar. The valid counter later gave 1.02. So the energy question is open, not settled either way.",
     candidate_falsified_small_model_calibration:
-      "On this small test model, the clever adaptive policy did not beat the boring baseline. The hypothesis lost, and the loss is recorded instead of retried until it flattered us.",
+      "This test could not see the question. Every run hit the target at the first check, and the per-FLOP score favored whichever policy did less work. The label says falsified. The evidence says the hypothesis was never tested.",
     checkpoint_cadence_attributed_sparse_continuation_survives:
-      "Checkpoint timing really was the cause of the extra energy draw, and the lighter checkpointing variant passed every gate. One real causal result, valid for one GPU on one workload, and not a datacenter claim.",
+      "Dense checkpointing used a bit more energy, but replaying lost work cost more than writing snapshots, so \u201ccheckpoint timing caused it\u201d is not shown. The lighter checkpointing variant used about 3% less energy. One GPU, one small model, six pairs. Not a datacenter claim.",
     measurement_invalid:
       "The power meter turned out to sample about 25 times slower than requested, so every energy number from this run was thrown out instead of quietly kept. A broken measurement gets recorded as broken.",
     inconclusive_frontier_hypothesis:
-      "The virtual mechanics ran and every event is inspectable, but nothing here proves the big multi-datacenter question either way yet.",
+      "These modeled runs read their own inputs back. They show how the simulator's mechanics work, not what a real datacenter does.",
     protocol_failed_calibration_validity:
       "The experiment's own preflight checks failed, so it stopped before making any claim.",
     protocol_failed_warm_start_not_late_stage:
       "The experiment's own preflight checks failed, so it stopped before making any claim.",
   };
+
+  // Plain-language overrides for the E001-SC1 page. The artifact files are
+  // unchanged; these only replace the display copy so it matches EVIDENCE.md.
+  const SC1_PLAIN_QUESTION = "Can a training run spread across flaky datacenters keep learning as well as one cluster?";
+  const SC1_PLAIN_HEADLINE = "The adaptive controller lost to a simpler rule";
+  const SC1_PLAIN_ANSWER = "Not with the adaptive controller. It did worse than the simple periodic_local policy on held-out learning and sent more data. periodic_local beat synchronous training in every stress family, and the cause is not yet known.";
+  // Extra note shown on a card, keyed by the card label in the artifact.
+  const SC1_CARD_NOTES = {
+    "Inter-site payload": "This bar could not be met: no available action sends less than periodic_local.",
+    "Virtual completion time": "This bar was also out of reach in these families: the best schedule is never 10% faster than periodic_local.",
+    "Hindsight policy-envelope gap": "Borderline on four families. The ledger calls this one undetermined.",
+    "Controller abstentions": "Caused by how the test scenarios were set up. Abstaining changed no action, so this is not a capability.",
+  };
+  // Where the ledger (EVIDENCE.md) judges a gate differently from the artifact.
+  const SC1_CARD_BADGES = { "Hindsight policy-envelope gap": "UNDETERMINED" };
+
+  function gateBadge(state, override) {
+    const label = override || (state === "pass" ? "PASS" : state === "fail" ? "FAIL" : "UNDETERMINED");
+    const badge = element("span", "gate-badge", label);
+    badge.dataset.badge = label.toLowerCase();
+    return badge;
+  }
 
   function setPlainWords(id, conclusionKey) {
     const target = document.getElementById(id);
@@ -1560,7 +1582,7 @@
 
   function learningInsightTitle(status) {
     const normalized = String(status || "").toLowerCase();
-    if (normalized.includes("falsif")) return "Adaptive recovery lost the paired learning-efficiency test";
+    if (normalized.includes("falsif")) return "The paired learning test never tested its hypothesis";
     if (normalized.includes("surviv")) return "Adaptive recovery survived the paired learning-efficiency test";
     if (normalized.includes("inconclusive")) return "The paired calibration did not separate the policies";
     return String(status || "Measured learning calibration").replaceAll("_", " ");
@@ -1939,7 +1961,8 @@
       },
       {
         state: "fail",
-        kicker: "Why LC3 failed",
+        badge: "UNDETERMINED",
+        kicker: "Why LC3 was marked failed",
         value: formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.median),
         title: "device-energy ratio",
         body: `${formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.lower_bound)} to ${formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.upper_bound)}; the frozen limit was ${formatEqualWorkRatio(equalWorkEnergyLimit())}.`,
@@ -1951,6 +1974,7 @@
       card.append(
         element("p", "equal-work-plain-kicker", entry.kicker),
         element("strong", "equal-work-plain-value", entry.value),
+        gateBadge(entry.state, entry.badge),
         element("h3", "", entry.title),
         element("p", "equal-work-plain-body", entry.body),
       );
@@ -2143,7 +2167,7 @@
     dom.equalworkv1.hidden = state.experiment !== dom.equalworkv1.dataset.experimentView;
     const conclusion = equalWorkArtifact.conclusion;
     dom.equalworkv1state.textContent = `${String(conclusion.status).replaceAll("_", " ")} · OBSERVED local learning · artifact ${equalWorkArtifact.artifact_sha256.slice(0, 12)}`;
-    dom.equalworkinsighttitle.textContent = "Adaptive kept the learning and saved work, but missed the energy bound";
+    dom.equalworkinsighttitle.textContent = "At equal work, adaptive saved about 3% of the work; its energy cost is undetermined";
     dom.equalworkplainanswer.textContent = conclusion.plain_answer;
     setPlainWords("equal-work-plain-words", conclusion.status);
     dom.equalworkevidenceboundary.textContent = learningBoundaryText(equalWorkArtifact.evidence_boundary);
@@ -2462,6 +2486,7 @@
       card.append(
         element("p", "checkpoint-energy-plain-label", entry.label),
         element("strong", "checkpoint-energy-plain-value", entry.value),
+        gateBadge(entry.state),
         element("p", "checkpoint-energy-plain-detail", entry.detail),
       );
       dom.checkpointenergyfreshmangrid.append(card);
@@ -2513,7 +2538,7 @@
       checkpointEnergyEffectCard(
         "Checkpoint-related phase group",
         researcher.checkpoint_related_group_interaction,
-        "The preregistered checkpoint group also stayed positive, locating part of the mechanism in checkpoint cadence.",
+        "The frozen checkpoint group also stayed positive, locating part of the mechanism in checkpoint cadence.",
       ),
       checkpointEnergyEffectCard(
         "Idle-subtracted interaction sensitivity",
@@ -2530,8 +2555,8 @@
     [
       ["Sparse snapshot pool", support.pooled_checkpoint_snapshot_updates_by_cadence.sparse, "checkpoint snapshots"],
       ["Dense snapshot pool", support.pooled_checkpoint_snapshot_updates_by_cadence.dense, "checkpoint snapshots"],
-      ["Sparse checkpoint group", support.pooled_checkpoint_related_updates_by_cadence.sparse, "preregistered group"],
-      ["Dense checkpoint group", support.pooled_checkpoint_related_updates_by_cadence.dense, "preregistered group"],
+      ["Sparse checkpoint group", support.pooled_checkpoint_related_updates_by_cadence.sparse, "frozen group"],
+      ["Dense checkpoint group", support.pooled_checkpoint_related_updates_by_cadence.dense, "frozen group"],
     ].forEach(([label, value, detail]) => {
       const card = element("article", "checkpoint-energy-support-card");
       card.append(
@@ -2726,9 +2751,10 @@
     }
     dom.checkpointenergyv2.hidden = state.experiment !== dom.checkpointenergyv2.dataset.experimentView;
     const freshman = checkpointEnergyArtifact.freshman;
-    dom.checkpointenergyv2state.textContent = `measurement valid · 11/11 gates pass · artifact ${checkpointEnergyArtifact.artifact_sha256.slice(0, 12)}`;
-    dom.checkpointenergyinsighttitle.textContent = freshman.headline;
-    dom.checkpointenergyplainanswer.textContent = freshman.plain_answer;
+    dom.checkpointenergyv2state.textContent = `measurement valid · 11/11 gates pass as written · artifact ${checkpointEnergyArtifact.artifact_sha256.slice(0, 12)}`;
+    // Display copy matches EVIDENCE.md; the artifact file keeps its original wording.
+    dom.checkpointenergyinsighttitle.textContent = "Sparse checkpointing used a little less energy; what causes the penalty is not shown";
+    dom.checkpointenergyplainanswer.textContent = "The four-arm experiment separated checkpoint frequency from survivor continuation. Dense checkpointing carried a small positive energy interaction, but replaying lost work was its largest part, not snapshot writing. With sparse checkpoints, continuation kept the same useful learning, avoided replay work, finished earlier and used about 3% less energy. One GPU, six pairs.";
     setPlainWords("checkpoint-energy-plain-words", checkpointEnergyArtifact.researcher.conclusion);
     dom.checkpointenergymechanism.textContent = freshman.mechanism;
     const gpu = checkpointEnergyArtifact.full_trace.runtime.hardware.gpu;
@@ -2780,12 +2806,15 @@
     semanticConsistencyArtifact.freshman.cards.forEach((entry) => {
       const card = element("article", "checkpoint-energy-plain-card");
       card.dataset.state = entry.state || "unresolved";
+      const note = SC1_CARD_NOTES[entry.label];
       card.append(
         element("p", "checkpoint-energy-plain-label", entry.label),
         element("strong", "checkpoint-energy-plain-value", entry.value),
+        gateBadge(entry.state, SC1_CARD_BADGES[entry.label]),
         element("p", "checkpoint-energy-plain-detail", entry.detail),
-        evidenceTag(entry.evidence_class || "unmeasured"),
       );
+      if (note) card.append(element("p", "checkpoint-energy-plain-detail gate-note", note));
+      card.append(evidenceTag(entry.evidence_class || "unmeasured"));
       dom.semanticconsistencyfreshmangrid.append(card);
     });
   }
@@ -3208,7 +3237,7 @@
     const familyCount = semanticConsistencyArtifact.researcher.family_results.length;
     dom.semanticconsistencyv1state.textContent = `${String(status.conclusion).replaceAll("_", " ")} · ${familyCount} held-out families · comparator ${semanticPolicyLabel(semanticConsistencyArtifact.comparison.selected_fixed_policy_id)} · artifact ${semanticConsistencyArtifact.artifact_sha256.slice(0, 12)}`;
     dom.semanticconsistencyeyebrow.textContent = `${semanticConsistencyArtifact.work_contract.canonical_tokens.toLocaleString("en-US")} canonical tokens · ${familyCount} untouched families`;
-    dom.semanticconsistencyinsighttitle.textContent = freshman.headline;
+    dom.semanticconsistencyinsighttitle.textContent = status.conclusion === "abstain_without_policy_claim" ? SC1_PLAIN_HEADLINE : freshman.headline;
     dom.semanticconsistencyplainanswer.textContent = freshman.plain_answer;
     // The question band above already shows this answer and the "In plain words" box for E001-SC1,
     // so repeating either here would show the same text twice in a row.
@@ -3830,9 +3859,8 @@
     if (state.experiment === "E001-SC1") {
       dom.experimentkickercode.textContent = "E001-SC1";
       dom.experimentkickername.textContent = "Observable Semantic Slack";
-      dom.experimentquestion.textContent = semanticConsistencyArtifact
-        ? semanticConsistencyArtifact.question
-        : "Can one observable controller safely spend semantic slack?";
+      dom.experimentquestion.textContent = SC1_PLAIN_QUESTION;
+      dom.experimentquestion.title = semanticConsistencyArtifact ? `Artifact wording: ${semanticConsistencyArtifact.question}` : "";
       if (semanticConsistencyArtifact) {
         const status = semanticConsistencyArtifact.status;
         dom.stageboundary.append(
@@ -3840,7 +3868,9 @@
           document.createTextNode("·"),
           document.createTextNode(String(status.validation || "held-out family evaluation").replaceAll("_", " ")),
         );
-        dom.plainanswer.textContent = String(status.plain_answer || semanticConsistencyArtifact.freshman.plain_answer || "The artifact does not report a plain answer.");
+        dom.plainanswer.textContent = status.conclusion === "abstain_without_policy_claim"
+          ? SC1_PLAIN_ANSWER
+          : String(status.plain_answer || semanticConsistencyArtifact.freshman.plain_answer || "The artifact does not report a plain answer.");
         setPlainWords("plain-words", status.conclusion);
         dom.artifactstate.textContent = `Artifact loaded · ${String(status.conclusion || "inconclusive").replaceAll("_", " ")} · ${semanticConsistencyArtifact.schema} · ${semanticConsistencyArtifact.artifact_sha256.slice(0, 12)}`;
         dom.footerevidencestate.lastChild.textContent = " Evidence state: measured learning + exact accounting + modeled infrastructure";
@@ -4604,7 +4634,7 @@
 
   function inspectorSection(title, ...children) {
     const section = element("section", "inspector-section");
-    const researcherTitles = new Set(["Mechanism", "Policy rule", "Uncertainty", "What it changes", "Controller boundary", "Known transfer limit", "Transfer limit", "Preregistered falsifier", "Source"]);
+    const researcherTitles = new Set(["Mechanism", "Policy rule", "Uncertainty", "What it changes", "Controller boundary", "Known transfer limit", "Transfer limit", "Frozen falsifier", "Source"]);
     const fullTraceTitles = new Set(["Exact event record", "Event metadata", "Source observations", "Residual attribution"]);
     if (researcherTitles.has(title)) section.classList.add("depth-researcher");
     if (fullTraceTitles.has(title)) section.classList.add("depth-full_trace");
@@ -4856,7 +4886,7 @@
     if (node.node_id === "learning_progress") {
       dom.inspectorbody.append(inspectorSection("Source observations", sourceIdList(Array.isArray(prior.seed_observation_ids) ? prior.seed_observation_ids : [])));
     } else {
-      dom.inspectorbody.append(inspectorSection("Source", node.node_id === "site_availability" ? "E001 scenario input; no observed fleet trace." : "E001 virtual datacenter artifact and preregistered protocol."));
+      dom.inspectorbody.append(inspectorSection("Source", node.node_id === "site_availability" ? "E001 scenario input; no observed fleet trace." : "E001 virtual datacenter artifact and frozen protocol."));
     }
 
     const boundaryText = node.node_id === "collective_payload" ? "Payload-link bytes omit complete algorithm-specific collective traffic and protocol overhead." : node.node_id === "mechanical_elapsed_time" ? "Preemption, lost work, checkpoint recovery, and resumable mid-operation control are not modeled." : node.node_id === "learning_progress" || node.node_id === "time_to_target" ? learningTransferBoundary() : "The value does not transfer beyond the explicit scenario and supported result scope without new evidence.";
@@ -4864,7 +4894,7 @@
 
     if (falsifier) {
       const status = falsifier.survived === true ? "survived virtual screen" : falsifier.survived === false ? "failed virtual screen gate" : "unresolved";
-      dom.inspectorbody.append(inspectorSection("Preregistered falsifier", factList([
+      dom.inspectorbody.append(inspectorSection("Frozen falsifier", factList([
         ["ID", String(falsifier.falsifier_id)],
         ["Metric", String(falsifier.metric)],
         ["Reported value", finiteNumber(falsifier.observed_value) ? formatRatio(falsifier.observed_value) : "unmeasured"],
