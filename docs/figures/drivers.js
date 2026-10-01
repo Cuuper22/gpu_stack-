@@ -28,7 +28,7 @@
   ];
 
   function normalise(raw) {
-    var rows = Array.isArray(raw) ? raw : raw && (raw.drivers || raw.rows || raw.items);
+    var rows = Array.isArray(raw) ? raw : raw && (raw.top || raw.drivers || raw.rows || raw.items);
     if (!Array.isArray(rows)) return null;
     rows = rows
       .filter(function (r) { return r && typeof r.label === "string" && isFinite(r.share); })

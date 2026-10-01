@@ -26,8 +26,18 @@
   <link rel="stylesheet" href="styles/70-pixel-icons.css">
   <!-- The Calculator ships as its own script and stylesheet. Until both exist, the window says "coming soon". -->
   <link rel="stylesheet" href="styles/calculator.css">
+  <link rel="stylesheet" href="styles/figures.css">
   <script defer src="calculator.js"></script>
   <script defer src="app.js"></script>
+  <script defer src="figures/index.js"></script>
+  <script defer src="figures/hook-gpu-hours.js"></script>
+  <script defer src="figures/cost-ladder.js"></script>
+  <script defer src="figures/drivers.js"></script>
+  <script defer src="figures/lithography.js"></script>
+  <script defer src="figures/accuracy.js"></script>
+  <script defer src="figures/flaky-sites.js"></script>
+  <script defer src="figures/agents-report-card.js"></script>
+  <script defer src="story-init.js"></script>
 </head>
 <body>
   <nav class="phone-tabs" aria-label="Sections">
@@ -70,62 +80,84 @@
 <!-- STORY START -->
           <header class="story-head">
             <h1>Where does the cost of training an AI model come from?</h1>
-            <p class="story-lede story-placeholder">[Placeholder: one or two plain sentences that say what this page is and who wrote it.]</p>
+            <p class="story-lede">I'm Cuper. People usually explain AI training with "more GPUs, more data, more money." It's true, and it never told me anything, so I followed that sentence down until it hit something physical: what the money buys, what the GPUs are doing, and what decides how fast they can do it. This is what I found. Hover or tap any underlined word for a quick picture of what it means.</p>
           </header>
 
-          <!-- Section pattern. Copy a whole <section> to add one.
-               - h2 is a question.
-               - The figure is optional. Put an inline <svg> or an <img> inside .figure-slot.
-               - Paragraphs stay short.
-               - The "go deeper" link is optional. Target a Calculator window with data-open="calculator",
-                 the Lab with href="observatory.html", or GitHub with its full address. -->
-
           <section class="story-section" id="story-1">
-            <h2>Placeholder question one?</h2>
+            <h2>Why does training need so many GPUs?</h2>
             <figure class="figure">
-              <div class="figure-slot"><span class="story-placeholder">[Figure slot: an inline SVG or an img goes here.]</span></div>
-              <figcaption>[Placeholder: one line saying what the figure shows.]</figcaption>
+              <div class="figure-slot" data-figure="hook-gpu-hours"></div>
+              <figcaption>Try different numbers of GPUs. The work stays the same; only the wait changes.</figcaption>
             </figure>
-            <p class="story-placeholder">[Placeholder: a short paragraph in plain words.]</p>
-            <p class="story-placeholder">[Placeholder: another short paragraph.]</p>
-            <p class="go-deeper"><a href="#calculator" data-open="calculator">Go deeper: try the Calculator</a></p>
+            <p>A large model has to read trillions of <span class="term" data-term="token">tokens</span>, and for each one it does a fixed amount of arithmetic per <span class="term" data-term="parameters">parameter</span>. Meta reports that Llama 3.1 405B took about 31 million <span class="term" data-term="gpu-hour">GPU-hours</span>. On a single <span class="term" data-term="gpu">GPU</span> that would be roughly 3,500 years, so they spread it across about 16,000 at once and finished in months.</p>
+            <p>Everything after this is about what that crowd of GPUs costs, and which parts of the cost are worth worrying about.</p>
           </section>
 
           <section class="story-section" id="story-2">
-            <h2>Placeholder question two?</h2>
-            <p class="story-placeholder">[Placeholder: a short paragraph in plain words.]</p>
-            <p class="story-placeholder">[Placeholder: another short paragraph.]</p>
+            <h2>What is the cost made of?</h2>
+            <figure class="figure">
+              <div class="figure-slot" data-figure="cost-ladder"></div>
+              <figcaption>One number, followed down. Click a step to see what it depends on.</figcaption>
+            </figure>
+            <p>Start with the <span class="term" data-term="cost-per-token">cost of training on one token</span> and keep asking what it's made of. Part of it is the GPUs, part is electricity, and part is the hardware slowly wearing out (<span class="term" data-term="amortization">amortization</span>, if you want the accounting word).</p>
+            <p>GPU time depends on how much math the training needs and how fast the GPUs do it. The math works out to about <span class="term" data-term="6nd">6 operations per parameter per token</span>. GPU speed depends on the chip, the chip depends on how small its <span class="term" data-term="transistor">transistors</span> are, and that depends on the light used to print them.</p>
+            <p>I wrote each of those links down as an <span class="term" data-term="equation-units">equation with units</span> and connected them. The map has 1,267 quantities and 701 equations, from the electricity bill down to that light, and you can pick any number in it and see what sits underneath.</p>
           </section>
 
           <section class="story-section" id="story-3">
-            <h2>Placeholder question three?</h2>
+            <h2>What actually moves the bill?</h2>
             <figure class="figure">
-              <div class="figure-slot"><span class="story-placeholder">[Figure slot.]</span></div>
-              <figcaption>[Placeholder caption.]</figcaption>
+              <div class="figure-slot" data-figure="drivers"></div>
+              <figcaption>Each input nudged between half and double its usual value. Bars show how much of the change in cost each one causes.</figcaption>
             </figure>
-            <p class="story-placeholder">[Placeholder: a short paragraph in plain words.]</p>
+            <p>Once everything was connected, most of the map turned out to collapse into one short line: the math per token, divided by how fast your GPUs really run, times what an hour of GPU costs you. The chip's <span class="term" data-term="peak-speed">speed on paper</span>, the share of that speed you actually get, and the size of the model move the cost by the same amount, because each one shows up in that line exactly once. After those comes how long you keep the hardware before replacing it.</p>
+            <p>The share of speed you actually get is called <span class="term" data-term="mfu">MFU</span>, and it's the one I underestimated. The spec sheet number is a ceiling. Meta reports about 40 percent for Llama 3, and that counts as good.</p>
+            <p>Electricity was the surprise. For a 7 billion parameter model trained on 2 trillion tokens with 1,024 <span class="term" data-term="h100">H100s</span>, the power bill, cooling included (<span class="term" data-term="pue">PUE</span>), comes to about 6 percent of the cost. The rest is expensive hardware gradually becoming old hardware.</p>
+            <p class="go-deeper"><a href="#calculator" data-open="calculator">Try your own numbers in the Calculator</a></p>
           </section>
 
           <section class="story-section" id="story-4">
-            <h2>Placeholder question four?</h2>
-            <p class="story-placeholder">[Placeholder: a short paragraph in plain words.]</p>
-            <p class="story-placeholder">[Placeholder: another short paragraph.]</p>
-            <p class="go-deeper"><a href="observatory.html">Go deeper: open the Lab</a></p>
+            <h2>How is the chip made, and does it matter here?</h2>
+            <figure class="figure">
+              <div class="figure-slot" data-figure="lithography"></div>
+              <figcaption>Shorter light and wider-angle optics print finer lines. Try both kinds of light.</figcaption>
+            </figure>
+            <p>I went further down than the cost needed. Chips are printed with light through a stencil, a process called <span class="term" data-term="lithography">lithography</span>. The newest machines use <span class="term" data-term="euv">extreme ultraviolet</span> light with a <span class="term" data-term="wavelength">wavelength</span> of 13.5 nanometers. The finest line they can print is roughly the wavelength divided by how wide an angle the optics gather light from (the <span class="term" data-term="numerical-aperture">numerical aperture</span>), times a constant called <span class="term" data-term="k1">k1</span>. That one relation explains decades of the industry chasing shorter light and wider optics.</p>
+            <p>For a while my map went all the way down to protons, neutrons and quarks. None of it changes the bill, because everything below the chip reaches the cost through a single number, how fast the GPU is, and that number is already on the spec sheet. The deep layers were curiosity, not cost. I removed the quarks and kept this one layer, because it's worth knowing.</p>
           </section>
 
           <section class="story-section" id="story-5">
-            <h2>Placeholder question five?</h2>
+            <h2>How close does the map get to real training runs?</h2>
             <figure class="figure">
-              <div class="figure-slot"><span class="story-placeholder">[Figure slot.]</span></div>
-              <figcaption>[Placeholder caption.]</figcaption>
+              <div class="figure-slot" data-figure="accuracy"></div>
+              <figcaption>27 published training runs. Toggle between the full map and the one-line rule and watch the dots not move.</figcaption>
             </figure>
-            <p class="story-placeholder">[Placeholder: a short paragraph in plain words.]</p>
+            <p>I checked the Calculator against 27 <span class="term" data-term="published-runs">published training runs</span> (Llama, Pythia, BLOOM, OLMo and others), using only what the papers report about model size, data and hardware. It usually lands within about a fifth of the GPU time they report.</p>
+            <p>A <span class="term" data-term="rule-of-thumb">one-line rule of thumb</span> does exactly as well: 6 operations per parameter per token, divided by about 40 percent of the GPU's top speed. All that machinery ends up where one line of arithmetic ends up. It was a little deflating, and it was the most useful thing the map taught me: for time and cost, the hard part isn't the equations, it's knowing how efficiently a real run uses its GPUs.</p>
+            <p>Energy and money I couldn't check fairly. Published energy figures are mostly hours multiplied by the GPU's rated power, and published costs are hours multiplied by a rental price, so there's nothing independent to compare against.</p>
+            <p class="go-deeper"><a href="#calculator" data-open="calculator">Open the Calculator</a></p>
           </section>
 
           <section class="story-section" id="story-6">
-            <h2>Placeholder question six?</h2>
-            <p class="story-placeholder">[Placeholder: a short paragraph in plain words.]</p>
-            <p class="go-deeper"><a href="https://github.com/Cuuper22/gpu_stack-">Go deeper: the code on GitHub</a></p>
+            <h2>Can a training run survive flaky datacenters?</h2>
+            <figure class="figure">
+              <div class="figure-slot" data-figure="flaky-sites"></div>
+              <figcaption>Three ways to train across two sites when one keeps going down. Schematic, not data.</figcaption>
+            </figure>
+            <p>Large training runs stay in one <span class="term" data-term="datacenter">building</span> because the GPUs talk to each other constantly. I wanted to see what happens if you spread a run across sites that go down now and then. I don't have a datacenter, so I trained a very small model on my laptop's GPU and simulated the sites and the outages around it.</p>
+            <p>I wrote a controller that changed how the sites stayed in sync based on what it could observe. It lost to the plain option, where each site trains on its own and they <span class="term" data-term="weight-averaging">average their weights</span> every 8 steps. The plain option also beat keeping the sites in perfect <span class="term" data-term="synchronous-training">lockstep</span>, which looked like a discovery for about a day. A rerun on fresh <span class="term" data-term="seed">seeds</span> explained it: averaging smooths out the jitter that comes from training at a fixed <span class="term" data-term="learning-rate">learning rate</span>. That effect is already known, and ordinary training with a <span class="term" data-term="ema">running average</span> of its weights did even better.</p>
+            <p>Letting the surviving site keep training through an <span class="term" data-term="outage-rollback">outage</span>, instead of rolling both back to the last <span class="term" data-term="checkpoint">save</span>, did a few percent less work and learned about 1 percent worse. Whether that trade is worth it depends on what your time costs. One thing I didn't expect: the GPU's <span class="term" data-term="power-reading">power sensor</span> only refreshed every half second, not every 20 milliseconds as I asked, so the first batch of energy measurements went in the bin.</p>
+            <p class="go-deeper"><a href="observatory.html">Open the Lab</a></p>
+          </section>
+
+          <section class="story-section" id="story-7">
+            <h2>How did I build it?</h2>
+            <figure class="figure">
+              <div class="figure-slot" data-figure="agents-report-card"></div>
+              <figcaption>The agents' own grades, after I checked them.</figcaption>
+            </figure>
+            <p>I built this with <span class="term" data-term="ai-agents">AI coding agents</span>. They write quickly, and they grade their own work unreliably in both directions: some real results were marked as failures because the pass mark was impossible, and some accidents were written up as insights. Going back through every result from the raw files taught me more than building the map did, and it's why the conclusions on this page are smaller than the early drafts claimed.</p>
+            <p class="go-deeper"><a href="https://github.com/Cuuper22/gpu_stack-">The code is on GitHub</a></p>
           </section>
 <!-- STORY END -->
         </article>
