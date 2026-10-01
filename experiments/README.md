@@ -14,19 +14,33 @@ An experiment moves through these states:
 
 Simulation-only results never advance beyond `virtual`.
 
+## Audit studies (2026-10)
+
+| ID | Study | Protocol frozen | Result |
+|---|---|---|---|
+| R001 | [CPU replication of LC3 and SC1 with fresh seeds](r001-cpu-replication/protocol.md) | `0540632` | running |
+| V001 | [Simulator against known results](v001-simulator-known-results/protocol.md) | `38babe1` | running |
+| V002 | [Graph against published training runs](v002-graph-published-runs/protocol.md) | `c8801ea` | [RESULT](v002-graph-published-runs/RESULT.md) |
+| S001 | [Global sensitivity of the graph](s001-graph-sensitivity/protocol.md) | `99c2e95` | [RESULT](s001-graph-sensitivity/RESULT.md) |
+| P001 | [Can the E001-E006 gates pass or fail?](p001-protocol-power-audit/protocol.md) | `c3dfe91` | [RESULT](p001-protocol-power-audit/RESULT.md) |
+
 ## Frontier program
 
 | ID | Experiment | Current state | Primary causal test |
 |---|---|---|---|
-| E001 | [Beyond One Datacenter](e001-beyond-one-datacenter/experiment.md) | SC1 executed; adaptive consistency controller rejected against `periodic_local`; 104 explicit abstention ticks | Can a transferable risk model predict when semantic slack helps before changing training consistency? |
-| E002 | [Shape the Power Waveform](e002-power-waveform-shaping/experiment.md) | PW1 measurement failure preserved; PW2 valid local mechanism and salvage result; PW3 remains optional physical calibration | Can dependency-safe phase control suppress grid-danger-band power without changing optimizer semantics? |
-| E003 | [Semantic Fault Tolerance](e003-semantic-fault-tolerance/experiment.md) | designed | Can protection be allocated by counterfactual learning harm rather than fault label? |
-| E004 | [Fluid Inference Topology](e004-fluid-inference-topology/experiment.md) | designed | Do jointly controlled serving mechanisms create interaction gains and repeated topology-regime crossings? |
-| E005 | [Heterogeneous Architecture Co-design](e005-heterogeneous-architecture-codesign/experiment.md) | designed | Does hardware-aware architecture search beat heterogeneous placement of a frozen architecture? |
-| E006 | [Firm Grid-responsive Inference](e006-firm-grid-responsive-inference/experiment.md) | designed | Can request-conditioned serving control provide meter-verified firm reserve without hidden quality, tail, or rebound debt? |
+| E001 | [Beyond One Datacenter](e001-beyond-one-datacenter/experiment.md) | SC1 executed; adaptive controller lost to `periodic_local` (see [EVIDENCE.md](../EVIDENCE.md); the 104 out-of-range flags came from scenario setup and changed no action) | Can a transferable risk model predict when semantic slack helps before changing training consistency? |
+| E002 | [Shape the Power Waveform](e002-power-waveform-shaping/experiment.md) | PW1 measurement invalid; PW2 small valid local result, mechanism undetermined (see [EVIDENCE.md](../EVIDENCE.md)); PW3 not run | Can dependency-safe phase control suppress grid-danger-band power without changing optimizer semantics? |
+| E003 | [Semantic Fault Tolerance](e003-semantic-fault-tolerance/experiment.md) | designed; gates inadequate as written ([P001](p001-protocol-power-audit/RESULT.md)) | Can protection be allocated by counterfactual learning harm rather than fault label? |
+| E004 | [Fluid Inference Topology](e004-fluid-inference-topology/experiment.md) | designed; gates inadequate as written ([P001](p001-protocol-power-audit/RESULT.md)) | Do jointly controlled serving mechanisms create interaction gains and repeated topology-regime crossings? |
+| E005 | [Heterogeneous Architecture Co-design](e005-heterogeneous-architecture-codesign/experiment.md) | designed; gates inadequate as written ([P001](p001-protocol-power-audit/RESULT.md)) | Does hardware-aware architecture search beat heterogeneous placement of a frozen architecture? |
+| E006 | [Firm Grid-responsive Inference](e006-firm-grid-responsive-inference/experiment.md) | designed; gates inadequate as written ([P001](p001-protocol-power-audit/RESULT.md)) | Can request-conditioned serving control provide meter-verified firm reserve without hidden quality, tail, or rebound debt? |
 
-Numeric thresholds in these files are preregistered predictions. They are not
-GPUSTACK results or values borrowed from the cited papers. Every program keeps
+Numeric thresholds in these files are frozen predictions. They are not
+GPUSTACK results or values borrowed from the cited papers. For E001 and E002
+runs, protocol and results were committed together, so the freeze cannot be
+verified from git; EVIDENCE.md re-judges those runs. Only the E003-E006
+protocols and the 2026-10 studies (R001, V001, V002, S001, P001) were
+committed before any result. Every program keeps
 virtual screening, held-out evaluation, shadow deployment, and controlled
 real-cluster evidence as separate stages.
 
