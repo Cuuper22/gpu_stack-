@@ -1,0 +1,1308 @@
+{
+ "description": "27 published runs, as accelerator-hours per trillion training tokens so that three throughput-only benchmarks (MT-NLG) can sit beside full training runs. Predicted at 40 percent MFU (6 x params x tokens / (0.4 x peak speed)) next to the calculator's own prediction, and what each paper reports. Some rows are TPU-hours.",
+ "built_from": [
+  "experiments/v002-graph-published-runs/heldout-runs.json",
+  "experiments/v002-graph-published-runs/results/results.json"
+ ],
+ "mfu": 0.4,
+ "median_error": {
+  "rule_of_thumb": 0.21947681085043702,
+  "graph": 0.2184203753082229
+ },
+ "rows": [
+  {
+   "id": "llama1-7b",
+   "name": "LLaMA-7B",
+   "family": "llama1",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-80GB",
+   "params": 6700000000.0,
+   "tokens": 1000000000000.0,
+   "reported_gpu_hours": 82432,
+   "reported_per_trillion_tokens": 82432.0,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 89476.5,
+   "predicted_graph_per_trillion_tokens": 89597.6,
+   "citations": {
+    "params": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p3, Table 2",
+      "quote": "params 6.7B"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p3, Table 2",
+      "quote": "n tokens 1.0T"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p11, Table 15",
+      "quote": "A100-80GB 400W GPU-hours 82,432"
+     }
+    ]
+   }
+  },
+  {
+   "id": "llama1-13b",
+   "name": "LLaMA-13B",
+   "family": "llama1",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-80GB",
+   "params": 13000000000.0,
+   "tokens": 1000000000000.0,
+   "reported_gpu_hours": 135168,
+   "reported_per_trillion_tokens": 135168.0,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 173611.1,
+   "predicted_graph_per_trillion_tokens": 173846.1,
+   "citations": {
+    "params": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p3, Table 2",
+      "quote": "params 13.0B"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p3, Table 2",
+      "quote": "n tokens 1.0T"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p11, Table 15",
+      "quote": "A100-80GB 400W GPU-hours 135,168"
+     }
+    ]
+   }
+  },
+  {
+   "id": "llama1-33b",
+   "name": "LLaMA-33B",
+   "family": "llama1",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-80GB",
+   "params": 32500000000.0,
+   "tokens": 1400000000000.0,
+   "reported_gpu_hours": 530432,
+   "reported_per_trillion_tokens": 378880.0,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 434027.8,
+   "predicted_graph_per_trillion_tokens": 434615.2,
+   "citations": {
+    "params": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p3, Table 2",
+      "quote": "params 32.5B"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p3, Table 2",
+      "quote": "n tokens 1.4T"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p11, Table 15",
+      "quote": "A100-80GB 400W GPU-hours 530,432"
+     }
+    ]
+   }
+  },
+  {
+   "id": "llama1-65b",
+   "name": "LLaMA-65B",
+   "family": "llama1",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-80GB",
+   "params": 65200000000.0,
+   "tokens": 1400000000000.0,
+   "reported_gpu_hours": 1022362,
+   "reported_per_trillion_tokens": 730258.6,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 870726.5,
+   "predicted_graph_per_trillion_tokens": 871905.0,
+   "citations": {
+    "params": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p3, Table 2",
+      "quote": "params 65.2B"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p3, Table 2",
+      "quote": "n tokens 1.4T"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p11, Table 15",
+      "quote": "A100-80GB 400W GPU-hours 1,022,362"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Touvron et al. 2023, LLaMA",
+      "url": "https://arxiv.org/abs/2302.13971",
+      "where": "PDF p4",
+      "quote": "380 tokens/sec/GPU on 2048 A100 GPU with 80GB"
+     }
+    ]
+   }
+  },
+  {
+   "id": "llama2-7b",
+   "name": "Llama 2 7B",
+   "family": "llama2",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-80GB",
+   "params": 6738417664,
+   "tokens": 2000000000000.0,
+   "reported_gpu_hours": 184320,
+   "reported_per_trillion_tokens": 92160.0,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 89989.6,
+   "predicted_graph_per_trillion_tokens": 90111.4,
+   "citations": {
+    "params": [
+     {
+      "source": "Hugging Face model API, safetensors.total and sha (revisions listed per record)",
+      "url": "https://huggingface.co/api/models/<org>/<model>",
+      "where": "https://huggingface.co/api/models/meta-llama/Llama-2-7b-hf field safetensors.total, revision 01c7f73d771dfac7d292323805ebc428287df4f9",
+      "quote": null
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Touvron et al. 2023, Llama 2",
+      "url": "https://arxiv.org/abs/2307.09288",
+      "where": "PDF p6, Table 1",
+      "quote": "7B ... 2.0T"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Touvron et al. 2023, Llama 2",
+      "url": "https://arxiv.org/abs/2307.09288",
+      "where": "PDF p7, Table 2",
+      "quote": "7B GPU hours 184320"
+     }
+    ]
+   }
+  },
+  {
+   "id": "llama2-13b",
+   "name": "Llama 2 13B",
+   "family": "llama2",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-80GB",
+   "params": 13015866880,
+   "tokens": 2000000000000.0,
+   "reported_gpu_hours": 368640,
+   "reported_per_trillion_tokens": 184320.0,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 173823.0,
+   "predicted_graph_per_trillion_tokens": 174058.3,
+   "citations": {
+    "params": [
+     {
+      "source": "Hugging Face model API, safetensors.total and sha (revisions listed per record)",
+      "url": "https://huggingface.co/api/models/<org>/<model>",
+      "where": "https://huggingface.co/api/models/meta-llama/Llama-2-13b-hf field safetensors.total, revision 5c31dfb671ce7cfe2d7bb7c04375e44c55e815b1",
+      "quote": null
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Touvron et al. 2023, Llama 2",
+      "url": "https://arxiv.org/abs/2307.09288",
+      "where": "PDF p6, Table 1",
+      "quote": "13B ... 2.0T"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Touvron et al. 2023, Llama 2",
+      "url": "https://arxiv.org/abs/2307.09288",
+      "where": "PDF p7, Table 2",
+      "quote": "13B GPU hours 368640"
+     }
+    ]
+   }
+  },
+  {
+   "id": "llama2-34b",
+   "name": "Llama 2 34B",
+   "family": "llama2",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-80GB",
+   "params": 34000000000.0,
+   "tokens": 2000000000000.0,
+   "reported_gpu_hours": 1038336,
+   "reported_per_trillion_tokens": 519168.0,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 454059.8,
+   "predicted_graph_per_trillion_tokens": 454674.4,
+   "citations": {
+    "params": [
+     {
+      "source": "Touvron et al. 2023, Llama 2",
+      "url": "https://arxiv.org/abs/2307.09288",
+      "where": "PDF p6, Table 1",
+      "quote": "34B (model never released; no exact count)"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Touvron et al. 2023, Llama 2",
+      "url": "https://arxiv.org/abs/2307.09288",
+      "where": "PDF p6, Table 1",
+      "quote": "34B ... 2.0T"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Touvron et al. 2023, Llama 2",
+      "url": "https://arxiv.org/abs/2307.09288",
+      "where": "PDF p7, Table 2",
+      "quote": "34B GPU hours 1038336"
+     }
+    ]
+   }
+  },
+  {
+   "id": "llama2-70b",
+   "name": "Llama 2 70B",
+   "family": "llama2",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-80GB",
+   "params": 68976653312,
+   "tokens": 2000000000000.0,
+   "reported_gpu_hours": 1720320,
+   "reported_per_trillion_tokens": 860160.0,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 921162.6,
+   "predicted_graph_per_trillion_tokens": 922409.4,
+   "citations": {
+    "params": [
+     {
+      "source": "Hugging Face model API, safetensors.total and sha (revisions listed per record)",
+      "url": "https://huggingface.co/api/models/<org>/<model>",
+      "where": "https://huggingface.co/api/models/meta-llama/Llama-2-70b-hf field safetensors.total, revision 3aba440b59558f995867ba6e1f58f21d0336b5bb",
+      "quote": null
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Touvron et al. 2023, Llama 2",
+      "url": "https://arxiv.org/abs/2307.09288",
+      "where": "PDF p6, Table 1",
+      "quote": "70B ... 2.0T"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Touvron et al. 2023, Llama 2",
+      "url": "https://arxiv.org/abs/2307.09288",
+      "where": "PDF p7, Table 2",
+      "quote": "70B GPU hours 1720320"
+     }
+    ]
+   }
+  },
+  {
+   "id": "llama31-405b",
+   "name": "Llama 3.1 405B",
+   "family": "llama3",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "H100-SXM-80GB",
+   "params": 405853388800,
+   "tokens": 15600000000000.0,
+   "reported_gpu_hours": 30840000.0,
+   "reported_per_trillion_tokens": 1976923.1,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 1709864.3,
+   "predicted_graph_per_trillion_tokens": 1712178.6,
+   "citations": {
+    "params": [
+     {
+      "source": "Hugging Face model API, safetensors.total and sha (revisions listed per record)",
+      "url": "https://huggingface.co/api/models/<org>/<model>",
+      "where": "https://huggingface.co/api/models/meta-llama/Llama-3.1-405B field safetensors.total, revision b906e4dc842aa489c962f9db26554dcfdde901fe",
+      "quote": null
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Llama Team 2024, The Llama 3 Herd of Models",
+      "url": "https://arxiv.org/abs/2407.21783",
+      "where": "PDF p1 and p3",
+      "quote": "pre-train a model with 405B parameters on 15.6T tokens"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Meta Llama 3.1 model card (raw file fetched 2026-10-01)",
+      "url": "https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md",
+      "where": "Training Time (GPU hours) table",
+      "quote": "Llama 3.1 405B 30.84M"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Llama Team 2024, The Llama 3 Herd of Models",
+      "url": "https://arxiv.org/abs/2407.21783",
+      "where": "PDF p9",
+      "quote": "trained on up to 16K H100 GPUs"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pythia-70m",
+   "name": "Pythia 70M",
+   "family": "pythia",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-40GB",
+   "params": 70426624,
+   "tokens": 299892736000,
+   "reported_gpu_hours": 510,
+   "reported_per_trillion_tokens": 1700.6,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 940.5,
+   "predicted_graph_per_trillion_tokens": 941.8,
+   "citations": {
+    "params": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p2, Table 1",
+      "quote": "non-embedding params 18,915,328"
+     },
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README Models table + HF config",
+      "quote": "untied embedding and unembedding, vocab 50304"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
+      "quote": null
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "total GPU hours 510 (iteration time x iterations x GPUs / 3600)"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "70M GPU count 32"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pythia-160m",
+   "name": "Pythia 160M",
+   "family": "pythia",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-40GB",
+   "params": 162322944,
+   "tokens": 299892736000,
+   "reported_gpu_hours": 1030,
+   "reported_per_trillion_tokens": 3434.6,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 2167.8,
+   "predicted_graph_per_trillion_tokens": 2170.7,
+   "citations": {
+    "params": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p2, Table 1",
+      "quote": "non-embedding params 85,056,000"
+     },
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README Models table + HF config",
+      "quote": "untied embedding and unembedding, vocab 50304"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
+      "quote": null
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "total GPU hours 1,030 (iteration time x iterations x GPUs / 3600)"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "160M GPU count 32"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pythia-410m",
+   "name": "Pythia 410M",
+   "family": "pythia",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-40GB",
+   "params": 405334016,
+   "tokens": 299892736000,
+   "reported_gpu_hours": 2540,
+   "reported_per_trillion_tokens": 8469.7,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 5413.1,
+   "predicted_graph_per_trillion_tokens": 5420.4,
+   "citations": {
+    "params": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p2, Table 1",
+      "quote": "non-embedding params 302,311,424"
+     },
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README Models table + HF config",
+      "quote": "untied embedding and unembedding, vocab 50304"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
+      "quote": null
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "total GPU hours 2,540 (iteration time x iterations x GPUs / 3600)"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "410M GPU count 32"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pythia-1b",
+   "name": "Pythia 1B",
+   "family": "pythia",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-40GB",
+   "params": 1011781632,
+   "tokens": 299892736000,
+   "reported_gpu_hours": 4830,
+   "reported_per_trillion_tokens": 16105.8,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 13512.0,
+   "predicted_graph_per_trillion_tokens": 13530.3,
+   "citations": {
+    "params": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p2, Table 1",
+      "quote": "non-embedding params 805,736,448"
+     },
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README Models table + HF config",
+      "quote": "untied embedding and unembedding, vocab 50304"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
+      "quote": null
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "total GPU hours 4,830 (iteration time x iterations x GPUs / 3600)"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "1B GPU count 64"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pythia-1.4b",
+   "name": "Pythia 1.4B",
+   "family": "pythia",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-40GB",
+   "params": 1414647808,
+   "tokens": 299892736000,
+   "reported_gpu_hours": 7120,
+   "reported_per_trillion_tokens": 23741.8,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 18892.2,
+   "predicted_graph_per_trillion_tokens": 18917.8,
+   "citations": {
+    "params": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p2, Table 1",
+      "quote": "non-embedding params 1,208,602,624"
+     },
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README Models table + HF config",
+      "quote": "untied embedding and unembedding, vocab 50304"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
+      "quote": null
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "total GPU hours 7,120 (iteration time x iterations x GPUs / 3600)"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "1.4B GPU count 64"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pythia-2.8b",
+   "name": "Pythia 2.8B",
+   "family": "pythia",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-40GB",
+   "params": 2775208960,
+   "tokens": 299892736000,
+   "reported_gpu_hours": 14240,
+   "reported_per_trillion_tokens": 47483.6,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 37062.1,
+   "predicted_graph_per_trillion_tokens": 37112.2,
+   "citations": {
+    "params": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p2, Table 1",
+      "quote": "non-embedding params 2,517,652,480"
+     },
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README Models table + HF config",
+      "quote": "untied embedding and unembedding, vocab 50304"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
+      "quote": null
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "total GPU hours 14,240 (iteration time x iterations x GPUs / 3600)"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "2.8B GPU count 64"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pythia-6.9b",
+   "name": "Pythia 6.9B",
+   "family": "pythia",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-40GB",
+   "params": 6856253440,
+   "tokens": 299892736000,
+   "reported_gpu_hours": 33500,
+   "reported_per_trillion_tokens": 111706.6,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 91563.2,
+   "predicted_graph_per_trillion_tokens": 91687.1,
+   "citations": {
+    "params": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p2, Table 1",
+      "quote": "non-embedding params 6,444,163,072"
+     },
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README Models table + HF config",
+      "quote": "untied embedding and unembedding, vocab 50304"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
+      "quote": null
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "total GPU hours 33,500 (iteration time x iterations x GPUs / 3600)"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "6.9B GPU count 128"
+     }
+    ]
+   }
+  },
+  {
+   "id": "pythia-12b",
+   "name": "Pythia 12B",
+   "family": "pythia",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-40GB",
+   "params": 11842140160,
+   "tokens": 299892736000,
+   "reported_gpu_hours": 72300,
+   "reported_per_trillion_tokens": 241086.2,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 158148.2,
+   "predicted_graph_per_trillion_tokens": 158362.3,
+   "citations": {
+    "params": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p2, Table 1",
+      "quote": "non-embedding params 11,327,027,200"
+     },
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README Models table + HF config",
+      "quote": "untied embedding and unembedding, vocab 50304"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Pythia README (raw file fetched 2026-10-01)",
+      "url": "https://github.com/EleutherAI/pythia",
+      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
+      "quote": null
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "total GPU hours 72,300 (iteration time x iterations x GPUs / 3600)"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Biderman et al. 2023, Pythia",
+      "url": "https://arxiv.org/abs/2304.01373",
+      "where": "PDF p21, Table 5",
+      "quote": "12B GPU count 256"
+     }
+    ]
+   }
+  },
+  {
+   "id": "bloom-176b",
+   "name": "BLOOM 176B",
+   "family": "bloom",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-80GB",
+   "params": 176247000000.0,
+   "tokens": 366000000000.0,
+   "reported_gpu_hours": 1082990,
+   "reported_per_trillion_tokens": 2958989.1,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 2353726.0,
+   "predicted_graph_per_trillion_tokens": 2356911.7,
+   "citations": {
+    "params": [
+     {
+      "source": "BigScience 2022, BLOOM",
+      "url": "https://arxiv.org/abs/2211.05100",
+      "where": "PDF p21, hyperparameter table",
+      "quote": "Parameters 176,247M"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "BigScience 2022, BLOOM",
+      "url": "https://arxiv.org/abs/2211.05100",
+      "where": "PDF p21",
+      "quote": "Total tokens 366B"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "BigScience 2022, BLOOM",
+      "url": "https://arxiv.org/abs/2211.05100",
+      "where": "PDF p18",
+      "quote": "consumed 1,082,990 compute hours"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p2, Table 1",
+      "quote": "Total training time 118 days, 5 hours, 41 min; GPU hours 1,082,990"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "BigScience 2022, BLOOM",
+      "url": "https://arxiv.org/abs/2211.05100",
+      "where": "PDF p18, s3.4.1",
+      "quote": "48 nodes, each having 8 NVIDIA A100 80GB GPUs (a total of 384 GPUs)"
+     }
+    ]
+   }
+  },
+  {
+   "id": "palm-540b",
+   "name": "PaLM 540B",
+   "family": "palm",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "TPUv4",
+   "params": 540350000000.0,
+   "tokens": 780000000000.0,
+   "reported_gpu_hours": 8404992,
+   "reported_per_trillion_tokens": 10775630.8,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 8187121.2,
+   "predicted_graph_per_trillion_tokens": 8198202.5,
+   "citations": {
+    "params": [
+     {
+      "source": "Chowdhery et al. 2022, PaLM",
+      "url": "https://arxiv.org/abs/2204.02311",
+      "where": "PDF p6, Table 1",
+      "quote": "PaLM 540B 540.35 (billions)"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Chowdhery et al. 2022, PaLM",
+      "url": "https://arxiv.org/abs/2204.02311",
+      "where": "PDF p3",
+      "quote": "780 billion tokens"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Chowdhery et al. 2022, PaLM",
+      "url": "https://arxiv.org/abs/2204.02311",
+      "where": "PDF p66",
+      "quote": "6144 TPU v4 chips for 1200 hours and 3072 TPU v4 chips for 336 hours including some downtime and repeated steps"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Chowdhery et al. 2022, PaLM",
+      "url": "https://arxiv.org/abs/2204.02311",
+      "where": "PDF p1",
+      "quote": "6144 TPU v4 chips"
+     }
+    ]
+   }
+  },
+  {
+   "id": "gopher-280b",
+   "name": "Gopher 280B",
+   "family": "gopher",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "TPUv3",
+   "params": 280000000000.0,
+   "tokens": 300000000000.0,
+   "reported_gpu_hours": 3768320,
+   "reported_per_trillion_tokens": 12561066.7,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 9485094.9,
+   "predicted_graph_per_trillion_tokens": 9497932.9,
+   "citations": {
+    "params": [
+     {
+      "source": "Rae et al. 2021, Gopher",
+      "url": "https://arxiv.org/abs/2112.11446",
+      "where": "PDF p6, Table 1",
+      "quote": "Gopher 280B"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Rae et al. 2021, Gopher",
+      "url": "https://arxiv.org/abs/2112.11446",
+      "where": "PDF p6",
+      "quote": "We train all models for 300 billion tokens"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Rae et al. 2021, Gopher",
+      "url": "https://arxiv.org/abs/2112.11446",
+      "where": "PDF p103",
+      "quote": "We trained Gopher for 920 hours"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Rae et al. 2021, Gopher",
+      "url": "https://arxiv.org/abs/2112.11446",
+      "where": "PDF p103, Table A27",
+      "quote": "280B ... 4096 TPUv3 chips"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mpt-7b",
+   "name": "MPT-7B",
+   "family": "mpt",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-40GB",
+   "params": 6700000000.0,
+   "tokens": 1000000000000.0,
+   "reported_gpu_hours": 100320.0,
+   "reported_per_trillion_tokens": 100320.0,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 89476.5,
+   "predicted_graph_per_trillion_tokens": 89597.6,
+   "citations": {
+    "params": [
+     {
+      "source": "MosaicML/Databricks MPT-7B announcement, 2023-05-05",
+      "url": "https://www.databricks.com/blog/mpt-7b",
+      "where": "blog text",
+      "quote": "MPT-7B Base is a decoder-style transformer with 6.7B parameters"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "MosaicML/Databricks MPT-7B announcement, 2023-05-05",
+      "url": "https://www.databricks.com/blog/mpt-7b",
+      "where": "blog text",
+      "quote": "trained on 1T tokens"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "MosaicML/Databricks MPT-7B announcement, 2023-05-05",
+      "url": "https://www.databricks.com/blog/mpt-7b",
+      "where": "blog text + Table 3",
+      "quote": "~9.5 days ... 440xA100-40GB; Time to Train is total runtime incl. restarts"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "MosaicML/Databricks MPT-7B announcement, 2023-05-05",
+      "url": "https://www.databricks.com/blog/mpt-7b",
+      "where": "blog text",
+      "quote": "~9.5 days to train on 440xA100-40GB GPUs"
+     }
+    ]
+   }
+  },
+  {
+   "id": "smollm3-3b",
+   "name": "SmolLM3 3B",
+   "family": "smollm3",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "H100-SXM-80GB",
+   "params": 3075098624,
+   "tokens": 11200000000000.0,
+   "reported_gpu_hours": 221184,
+   "reported_per_trillion_tokens": 19748.6,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 12955.4,
+   "predicted_graph_per_trillion_tokens": 12973.0,
+   "citations": {
+    "params": [
+     {
+      "source": "Hugging Face model API, safetensors.total and sha (revisions listed per record)",
+      "url": "https://huggingface.co/api/models/<org>/<model>",
+      "where": "https://huggingface.co/api/models/HuggingFaceTB/SmolLM3-3B-Base field safetensors.total, revision d78a42f79198603e614095753484a04c10c2b940",
+      "quote": null
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Hugging Face SmolLM3 blog",
+      "url": "https://huggingface.co/blog/smollm3",
+      "where": "blog text",
+      "quote": "we train SmolLM3 on 11.2T tokens using a three-stage training strategy"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Hugging Face SmolLM3 blog",
+      "url": "https://huggingface.co/blog/smollm3",
+      "where": "blog text",
+      "quote": "384 H100 GPUs for 24 days"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Hugging Face SmolLM3 blog",
+      "url": "https://huggingface.co/blog/smollm3",
+      "where": "blog text",
+      "quote": "trained on 384 H100 GPUs for 24 days"
+     }
+    ]
+   }
+  },
+  {
+   "id": "bloomberggpt-50b",
+   "name": "BloombergGPT 50B",
+   "family": "bloomberg",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-40GB",
+   "params": 50600000000.0,
+   "tokens": 569000000000.0,
+   "reported_gpu_hours": 651264,
+   "reported_per_trillion_tokens": 1144576.4,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 675747.9,
+   "predicted_graph_per_trillion_tokens": 676662.5,
+   "citations": {
+    "params": [
+     {
+      "source": "Wu et al. 2023, BloombergGPT",
+      "url": "https://arxiv.org/abs/2303.17564",
+      "where": "PDF p11, Table 4",
+      "quote": "Total Parameters 50.6B"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Wu et al. 2023, BloombergGPT",
+      "url": "https://arxiv.org/abs/2303.17564",
+      "where": "PDF p11, Table 4",
+      "quote": "Tokens 569B"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Wu et al. 2023, BloombergGPT",
+      "url": "https://arxiv.org/abs/2303.17564",
+      "where": "PDF p16",
+      "quote": "139,200 steps (~53 days)"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Wu et al. 2023, BloombergGPT",
+      "url": "https://arxiv.org/abs/2303.17564",
+      "where": "PDF p11, Table 4",
+      "quote": "Hardware 64 x 8 A100 40GB"
+     }
+    ]
+   }
+  },
+  {
+   "id": "starcoderbase-15b",
+   "name": "StarCoderBase 15.5B",
+   "family": "starcoder",
+   "tier": "A",
+   "kind": "training_run",
+   "accelerator": "A100-SXM-80GB",
+   "params": 15500000000.0,
+   "tokens": 1000000000000.0,
+   "reported_gpu_hours": 320256,
+   "reported_per_trillion_tokens": 320256.0,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 206997.9,
+   "predicted_graph_per_trillion_tokens": 207278.0,
+   "citations": {
+    "params": [
+     {
+      "source": "Li et al. 2023, StarCoder",
+      "url": "https://arxiv.org/abs/2305.06161",
+      "where": "PDF p17, Table 11",
+      "quote": "Num. of parameters ~15.5B"
+     }
+    ],
+    "tokens": [
+     {
+      "source": "Li et al. 2023, StarCoder",
+      "url": "https://arxiv.org/abs/2305.06161",
+      "where": "PDF p3 and p16",
+      "quote": "250k iterations, batch 4M tokens, one trillion tokens"
+     }
+    ],
+    "accel_hours": [
+     {
+      "source": "Li et al. 2023, StarCoder",
+      "url": "https://arxiv.org/abs/2305.06161",
+      "where": "PDF p17, s5.7",
+      "quote": "total number of GPU hours that training took (320,256)"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Li et al. 2023, StarCoder",
+      "url": "https://arxiv.org/abs/2305.06161",
+      "where": "PDF p17, s5.6",
+      "quote": "512 A100 80 GB GPUs distributed across 64 nodes"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mtnlg-530b-280n",
+   "name": "MT-NLG 530B throughput, 280 DGX A100 nodes",
+   "family": "mtnlg",
+   "tier": "A",
+   "kind": "throughput_benchmark",
+   "accelerator": "A100-SXM-80GB",
+   "params": 530000000000.0,
+   "tokens": null,
+   "reported_gpu_hours": null,
+   "reported_per_trillion_tokens": 9510181.6,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 7077991.5,
+   "predicted_graph_per_trillion_tokens": 7087571.5,
+   "citations": {
+    "params": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p10, s3.2",
+      "quote": "scaled it up to 530 billion parameters"
+     }
+    ],
+    "step_time_s": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p7, s2.4",
+      "quote": "iteration times of 60.1, 50.2, and 44.4 seconds (280, 350, 420 servers, batch 1920)"
+     }
+    ],
+    "tokens_per_step": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p10, s3.2",
+      "quote": "sequence length 2048, global batch size 1920"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p7, s2.3-2.4",
+      "quote": "280 DGX A100 servers x 8 A100 80GB"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mtnlg-530b-350n",
+   "name": "MT-NLG 530B throughput, 350 DGX A100 nodes",
+   "family": "mtnlg",
+   "tier": "A",
+   "kind": "throughput_benchmark",
+   "accelerator": "A100-SXM-80GB",
+   "params": 530000000000.0,
+   "tokens": null,
+   "reported_gpu_hours": null,
+   "reported_per_trillion_tokens": 9929515.7,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 7077991.5,
+   "predicted_graph_per_trillion_tokens": 7087571.5,
+   "citations": {
+    "params": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p10, s3.2",
+      "quote": "scaled it up to 530 billion parameters"
+     }
+    ],
+    "step_time_s": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p7, s2.4",
+      "quote": "iteration times of 60.1, 50.2, and 44.4 seconds (280, 350, 420 servers, batch 1920)"
+     }
+    ],
+    "tokens_per_step": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p10, s3.2",
+      "quote": "sequence length 2048, global batch size 1920"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p7, s2.3-2.4",
+      "quote": "350 DGX A100 servers x 8 A100 80GB"
+     }
+    ]
+   }
+  },
+  {
+   "id": "mtnlg-530b-420n",
+   "name": "MT-NLG 530B throughput, 420 DGX A100 nodes",
+   "family": "mtnlg",
+   "tier": "A",
+   "kind": "throughput_benchmark",
+   "accelerator": "A100-SXM-80GB",
+   "params": 530000000000.0,
+   "tokens": null,
+   "reported_gpu_hours": null,
+   "reported_per_trillion_tokens": 10538737.0,
+   "predicted_rule_40pct_mfu_per_trillion_tokens": 7077991.5,
+   "predicted_graph_per_trillion_tokens": 7087571.5,
+   "citations": {
+    "params": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p10, s3.2",
+      "quote": "scaled it up to 530 billion parameters"
+     }
+    ],
+    "step_time_s": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p7, s2.4",
+      "quote": "iteration times of 60.1, 50.2, and 44.4 seconds (280, 350, 420 servers, batch 1920)"
+     }
+    ],
+    "tokens_per_step": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p10, s3.2",
+      "quote": "sequence length 2048, global batch size 1920"
+     }
+    ],
+    "accel_count": [
+     {
+      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
+      "url": "https://arxiv.org/abs/2201.11990",
+      "where": "PDF p7, s2.3-2.4",
+      "quote": "420 DGX A100 servers x 8 A100 80GB"
+     }
+    ]
+   }
+  }
+ ]
+}
