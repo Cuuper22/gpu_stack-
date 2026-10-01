@@ -1,63 +1,80 @@
 # gpu_stack
 
-gpu_stack started with one question: when people say frontier training is "more GPUs, more data, more money", where does that sentence physically bottom out? It is two things. An equation graph of the training stack, 1517 variables and 950 equations (884 of them unit-checked) from cost per token down to chip physics. And a small experimental program: a 1.9M-parameter model trained on one laptop GPU, plus a simulator of what that training would do spread across several datacenters. The scale is small and the graph is not a validated predictor. What is worth your time is the record: every result re-judged from the raw files, what failed, what was under-sold, and how each claim can be checked. Every number below links to the file it came from.
+**Where does the cost of training an AI model come from?**
 
-![A wide map of the training stack, from datacenters down through GPU systems, lithography and atoms.](docs/assets/readme-hero.png)
+I'm Cuper. People usually explain AI training with "more GPUs, more data, more money." It's true, and it never told me anything, so I followed that sentence down until it hit something physical: what the money buys, what the GPUs are doing, and what decides how fast they can do it. This repository is the map I built on the way, a calculator that runs on it, and a small lab where I tried training across unreliable datacenters.
 
-**Site:** <https://cuuper22.github.io/gpu_stack-/> | **Observatory:** <https://cuuper22.github.io/gpu_stack-/observatory.html> | **Next steps:** [ROADMAP.md](ROADMAP.md)
+The easiest way in is the site, which tells the story with pictures you can play with and a quick explanation behind every technical word:
 
-## What holds up
+**<https://cuuper22.github.io/gpu_stack-/>**
 
-| Finding | Number | Source |
-|---|---|---|
-| Survivor continuation (keep training on the site that is still up) saves work, and that saving replicates on fresh seeds. | 3.6% fewer tokens [2.8, 4.4], 45 fewer modeled ticks | R001 |
-| Sparse checkpointing with survivor continuation used a little less energy, with a valid meter. Small, six pairs, one GPU. | energy 0.970 [0.940, 0.999], work -3.0%, NLL +0.0033 | EVIDENCE |
-| The graph counts a model's parameters from its architecture. | median error 0.0003 on 11 published models | V002 |
-| Hand checks of the economics path and 6ND FLOPs (6 x parameters x tokens) match published values. | two Pythia cost packs to 4 digits | audit |
-| Self-checks worked: two LC2 runs stopped on invalid setups, PW1 threw out its own power data. NVML (the GPU power API) updates every 0.494 s, not the 20 ms requested. | 25x slower than asked | EVIDENCE |
+![The gpu_stack site: a retro desktop with the Story window open.](docs/assets/readme-hero.png)
 
-## What doesn't
+## What I found
 
-| Claim | What the evidence says | Source |
-|---|---|---|
-| `periodic_local` (two sites train alone, average weights every 8 steps) learns better than synchronous training. | It does (held-out loss, NLL, -0.021 on fresh seeds), but only because averaging smooths the noise of a constant learning rate. Synchronous training plus an EMA of the weights, or a cosine schedule, beats `periodic_local` by about twice as much. | R001 |
-| Survivor continuation learns as well as restarting. | Not shown. On fresh seeds it is worse in 15 of 15 pairs, +0.0100 [0.0075, 0.0125], right at the 0.01 margin. The original six pairs (+0.005) understated the cost. | R001 |
-| The adaptive controller beats the simple baseline. | It lost to `periodic_local`: worse NLL in 6 of 6 families, 2.05x the bytes. | EVIDENCE |
-| The controller "abstained" when out of its depth (104 times). | Scenario setup put the compute rate below the calibration floor. Abstaining changed no action. | EVIDENCE |
-| LC1 falsified survivor continuation. | LC1 never tested it: the per-FLOP estimator was biased and every run hit the target at tick 32. | EVIDENCE |
-| LC3 showed adaptive costs more energy. | Undetermined. 1.068 [1.002, 1.134] on a sampled meter, 1.023 [0.985, 1.063] on the valid counter. The 1.05 bar passed only 38% of the time with zero real difference. | EVIDENCE |
-| PW2 attributed the energy penalty to checkpoint snapshots. | Replay compute is the biggest term (57%, snapshots 23%), and one of three gates is vacuous. | EVIDENCE |
-| The graph predicts training time. | As shipped it was 3x too fast (median error 0.682). With a 40% MFU (hardware utilization) prior it gets 0.218, the same as plain 6ND at 40% MFU (0.219). | V002 |
-| Root debt (how many variables depend on a root input) ranks what matters. | The top 20 are all lithography, and none of them moves cost per token. | S001 |
-| 950 equations model the stack. | 538 (57%) reach no headline number. Shipped scenarios run 78. The nuclear and quark layer has zero numeric effect. | audit |
-| Equations are trustworthy. | The audit found 4 wrong ones (pipeline bubbles, hierarchical allgather, MLA KV cache, interleaved bubble). All 4 are fixed and have regression tests. | audit |
-| E003-E006 are ready to run. | Their gates cannot pass or fail as written (some need 299 or more clean events, some are too lax to ever fail). | P001 |
-| The simulator handles any failure sequence. | It matches checkpoint/restart theory (Daly) and queueing theory to within Monte Carlo error, but crashes on 34% of its random multi-failure test traces (1,540 of 4,500): a failure after a recovery's replay and before the next checkpoint raises `ValueError`. Single-failure E001 runs never hit it. | V001 |
+**The bill collapses into one short line.** Training needs about 6 arithmetic operations per model parameter per token it reads. Divide that by how fast your GPUs really run and multiply by what an hour of GPU costs you. The chip's speed on paper, the share of that speed you actually get, and the size of the model move the cost by the same amount, because each appears in that line once. After those comes how long you keep the hardware before replacing it.
 
-## How the project checks itself
+**The share of speed you actually get is the one people underestimate.** The spec sheet number is a ceiling. Meta reports about 40 percent for Llama 3, and that counts as good.
 
-- **Frozen protocols.** For P001, S001, V002, V001 and R001, the protocol was committed before any result. Results landed later in git for P001 (`c3dfe91` then `d1d58c8`), S001 (`99c2e95` then `de57f2f`) V002 (`c8801ea` then `0866736`), V001 (`38babe1` then `6709dc9`) and R001 (`0540632` then `5a98b0b`; it ran a smaller level than its own time rule allowed, listed as a deviation). Check with `git log`. Git order is checkable, not tamper-proof.
-- **The old runs were not preregistered.** For E001 and E002, protocol and results share commits, minutes to hours after the runs. Only the E003-E006 protocols (`7b13f73`) predate results, and they have none. The word is not used for the early runs here.
-- **An evidence ledger.** EVIDENCE.md re-judges every run with results. It copies each original verdict verbatim, then says HOLDS, OVERTURNED, UNDETERMINED or MEASUREMENT INVALID, with a confidence and what would settle it. It reproduces all 39 original bootstrap intervals exactly.
-- **Who judged what.** Much of the code and the first verdicts were written with AI coding agents, and those verdicts were unreliable in both directions: some bars were impossible, some praise was unearned. The October 2026 audit re-derived every verdict from the raw artifacts. The audit is itself checkable: the scripts are in `analysis/` and each new study's protocol commit precedes its result commit.
-- **History is kept.** Result files and original verdicts are never edited. New analysis is added beside them and labeled post-hoc. The results log records artifacts and hashes.
+**Electricity is a small slice.** For a 7 billion parameter model trained on 2 trillion tokens on 1,024 H100s, power and cooling come to about 6 percent of the cost. The rest is expensive hardware gradually becoming old hardware.
 
-## The graph
+**How the chip is made doesn't change the bill.** The map once went down to lithography, atoms and even quarks. All of it reaches the cost through one number, how fast the GPU is, and that number is already on the spec sheet. I removed the quarks and kept a short layer on how chips are printed.
 
-![A dependency cone from datacenter economics down through GPUs, transistors, lithography and atoms.](docs/assets/readme-equation-cone.svg)
+**The calculator is as good as a rule of thumb, and no better.** Checked against 27 published training runs (Llama, Pythia, BLOOM, OLMo and others), it usually lands within about a fifth of the reported GPU time. So does "6 times parameters times tokens, divided by 40 percent of the GPU's top speed." Energy and money can't be checked fairly, because published figures for them are mostly hours multiplied by a rated power or a rental price.
 
-Pick one number at the top, such as `econ.cost.per_token`, and collect everything it depends on. The shape is a cone: one question at the tip, hundreds of inputs at the base. Every variable has units and a reference. A root input is a variable nothing in the graph defines, so a person has to supply it. Only 24 universal constants are constants. Everything else is a variable.
+**Spreading a run across flaky datacenters costs something whichever way you do it.** On a tiny model trained on my laptop GPU, with the sites and outages simulated, a controller I wrote lost to simply letting each site train alone and averaging their weights every 8 steps. That plain approach also beat keeping the sites in lockstep, which a rerun on fresh seeds traced to a known effect: averaging smooths the jitter of training at a fixed learning rate. Letting the surviving site keep going through an outage did a few percent less work and learned about 1 percent worse.
 
-**Good for:** tracing which inputs and equations sit under a number; checking units (884 of 950 equations have a unit check); finding which scenario values a result silently depends on; reproducing a hand calculation like 6ND FLOPs.
-
-**Not good for:** predicting a real run's time, power or money (see the tables above); ranking what to measure next by root debt; anything about lithography, nuclear or quark physics, which no preset connects to a headline number.
-
-## Try it in 60 seconds
+## Try it
 
 ```bash
-python -m pip install -e ".[dev]"
-python -m gpu_stack.cli stats
+python -m pip install -e .
+gpu-stack estimate --params 7e9 --tokens 2e12 --gpu H100-SXM --gpus 1024
 ```
+
+```text
+7 billion parameters, 2 trillion tokens, 1,024 x H100-SXM
+(MFU 40%, PUE 1.2, electricity $0.0813/kWh)
+  Training time              2.4 days
+  GPU-hours                  58,958
+  Energy                     49.5 MWh
+  Electricity cost           $4,026
+  Hardware cost (amortized)  $67,090
+  Total cost                 $71,116
+  Cost per million tokens    $0.0356
+```
+
+Add `--explain` to see what each number is made of, down to the equation, and whether each input was something you entered, a cited hardware spec, or an assumption. The same from Python:
+
+```python
+from gpu_stack.calculator import estimate, format_breakdown
+
+result = estimate(params=7e9, tokens=2e12, gpu="H100-SXM", n_gpus=1024)
+print(round(result.training_days, 1), round(result.total_cost))
+print(format_breakdown(result))
+```
+
+`python -m pytest -q` runs the tests (a couple of minutes).
+
+## What's in here
+
+```text
+gpu_stack/
+  core/          the equation engine: variables with units, equations, a resolver
+  scopes/        the map itself: training, GPUs, memory, networking, cooling, cost, chips
+  presets/       hardware specs and example scenarios, with sources
+  calculator.py  the calculator, built on the map
+  drivers.py     which inputs move the cost the most
+  research/      the lab: a small simulator of training across datacenters with outages
+docs/            the site (Story, Calculator, Lab)
+experiments/     the lab's input scenarios
+```
+
+## How I built it
+
+I built this with AI coding agents. They write quickly, and they grade their own work unreliably in both directions: some real results were marked as failures because the pass mark was impossible, and some accidents were written up as insights. Going back through every result from the raw files taught me more than building the map did, and it's why the conclusions above are smaller than the early drafts claimed. What's left to fix is in [ROADMAP.md](ROADMAP.md).
+
+<details>
+<summary>The map in numbers</summary>
 
 ```text
 Registry stats:
@@ -72,143 +89,12 @@ Coverage:
   non_constant_variables         1249
   with_sp_units                  1249
   with_references                1249
+  equations                      701
   equations_with_references      701
   equations_with_unit_check      642
 ```
 
-Leaves are variables nothing else depends on. Next, root debt by family (output trimmed to the first five columns):
-
-```bash
-python -m gpu_stack.cli root-debt --families --limit 5
-```
-
-```text
-total_weight  root_count  family                                      boundary_category  primitive_boundary
-        3000          15  physical.lithography.medium                 primitive-root     True
-        2185          11  physical.lithography                        primitive-root     True
-        1943           8  physical.lithography.source_plasma_drive    primitive-root     True
-        1866          18  physical.mosfet                             primitive-root     True
-        1293           8  physical.process                            primitive-root     True
-```
-
-Three of the five top families are lithography, which S001 found has no influence on cost per token. Treat this ranking as a count, not an importance.
-
-```bash
-python -m gpu_stack.cli scenario-report scenarios.pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost
-```
-
-```text
-  tokens_per_second: ok target=training.tokens_per_sec value=7495672.60138477 missing=0 ...
-  job_dc_power: ok target=econ.job.dc_power value=10200.0000000000 missing=0 ...
-  run_power_cost: ok target=econ.run.power_cost value=9.21602308575190 missing=0 ...
-  cost_per_token: ok target=econ.cost.per_token value=3.07310647422680e-11 missing=0 ...
-```
-
-That is Pythia-70M on one 8-GPU H100 node: 7.5M tokens/s, 10.2 kW, about $9 of electricity for the run (US 2024 industrial price). The cost line is electricity only, so a lower bound. These are model outputs, not measurements. The throughput uses a 40% MFU, an assumption labeled in the preset (S001 found the pinned FLOP rate is one of the inputs that moves cost per token most). Run `python -m pytest -q` for the tests (a few minutes).
-
-## Experiments
-
-| Code | Question | Status |
-|---|---|---|
-| E001 | Can a run spread across flaky datacenters keep learning as well as one cluster? | Ran as LC1-LC3 and SC1, plus two modeled screens that only read their inputs back. Mixed. Ledger. |
-| E002 | Can checkpoint timing shape a rack's power draw? | PW1 invalid, PW2 a small valid local result, PW3 (real rack) never run: no hardware. |
-| E003 | Can failures be handled by how much they hurt learning? | Protocol only. P001 says its gates cannot pass or fail as written. |
-| E004 | Should an inference fleet move requests while serving them? | Protocol only. Same P001 finding. |
-| E005 | Can mixed hardware plus architecture co-design win under a power cap? | Protocol only. Same P001 finding. |
-| E006 | Can an inference fleet act as a firm, grid-responsive load? | Protocol only. Same P001 finding. |
-| R001 | Do the LC3 and SC1 learning results replicate on CPU with fresh seeds and an averaging control? | Done. Continuation's NLL cost replicates and is larger; `periodic_local`'s edge is plain averaging. R001. |
-| V001 | Does the simulator reproduce known results (Young/Daly checkpointing, queueing theory, Llama 3 failure rate)? | Done. Event mechanics match theory exactly where it completes; one recovery defect (34% of multi-failure traces raise). Result. |
-| V002 | Does the graph match published training runs? | Done. Fails as shipped, equals 6ND with a prior. Result. |
-| S001 | Which inputs move the headline outputs? | Done. Not lithography. Result. |
-| P001 | Can the E003-E006 gates pass or fail at all? | Done. All four inadequate as written. Result. |
-
-Codes: **LC** is learning calibration, **PW** power waveform, **SC** semantic consistency, **NLL** held-out loss in nats per byte (lower is better), **MFU** model FLOPs utilization, the share of peak math speed a run reaches.
-
-<details>
-<summary>Python examples (each one runs)</summary>
-
-```python
-import gpu_stack
-from gpu_stack import Registry, subgraph
-
-target = Registry.variables["econ.cost.per_token"]
-cone = subgraph(target, direction="dependencies")
-print(target.name, len(cone))   # econ.cost.per_token 698 (289 of them root inputs)
-roots = sorted((v for v in cone if v.is_root_input), key=lambda v: v.name)
-for var in roots[:3]:
-    print(var.name, f"[{var.units}]")
-```
-
-```python
-from gpu_stack.presets import scenarios
-
-report = scenarios.dense_training_cost_fixture.evaluate_targets([
-    ("tokens_per_second", "training.tokens_per_sec"),
-    ("cost_per_token", "econ.cost.per_token"),
-])
-print(report.status)  # ok; 6666666.67 tokens/s and 3.000078e-06 $/token
-```
-
-That fixture is synthetic round numbers for testing the resolver. It is not vendor data.
-
-```python
-import sympy as sp
-from gpu_stack import Registry
-
-node = Registry.equations["cluster.eq.node_peak_flops"].evaluate_rhs({
-    Registry.variables["cluster.node.n_gpus"].symbol: 8,
-    Registry.variables["gpu.peak_flops"].symbol: sp.Float(15e15),
-})
-rack = Registry.equations["cluster.eq.rack_peak_flops"].evaluate_rhs({
-    Registry.variables["cluster.rack.n_nodes"].symbol: 9,
-    Registry.variables["cluster.node.peak_flops"].symbol: node,
-})
-print(sp.N(rack))  # 1.08e+18
-```
-
-```python
-from gpu_stack import Registry, subgraph, to_dot, find_cycles, topological_sort
-
-print(find_cycles(), len(topological_sort()))   # [] 1517
-cone = sorted(subgraph(Registry.variables["econ.cost.per_token"], direction="dependencies"), key=lambda v: v.name)
-print(to_dot(cone)[:120])                       # Graphviz text
-```
-
-</details>
-
-<details>
-<summary>Design rules</summary>
-
-1. Only universal physics constants are `Constant`s. Clocks, voltages, GPU counts and tariffs are `Variable`s.
-2. Every scope registers itself on import, so nothing exists off the books. `gpu_stack.scopes.SCOPE_MODULES` is the load order.
-3. A root input is visible modeling debt: decompose it, source it, or leave it as a named scenario boundary.
-4. Measurements, assumptions, modeled values and priors are different artifact classes.
-5. Calibration and evaluation IDs may not overlap. A policy sees observable state, never simulator truth.
-6. A virtual screen can reject a mechanism. It cannot validate a real datacenter claim.
-7. A result with missing evidence stays inconclusive, even when one threshold looks good.
-
-</details>
-
-<details>
-<summary>Repository layout</summary>
-
-```text
-.
-├── README.md  ROADMAP.md  PRODUCT.md  DESIGN.md  CHALLENGE.md
-├── experiments/   input scenarios used by the simulator and its tests
-├── docs/          GitHub Pages site (index, observatory), data, results log
-├── evals/         WebMCP eval cases
-├── scripts/       data projection for the site
-├── tests/
-└── gpu_stack/     core/ scopes/ presets/ research/ (simulator and experiment engines), cli*.py
-```
-
-</details>
-
 ## Current Snapshot
-
-<details>
-<summary>Registry numbers (checked against the live registry by <code>gpu_stack/docs_stats_check.py</code>)</summary>
 
 | Signal | Value |
 |---|---:|
@@ -229,5 +115,3 @@ print(to_dot(cone)[:120])                       # Graphviz text
 | Package version | 0.27.0 |
 
 </details>
-
-[CHANGELOG.md](CHANGELOG.md) has version history. The WebMCP challenge entry for the observatory is in [CHALLENGE.md](CHALLENGE.md).

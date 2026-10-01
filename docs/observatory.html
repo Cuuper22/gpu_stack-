@@ -20,7 +20,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23008080'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%23808080' stroke='%231A1A1A'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23C0C0C0'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Pixelify+Sans:wght@500&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/00-foundation.css">
   <link rel="stylesheet" href="styles/90-observatory.css?v=20260717.1">
   <link rel="stylesheet" href="styles/60-taskbar.css">
@@ -28,10 +28,13 @@
   <link rel="stylesheet" href="styles/95-observatory-cuperos.css?v=20260717.2">
   <link rel="stylesheet" href="styles/99-webmcp-mission.css?v=20261001.1">
   <link rel="stylesheet" href="styles/96-readability.css?v=20261001.1">
+  <link rel="stylesheet" href="styles/explain.css">
   <script src="data-cache.js?v=20261001.1" defer></script>
   <script src="observatory.js?v=20261001.1" defer></script>
   <script src="webmcp-tools.js?v=20261001.1" defer></script>
   <script src="webmcp-mission.js?v=20261001.1" defer></script>
+  <script src="explain-visuals.js" defer></script>
+  <script src="explain.js" defer></script>
 </head>
 <body data-depth="freshman" data-data-state="loading" data-mission-mode="active" data-rail="open">
   <a class="skip-link" href="#observatory-main">Skip to the Lab</a>
@@ -165,7 +168,7 @@
     <section class="lab-first" aria-labelledby="lab-question">
       <h1 id="lab-question">Can a training run survive across flaky datacenters?</h1>
       <!-- LAB ANSWER -->
-      <p class="lab-answer lab-placeholder">[Placeholder: a two or three sentence plain answer goes here. Written by the coordinator.]</p>
+      <p class="lab-answer">Partly. I trained a tiny model on my laptop GPU and simulated the datacenters and their <span class="term" data-term="outage-rollback">outages</span> around it. Training does keep going across sites, but every way of coping costs something: waiting stalls everyone, restarting from the last <span class="term" data-term="checkpoint">save</span> redoes work, and letting the surviving site carry on saves work but learns a little worse. The chart below shows one outage handled four ways, including a cheating version that knows in advance when the failure will hit, kept as a yardstick.</p>
 
     <section class="recovery-v2-band" id="recovery-v2" aria-labelledby="recovery-v2-title">
       <header class="band-header recovery-v2-header">

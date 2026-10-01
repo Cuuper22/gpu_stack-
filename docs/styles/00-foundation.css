@@ -151,3 +151,9 @@ a {
     color: var(--title-bar);
   }
 }
+
+/* Pixelify Sans ships at weight 500 only: its bold closes the C into an O
+   ("CuperOS" read as "OuperOS"). Never fake a bold from it. */
+html {
+  font-synthesis-weight: none;
+}
