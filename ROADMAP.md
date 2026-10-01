@@ -26,8 +26,9 @@ Done when P001 is re-run on the revised gates and no gate is labeled impossible.
   replicate on fresh seeds, and is the SC1 averaging effect plain weight averaging? Its
   answer decides whether `periodic_local` is a finding or an artifact. Q2 is the open
   mechanism question for item 6 below.
-- **V001** (simulator vs known results, protocol frozen at `38babe1`): until it reports,
-  the simulator's event mechanics are unchecked.
+- **V001** (simulator vs known results): done. Event mechanics match theory where runs
+  complete; see item 3 for the defect it found. Multi-site, WAN policy, power and cooling
+  paths are still untested.
 
 ## 3. Fix the recovery-runtime defect V001 found
 
