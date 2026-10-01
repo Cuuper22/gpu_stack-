@@ -19,7 +19,7 @@ Simulation-only results never advance beyond `virtual`.
 | ID | Study | Protocol frozen | Result |
 |---|---|---|---|
 | R001 | [CPU replication of LC3 and SC1 with fresh seeds](r001-cpu-replication/protocol.md) | `0540632` | running |
-| V001 | [Simulator against known results](v001-simulator-known-results/protocol.md) | `38babe1` | running |
+| V001 | [Simulator against known results](v001-simulator-known-results/protocol.md) | `38babe1` | [RESULT](v001-simulator-known-results/RESULT.md) |
 | V002 | [Graph against published training runs](v002-graph-published-runs/protocol.md) | `c8801ea` | [RESULT](v002-graph-published-runs/RESULT.md) |
 | S001 | [Global sensitivity of the graph](s001-graph-sensitivity/protocol.md) | `99c2e95` | [RESULT](s001-graph-sensitivity/RESULT.md) |
 | P001 | [Can the E001-E006 gates pass or fail?](p001-protocol-power-audit/protocol.md) | `c3dfe91` | [RESULT](p001-protocol-power-audit/RESULT.md) |

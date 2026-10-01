@@ -30,11 +30,11 @@ gpu_stack started with one question: when people say frontier training is "more 
 | 950 equations model the stack. | 538 (57%) reach no headline number. Shipped scenarios run 78. The nuclear and quark layer has zero numeric effect. | [audit](analysis/graph-audit/REPORT.md) |
 | Equations are trustworthy. | The audit found 4 wrong ones (pipeline bubbles, hierarchical allgather, MLA KV cache, interleaved bubble). All 4 are fixed and have regression tests. | [audit](analysis/graph-audit/REPORT.md) |
 | E003-E006 are ready to run. | Their gates cannot pass or fail as written (some need 299 or more clean events, some are too lax to ever fail). | [P001](experiments/p001-protocol-power-audit/RESULT.md) |
-| The simulator is checked. | Until V001 reports, it is not. Its builder found a legal failure trace that makes the recovery runtime raise. | [V001 protocol](experiments/v001-simulator-known-results/protocol.md) |
+| The simulator handles any failure sequence. | It matches checkpoint/restart theory (Daly) and queueing theory to within Monte Carlo error, but crashes on 34% of its random multi-failure test traces (1,540 of 4,500): a failure after a recovery's replay and before the next checkpoint raises `ValueError`. Single-failure E001 runs never hit it. | [V001](experiments/v001-simulator-known-results/RESULT.md) |
 
 ## How the project checks itself
 
-- **Frozen protocols.** For P001, S001, V002, V001 and R001, the protocol was committed before any result. Results landed later in git for P001 (`c3dfe91` then `d1d58c8`), S001 (`99c2e95` then `de57f2f`) and V002 (`c8801ea` then `0866736`). V001 (`38babe1`) and R001 (`0540632`) are running. Check with `git log`. Git order is checkable, not tamper-proof.
+- **Frozen protocols.** For P001, S001, V002, V001 and R001, the protocol was committed before any result. Results landed later in git for P001 (`c3dfe91` then `d1d58c8`), S001 (`99c2e95` then `de57f2f`) V002 (`c8801ea` then `0866736`) and V001 (`38babe1` then `6709dc9`). R001 (`0540632`) is running. Check with `git log`. Git order is checkable, not tamper-proof.
 - **The old runs were not preregistered.** For E001 and E002, protocol and results share commits, minutes to hours after the runs. Only the E003-E006 protocols (`7b13f73`) predate results, and they have none. The word is not used for the early runs here.
 - **An evidence ledger.** [EVIDENCE.md](EVIDENCE.md) re-judges every run with results. It copies each original verdict verbatim, then says HOLDS, OVERTURNED, UNDETERMINED or MEASUREMENT INVALID, with a confidence and what would settle it. It reproduces all 39 original bootstrap intervals exactly.
 - **Who judged what.** Much of the code and the first verdicts were written with AI coding agents, and those verdicts were unreliable in both directions: some bars were impossible, some praise was unearned. The October 2026 audit re-derived every verdict from the raw artifacts. The audit is itself checkable: the scripts are in `analysis/` and each new study's protocol commit precedes its result commit.
@@ -115,7 +115,7 @@ That is Pythia-70M on one 8-GPU H100 node: 7.5M tokens/s, 10.2 kW, about $9 of e
 | E005 | Can mixed hardware plus architecture co-design win under a power cap? | Protocol only. Same P001 finding. |
 | E006 | Can an inference fleet act as a firm, grid-responsive load? | Protocol only. Same P001 finding. |
 | R001 | Do the LC3 and SC1 learning results replicate on CPU with fresh seeds and an averaging control? | Running, protocol frozen at `0540632`. <!-- R001-RESULT --> |
-| V001 | Does the simulator reproduce known results (Young/Daly checkpointing, queueing theory, Llama 3 failure rate)? | Running, protocol frozen at `38babe1`. <!-- V001-RESULT --> |
+| V001 | Does the simulator reproduce known results (Young/Daly checkpointing, queueing theory, Llama 3 failure rate)? | Done. Event mechanics match theory exactly where it completes; one recovery defect (34% of multi-failure traces raise). [Result](experiments/v001-simulator-known-results/RESULT.md). |
 | V002 | Does the graph match published training runs? | Done. Fails as shipped, equals 6ND with a prior. [Result](experiments/v002-graph-published-runs/RESULT.md). |
 | S001 | Which inputs move the headline outputs? | Done. Not lithography. [Result](experiments/s001-graph-sensitivity/RESULT.md). |
 | P001 | Can the E003-E006 gates pass or fail at all? | Done. All four inadequate as written. [Result](experiments/p001-protocol-power-audit/RESULT.md). |

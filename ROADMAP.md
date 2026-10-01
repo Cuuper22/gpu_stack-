@@ -34,9 +34,9 @@ Done when P001 is re-run on the revised gates and no gate is labeled impossible.
 While building V001 its author found that `RecoveryRuntime.begin_recovery` raises
 `ValueError` when a failure arrives after a recovery's replay finished and before the next
 checkpoint commits (minimal repro in the
-[V001 protocol](experiments/v001-simulator-known-results/protocol.md), "Known defect").
+[V001 result](experiments/v001-simulator-known-results/RESULT.md); repro: `experiments/v001-simulator-known-results/repro_defect.py`).
 The shipped E001 runs have one failure each, so they never hit it. Any multi-failure
-trace can. Fix it after V001 reports, so the frozen result stays tied to the code it ran.
+trace can. V001 has reported (1,540 of 4,500 multi-failure test traces raise), so it can be fixed now; the root cause is `WorkLedger.invalidate_outcomes` (`gpu_stack/research/recovery.py:1979`) invalidating a committed replay outcome that superseded attempts still point to.
 Note that `gpu_stack/research/*.py` files hash their own source into artifact identities,
 so the edit is a provenance event and must be recorded as one.
 
