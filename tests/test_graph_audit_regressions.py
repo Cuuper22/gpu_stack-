@@ -224,14 +224,15 @@ def test_flicker_noise_psd_is_dimensionally_consistent_at_gamma_one():
 
 
 def test_carrier_continuity_unit_check_handles_the_time_derivative():
-    """dn/dt = G - R: the left side is n divided by time. The check is on, and
-    a rhs with the wrong dimension is rejected."""
+    """dn/dt = G - R: the left side is n divided by time. Running the unit
+    check on the registered equation passes, and a rhs with the wrong
+    dimension is rejected."""
     from gpu_stack import Registry
     from gpu_stack.core import DifferentialEquation
     from gpu_stack.core.units import UnitError
 
     good = Registry.equations["physical.eq.carrier_continuity"]
-    assert good._check_units_flag
+    good._check_units()  # raises UnitError on a dimension or scale mismatch
 
     n = Registry.variables["physical.carrier_density"]
     t = Registry.variables["physical.time"]

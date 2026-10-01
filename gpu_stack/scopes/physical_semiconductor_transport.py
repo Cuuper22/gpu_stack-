@@ -329,7 +329,6 @@ eq_carrier_continuity = DifferentialEquation(
     order=1,
     description="Lumped continuity equation dn/dt = G - R.",
     references=[_SZE_TRANSPORT],
-    check_units=True,
 )
 
 
