@@ -1,0 +1,399 @@
+{
+ "cells": [
+  {
+   "cats": {
+    "engine_error_predicted": 34,
+    "match": 266
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 1,
+    "mtbf_s": 24.5,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 34
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 9,
+    "match": 291
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 1,
+    "mtbf_s": 98.0,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 9
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "match": 300
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 1,
+    "mtbf_s": 490.0,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {},
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 259,
+    "match": 41
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 2,
+    "mtbf_s": 44.5,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 259
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 64,
+    "match": 236
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 2,
+    "mtbf_s": 178.0,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 64
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 3,
+    "match": 297
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 2,
+    "mtbf_s": 890.0,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 3
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 279,
+    "match": 21
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 3,
+    "mtbf_s": 64.5,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 279
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 87,
+    "match": 213
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 3,
+    "mtbf_s": 258.0,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 87
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 6,
+    "match": 294
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 3,
+    "mtbf_s": 1290.0,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 6
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 290,
+    "match": 10
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 5,
+    "mtbf_s": 104.5,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 290
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 94,
+    "match": 206
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 5,
+    "mtbf_s": 418.0,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 94
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 6,
+    "match": 294
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 5,
+    "mtbf_s": 2090.0,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 6
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 297,
+    "match": 3
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 8,
+    "mtbf_s": 164.5,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 297
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 108,
+    "match": 192
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 8,
+    "mtbf_s": 658.0,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 108
+   },
+   "mismatches": [],
+   "n": 300
+  },
+  {
+   "cats": {
+    "engine_error_predicted": 4,
+    "match": 296
+   },
+   "cfg": {
+    "ckpt_s": 9,
+    "k": 8,
+    "mtbf_s": 3290.0,
+    "n_segments": 6,
+    "rfix_s": 3,
+    "rxfer_s": 4,
+    "step_s": 40
+   },
+   "errors": {
+    "ValueError: superseded work must point to its committed replay outcome": 4
+   },
+   "mismatches": [],
+   "n": 300
+  }
+ ],
+ "engine_error_signatures": {
+  "ValueError: superseded work must point to its committed replay outcome": 1540
+ },
+ "minimal_repro": {
+  "failure_at_600s_only": {
+   "status": "ok",
+   "wall_s": 3640.999999999
+  },
+  "failures_600s_and_1300s_(second_after_replay_before_checkpoint)": {
+   "error": "ValueError: superseded work must point to its committed replay outcome",
+   "status": "error"
+  },
+  "failures_600s_and_2100s_(second_after_next_checkpoint)": {
+   "status": "ok",
+   "wall_s": 4130.999999999
+  },
+  "failures_600s_and_700s_(second_during_replay)": {
+   "status": "ok",
+   "wall_s": 3740.999999999
+  },
+  "scenario": {
+   "ckpt_s": 10,
+   "downtime_s": 1,
+   "k": 4,
+   "n_segments": 3,
+   "restart_s": 10,
+   "step_s": 250
+  }
+ },
+ "provenance": {
+  "criteria": {
+   "chi2_p_min": 0.001,
+   "identity_rel_tol": 1e-09,
+   "pooled_bias_ci_half_width": 0.01,
+   "pooled_se_max": 0.005,
+   "queue_rel_se_max": 0.03,
+   "z_crit": 3.5
+  },
+  "git_head": "38babe18969aee044ba5add624013f51787e5b65",
+  "input_sha256": {
+   "experiments/v001-simulator-known-results/analytic.py": "e1916c5ea69bb4c85422362bbc4fc8b2c90d10625d6401751155ca42649cf9c2",
+   "experiments/v001-simulator-known-results/check_ckpt.py": "fcc927d12f9475dccdd2640cae9606907bdd4fc149d13fd8ca3d4fa7f0a3836e",
+   "experiments/v001-simulator-known-results/check_queue.py": "818634602cefa9729f276ffdbd7bab1e249ac4c9ab881eaabf2ab9ff70806d39",
+   "experiments/v001-simulator-known-results/ckpt_driver.py": "f517ca3bb452bb5fd38fb732e5d8b74882a984c98b19a7417161286504cc7492",
+   "experiments/v001-simulator-known-results/protocol.md": "985fd49b3fe366da58ee848c962c8dbaf9a8173efcb29e774e0dda5cb0f3e80c",
+   "experiments/v001-simulator-known-results/ref_sim.py": "67ea2dcfac35ca279701b98447c8b79209c38127b25c9ee2873dcae972e52f5f",
+   "experiments/v001-simulator-known-results/run.py": "a419fa1a113f3dc0d1a819fe9dc80dd2af070b82045c8c05bdbc21065e4d9759",
+   "gpu_stack/research/multisite.py": "5d59e8cc4eed7755d7dca587058f1490d0da3706668da60518c32b1cde2c7096",
+   "gpu_stack/research/recovery.py": "f2848032d20f9a162ac6ee972e8832cd0ba15e3191ae8297b2cbc565190d1fba",
+   "gpu_stack/research/recovery_runtime.py": "202a7020a1ee14aaafacfa42ec89ab72e6e2e04e577d0527c7e839726d82f81d",
+   "gpu_stack/research/temporal.py": "d7961f9e819d7e0c72ffd0c085139c82c4c34d96046fe4c57a1855d6fb07eedc"
+  },
+  "mode": "full",
+  "numpy": "2.4.6",
+  "python": "3.11.15",
+  "seeds": {
+   "base_seed": 20261001
+  },
+  "settings": {
+   "acc_boundary": 120,
+   "acc_random": 200,
+   "diff_k": [
+    1,
+    2,
+    3,
+    5,
+    8
+   ],
+   "diff_mtbf_mult": [
+    0.5,
+    2.0,
+    10.0
+   ],
+   "diff_traces": 300,
+   "little_cases": 20,
+   "little_n": 300,
+   "pub_budget": {
+    "fail_target": 10000,
+    "max_seg": 40000,
+    "min_seg": 20
+   },
+   "q_n": 800,
+   "q_reps": 2000,
+   "q_warm_n": 1000,
+   "smoke_regimes": false,
+   "stat_budget": {
+    "fail_target": 10000,
+    "max_seg": 40000,
+    "min_seg": 20
+   }
+  },
+  "uncommitted_in_scope": []
+ },
+ "runtime_seconds": 130.82321572303772,
+ "totals": {
+  "engine_error_predicted": 1540,
+  "match": 2960
+ }
+}

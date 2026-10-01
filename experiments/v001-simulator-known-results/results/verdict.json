@@ -1,0 +1,354 @@
+{
+ "criteria_results": [
+  {
+   "criterion": "all cells |z|<=3.5; chi2 p>=0.001; pooled relative bias 95% CI within +-1%",
+   "id": "C1a-engine-vs-closed-form",
+   "observed": {
+    "cells": 96,
+    "chi2_p": 0.9204561224485813,
+    "max_abs_z": 2.714480867171188,
+    "pooled_bias_ci95": [
+     -0.00032837895208677405,
+     0.00016264278059328538
+    ]
+   },
+   "pass": true
+  },
+  {
+   "criterion": "all cells |z|<=3.5; chi2 p>=0.001; pooled relative bias 95% CI within +-1%",
+   "id": "C1a-reference-vs-closed-form",
+   "observed": {
+    "cells": 96,
+    "chi2_p": 0.9204561224485813,
+    "max_abs_z": 2.714480867171188,
+    "pooled_bias_ci95": [
+     -0.00032837895208677405,
+     0.00016264278059328538
+    ]
+   },
+   "pass": true
+  },
+  {
+   "criterion": "engine wall time equals reference wall time on every trace (0 differences)",
+   "id": "C1a-engine-ne-reference-on-same-traces",
+   "observed": {
+    "differences": 0,
+    "engine_errors": 0
+   },
+   "pass": true
+  },
+  {
+   "criterion": "in every regime the exact optimum lies inside the plateau hull of simulated waste (within 2 SE of the simulated minimum), one grid step of slack",
+   "id": "C1c-exact-optimum-not-rejected",
+   "observed": {
+    "C/M=0.001,R=C": true,
+    "C/M=0.01,R=10C": true,
+    "C/M=0.01,R=C": true,
+    "C/M=0.01,R=C,D=2C": true,
+    "C/M=0.01,R~0": true,
+    "C/M=0.1,R=C": true,
+    "C/M=0.5,R=C": true,
+    "C/M=1,R=C": true,
+    "C/M=2,R=C (outside Daly range)": true
+   },
+   "pass": true
+  },
+  {
+   "criterion": "measured excess waste of Young/Daly intervals vs the exact optimum agrees with the analytic excess, |z|<=3.5 in every regime",
+   "id": "C1d-formula-excess-waste",
+   "observed": {
+    "max_abs_z": 2.171351281030265,
+    "n": 27
+   },
+   "pass": true
+  },
+  {
+   "criterion": "engine wall time equals independent reference to the nanosecond on every trace that completes",
+   "id": "C1b-differential",
+   "observed": {
+    "completed": 2960,
+    "mismatch": 0
+   },
+   "pass": true
+  },
+  {
+   "criterion": "engine completes every failure trace (0 exceptions)",
+   "id": "C1b-completion",
+   "observed": {
+    "engine_errors": 1540,
+    "signatures": {
+     "ValueError: superseded work must point to its committed replay outcome": 1540
+    },
+    "traces": 4500
+   },
+   "pass": false
+  },
+  {
+   "criterion": "every engine exception is predicted by the replay-then-failure rule, and every prediction raises",
+   "id": "C1b-root-cause",
+   "observed": {
+    "predicted_but_no_error": 0,
+    "unpredicted_errors": 0
+   },
+   "pass": true
+  },
+  {
+   "criterion": "0 violations of identities A1-A10, 0 wall-clock differences from the reference, 0 metamorphic changes, on all completed runs",
+   "id": "C2-accounting",
+   "observed": {
+    "metamorphic": {
+     "determinism_changed": 0,
+     "determinism_total": 500,
+     "late_failure_changed": 0,
+     "late_failure_error": 24,
+     "late_failure_total": 476,
+     "order_changed": 0,
+     "order_total": 500,
+     "scale_changed": 0,
+     "scale_total": 500
+    },
+    "tally": {
+     "completed": 3300,
+     "engine_error": 540,
+     "engine_error_predicted": 196
+    },
+    "violations": {}
+   },
+   "pass": false
+  },
+  {
+   "criterion": "substrate (and VirtualDatacenter WAN link) start times equal an exact FCFS c-server recursion for every customer",
+   "id": "C3a-exact-FCFS",
+   "observed": {
+    "mismatching_customers_or_runs": 0
+   },
+   "pass": true
+  },
+  {
+   "criterion": "mean wait vs Erlang C / Pollaczek-Khinchine and P(wait>0) vs Erlang C: |z|<=3.5, and relative SE<=3% so the test is not vacuous",
+   "id": "C3b-theory",
+   "observed": [
+    {
+     "conclusive": true,
+     "rel_dev": -0.0012893676034525514,
+     "rel_se": 0.004136326837426363,
+     "scenario": "M/M/1 rho=0.5",
+     "z": -0.31171801797335735
+    },
+    {
+     "conclusive": true,
+     "rel_dev": 0.0006796021447919021,
+     "rel_se": 0.008813102150042398,
+     "scenario": "M/M/1 rho=0.8",
+     "z": 0.07711270483669957
+    },
+    {
+     "conclusive": true,
+     "rel_dev": -0.03906127906901247,
+     "rel_se": 0.013867389437051809,
+     "scenario": "M/M/1 rho=0.9",
+     "z": -2.8167723453879474
+    },
+    {
+     "conclusive": true,
+     "rel_dev": -0.0013671328281529282,
+     "rel_se": 0.0076816768121798044,
+     "scenario": "M/M/2 rho=0.7",
+     "z": -0.17797322922845168
+    },
+    {
+     "conclusive": true,
+     "rel_dev": -0.023655677978496104,
+     "rel_se": 0.014656719022574963,
+     "scenario": "M/M/2 rho=0.9",
+     "z": -1.613981815579634
+    },
+    {
+     "conclusive": true,
+     "rel_dev": -0.00015180515151735907,
+     "rel_se": 0.011882143481360217,
+     "scenario": "M/M/5 rho=0.8",
+     "z": -0.012775906279491036
+    },
+    {
+     "conclusive": true,
+     "rel_dev": 0.013946374582899157,
+     "rel_se": 0.022211765938952233,
+     "scenario": "M/M/20 rho=0.9",
+     "z": 0.6278822954118116
+    },
+    {
+     "conclusive": true,
+     "rel_dev": 0.0018131455931862384,
+     "rel_se": 0.0027748431101633914,
+     "scenario": "M/D/1 rho=0.5",
+     "z": 0.6534227418282668
+    },
+    {
+     "conclusive": true,
+     "rel_dev": -0.003295447514979344,
+     "rel_se": 0.004276713043873464,
+     "scenario": "M/D/1 rho=0.7",
+     "z": -0.7705561446775543
+    },
+    {
+     "conclusive": true,
+     "rel_dev": -0.0014841829245831883,
+     "rel_se": 0.009438542248760229,
+     "scenario": "M/H2/1 rho=0.5",
+     "z": -0.157247049964532
+    }
+   ],
+   "pass": true
+  },
+  {
+   "criterion": "Little's law identities to 1e-09; snapshots never exceed capacity and agree with the event records",
+   "id": "C3c-little-and-snapshots",
+   "observed": {
+    "cases": 20,
+    "max_L_rel": 2.3231338956741974e-16,
+    "max_in_service_rel": 0.0
+   },
+   "pass": true
+  },
+  {
+   "criterion": "DESCRIPTIVE (no pass/fail): a later high-priority customer is served before an earlier waiting low-priority one",
+   "id": "C3d-priority-expressible",
+   "observed": {
+    "high_priority_served_before_waiting_low": false,
+    "starts_ns": {
+     "a-low1": 0,
+     "b-low2": 100,
+     "c-high": 200
+    }
+   },
+   "pass": null
+  },
+  {
+   "criterion": "engine effective-time at assumed C=R and at the closed-form 90 percent boundary equals the closed form, |z|<=3.5",
+   "id": "C4-llama3-replay-engine-vs-closed-form",
+   "observed": {
+    "max_C_eq_R_for_90pct_s": 54.37223484119575,
+    "mtbf_s_unexpected_only": 11135.08353221957,
+    "rows": [
+     {
+      "C_s": 30.0,
+      "effective_time_closed_form": 0.9258816198332441,
+      "effective_time_engine": 0.9251056049748009,
+      "engine_errors": 0,
+      "regime": "llama3 C=R=30s",
+      "se": 0.0007758767250650862,
+      "tau_s": 797.4992519268021,
+      "z_engine_vs_closed_form": 0.9993397498429454
+     },
+     {
+      "C_s": 60.0,
+      "effective_time_closed_form": 0.8949144695022865,
+      "effective_time_engine": 0.8961102149859664,
+      "engine_errors": 0,
+      "regime": "llama3 C=R=60s",
+      "se": 0.0008728116409034044,
+      "tau_s": 1116.29154784077,
+      "z_engine_vs_closed_form": -1.3718231176865727
+     },
+     {
+      "C_s": 120.0,
+      "effective_time_closed_form": 0.8510624851894089,
+      "effective_time_engine": 0.849660507707177,
+      "engine_errors": 0,
+      "regime": "llama3 C=R=120s",
+      "se": 0.0010482972514769108,
+      "tau_s": 1555.7325593341775,
+      "z_engine_vs_closed_form": 1.3351823312517919
+     },
+     {
+      "C_s": 300.0,
+      "effective_time_closed_form": 0.7645945661999046,
+      "effective_time_engine": 0.7659945754941444,
+      "engine_errors": 0,
+      "regime": "llama3 C=R=300s",
+      "se": 0.0012997703796146626,
+      "tau_s": 2388.6415524438003,
+      "z_engine_vs_closed_form": -1.079092738495427
+     },
+     {
+      "C_s": 54.37223484119575,
+      "effective_time_closed_form": 0.9000000000000157,
+      "effective_time_engine": 0.9003604744798192,
+      "engine_errors": 0,
+      "regime": "llama3 boundary 90pct",
+      "se": 0.0008979993876631805,
+      "tau_s": 1064.4536727732702,
+      "z_engine_vs_closed_form": -0.40158029570148474
+     }
+    ]
+   },
+   "pass": true
+  }
+ ],
+ "provenance": {
+  "criteria": {
+   "chi2_p_min": 0.001,
+   "identity_rel_tol": 1e-09,
+   "pooled_bias_ci_half_width": 0.01,
+   "pooled_se_max": 0.005,
+   "queue_rel_se_max": 0.03,
+   "z_crit": 3.5
+  },
+  "git_head": "38babe18969aee044ba5add624013f51787e5b65",
+  "input_sha256": {
+   "experiments/v001-simulator-known-results/analytic.py": "e1916c5ea69bb4c85422362bbc4fc8b2c90d10625d6401751155ca42649cf9c2",
+   "experiments/v001-simulator-known-results/check_ckpt.py": "fcc927d12f9475dccdd2640cae9606907bdd4fc149d13fd8ca3d4fa7f0a3836e",
+   "experiments/v001-simulator-known-results/check_queue.py": "818634602cefa9729f276ffdbd7bab1e249ac4c9ab881eaabf2ab9ff70806d39",
+   "experiments/v001-simulator-known-results/ckpt_driver.py": "f517ca3bb452bb5fd38fb732e5d8b74882a984c98b19a7417161286504cc7492",
+   "experiments/v001-simulator-known-results/protocol.md": "985fd49b3fe366da58ee848c962c8dbaf9a8173efcb29e774e0dda5cb0f3e80c",
+   "experiments/v001-simulator-known-results/ref_sim.py": "67ea2dcfac35ca279701b98447c8b79209c38127b25c9ee2873dcae972e52f5f",
+   "experiments/v001-simulator-known-results/run.py": "a419fa1a113f3dc0d1a819fe9dc80dd2af070b82045c8c05bdbc21065e4d9759",
+   "gpu_stack/research/multisite.py": "5d59e8cc4eed7755d7dca587058f1490d0da3706668da60518c32b1cde2c7096",
+   "gpu_stack/research/recovery.py": "f2848032d20f9a162ac6ee972e8832cd0ba15e3191ae8297b2cbc565190d1fba",
+   "gpu_stack/research/recovery_runtime.py": "202a7020a1ee14aaafacfa42ec89ab72e6e2e04e577d0527c7e839726d82f81d",
+   "gpu_stack/research/temporal.py": "d7961f9e819d7e0c72ffd0c085139c82c4c34d96046fe4c57a1855d6fb07eedc"
+  },
+  "mode": "full",
+  "numpy": "2.4.6",
+  "python": "3.11.15",
+  "seeds": {
+   "base_seed": 20261001
+  },
+  "settings": {
+   "acc_boundary": 120,
+   "acc_random": 200,
+   "diff_k": [
+    1,
+    2,
+    3,
+    5,
+    8
+   ],
+   "diff_mtbf_mult": [
+    0.5,
+    2.0,
+    10.0
+   ],
+   "diff_traces": 300,
+   "little_cases": 20,
+   "little_n": 300,
+   "pub_budget": {
+    "fail_target": 10000,
+    "max_seg": 40000,
+    "min_seg": 20
+   },
+   "q_n": 800,
+   "q_reps": 2000,
+   "q_warm_n": 1000,
+   "smoke_regimes": false,
+   "stat_budget": {
+    "fail_target": 10000,
+    "max_seg": 40000,
+    "min_seg": 20
+   }
+  },
+  "uncommitted_in_scope": []
+ },
+ "runtime_seconds": 0.0
+}
