@@ -28,6 +28,17 @@ TRAINING_OVERHEADS_REF = Reference(
     kind="model",
 )
 
+NARAYANAN_2021_REF = Reference(
+    "Narayanan et al., Efficient Large-Scale Language Model Training on GPU "
+    "Clusters Using Megatron-LM, SC21, Sec. 2.2: the 1F1B pipeline bubble "
+    "adds (p-1)(t_f+t_b) to an ideal m(t_f+t_b), so the step-time "
+    "multiplier is 1 + (p-1)/m.",
+    kind="paper",
+    url="https://arxiv.org/abs/2104.04473",
+    year=2021,
+    doi="10.1145/3458817.3476209",
+)
+
 
 # ---------------------------------------------------------------------------
 # Overhead fractions: bubbles, stragglers, restarts, and eval inflate the nominal step time
@@ -49,10 +60,11 @@ T_bubbles = var(
 )
 pipeline_bubble_fraction = var(
     "training.pipeline_bubble_fraction", "phi_pipe_train", "dimensionless",
-    "Fractional pipeline bubble penalty applied to the nominal step time.",
+    "Pipeline bubble time divided by nominal (bubble-free) step time, i.e. an overhead "
+    "over nominal, equal to (p-1)/m for 1F1B. Not the bubble share of the total step.",
     scope="training",
     sp_units=DIMENSIONLESS,
-    references=[TRAINING_OVERHEADS_REF],
+    references=[TRAINING_OVERHEADS_REF, NARAYANAN_2021_REF],
 )
 straggler_fraction = var(
     "training.straggler_fraction", "phi_strag_train", "dimensionless",
@@ -77,7 +89,9 @@ eval_fraction = var(
 )
 overhead_fraction = var(
     "training.overhead_fraction", "phi_over_train", "dimensionless",
-    "Total non-nominal fractional overhead added on top of the compute, communication, and memory-bound baseline.",
+    "Total non-nominal overhead: extra time divided by nominal step time. Every term "
+    "summed into it (pipeline, straggler, restart, eval) is an overhead over nominal, "
+    "so step time is nominal * (1 + overhead_fraction).",
     scope="training",
     sp_units=DIMENSIONLESS,
     references=[TRAINING_OVERHEADS_REF],
@@ -86,9 +100,10 @@ overhead_fraction = var(
 eq_pipeline_bubble_fraction = eq(
     "training.eq.pipeline_bubble_fraction",
     pipeline_bubble_fraction.symbol,
-    bubble_1f1b.symbol,
-    "By default the training scope uses the lower-scope 1F1B bubble fraction as its pipeline bubble term.",
-    references=[TRAINING_OVERHEADS_REF],
+    bubble_1f1b.symbol / (1 - bubble_1f1b.symbol),
+    "The lower-scope 1F1B bubble is a share of the total step, phi = (p-1)/(p+m-1). "
+    "Converting it to an overhead over nominal time gives phi/(1-phi) = (p-1)/m.",
+    references=[TRAINING_OVERHEADS_REF, NARAYANAN_2021_REF],
     check_units=True,
 )
 eq_overhead_fraction = eq(

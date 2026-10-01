@@ -16,7 +16,7 @@ starts corrupting bits.
 import sympy as sp
 
 from ..core import Reference, StochasticRelation, var, eq
-from ..core.units import AMPERE, FARAD, HZ, METER, SECOND, VOLT
+from ..core.units import AMPERE, FARAD, HZ, SECOND, VOLT
 from ..constants import BOLTZMANN, ELEMENTARY_CHARGE
 from .physical_semiconductor import I_current, R_res, T_temp
 from .physical_mosfet import C_ox, L_channel, W_channel
@@ -72,10 +72,12 @@ f_noise = var(
     references=[NOISE_FLICKER_REF],
 )
 K_flicker = var(
-    "physical.noise.flicker_coeff", "K_f", "mixed",
-    "Empirical flicker-noise coefficient. Kept as a Variable because process reality does not care about tidy notation.",
+    "physical.noise.flicker_coeff", "K_f", "V^2*F",
+    "Empirical flicker-noise coefficient, V^2*F at the usual 1/f exponent (gamma = 1). For gamma != 1 its unit "
+    "is V^2*F*Hz^(gamma-1), referenced to 1 Hz. Kept as a Variable because process reality does not care about "
+    "tidy notation.",
     scope="physical",
-    sp_units=VOLT**2 * FARAD * METER**2 * HZ,
+    sp_units=VOLT**2 * FARAD,
     references=[NOISE_FLICKER_REF],
 )
 gamma_flicker = var(
@@ -131,7 +133,9 @@ eq_flicker_noise = eq(
     s_v_flicker.symbol,
     K_flicker.symbol /
     (C_ox.symbol * W_channel.symbol * L_channel.symbol * f_noise.symbol**gamma_flicker.symbol),
-    "Simple input-referred 1/f noise PSD model. Geometry and oxide capacitance matter.",
+    "Simple input-referred 1/f noise PSD model. Geometry and oxide capacitance matter. "
+    "Unit check is off: the exponent gamma is a variable, which the checker cannot handle; "
+    "dimensions are verified at gamma = 1 in tests/test_graph_audit_regressions.py.",
     references=[NOISE_FLICKER_REF],
 )
 

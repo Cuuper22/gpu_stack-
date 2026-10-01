@@ -65,6 +65,30 @@ class DifferentialEquation(Equation):
             variant=variant,
         )
 
+    def _check_units(self) -> None:
+        """Unit check where the left side is d^order(lhs)/d(indep)^order.
+
+        The base class compares the lhs variable's own unit to the rhs, which
+        is wrong for a derivative: the rhs has the lhs unit divided by the
+        independent variable's unit once per order.
+        """
+        from .registry import Registry
+        from .units import check_equation_units, infer_expr_units_with_coefficient
+
+        lhs_v = self.lhs_variable()
+        indep_v = Registry.lookup_by_symbol(self.indep_sym)
+        if (
+            lhs_v is None
+            or lhs_v.sp_units is None
+            or indep_v is None
+            or indep_v.sp_units is None
+        ):
+            return
+        unit_lookup = self._unit_lookup_for_exprs([self.lhs, self.rhs])
+        lhs_units = (lhs_v.sp_units / indep_v.sp_units**self.order, 1.0)
+        rhs_units = infer_expr_units_with_coefficient(self.rhs, unit_lookup, self.name)
+        check_equation_units(lhs_units, rhs_units, self.name)
+
     def as_sympy(self):
         lhs_expr = self.lhs
         if isinstance(lhs_expr, sp.Symbol):

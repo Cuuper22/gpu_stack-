@@ -218,7 +218,7 @@ def test_pythia_160m_run_closure_has_source_and_values():
     assert a["arch.ffn.weight_matrices"] == 2
     assert a["arch.norm.param_multiplier"] == 4
     assert a["par.n_gpus"] == 8
-    assert a["gpu.peak_flops_power_limited"] == 67e12
+    assert a["gpu.peak_flops_power_limited"] == pytest.approx(989.4e12 * 0.40)
     assert a["gpu.power.total"] == 700.0
     assert a["thermal.dc.total_power"] == pytest.approx(10_200.0)
 
@@ -246,9 +246,9 @@ def test_pythia_160m_industrial_power_pack_provenance_names_all_sources():
 @pytest.mark.parametrize(
     ("target", "expected"),
     [
-        ("training.tokens_per_sec", pytest.approx(550_630, rel=1e-4)),
+        ("training.tokens_per_sec", pytest.approx(3_252_496, rel=1e-4)),
         ("econ.job.dc_power", pytest.approx(10_200.0)),
-        ("econ.run.power_cost", pytest.approx(125.457, rel=1e-4)),
+        ("econ.run.power_cost", pytest.approx(21.2392, rel=1e-4)),
     ],
 )
 def test_pythia_160m_industrial_power_pack_resolves_non_cost_targets(target, expected):
@@ -347,7 +347,7 @@ def test_pythia_70m_commercial_run_closure_has_source_and_values():
     a = pythia_70m_dgx_h100_us_2024_commercial_run_closure.assignments
     assert a["arch.n_kv_heads"] == 8
     assert a["par.n_gpus"] == 8
-    assert a["gpu.peak_flops_power_limited"] == 67e12
+    assert a["gpu.peak_flops_power_limited"] == pytest.approx(989.4e12 * 0.40)
     assert a["thermal.dc.total_power"] == pytest.approx(10_200.0)
 
 
@@ -389,9 +389,9 @@ def test_pythia_70m_commercial_power_pack_provenance_names_all_sources():
 @pytest.mark.parametrize(
     ("target", "expected"),
     [
-        ("training.tokens_per_sec", pytest.approx(1_268_976, rel=1e-4)),
+        ("training.tokens_per_sec", pytest.approx(7_495_673, rel=1e-4)),
         ("econ.job.dc_power", pytest.approx(10_200.0)),
-        ("econ.run.power_cost", pytest.approx(85.373, rel=1e-4)),
+        ("econ.run.power_cost", pytest.approx(14.4532, rel=1e-4)),
     ],
 )
 def test_pythia_70m_commercial_power_pack_resolves_non_cost_targets(target, expected):

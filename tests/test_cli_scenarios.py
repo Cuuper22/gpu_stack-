@@ -33,7 +33,7 @@ def test_scenario_report_sourced_pack_prints_compact_target_statuses():
     assert rc == 0
     assert "Scenario report: pythia_70m_dgx_h100_us_2024_industrial_power" in out
     assert "tokens_per_second: ok target=training.tokens_per_sec" in out
-    assert "value=1268976.30961386" in out
+    assert "value=7495672.60138477" in out
     assert "job_dc_power: ok target=econ.job.dc_power value=10200.0000000000" in out
     assert "run_power_cost: ok target=econ.run.power_cost" in out
     assert "missing=0" in out

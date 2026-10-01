@@ -217,9 +217,9 @@ def test_pythia_dgx_h100_industrial_pack_provenance_summary_is_useful():
 @pytest.mark.parametrize(
     ("target", "expected"),
     [
-        ("training.tokens_per_sec", 1_268_976.30961386),
+        ("training.tokens_per_sec", 7_495_672.601384767),
         ("econ.job.dc_power", 10_200.0),
-        ("econ.run.power_cost", 54.4378103942861),
+        ("econ.run.power_cost", 9.216023085751896),
     ],
 )
 def test_pythia_dgx_h100_industrial_pack_resolves_user_facing_targets(
@@ -313,3 +313,17 @@ def test_pythia_dgx_h100_energy_floor_cost_resolves_all_advertised_targets():
     assert "econ.eq.run_hw_cost" in trace_equations
     assert "econ.eq.run_total" in trace_equations
     assert "econ.eq.cost_per_token" in trace_equations
+
+
+def test_pythia_70m_dgx_h100_tokens_per_sec_follows_hand_formula():
+    """tokens/s = N_gpu * (989.4e12 dense BF16 * 0.40 assumed MFU) / (6 N_total).
+
+    989.4 TFLOPS is NVIDIA's H100 SXM dense BF16 peak; the 40% utilization is
+    an assumption labeled as such in the preset (hardware.ASSUMED_TRAINING_MFU).
+    N_total = 70,397,952 is the graph's Pythia-70M parameter count, within
+    0.04% of the model card's 70,426,624."""
+    preset = scenarios.pythia_70m_dgx_h100_us_2024_industrial_power
+    n_total = float(preset.resolve("arch.params_total_dense").value)
+    expected = 8 * (989.4e12 * 0.40) / (6 * n_total)
+    got = float(preset.resolve("training.tokens_per_sec").value)
+    assert got == pytest.approx(expected, rel=1e-9)

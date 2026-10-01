@@ -120,7 +120,7 @@ pythia_70m_dgx_h100_single_node_run_closure = Preset(
         "arch.ffn.weight_matrices": 2,
         "arch.norm.param_multiplier": 4,
         "par.n_gpus": 8,
-        "gpu.peak_flops_power_limited": 67e12,
+        "gpu.peak_flops_power_limited": hardware.H100_SXM_ASSUMED_SUSTAINED_BF16_FLOPS,
         "gpu.power.total": 700.0,
         "cluster.rack.n_nodes": 1,
         "cluster.site.n_racks": 1,
@@ -137,8 +137,11 @@ pythia_70m_dgx_h100_single_node_run_closure = Preset(
         "User Guide, Introduction to NVIDIA DGX H100/H200 Systems, states "
         "DGX H100 systems are built on eight NVIDIA H100 GPUs and Table 3 "
         "lists 10.2 kW max for 200-240 V AC input. NVIDIA H100 product "
-        "specifications list H100 SXM FP32 at 67 teraFLOPS and max TDP up "
-        "to 700 W. Architecture closures select standard dense GPT-NeoX "
+        "specifications list max TDP up to 700 W and FP16 Tensor "
+        "Core 1,979 teraFLOPS with sparsity, so dense BF16 is half of that, "
+        "989.4 teraFLOPS. Effective per-GPU throughput is that dense peak "
+        "times an ASSUMED 40% utilization (hardware.ASSUMED_TRAINING_MFU), "
+        "not a measurement. Architecture closures select standard dense GPT-NeoX "
         "accounting assumptions for this graph: no grouped-query attention "
         "(arch.n_kv_heads=arch.n_heads=8), a two-matrix MLP FFN, and two "
         "LayerNorm modules with learned weight and bias per block. The "
@@ -156,8 +159,11 @@ pythia_70m_dgx_h100_single_node_run_closure = Preset(
         "par.n_gpus=8 matches the single DGX H100 node GPU count.",
         "thermal.dc.total_power=10.2 kW uses NVIDIA's max system-power entry "
         "as the site-power boundary for the one-node scenario.",
-        "gpu.peak_flops_power_limited=67e12 uses the sourced H100 SXM FP32 "
-        "peak as the effective per-GPU throughput boundary for this run.",
+        "gpu.peak_flops_power_limited=395.76e12 is the dense BF16 peak "
+        "(989.4e12) times an ASSUMED 40% utilization "
+        "(hardware.ASSUMED_TRAINING_MFU). The utilization is an assumption, "
+        "not a measurement, and 100% would give the ideal lower bound on "
+        "time and energy.",
         "Neutral overhead closures keep recomputation, optimizer extra FLOPs, "
         "exposed communication, memory-bound auxiliary time, non-nominal "
         "overhead, and availability from dominating a source-composition "
