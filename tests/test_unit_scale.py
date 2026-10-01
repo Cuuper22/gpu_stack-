@@ -188,3 +188,14 @@ def test_variable_labels_and_sp_units_agree_in_scale():
             mismatched.append((variable.name, variable.units, ratio))
     assert checked > 300, "label parser stopped recognizing most labels"
     assert mismatched == []
+
+
+def test_audit_reports_undecided_unit_checks_without_failing():
+    from gpu_stack.cli import main
+    from tests.helpers.cli import captured_stdout
+
+    with captured_stdout() as buf:
+        rc = main(["audit", "--fail-on-issues", "--details"])
+    out = buf.getvalue()
+    assert rc == 0
+    assert "unit_checks_undecided" in out

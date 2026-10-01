@@ -32,7 +32,7 @@ def test_verify_fast_prints_compact_gate_summary(monkeypatch):
     assert "OK   core-tests" in out
     assert "Summary: 2/2 gates passed" in out
     assert [name for name, _, _, _ in calls] == ["audit", "core-tests"]
-    assert [timeout for *_, timeout in calls] == [120.0, 120.0]
+    assert [timeout for *_, timeout in calls] == [600.0, 600.0]
     core_command = calls[1][2]
     for import_test_file in (
         "tests/test_import.py",

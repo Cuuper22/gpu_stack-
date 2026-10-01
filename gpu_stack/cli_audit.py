@@ -18,7 +18,7 @@ import gpu_stack
 from gpu_stack import Registry
 from gpu_stack.core import Approximation
 from gpu_stack.core.units import undecided_unit_checks
-from gpu_stack.cli_common import _repo_root
+from gpu_stack.cli_common import _repo_root, _require_source_tree
 
 def cmd_stats(_args: argparse.Namespace) -> int:
     stats = Registry.stats()
@@ -61,6 +61,7 @@ def _large_project_files(threshold: int) -> List[Tuple[str, int]]:
 
 
 def cmd_audit(args: argparse.Namespace) -> int:
+    _require_source_tree("audit")
     stats = Registry.stats()
     coverage = Registry.coverage()
     cycles = gpu_stack.find_cycles()

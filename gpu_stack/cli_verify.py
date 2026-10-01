@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Sequence, Tuple
 
-from gpu_stack.cli_common import _repo_root
+from gpu_stack.cli_common import _repo_root, _require_source_tree
 
 
 @dataclass(frozen=True)
@@ -37,9 +37,11 @@ class VerifyGateResult:
 
 
 VERIFY_TIMEOUT_RETURN_CODE = 124
+# The full pytest gate takes about 5 minutes on a 4-core machine, so the
+# defaults leave several times that much room for slower CI runners.
 DEFAULT_GATE_TIMEOUT_SECONDS = {
-    "fast": 120.0,
-    "full": 300.0,
+    "fast": 600.0,
+    "full": 1800.0,
 }
 
 
@@ -244,7 +246,9 @@ def cmd_verify(args: argparse.Namespace, *, run_gate=None) -> int:
     if run_gate is None:
         run_gate = _run_verify_gate
     gates = _verify_gates(args.profile, read_only=args.read_only)
-    cwd = Path(args.cwd).resolve() if args.cwd else _repo_root()
+    cwd = _require_source_tree(
+        "verify", Path(args.cwd).resolve() if args.cwd else _repo_root()
+    )
     timeout_seconds = _gate_timeout(args.profile, args.gate_timeout)
     started = time.perf_counter()
 

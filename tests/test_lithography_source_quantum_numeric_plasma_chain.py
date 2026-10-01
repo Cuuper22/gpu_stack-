@@ -315,6 +315,7 @@ def test_lithography_source_quantum_numeric_plasma_resolves_absorption_and_overl
     )
 
 
+@pytest.mark.slow
 def test_lithography_source_quantum_numeric_plasma_resolves_transport_and_electron_terms():
     case = source_quantum_numeric_case()
 

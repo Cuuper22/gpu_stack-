@@ -27,8 +27,7 @@ from gpu_stack.core import (
     RelationRole,
 )
 from gpu_stack.core.variable import Variable
-from gpu_stack.core.resolver_models import TraceStep
-from tests.helpers.registry import registry_snapshot
+from tests.helpers.registry import registry_snapshot  # noqa: F401  (pytest fixture)
 
 
 # ===========================================================================
@@ -376,11 +375,11 @@ class TestSolveSystems:
         # Let's use: x = y + z, y = a - x, z = b
         # where b is assigned. Then:
         # y = a - x, x = y + b = (a-x) + b => 2x = a+b => x=(a+b)/2
-        a = _make_var("test.sys3.a", "a_sys3_test")
-        b = _make_var("test.sys3.b", "b_sys3_test")
-        x = _make_var("test.sys3.x", "x_sys3_test")
-        y = _make_var("test.sys3.y", "y_sys3_test")
-        z = _make_var("test.sys3.z", "z_sys3_test")
+        _make_var("test.sys3.a", "a_sys3_test")
+        _make_var("test.sys3.b", "b_sys3_test")
+        _make_var("test.sys3.x", "x_sys3_test")
+        _make_var("test.sys3.y", "y_sys3_test")
+        _make_var("test.sys3.z", "z_sys3_test")
 
         # z = b is assigned in the test, so z is NOT part of the cycle.
         # For a 3-var cycle: x = y + z, y = x - z, z = x - y
@@ -840,3 +839,56 @@ class TestRegressionDefaultBehavior:
         )
         for u in result.unresolved_inputs:
             assert u.not_selectable_alternatives == ()
+
+
+class TestVariantErrorsPropagate:
+    """Caller errors (ambiguous variants) must not be swallowed by the
+    small-system solver, which used to catch every exception."""
+
+    def _ambiguous_cycle(self):
+        a = _make_var("test.amb.a", "a_amb_test")
+        x = _make_var("test.amb.x", "x_amb_test")
+        y = _make_var("test.amb.y", "y_amb_test")
+        # x has two VARIANT relations and no selector is passed.
+        _make_eq("test.eq.amb_x1", x.symbol, a.symbol + y.symbol,
+                 role=RelationRole.VARIANT, variant="one")
+        _make_eq("test.eq.amb_x2", x.symbol, a.symbol - y.symbol,
+                 role=RelationRole.VARIANT, variant="two")
+        _make_eq("test.eq.amb_y", y.symbol, x.symbol * 2)
+        return x, y
+
+    def test_find_small_cycles_propagates_ambiguous_variant(self, registry_snapshot):
+        from gpu_stack.core.resolver_advanced import _find_small_cycles
+        from gpu_stack.core.resolver_models import AmbiguousVariant
+
+        x, y = self._ambiguous_cycle()
+        with pytest.raises(AmbiguousVariant):
+            _find_small_cycles([x, y], {}, {})
+
+    def test_solve_small_system_propagates_ambiguous_variant(self, registry_snapshot):
+        from gpu_stack.core.resolver_advanced import _solve_small_system
+        from gpu_stack.core.resolver_models import AmbiguousVariant
+
+        x, y = self._ambiguous_cycle()
+        with pytest.raises(AmbiguousVariant):
+            _solve_small_system([x, y], {}, {})
+
+    def test_resolve_small_system_propagates_ambiguous_variant(self, registry_snapshot):
+        from gpu_stack.core.resolver_advanced import resolve_small_system
+        from gpu_stack.core.resolver_models import AmbiguousVariant
+
+        x, y = self._ambiguous_cycle()
+        with pytest.raises(AmbiguousVariant):
+            resolve_small_system([x, y], {"test.amb.a": sp.Integer(1)}, {}, False)
+
+    def test_invalid_selector_with_solve_systems_still_raises(self, registry_snapshot):
+        from gpu_stack.core.resolver_models import InvalidVariantSelector
+
+        self._ambiguous_cycle()
+        with pytest.raises(InvalidVariantSelector):
+            resolve(
+                "test.amb.x",
+                assignments={"test.amb.a": 1},
+                variants={"test.amb.x": "no-such-variant-key"},
+                solve_systems=True,
+            )
