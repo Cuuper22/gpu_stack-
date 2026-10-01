@@ -2,11 +2,17 @@
 
 The old pass-by-pass work log (1,350 lines) is in git at commit 7a5838870e553cf9bef683f55b2e1d87343e6281 (`git show 7a58388:CHANGELOG.md`).
 
-Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions come from `pyproject.toml` bumps in git history. There are no git tags. Versions before 0.23.0 predate this repository's history. Conclusion names such as `candidate_falsified_*` are the strings the code recorded at the time, not endorsed verdicts; see `docs/research/results-log.md` and `experiments/`.
+Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions come from `pyproject.toml` bumps in git history. There are no git tags. Versions before 0.23.0 predate this repository's history. Conclusion names such as `candidate_falsified_*` are the strings the code recorded at the time, not endorsed verdicts.
 
 ## [Unreleased]
 
 Work after the 0.27.0 bump. `pyproject.toml` still says 0.27.0.
+
+### Removed
+- Restructured the repository around one story and two tools. Dropped the research scaffolding: the E003 to E006 protocols, the P001, V001, R001, S001 and V002 study folders, `EVIDENCE.md`, `RESEARCH.md`, `analysis/` and `docs/research/`. All of it stays in the version history.
+- Dropped the prose and large result files under `experiments/e001-*` and `experiments/e002-*`. Scenario inputs remain, with a short `experiments/README.md`.
+- Removed the `next-work` command and the `gpu_stack/next_work*.py` modules, with their tests. `experiment-protocol` now lists only E001 and E002.
+- `gpu_stack.docs_stats_check` now checks `README.md` only by default; `--files` selects other files. `ROADMAP.md` is now a short list of concrete next fixes.
 
 ### Added
 - E002 checkpoint-power and checkpoint-energy runs (PW1, PW2) on the same single laptop GPU. PW1 recorded `measurement_invalid`; PW2 used the cumulative energy counter and recorded `checkpoint_cadence_attributed_sparse_continuation_survives`.
