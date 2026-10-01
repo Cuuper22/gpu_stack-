@@ -6,34 +6,29 @@ brand
 
 ## Users
 
-`gpu_stack` is for builders, students, researchers, and curious technical readers who want to understand frontier training infrastructure without treating it as a sealed industrial magic box. The reader may know Python, ML, physics, GPUs, or none of those deeply yet. The README should meet them visually first, then let the equations become less intimidating.
+`gpu_stack` is for builders, students, researchers, and curious technical readers who want to understand frontier training infrastructure without treating it as a sealed industrial magic box. The reader may know Python, ML, physics, GPUs, or none of those deeply yet. The README should state the project's real scale and track record first, then let the equations become less intimidating.
 
 ## Product Purpose
 
-`gpu_stack` is a causal, uncertainty-aware virtual AI datacenter. Causal means it
-models what drives what, not just what correlates. Uncertainty-aware means it
-says how sure it is. It joins learning progress, training and inference
-execution, communication, memory, failures, power, cooling, grid behavior, and
-economics in one inspectable world model.
+`gpu_stack` is an equation graph of the AI training stack plus a small event
+simulator and experiment program. The goal is a causal, uncertainty-aware virtual
+datacenter. It is not there. The graph is not a validated predictor: as shipped it
+was about 3x too fast against published runs, and with a utilization prior it only
+matches plain 6ND arithmetic (see `experiments/v002-graph-published-runs/RESULT.md`).
+Nothing in the engine is fitted to a measurement. `EVIDENCE.md` is the authority on
+what the experiments show.
 
-The same engine has three inseparable jobs:
+The same project has three jobs:
 
-1. Predict measured outcomes accurately enough to support real decisions.
-2. Explain any result at progressively deeper levels, from a freshman-readable
-   visual story to equations, provenance, uncertainty, and raw observations.
-3. Act as an experimental substrate for hypotheses that would otherwise require
-   a large AI datacenter to screen.
+1. Be inspectable: trace any number to its equations, units, sources and assumptions.
+2. Explain results at several depths, from a plain question to raw observations.
+3. Screen hypotheses cheaply, with frozen gates that can fail, and report both wins and losses.
 
-The recursive physical graph remains valuable, but graph depth is not the
-objective. A deeper lithography or particle relation counts as research
-progress only when it improves an externally evaluated prediction, reduces
-decision-relevant uncertainty, explains a residual, or enables a falsifiable
-experiment.
-
-Success means the engine transfers to held-out hardware and workloads, carries
-calibrated uncertainty, recommends interventions with low decision regret, and
-makes the causal reason visible. A simulation result is a hypothesis. It
-becomes evidence about the real datacenter only after measurements validate it.
+Predicting real outcomes well enough to support decisions is the aim, not a current
+claim. A simulation result is a hypothesis. It becomes evidence about a real
+datacenter only after measurements validate it. A deeper lithography or particle
+relation counts as progress only when it improves an externally evaluated prediction
+or explains a residual. The sensitivity study found those layers have no numeric effect today.
 
 ## Brand Personality
 
@@ -45,7 +40,7 @@ Do not make it sound like a SaaS landing page, a package index stub, or a generi
 
 ## Design Principles
 
-1. Show the stack before explaining the stack.
+1. Show the stack, and say how much of it is evidence.
 2. Treat root inputs honestly as visible modeling debt, not embarrassing gaps.
 3. Keep the human origin in frame: this started as a learning project, not a product committee.
 4. Let equations feel spatial and inspectable.
@@ -54,7 +49,7 @@ Do not make it sound like a SaaS landing page, a package index stub, or a generi
 7. Keep observations, calibration data, assumptions, predictions, and interventions as distinct types.
 8. Evaluate decisions on held-out systems. Never grade the engine on the data used to tune it.
 9. Use semantic zoom: every visual claim must open into its mechanism, evidence, caveats, and equations.
-10. Design experiments with explicit falsifiers and a path to real-cluster validation.
+10. Design experiments with explicit falsifiers, check that the gates can pass and fail, and freeze them before the run.
 
 ## Accessibility & Inclusion
 

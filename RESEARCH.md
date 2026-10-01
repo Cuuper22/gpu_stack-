@@ -1,297 +1,114 @@
 # GPUSTACK Research Program
 
-Status: July 12, 2026
+## Status after the 2026-10 audit
+
+The program below was written in July 2026, before any result was re-judged. In October
+2026 every run and the graph itself were audited. The audit changed what the program can
+claim. Read [EVIDENCE.md](EVIDENCE.md) first. It is the authoritative ledger.
+
+What changed:
+
+- **Nothing is fitted.** An earlier version said measurements calibrate the engine. They
+  do not. No parameter in the graph or the simulator is fitted to a measurement. The
+  simulator takes every duration from the caller.
+- **The graph is not a validated predictor.** [V002](experiments/v002-graph-published-runs/RESULT.md)
+  tested it against 27 published training runs. As shipped it was about 3x too fast
+  (median error 0.682). With a labeled 40% MFU prior it reached 0.218, the same as plain
+  6ND at 40% MFU (0.219). Parameter counting from architecture works (0.0003).
+- **Most of the graph feeds nothing.** [The graph audit](analysis/graph-audit/REPORT.md)
+  found 538 of 950 equations reach no headline number, 4 wrong equations (now fixed), and
+  no numeric effect from the nuclear and quark layer. [S001](experiments/s001-graph-sensitivity/RESULT.md)
+  found root debt does not rank influence.
+- **"Preregistered" holds only for newer studies.** E001 and E002 protocols and results
+  share commits. P001, S001, V002, V001 and R001 froze their protocols first (see
+  [README](README.md#how-the-project-checks-itself)).
+- **E001 and E002 verdicts were re-judged.** Short form: the adaptive controller lost to
+  `periodic_local`; `periodic_local` beat synchronous training in 10 of 10 families, cause
+  unknown; LC1 never tested its hypothesis; the LC3 energy question is undetermined; PW2's
+  sparse continuation is a small real saving. The original verdict strings are kept as history.
+- **E003-E006 cannot run yet.** [P001](experiments/p001-protocol-power-audit/RESULT.md)
+  found every gate set inadequate as written.
+- **Running now:** [R001](experiments/r001-cpu-replication/protocol.md) (CPU replication of
+  the learning results and an averaging control) and
+  [V001](experiments/v001-simulator-known-results/protocol.md) (simulator against textbook
+  results). Both are frozen and have no results yet.
+
+Next steps are in [ROADMAP.md](ROADMAP.md).
 
 ## Telos
 
-GPUSTACK is one system with three expressions:
+GPUSTACK is meant to be three things at once:
 
-- **Engine:** a causal and uncertainty-aware virtual AI datacenter that predicts
-  training, inference, power, reliability, thermal, and economic behavior.
-- **Medium:** an interactive causal observatory that can explain the same result
-  to a freshman or expose PhD-level mechanisms, equations, provenance, and raw
-  evidence without changing the underlying truth.
-- **Research lab:** an experimental environment for screening datacenter-scale
-  ML systems hypotheses before asking for expensive real-world validation.
+- **Engine:** a virtual AI datacenter model of training, power, reliability, thermal and
+  economic behavior. Today it is an equation graph plus an event simulator, not a
+  calibrated twin.
+- **Medium:** an observatory page that explains one result at several depths, from a
+  plain question down to raw traces, without changing the numbers.
+- **Lab:** a place to screen datacenter-scale ML hypotheses cheaply before asking for
+  real hardware.
 
-These three are not separate product tracks. They form a feedback loop.
-Measurements calibrate the engine. The engine powers the visual explanation.
-The visual explanation makes the hypothesis and its assumptions inspectable.
-Experiments produce new measurements, and the loop repeats.
+The loop is: hypothesis, frozen test, measurement, re-judgment, better hypothesis. The
+engine does not yet close that loop, because nothing measured feeds back into it.
 
-## Scientific Position
+## Scientific position
 
-Recent systems can already simulate operator timelines accurately, optimize
-individual serving mechanisms, switch parallelism online, or control facility
-power. Each does one of those things well. The open problem is how they
-interact.
+Charon-style simulators already time training operators accurately, serving mechanisms are
+optimized one at a time, and facility power is controlled separately. The open question
+is how these interact. GPUSTACK asks questions of this form:
 
-GPUSTACK should answer questions of this form:
+> Under uncertain workload, hardware, network, failure and grid conditions, which
+> intervention most improves time-to-capability, and how likely is that conclusion to
+> survive transfer to a real datacenter?
 
-> Under uncertain workload, hardware, network, failure, thermal, and grid
-> conditions, which intervention most improves time-to-capability or useful
-> service, why, and how likely is that conclusion to survive transfer to a real
-> datacenter?
+The score is not equation count, root count or test count. It is held-out error,
+interval coverage, ranking, decision regret, and whether a frozen hypothesis survives.
 
-The primary score is not equation count, root count, test count, or in-sample
-fit. In-sample fit means fitting the data you trained on, which any model can
-do. The primary scores are:
+## Engine contract
 
-- held-out predictive error and uncertainty coverage;
-- configuration-ranking and intervention decision regret;
-- time-to-loss or capability target for training;
-- useful, quality-constrained service for inference;
-- facility energy, power waveform, cost, and reliability;
-- correct causal residual attribution;
-- successful falsification or survival of preregistered hypotheses.
+The research layer adds, without replacing the symbolic registry: observations with
+provenance; calibration and evaluation splits that cannot overlap; temporal state
+(queues, failures, recovery, power); interventions; policies that see only observable
+state; learned residuals with a stated scope; frozen experiments; and evidence
+requirements that stay mandatory when no scalar threshold fits.
 
-## Engine Contract
+## The six frontier programs
 
-The next engine must add the following concepts without discarding the current
-symbolic registry:
+Each has a protocol under `experiments/`. Gates are predictions, not results.
 
-1. **Observation** records measured values, timestamps, topology, workload,
-   software, instrumentation, uncertainty, and provenance.
-2. **Calibration split** and **evaluation split** prevent a scenario used for
-   fitting from becoming its own proof.
-3. **Temporal state** represents operations, queues, data movement, state
-   ownership, failures, recovery, power, and thermal response.
-4. **Intervention** represents an action such as changing parallelism,
-   consistency, placement, precision, frequency, batching, checkpoint cadence,
-   routing, or cooling control.
-5. **Policy** chooses interventions from observable state without access to
-   hidden simulator truth.
-6. **Learned residual** may correct a physical model, but it must carry a named
-   scope, training data, uncertainty, and out-of-distribution behavior.
-7. **Experiment** freezes a hypothesis, baselines, variables, metrics,
-   falsifiers, seeds, and validation path.
-8. **Evidence requirement** keeps vector outcomes, transfer panels, causal
-   attribution, full-boundary accounting, and abstention as mandatory gates
-   when no honest scalar threshold exists.
+1. **Beyond One Datacenter (E001).** Can a model train across heterogeneous, flaky
+   datacenters at 95% of centralized progress per FLOP with 10x fewer inter-site bytes?
+   Ran. The 10x byte hypothesis was out of reach even for the best simple policy, and the
+   adaptive controller lost to `periodic_local`.
+2. **Shape the Power Waveform (E002).** Can phase offsets across compute, collectives and
+   checkpoints remove grid-danger oscillations without slowing learning? PW2 gave a small
+   local result. The rack test (PW3) has never run.
+3. **Semantic Fault Tolerance (E003).** Can failures be treated as bounded learning
+   perturbations? Protocol only; fix gates first.
+4. **Fluid Inference Topology (E004).** Should serving topology change per request?
+   Protocol only.
+5. **Architecture as a Datacenter Variable (E005).** Does co-designing architecture and
+   mixed hardware beat the best uniform cluster per joule? Protocol only.
+6. **Firm Grid-Responsive Inference (E006).** Can an inference fleet offer firm demand
+   response without a hidden quality cliff? Protocol only.
 
-## Visual Medium Contract
+## Research rules
 
-The primary artifact is a causal observatory, not an equal-weight dashboard.
-Each result uses semantic zoom, meaning the reader can descend through five
-levels of the same result:
-
-1. **Question:** a plain-language claim and the immediate answer.
-2. **Mechanism:** the few causal paths responsible for the result.
-3. **Regime:** bottlenecks, counterfactuals, tradeoffs, and uncertainty.
-4. **Model:** equations, constraints, distributions, and policy decisions.
-5. **Evidence:** observations, provenance, residuals, raw traces, and known
-   missing mechanisms.
-
-Core views:
-
-- a causal dependency and intervention map;
-- an event timeline aligned with network, rack power, thermal, and grid traces;
-- counterfactual small multiples with uncertainty intervals;
-- residual attribution showing where prediction and observation diverge;
-- an experiment notebook that presents hypothesis, controls, results, and
-  falsification status as one shareable state.
-
-Essential values remain visible without hover. URL state captures experiment,
-scenario, target, selected intervention, time range, uncertainty mode, and zoom
-depth. Mobile uses the same reading order with tap and focus interactions.
-
-## Ranked Frontier Programs
-
-### 1. Beyond One Datacenter
-
-Can a frontier model train efficiently across heterogeneous, intermittently
-powered datacenters rather than one tightly synchronized site?
-
-Hypothesis: a controller that jointly changes local-step count, communication
-topology, pipeline delay, optimizer correction, parallelism, and site
-membership can retain at least 95% of centralized loss progress per training
-FLOP while using at least 10 times fewer inter-site bytes under realistic power
-interruptions.
-
-The virtual experiment is specified in
-`experiments/e001-beyond-one-datacenter/experiment.md`.
-
-### 2. Shape The Power Waveform
-
-Can phase offsets across compute, collectives, checkpoints, and colocated jobs
-remove dangerous facility and grid oscillations without slowing learning?
-
-Hypothesis: optimizer-preserving phase shaping can reduce grid-danger-band
-spectral energy by at least 50% with no more than 2% time-to-target regression,
-and can admit 10% more active accelerators under the same power envelope.
-
-The preregistered design is in
-`experiments/e002-power-waveform-shaping/experiment.md`.
-
-### 3. Semantic Fault Tolerance
-
-Can hard failures, fail-slow devices, and silent corruption be treated as
-bounded learning perturbations instead of job-ending events?
-
-Hypothesis: trajectory-sensitivity-guided canaries and selective redundancy can
-keep final behavior statistically indistinguishable from a clean run with less
-than 2% overhead under empirically structured fault processes.
-
-The preregistered design is in
-`experiments/e003-semantic-fault-tolerance/experiment.md`.
-
-### 4. Fluid Inference Topology
-
-Should prefill/decode placement, KV movement, precision, expert replication,
-speculative drafting, and aggregation be selected per request and changed
-continuously?
-
-Hypothesis: joint control produces superadditive gains because independent
-policies move queue, memory, network, and power pressure into one another. The
-optimal system repeatedly crosses between aggregated and disaggregated regimes.
-
-The preregistered design is in
-`experiments/e004-fluid-inference-topology/experiment.md`.
-
-### 5. Architecture As A Datacenter Variable
-
-Can heterogeneous accelerators support a better model architecture under a
-fixed facility envelope, rather than merely running a fixed architecture more
-cheaply?
-
-Hypothesis: jointly choosing modules, routing, precision, device type,
-parallelism, and placement improves capability per facility joule by at least
-25% over the best homogeneous design at equal power and wall-clock budgets.
-
-The preregistered design is in
-`experiments/e005-heterogeneous-architecture-codesign/experiment.md`.
-
-### 6. Firm Grid-Responsive Inference
-
-Can an inference datacenter offer predictable demand response without a hidden
-quality or tail-latency cliff?
-
-Hypothesis: request-conditioned control across model choice, precision,
-batching, routing, DVFS, and placement provides more firm power flexibility
-than any isolated mechanism while preserving per-request utility.
-
-The preregistered design is in
-`experiments/e006-firm-grid-responsive-inference/experiment.md`.
-
-## Research Rules
-
-- The virtual datacenter screens hypotheses. It never serves as the sole
-  evidence for a claim about a real datacenter.
+- A virtual screen can reject a mechanism. It is never the sole evidence about a real datacenter.
 - Every experiment has a falsifier and reports negative results.
-- Every claimed improvement includes the metric most likely to reverse it,
-  such as time-to-capability beside throughput or facility power beside GPU
-  energy.
-- Every model comparison uses identical observations, splits, and accounting
-  boundaries.
-- Root-debt work enters the research queue only through an observed residual,
-  decision-relevant uncertainty, or experiment requirement.
-- Draft PR #14 remains parked until its nuclear and quark decomposition affects
-  one of those criteria.
+- Every claimed gain names the metric most likely to reverse it (time beside throughput,
+  facility power beside GPU energy).
+- Every comparison uses the same observations, splits and accounting boundary.
+- Gates are checked for reachability and power before they are frozen
+  ([P001](experiments/p001-protocol-power-audit/RESULT.md) shows what happens otherwise).
+- Root-debt work enters the queue only through a measured residual, a decision-relevant
+  uncertainty or an experiment need. S001 found the debt count alone does not point there.
+- Do not call a run preregistered unless the protocol commit precedes the result commit.
+- No controller gets live actions before shadow comparison and a separate controlled protocol.
 
-## Current Foundation And Next Research Order
+## Hardware boundary
 
-Here is what the repository already contains: the observation and split
-contracts, held-out evaluation and replicated-panel aggregation, deterministic
-temporal and multi-site mechanics, observable-only interventions, six
-scalar-plus-structured protocols, E001 recovery mechanics, the artifact-driven
-causal observatory, three successive measured learning questions through
-E001-LC3, the completed E002-PW1 factorial preserved as measurement-invalid
-evidence, and E002-PW2's valid cumulative-energy mechanism and salvage result.
-E002-PW3 now has a frozen physical rack question, a dependency-safe phase
-scheduler, a distributed two-rank-job runtime, direct multi-boundary telemetry,
-a compact-plus-chunked evidence artifact, and a three-depth observatory
-projection. It does not yet have a physical result.
-
-LC2 preserved two protocol failures without opening held-out evaluation. In
-plain terms: both attempts disqualified themselves before touching the
-evaluation data. V1's 2,048-tick checkpoint was not late-stage: NLL, the
-negative log-likelihood training loss, improved `0.0862674` over its final 256
-ticks against a frozen `0.03` ceiling. V2's 8,192-tick checkpoint passed that
-gate with `0.00453499` improvement and exact no-failure equivalence, but its
-target was crossed at ticks 40 and 96 rather than the frozen 192 to 288
-window, because late-stage NLL was non-monotonic. These results invalidate the
-protocol instances, not the recovery candidate.
-
-LC3 then compared fixed restart and adaptive continuation at the exact same
-524,288-token canonical frontier across six untouched held-out schedules.
-Adaptive passed learning noninferiority: adaptive-minus-fixed NLL had median
-`0.0033385` and 90% interval `[0.00239279, 0.00850366]`, below the frozen
-`0.01` margin. It saved a median `3.0303%` attempted work and 40 opportunity
-ticks, and was earlier in all six schedules. The candidate was nevertheless
-falsified on a single measurement: training-device energy. The adaptive/fixed
-energy ratio had median `1.06839` and 90% interval `[1.001795, 1.134269]`,
-above the frozen `1.05` upper bound.
-
-Keep the scope of that result in view. It is measured small-model learning and
-sampled board energy from one local GPU. Opportunity ticks are simulated.
-Datacenter concurrency, WAN, storage, host, cooling, and facility-energy
-behavior remain modeled or unmeasured.
-
-E002-PW1 executed that frozen 2x2 with exact LC3 warm binding and all 32 arms
-complete. It did not produce an admissible attribution, because its power meter
-could not keep up. Requested 20 ms NVML polling yielded an effective 494.693 ms
-update period; the selected +250 ms lag sat at the frozen boundary. The only
-active invalidators were `insufficient_evaluation_power_updates` and
-`insufficient_pooled_cadence_phase_updates`, so the result is
-`measurement_invalid`.
-
-The raw LC3-corner ratio was `0.789 [0.703, 0.923]` and did not reproduce the
-penalty. The raw sparse-continuation ratio was `0.823 [0.665, 1.019]`, with all
-non-energy gates passing. Both are inadmissible under the frozen measurement
-contract, and all three mechanism gates failed.
-
-PW2 then executed the same frozen factorial with the cumulative counter. All 32
-runs completed with exact warm binding, measurement validity passed, and no
-invalidator fired. Its effective counter period was 91.667 ms, with 83 to 109
-updates in each held-out arm. Snapshot and checkpoint-group pooled support
-cleared their frozen thresholds for both cadences.
-
-The total interaction was `2.2416e-5 [2.1746e-6, 3.5305e-5] J/token`; the
-checkpoint group was `5.8845e-6 [3.0774e-6, 8.9671e-6]`, and snapshot alone was
-`4.9917e-6 [2.8497e-6, 7.4481e-6]`. All three mechanism gates passed. Sparse
-continuation passed all eight salvage gates with NLL upper bound `0.0085037`,
-3.03% attempted-work saving, 40 opportunity ticks saved, and cumulative-energy
-ratio upper bound `1.00319`. The valid local conclusion is
-`checkpoint_cadence_attributed_sparse_continuation_survives`.
-
-One caveat stands. The frozen primary uses raw cumulative energy over the
-complete run window. The idle-subtracted sensitivity was
-`3.9825e-6 [-8.0109e-6, 1.2479e-5] J/token` and crossed zero, so PW2 does not
-show that its local attribution is insensitive to estimated idle-baseline
-treatment.
-
-PW3 packages the rack-transfer question as an optional executable physical
-calibration. At least four independent two-rank jobs execute the same useful
-work and failure windows under synchronized release, seeded legal jitter,
-storage-only pacing, static cohorts, and visible-telemetry feedback. Only
-dependency-safe timing of checkpoint capture/persist, state transfer,
-communicator rebuild, and rejoin may move. UUID-bound GPU telemetry is aligned
-with direct rack-PDU, storage activity, measured storage power, and cooling
-channels; missing boundaries produce `measurement_invalid` instead of a modeled
-substitute. The current machine cannot execute the claim because it has one GPU
-and no tenant-visible rack meters. That boundary does not block the software
-research program.
-
-E001-SC1 has since completed the software-first semantic-consistency loop.
-Calibration selected `periodic_local`; adaptive switching failed its learning,
-WAN-payload, modeled-completion, and hindsight-envelope-regret gates. All
-executable arms preserved equal work and optimizer lineage, while E2, E4, and
-E6 produced 104 explicit out-of-distribution abstention ticks. The conclusion
-is `abstain_without_policy_claim`, not a transferable winner.
-
-The current research order is:
-
-1. Preserve SC1's six evaluation families as evaluation data and retain
-   `periodic_local` as the default baseline.
-2. Run E001-SC2: train a policy-risk predictor on calibration only, then test
-   whether it forecasts learning penalty and modeled time/WAN consequence
-   before switching on a wholly held-out model or optimizer family.
-3. Make predicted risk, actual outcome, uncertainty, and abstention legible at
-   freshman, researcher, and full-trace depth.
-4. Use PW3 only when external rack access is available to calibrate or falsify
-   the rack-power boundary. Publish an invalid or negative result as such.
-4. Keep point-of-common-coupling safety, facility admission, and model-scale
-   transfer outside the rack claim until separately measured.
-
-No controller is trusted with live actions before shadow comparison and a
-separate controlled protocol.
+All real measurements so far come from one RTX 3060 Laptop GPU (shared with other apps),
+a 1,871,232-parameter byte-level transformer, six hand-written failure schedules, one
+seed each. Two "sites" ran one after the other on that GPU. WAN time, completion time,
+multi-site concurrency and facility energy are modeled. Energy claims need the owner's
+GPU, the cumulative energy counter, and 12 or more pairs.
