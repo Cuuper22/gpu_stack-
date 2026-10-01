@@ -17,6 +17,7 @@ import sympy as sp
 import gpu_stack
 from gpu_stack import Registry
 from gpu_stack.core import Approximation
+from gpu_stack.core.units import undecided_unit_checks
 from gpu_stack.cli_common import _repo_root
 
 def cmd_stats(_args: argparse.Namespace) -> int:
@@ -93,6 +94,12 @@ def cmd_audit(args: argparse.Namespace) -> int:
         v.name for v in Registry.variables.values()
         if v.has_multiple_definitions()
     ]
+    # Unit checks SymPy could not decide. Reported, never a hard failure.
+    unit_undecided = {
+        name: reason
+        for name, reason in undecided_unit_checks().items()
+        if name in Registry.equations
+    }
     large_scope_files = _large_scope_files(args.large_file_threshold)
     large_project_files = _large_project_files(args.large_file_threshold)
     positive_symbols = [
@@ -129,6 +136,7 @@ def cmd_audit(args: argparse.Namespace) -> int:
     print(f"  multi_definition_variables      {len(multi_definition)}")
     print(f"  positive_symbols                {len(positive_symbols)}")
     print(f"  forced_noninteger_symbols       {len(forced_noninteger)}")
+    print(f"  unit_checks_undecided           {len(unit_undecided)}")
     print(f"  large_scope_files               {len(large_scope_files)}")
     print(f"  large_project_files             {len(large_project_files)}")
     print(f"  hard_failures                   {hard_failures}")
@@ -162,6 +170,10 @@ def cmd_audit(args: argparse.Namespace) -> int:
             print("  multi_definition_variables:")
             for name in multi_definition:
                 print(f"    {name}")
+        if unit_undecided:
+            print("  unit_checks_undecided:")
+            for name, reason in sorted(unit_undecided.items()):
+                print(f"    {name}: {reason}")
         if large_scope_files:
             print("  large_scope_files:")
             for name, lines in large_scope_files:

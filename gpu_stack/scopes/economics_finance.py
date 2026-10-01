@@ -94,8 +94,8 @@ eq_job_capex_rate = eq(
 # ---------------------------------------------------------------------------
 
 wacc_annual = var(
-    "econ.finance.wacc_annual", "r_wacc", "1/year",
-    "Annual weighted average cost of capital or internal hurdle rate.",
+    "econ.finance.wacc_annual", "r_wacc", "dimensionless",
+    "Annual weighted average cost of capital or internal hurdle rate, as a fraction per year (0.08 means 8% a year).",
     scope="economics",
     sp_units=DIMENSIONLESS,
     references=[FINANCE_DISCOUNT_REF],
