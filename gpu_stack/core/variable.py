@@ -23,9 +23,9 @@ defining equation, and its numeric value cannot be changed after creation.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum, auto
-from typing import List, Optional, Set, Tuple, Union, TYPE_CHECKING
+from typing import List, Optional, Set, Tuple, TYPE_CHECKING
 import sympy as sp
 
 from .registry import Registry
@@ -276,9 +276,9 @@ class Variable:
                     if lhs is not self:
                         deps.add(lhs)
                 continue
-            lhs = eq.lhs_variable()
-            if lhs is not None and lhs is not self:
-                deps.add(lhs)
+            defined = eq.lhs_variable()
+            if defined is not None and defined is not self:
+                deps.add(defined)
         return deps
 
     def dependents(
@@ -332,6 +332,9 @@ class Constant(Variable):
       * Its numeric `value` and `source` cannot change after construction
         (enforced in `__setattr__`).
     """
+
+    value: float
+    source: str
 
     def __init__(
         self,

@@ -24,7 +24,7 @@ import math
 
 import pytest
 
-from gpu_stack import Registry, resolve
+from gpu_stack import resolve
 from gpu_stack.presets import nuclear
 
 

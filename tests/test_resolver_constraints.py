@@ -22,7 +22,7 @@ from gpu_stack.core import (
     var,
 )
 from gpu_stack.core.variable import Variable
-from tests.helpers.registry import registry_snapshot
+from tests.helpers.registry import registry_snapshot  # noqa: F401  (pytest fixture)
 
 
 def test_constraint_helper_uses_selected_variant(registry_snapshot):

@@ -24,7 +24,6 @@ must use the CONSTRAINT role.
 import pytest
 import sympy as sp
 
-import gpu_stack
 from gpu_stack import Equation, Inequality, Registry, RelationRole
 
 

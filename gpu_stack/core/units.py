@@ -21,6 +21,17 @@ Usage
 
 With check_units=True, a dimensional mismatch raises UnitError the moment
 the equation is constructed, not later at evaluation time.
+
+Scale
+-----
+A Variable's numeric value is in its display unit (a price in USD/kWh, a
+duration in ms). Its `sp_units` must carry that unit's scale, for example
+`USD / KWH`, not the SI-coherent `USD / (WATT * SECOND)`. The checker compares
+scale as well as dimension: seconds and milliseconds cannot be added or equated
+unless a numeric literal in the equation converts between them (`t_s = t_ms / 1000`).
+A literal counts as a conversion only when it differs between the two sides and
+leaves a residual factor within a small bound; `t_s = t_ms * 1000` fails.
+Literals on equal-scale units are physical coefficients and are never checked.
 """
 
 from __future__ import annotations
@@ -288,11 +299,11 @@ def infer_expr_units_with_coefficient(
     if isinstance(expr, sp.Symbol):
         return symbol_units.get(expr, one), 1.0
     if isinstance(expr, sp.Add):
-        terms = [
+        inferred_terms = [
             infer_expr_units_with_coefficient(arg, symbol_units, equation_name)
             for arg in expr.args
         ]
-        terms = [t for t in terms if t is not None]
+        terms = [t for t in inferred_terms if t is not None]
         if not terms:
             return one, 1.0
         first = terms[0]
@@ -347,13 +358,13 @@ def infer_expr_units_with_coefficient(
                     _assert_equivalent_units(one, unit[0], equation_name, 1.0, unit[1])
             return (one, 1.0) if all(unit is not None for unit in arg_units) else None
         if name in {"Min", "Max"} and arg_units:
-            first = arg_units[0]
+            lead = arg_units[0]
             for unit in arg_units[1:]:
-                if first is not None and unit is not None:
+                if lead is not None and unit is not None:
                     _assert_equivalent_units(
-                        first[0], unit[0], equation_name, first[1], unit[1]
+                        lead[0], unit[0], equation_name, lead[1], unit[1]
                     )
-            return first
+            return lead
         return None
 
     return None

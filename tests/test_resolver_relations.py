@@ -20,7 +20,7 @@ from gpu_stack.core import (
     StochasticRelation,
 )
 from gpu_stack.core.variable import Variable
-from tests.helpers.registry import registry_snapshot
+from tests.helpers.registry import registry_snapshot  # noqa: F401  (pytest fixture)
 
 
 def test_resolve_piecewise_equation_still_evaluates_conditions():

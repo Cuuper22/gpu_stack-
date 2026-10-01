@@ -17,7 +17,7 @@ from gpu_stack.core import (
     RelationRole,
 )
 from gpu_stack.core.variable import Variable
-from tests.helpers.registry import registry_snapshot
+from tests.helpers.registry import registry_snapshot  # noqa: F401  (pytest fixture)
 
 
 def test_resolver_value_trace_ignores_validity_only_dependencies():

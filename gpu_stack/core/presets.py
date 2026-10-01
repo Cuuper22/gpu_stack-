@@ -37,6 +37,8 @@ from .preset_reports import (
 )
 from .registry import Registry
 from .resolver import (
+    AssignmentKey,
+    AssignmentValue,
     InvalidVariantSelector,
     ResolverError,
     ResolverResult,
@@ -80,7 +82,9 @@ class Preset:
     notes: Tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
-        assignments = dict(self.assignments)
+        assignments = {
+            key: value for key, value in self.assignments.items()
+        }
         variants = dict(self.variants)
         notes = tuple(self.notes)
 
@@ -137,9 +141,12 @@ class Preset:
         Evaluate `target` under this preset's assignments and variant
         selections. A thin wrapper around `core.resolver.resolve`.
         """
+        assignments: Dict[AssignmentKey, AssignmentValue] = {
+            key: value for key, value in self.assignments.items()
+        }
         return resolve(
             target,
-            assignments=dict(self.assignments),
+            assignments=assignments,
             variants=dict(self.variants),
         )
 
@@ -174,9 +181,12 @@ class Preset:
     def _evaluate_target(self, label: str, target: object) -> ScenarioTargetReport:
         target_text = str(target)
         try:
+            assignments: Dict[AssignmentKey, AssignmentValue] = {
+            key: value for key, value in self.assignments.items()
+        }
             result = resolve(
                 target,
-                assignments=dict(self.assignments),
+                assignments=assignments,
                 variants=dict(self.variants),
             )
         except ResolverError as exc:
@@ -251,7 +261,9 @@ class Preset:
         notes: Optional[Iterable[str]] = None,
     ) -> "Preset":
         """Return a new Preset with the given fields overridden or merged."""
-        merged_assignments: Dict[str, float] = dict(self.assignments)
+        merged_assignments: Dict[str, float] = {
+            key: value for key, value in self.assignments.items()
+        }
         if assignments:
             merged_assignments.update(assignments)
         merged_variants: Dict[str, str] = dict(self.variants)

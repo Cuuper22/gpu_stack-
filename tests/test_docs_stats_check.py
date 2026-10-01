@@ -20,9 +20,7 @@ import shutil
 import textwrap
 from pathlib import Path
 
-import pytest
 
-import gpu_stack
 from gpu_stack import Registry
 from gpu_stack.docs_stats_check import (
     StatMismatch,
@@ -82,7 +80,7 @@ def _live_unit_checks() -> int:
 def test_gate_passes_on_real_tree():
     mismatches = check_docs_stats(_repo())
     assert mismatches == [], (
-        f"docs-stats gate unexpectedly failed on the live tree:\n"
+        "docs-stats gate unexpectedly failed on the live tree:\n"
         + "\n".join(f"  {m}" for m in mismatches)
     )
 
