@@ -128,8 +128,6 @@ def _scenario_audit_targets(preset: Preset) -> List[Tuple[str, str]]:
             if hasattr(targets, "items"):
                 return list(targets.items())
             return list(targets)
-    if preset.name == "euv_tin120_lpp_source_context_assumption":
-        return list(scenarios.EUV_TIN120_SOURCE_TARGETS.items())
     return list(DEFAULT_SCENARIO_REPORT_TARGETS)
 
 

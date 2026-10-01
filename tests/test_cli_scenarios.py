@@ -135,29 +135,31 @@ def test_scenario_report_json_default_targets_exposes_status_contract():
     assert cost_per_token["missing_count"] > 0
 
 
-def test_scenario_report_json_custom_material_target_keeps_exact_label():
+def test_scenario_report_json_custom_lithography_target_keeps_exact_label():
     with captured_stdout() as buf:
         rc = main([
             "scenario-report",
-            "materials.source_hydrogen_1",
+            "lithography.euv_exposure",
             "--target",
-            "source_u=physical.lithography.source_valence_up_quark_count",
+            "gate_cd=physical.lithography.gate_resolution",
+            "--assign",
+            "physical.lithography.gate_k1=0.33",
             "--json",
         ])
 
     report = json.loads(buf.getvalue())
     assert rc == 0
-    assert report["preset"] == "source_hydrogen_1"
+    assert report["preset"].startswith("euv_exposure")
     assert report["assignment_count"] > 0
     assert report["variant_count"] >= 0
     assert report["sourced"] is True
     assert report["issue_count"] == 0
-    assert [target["label"] for target in report["targets"]] == ["source_u"]
+    assert [target["label"] for target in report["targets"]] == ["gate_cd"]
 
     target = report["targets"][0]
     assert target["status"] == "ok"
-    assert target["target"] == "physical.lithography.source_valence_up_quark_count"
-    assert target["value"] == 2
+    assert target["target"] == "physical.lithography.gate_resolution"
+    assert float(target["value"]) == pytest.approx(0.33 * 13.5e-9 / 0.33)
     assert target["missing_count"] == 0
     assert target["violated_constraint_count"] == 0
     assert target["violated_approximation_validity_count"] == 0
@@ -175,10 +177,8 @@ def test_scenario_audit_text_lists_sourced_pack_targets():
     assert "pythia_70m_dgx_h100_us_2024_industrial_power: issues" in out
     assert "tokens_per_second: ok target=training.tokens_per_sec" in out
     assert "cost_per_token: issues target=econ.cost.per_token" in out
-    assert "euv_tin120_lpp_source_context_assumption: ok" in out
     assert (
-        "pulse_repetition_rate: ok "
-        "target=physical.lithography.source_plasma_pulse_repetition_rate"
+        "pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost: ok"
     ) in out
 
 
@@ -194,19 +194,15 @@ def test_scenario_audit_json_reports_sourced_pack_issue_contract():
     reports = {report["preset"]: report for report in audit["reports"]}
     assert {
         "pythia_70m_dgx_h100_us_2024_industrial_power",
-        "euv_tin120_lpp_source_context_assumption",
+        "pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost",
     } <= set(reports)
     assert reports["pythia_70m_dgx_h100_us_2024_industrial_power"]["status"] == (
         "issues"
     )
-    assert reports["euv_tin120_lpp_source_context_assumption"]["status"] == "ok"
-
-    euv_targets = {
-        target["label"]: target
-        for target in reports["euv_tin120_lpp_source_context_assumption"]["targets"]
-    }
-    assert euv_targets["source_proton_count"]["value"] == 50
-    assert euv_targets["source_neutron_count"]["value"] == 70
+    assert (
+        reports["pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost"]["status"]
+        == "ok"
+    )
 
 
 def test_scenario_audit_json_compares_pythia_full_cost_and_energy_floor():
@@ -238,16 +234,16 @@ def test_scenario_audit_preset_selector_audits_only_selected_pack():
         rc = main([
             "scenario-audit",
             "--preset",
-            "scenarios.euv_tin120_lpp_source_context_assumption",
+            "scenarios.pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost",
         ])
 
     out = buf.getvalue()
     assert rc == 0
     assert "Scenario audit:" in out
     assert "packs  1" in out
-    assert "euv_tin120_lpp_source_context_assumption: ok" in out
-    assert "source_proton_count: ok target=physical.lithography.source_proton_count" in out
-    assert "pythia_70m_dgx_h100_us_2024_industrial_power" not in out
+    assert "pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost: ok" in out
+    assert "tokens_per_second: ok target=training.tokens_per_sec" in out
+    assert "pythia_70m_dgx_h100_us_2024_industrial_power:" not in out
 
 
 def test_scenario_audit_missing_families_groups_selected_cost_per_token():
@@ -289,20 +285,20 @@ def test_scenario_audit_missing_families_groups_selected_cost_per_token():
     ) in out
 
 
-def test_scenario_audit_missing_families_omits_clean_selected_euv_pack():
+def test_scenario_audit_missing_families_omits_clean_selected_pack():
     with captured_stdout() as buf:
         rc = main([
             "scenario-audit",
             "--preset",
-            "scenarios.euv_tin120_lpp_source_context_assumption",
+            "scenarios.pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost",
             "--missing-families",
         ])
 
     out = buf.getvalue()
     assert rc == 0
     assert "packs  1" in out
-    assert "euv_tin120_lpp_source_context_assumption: ok" in out
-    assert "source_proton_count: ok target=physical.lithography.source_proton_count" in out
+    assert "pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost: ok" in out
+    assert "tokens_per_second: ok target=training.tokens_per_sec" in out
     assert "missing families:" not in out
 
 
@@ -343,17 +339,17 @@ def test_scenario_audit_unknown_target_variable_raises_parser_helper_exit():
 
 def test_scenario_audit_fail_on_issues_respects_selected_pack_and_target():
     with captured_stdout() as buf:
-        euv_rc = main([
+        clean_rc = main([
             "scenario-audit",
             "--preset",
-            "scenarios.euv_tin120_lpp_source_context_assumption",
+            "scenarios.pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost",
             "--fail-on-issues",
         ])
-    euv_out = buf.getvalue()
-    assert euv_rc == 0
-    assert "packs  1" in euv_out
-    assert "issues 0" in euv_out
-    assert "euv_tin120_lpp_source_context_assumption: ok" in euv_out
+    clean_out = buf.getvalue()
+    assert clean_rc == 0
+    assert "packs  1" in clean_out
+    assert "issues 0" in clean_out
+    assert "pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost: ok" in clean_out
 
     with captured_stdout() as buf:
         pythia_rc = main([
@@ -383,33 +379,30 @@ def test_scenario_report_custom_target_and_fail_on_issues():
     with captured_stdout() as buf:
         rc = main([
             "scenario-report",
-            "materials.source_hydrogen_1",
+            "lithography.euv_exposure",
             "--target",
-            "source_u=physical.lithography.source_valence_up_quark_count",
+            "gate_cd=physical.lithography.gate_resolution",
+            "--assign",
+            "physical.lithography.gate_k1=0.33",
             "--fail-on-issues",
         ])
     out = buf.getvalue()
     assert rc == 0
-    assert (
-        "source_u: ok target=physical.lithography.source_valence_up_quark_count"
-        in out
-    )
-    assert "value=2" in out
+    assert "gate_cd: ok target=physical.lithography.gate_resolution" in out
 
     with captured_stdout() as buf:
         rc = main([
             "scenario-report",
-            "materials.source_hydrogen_1",
+            "lithography.euv_exposure",
             "--target",
-            "source_u=physical.lithography.source_valence_up_quark_count",
+            "gate_cd=physical.lithography.gate_resolution",
             "--assign",
-            "physical.lithography.source_proton_count=0",
+            "physical.lithography.gate_k1=0.33",
+            "--assign",
+            "physical.lithography.wavelength=-1e-9",
             "--fail-on-issues",
         ])
     out = buf.getvalue()
     assert rc == 1
-    assert (
-        "source_u: issues target=physical.lithography.source_valence_up_quark_count"
-        in out
-    )
+    assert "gate_cd: issues target=physical.lithography.gate_resolution" in out
     assert "violated_constraints=" in out

@@ -10,43 +10,13 @@ marks as an APPROXIMATION, since node names only loosely track real gate
 lengths.
 
 Each test pins one link in this chain: the exact dependency set of the
-derived variable, and a numeric resolve against a hand-computed value. The
-first test also checks the plasma expansion-speed chain resolves through the
-species particle mass built from nuclear counts, in the expected trace order.
+derived variable, and a numeric resolve against a hand-computed value.
 """
 
 import pytest
 
 from gpu_stack import Registry, resolve
 from gpu_stack.core import RelationRole
-from tests.helpers.lithography import source_quark_assignments
-
-
-def test_source_plasma_radial_expansion_uses_species_mass_chain():
-    proton_mass = Registry.variables["physics.proton_mass"].value
-    neutron_mass = Registry.variables["physics.neutron_mass"].value
-    boltzmann = Registry.variables["physics.boltzmann"].value
-    gas_temperature = 1000.0
-    expansion_factor = (5.0 / 3.0) ** 0.5
-    species_mass = proton_mass + neutron_mass
-
-    result = resolve(
-        "physical.lithography.source_plasma_column_radial_expansion_speed",
-        assignments={
-            **source_quark_assignments(1, 1),
-            "physical.lithography.source_plasma_species_gas_temperature": gas_temperature,
-        },
-    )
-
-    assert float(result.value) == pytest.approx(
-        expansion_factor * (boltzmann * gas_temperature / species_mass) ** 0.5
-    )
-    assert [step.equation for step in result.trace] == [
-        "physical.eq.lithography_source_plasma_column_expansion_speed_factor_from_monatomic_sound_speed",
-        "physical.eq.lithography_source_plasma_species_particle_mass_from_nuclear_counts",
-        "physical.eq.lithography_source_plasma_species_thermal_speed_from_gas_temperature",
-        "physical.eq.lithography_source_plasma_column_radial_expansion_speed_from_species_thermal_speed",
-    ]
 
 
 def test_channel_length_has_process_geometry_model():

@@ -1,20 +1,11 @@
-"""Tests for the lithography optics model behind process geometry.
+"""Tests for the lithography optics inputs behind process geometry.
 
-Feature size on a chip comes down to optics: a photon's transition energy
-sets its frequency and wavelength (E = h*f, lambda = c/f), and the numerical
-aperture — how wide a cone of light the lens can gather, NA = n*sin(theta) —
-sets how sharply that light can be focused. The graph derives every one of
-these from physical constants and lower-level roots rather than accepting
-them as free numbers.
-
-These tests pin the derivation chains and their guardrails. Dependency sets
-match the physics. Non-positive energies and frequencies fail their domain
-constraints. The Lorentz-Lorenz permittivity formula flags its bad branch as
-an approximation-validity failure instead of returning a silent nonsense
-value. The acceptance half-angle is bounded by the forward half-space
-(theta <= pi/2), NA is bounded by the medium's refractive index, and the
-resolution equation keeps its validity condition symbolic so it is judged
-per scenario.
+Feature size on a chip comes down to optics. Wavelength, numerical aperture
+(how wide a cone of light the lens gathers) and the refractive index of the
+medium under the lens are plain inputs here. These tests pin that they are
+root inputs with positive domains, that numerical aperture is bounded by the
+medium index, and that the Rayleigh resolution equation keeps its validity
+condition symbolic so it is judged per scenario.
 """
 
 import pytest
@@ -24,209 +15,57 @@ from gpu_stack import Registry, resolve
 from gpu_stack.core import Inequality, RelationRole
 
 
-def test_lithography_wavelength_and_numerical_aperture_have_physical_models():
-    wavelength = Registry.variables["physical.lithography.wavelength"]
-    photon_energy = Registry.variables["physical.lithography.photon_energy"]
-    frequency = Registry.variables["physical.lithography.photon_frequency"]
-    angular_frequency = Registry.variables["physical.lithography.source_angular_frequency"]
-    numerical_aperture = Registry.variables["physical.lithography.numerical_aperture"]
-    assert not wavelength.is_root_input
-    assert not photon_energy.is_root_input
-    assert not frequency.is_root_input
-    assert not angular_frequency.is_root_input
-    assert not numerical_aperture.is_root_input
-    assert wavelength.symbol.is_positive is True
-    assert photon_energy.symbol.is_positive is True
-    assert frequency.symbol.is_positive is True
-    assert angular_frequency.symbol.is_positive is True
-    assert {v.name for v in wavelength.direct_dependencies()} == {
-        "physics.speed_of_light",
-        "physical.lithography.photon_frequency",
-    }
-    assert {v.name for v in photon_energy.direct_dependencies()} == {
-        "physical.lithography.source_transition_energy",
-    }
-    assert {v.name for v in frequency.direct_dependencies()} == {
-        "physical.lithography.photon_energy",
-        "physics.planck",
-    }
-    assert {v.name for v in angular_frequency.direct_dependencies()} == {
-        "physical.lithography.photon_frequency",
-    }
-    assert {v.name for v in numerical_aperture.direct_dependencies()} == {
-        "physical.lithography.medium_refractive_index",
-        "physical.lithography.acceptance_half_angle",
-    }
-
-    c = Registry.variables["physics.speed_of_light"].value
-    h = Registry.variables["physics.planck"].value
-    frequency_result = resolve(
-        "physical.lithography.photon_frequency",
-        assignments={
-            "physical.lithography.photon_energy": h * c / 10.0,
-        },
-    )
-    assert float(frequency_result.value) == pytest.approx(c / 10.0)
-
-    angular_result = resolve(
-        "physical.lithography.source_angular_frequency",
-        assignments={
-            "physical.lithography.photon_energy": h * c / 10.0,
-        },
-    )
-    assert float(angular_result.value) == pytest.approx(2.0 * float(sp.pi) * c / 10.0)
-
-    wavelength_result = resolve(
-        "physical.lithography.wavelength",
-        assignments={
-            "physical.lithography.photon_energy": h * c / 10.0,
-        },
-    )
-    assert float(wavelength_result.value) == pytest.approx(10.0)
+OPTICS_ROOTS = (
+    "physical.lithography.wavelength",
+    "physical.lithography.numerical_aperture",
+    "physical.lithography.medium_refractive_index",
+)
 
 
-def test_lithography_rejects_nonpositive_photon_domains():
-    for bad_energy in (0.0, -1.0):
-        result = resolve(
-            "physical.lithography.wavelength",
-            assignments={
-                "physical.lithography.photon_energy": bad_energy,
-            },
-        )
+@pytest.mark.parametrize("name", OPTICS_ROOTS)
+def test_lithography_optics_are_positive_root_inputs(name):
+    variable = Registry.variables[name]
+    assert variable.is_root_input
+    assert variable.symbol.is_positive is True
+
+
+@pytest.mark.parametrize("name", OPTICS_ROOTS)
+def test_lithography_optics_reject_nonpositive_values(name):
+    for bad_value in (0.0, -1.0):
+        result = resolve(name, assignments={name: bad_value})
         check = next(
             c for c in result.constraints
-            if c.equation == "domain.physical.lithography.photon_energy.positive"
+            if c.equation == f"domain.{name}.positive"
         )
         assert check.satisfied is False
         assert check.missing == set()
 
-    for bad_frequency in (0.0, -1.0):
-        result = resolve(
-            "physical.lithography.wavelength",
-            assignments={
-                "physical.lithography.photon_frequency": bad_frequency,
-            },
-        )
-        checks = {c.equation: c for c in result.constraints}
-        assert (
-            checks[
-                "domain.physical.lithography.photon_frequency.positive"
-            ].satisfied
-            is False
-        )
-        assert (
-            checks[
-                "domain.physical.lithography.wavelength.positive"
-            ].satisfied
-            is False
-        )
 
-    for bad_transition_energy in (0.0, -1.0):
-        result = resolve(
-            "physical.lithography.photon_energy",
-            assignments={
-                "physical.lithography.source_transition_energy": (
-                    bad_transition_energy
-                ),
-            },
-        )
-        checks = {c.equation: c for c in result.constraints}
-        assert (
-            checks[
-                "domain.physical.lithography.source_transition_energy.positive"
-            ].satisfied
-            is False
-        )
-        assert (
-            checks[
-                "domain.physical.lithography.photon_energy.positive"
-            ].satisfied
-            is False
-        )
-
-
-def test_lithography_medium_relative_permittivity_rejects_bad_lorentz_lorenz_branch():
-    result = resolve(
-        "physical.lithography.medium_relative_permittivity",
-        assignments={
-            "physical.lithography.medium_lorentz_lorenz_factor": -0.75,
-        },
-    )
-    assert float(result.value) == pytest.approx(-1.0 / 3.5)
-    check = next(
-        c for c in result.approximation_validity
-        if c.equation == "physical.eq.lithography_medium_relative_permittivity"
-    )
-    assert check.satisfied is False
-    assert check.missing == set()
-
-
-def test_lithography_refractive_index_and_acceptance_angle_have_lower_models():
+def test_numerical_aperture_is_bounded_by_medium_index():
     refractive_index = Registry.variables["physical.lithography.medium_refractive_index"]
-    acceptance = Registry.variables["physical.lithography.acceptance_half_angle"]
     numerical_aperture = Registry.variables["physical.lithography.numerical_aperture"]
-    assert not refractive_index.is_root_input
-    assert not acceptance.is_root_input
-    assert not numerical_aperture.is_root_input
-    assert {v.name for v in refractive_index.direct_dependencies()} == {
-        "physical.lithography.medium_relative_permittivity",
-        "physical.lithography.medium_relative_permeability",
-    }
-    assert {v.name for v in acceptance.direct_dependencies()} == {
-        "physical.lithography.objective_pupil_radius",
-        "physical.lithography.objective_focal_length",
-    }
-    assert {v.name for v in numerical_aperture.direct_dependencies()} == {
-        "physical.lithography.medium_refractive_index",
-        "physical.lithography.acceptance_half_angle",
-    }
-
-    forward_cone = Registry.equations[
-        "physical.ineq.lithography_acceptance_half_angle_within_forward_half_space"
-    ]
-    na_medium_bound = Registry.equations[
+    bound = Registry.equations[
         "physical.ineq.lithography_numerical_aperture_within_medium_index"
     ]
-    assert isinstance(forward_cone, Inequality)
-    assert isinstance(na_medium_bound, Inequality)
-    assert forward_cone.role is RelationRole.CONSTRAINT
-    assert na_medium_bound.role is RelationRole.CONSTRAINT
-    assert forward_cone.op == "<="
-    assert na_medium_bound.op == "<="
-    assert forward_cone.rhs == sp.pi / 2
-    assert na_medium_bound.rhs == refractive_index.symbol
-    assert forward_cone.references
-    assert na_medium_bound.references
-    assert getattr(forward_cone, "_check_units_flag", False)
-    assert getattr(na_medium_bound, "_check_units_flag", False)
-    assert isinstance(forward_cone.as_sympy(), sp.Rel)
-    assert isinstance(na_medium_bound.as_sympy(), sp.Rel)
-    assert forward_cone.as_sympy() is not sp.S.true
-    assert na_medium_bound.as_sympy() is not sp.S.true
-    assert [eq.name for eq in acceptance.constraints()] == [forward_cone.name]
-    assert [eq.name for eq in numerical_aperture.constraints()] == [
-        na_medium_bound.name
-    ]
+    assert isinstance(bound, Inequality)
+    assert bound.role is RelationRole.CONSTRAINT
+    assert bound.op == "<="
+    assert bound.lhs == numerical_aperture.symbol
+    assert bound.rhs == refractive_index.symbol
+    assert bound.references
+    assert isinstance(bound.as_sympy(), sp.Rel)
+    assert [eq.name for eq in numerical_aperture.constraints()] == [bound.name]
 
-    refractive_result = resolve(
-        "physical.lithography.medium_refractive_index",
-        assignments={
-            "physical.lithography.medium_relative_permittivity": 4.0,
-            "physical.lithography.medium_relative_permeability": 1.0,
-        },
-    )
-    assert float(refractive_result.value) == pytest.approx(2.0)
-
-    aperture_result = resolve(
-        "physical.lithography.numerical_aperture",
-        assignments={
-            "physical.lithography.medium_relative_permittivity": 4.0,
-            "physical.lithography.medium_relative_permeability": 1.0,
-            "physical.lithography.objective_pupil_radius": 1.0,
-            "physical.lithography.objective_focal_length": 1.0,
-        },
-    )
-    assert float(aperture_result.value) == pytest.approx(2.0 ** 0.5)
+    for na, index, satisfied in ((1.35, 1.44, True), (1.5, 1.0, False)):
+        result = resolve(
+            "physical.lithography.numerical_aperture",
+            assignments={
+                "physical.lithography.numerical_aperture": na,
+                "physical.lithography.medium_refractive_index": index,
+            },
+        )
+        check = next(c for c in result.constraints if c.equation == bound.name)
+        assert check.satisfied is satisfied
 
 
 def test_lithography_validity_stays_symbolic():

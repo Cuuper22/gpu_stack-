@@ -20,7 +20,7 @@ import sympy as sp
 
 from gpu_stack import Registry, resolve
 from gpu_stack.core import Inequality, RelationRole
-from tests.helpers.lithography import failed_constraint
+from tests.helpers.registry import failed_constraint
 
 
 def test_process_geometry_constraints_are_explicit_feasibility_relations():

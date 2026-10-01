@@ -16,11 +16,10 @@ from __future__ import annotations
 from types import MappingProxyType
 
 from ..core.presets import Preset, combine
-from . import dgx_h100_tco, economics, hardware, lithography, materials, workload
+from . import dgx_h100_tco, economics, hardware, workload
 from .scenario_targets import (
     COST_PER_TOKEN_TARGET,
     DENSE_TRAINING_COST_TARGETS,
-    EUV_TIN120_SOURCE_TARGETS,
     ScenarioTargetSet,
     build_scenario_target_sets,
     targets_for,
@@ -282,48 +281,10 @@ pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption = (
 )
 
 
-_TIN120_SOURCE_CONTEXT_ASSUMPTION = (
-    "Scenario-layer tin-120 assumption: this pack models the EUV tin source "
-    "species as 120Sn for isotope-level closure only. ASML public material "
-    "establishes tin laser-produced-plasma context, not isotope selection."
-)
-
-
-def _euv_tin120_lpp_source_context_assumption() -> Preset:
-    combined = combine(
-        materials.source_tin_120,
-        lithography.asml_euv_tin_lpp_public_context,
-        name="euv_tin120_lpp_source_context_assumption",
-        description=(
-            "Assumption-labeled EUV tin-source scenario pack combining the "
-            "materials.source_tin_120 composition closure with ASML's public "
-            "50 kHz laser-produced-plasma repetition-rate context."
-        ),
-    )
-    return combined.with_overrides(
-        name=combined.name,
-        source=f"{combined.source} | {_TIN120_SOURCE_CONTEXT_ASSUMPTION}",
-        notes=(
-            *combined.notes,
-            "This scenario pack assigns only tin-120 source composition roots "
-            "and the ASML public pulse-period root.",
-            "It does not assign drive fluence, species pressure, gas "
-            "temperature, focusing geometry, plasma heating, or conversion "
-            "efficiency roots.",
-        ),
-    )
-
-
-euv_tin120_lpp_source_context_assumption = (
-    _euv_tin120_lpp_source_context_assumption()
-)
-
-
 SOURCED_SCENARIO_PACKS = (
     pythia_70m_dgx_h100_us_2024_industrial_power,
     pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost,
     pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption,
-    euv_tin120_lpp_source_context_assumption,
     *SOURCED_SCENARIO_PACKS_2026,
 )
 
@@ -338,7 +299,6 @@ SCENARIO_TARGET_SETS = MappingProxyType(
             pythia_full_tco=(
                 pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption
             ),
-            euv_tin120_source_context=euv_tin120_lpp_source_context_assumption,
         ),
         **SCENARIO_TARGET_SETS_2026,
     }
@@ -353,12 +313,10 @@ def scenario_targets_for(preset_or_name: Preset | str) -> ScenarioTargetSet:
 __all__ = [
     "COST_PER_TOKEN_TARGET",
     "DENSE_TRAINING_COST_TARGETS",
-    "EUV_TIN120_SOURCE_TARGETS",
     "SCENARIO_TARGET_SETS",
     "SOURCED_SCENARIO_PACKS",
     "dense_training_cost_inputs",
     "dense_training_cost_fixture",
-    "euv_tin120_lpp_source_context_assumption",
     "pythia_70m_dgx_h100_energy_floor_cost_closure",
     "pythia_70m_dgx_h100_single_node_run_closure",
     "pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost",

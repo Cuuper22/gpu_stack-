@@ -1,8 +1,8 @@
 """Cross-layer tests for physical boundary-hardening constraints.
 
 A boundary-hardening constraint is an inequality that fences a primitive root
-into its physically meaningful range (for example, a partial pressure must be
-positive). The same constraint must be visible from three angles at once: as
+into its physically meaningful range (for example, numerical aperture cannot
+exceed the medium index). The same constraint must be visible from three angles at once: as
 a CONSTRAINT-role inequality in the registry graph, as extra dependent weight
 in the root-debt ranking when ``--include-constraints`` is passed, and as a
 relation that passes the audit's equation invariants. These tests check all
@@ -37,83 +37,23 @@ PHYSICAL_BOUNDARY_FIXTURES = (
     PhysicalBoundaryFixture(
         equation=(
             "physical.ineq."
-            "lithography_source_plasma_drive_far_field_divergence_within_acceptance"
+            "lithography_numerical_aperture_within_medium_index"
         ),
-        variable=(
-            "physical.lithography."
-            "source_plasma_drive_far_field_divergence_half_angle"
-        ),
-        family="physical.lithography.source_plasma_drive",
+        variable="physical.lithography.numerical_aperture",
+        family="physical.lithography",
         constraint_dependencies=frozenset(
             {
-                "physical.lithography.source_plasma_drive_acceptance_half_angle",
+                "physical.lithography.medium_refractive_index",
             }
         ),
-    ),
-    PhysicalBoundaryFixture(
-        equation=(
-            "physical.ineq."
-            "lithography_medium_formula_unit_intercomponent_charge_transfer_"
-            "at_most_component_a_electron_inventory"
-        ),
-        variable=(
-            "physical.lithography."
-            "medium_formula_unit_intercomponent_charge_transfer_electron_count"
-        ),
-        family="physical.lithography.medium",
-        constraint_dependencies=frozenset(
-            {
-                "physical.lithography.medium_component_a_proton_count",
-                "physical.lithography.medium_component_a_stoichiometric_count",
-            }
-        ),
-    ),
-    PhysicalBoundaryFixture(
-        equation=(
-            "physical.ineq."
-            "lithography_medium_polarizable_electron_count_within_formula_unit"
-        ),
-        variable="physical.lithography.medium_polarizable_electron_count",
-        family="physical.lithography.medium",
-        constraint_dependencies=frozenset(
-            {
-                "physical.lithography.medium_formula_unit_electron_count",
-            }
-        ),
-    ),
-    PhysicalBoundaryFixture(
-        equation=(
-            "physical.ineq."
-            "lithography_medium_resonance_energy_above_source_photon_energy"
-        ),
-        variable="physical.lithography.medium_resonance_energy",
-        family="physical.lithography.medium",
-        constraint_dependencies=frozenset(
-            {
-                "physical.lithography.photon_energy",
-            }
-        ),
-    ),
-    PhysicalBoundaryFixture(
-        equation=(
-            "physical.ineq."
-            "lithography_source_plasma_species_partial_pressure_positive"
-        ),
-        variable="physical.lithography.source_plasma_species_partial_pressure",
-        family="physical.lithography.source_plasma_species",
     ),
 )
 
 
 DERIVED_PHYSICAL_BOUNDARIES = (
     (
-        "physical.lithography.source_plasma_drive_acceptance_half_angle",
-        "physical.ineq."
-        "lithography_source_plasma_drive_acceptance_half_angle_within_forward_half_space",
-    ),
-    (
-        "physical.lithography.source_plasma_species_number_density",
-        "physical.ineq.lithography_source_plasma_species_number_density_positive",
+        "physical.process.drawn_gate_length",
+        "physical.ineq.drawn_gate_length_positive",
     ),
 )
 

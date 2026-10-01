@@ -2,285 +2,88 @@
 gpu_stack.presets.lithography
 =============================
 
-Presets for the EUV lithography source plasma.
-
-These are deliberately narrow. ASML's public material tells us the general
-EUV source setup — tin droplets, laser pulses, 50 kHz cadence — but not
-enough to close fluence, plasma thermodynamics, focusing geometry, or
-conversion efficiency in this graph. So every value here is either taken
-directly from cited public context or explicitly labeled a modelling
-assumption; nothing is invented to fill the gaps.
+Exposure inputs for the two lithography tools that matter for a modern GPU:
+EUV (13.5 nm light) and ArF immersion (193 nm light through water). Each
+preset assigns only the three optics roots: wavelength, numerical aperture,
+and the refractive index of the medium under the lens. The k1 process
+factors are left open because they belong to a fab's process, not to the
+tool.
 """
 
 from __future__ import annotations
 
-from ..core.presets import Preset, combine
-from ..core.registry import Registry
+from ..core.presets import Preset
 
 
-ASML_EUV_REPETITION_RATE_HZ = 50_000.0
-ASML_EUV_PULSE_PERIOD_S = 1.0 / ASML_EUV_REPETITION_RATE_HZ
+EUV_WAVELENGTH_M = 13.5e-9
+EUV_NUMERICAL_APERTURE = 0.33
+ARF_IMMERSION_WAVELENGTH_M = 193e-9
+ARF_IMMERSION_NUMERICAL_APERTURE = 1.35
+WATER_REFRACTIVE_INDEX_193NM = 1.44
 
-_ASML_EUV_PRODUCTS_SOURCE = (
-    "ASML EUV lithography systems product page, "
-    "https://www.asml.com/en/en/products/euv-lithography-systems "
-    "(accessed 2026-05-06): EUV systems use 13.5 nm light; the light "
-    "source uses a CO2 laser firing two separate laser pulses at a "
-    "fast-moving drop of tin and does this up to 50,000 times per second."
+_ASML_SOURCE = (
+    "ASML product specifications: TWINSCAN NXE:3600D (EUV, 13.5 nm, NA 0.33) "
+    "and TWINSCAN NXT:2000i (ArF immersion, 193 nm, NA 1.35), "
+    "https://www.asml.com/en/products"
 )
 
-_ASML_LIGHT_AND_LASERS_SOURCE = (
-    "ASML Light and lasers lithography-principles page, "
-    "https://www.asml.com/en/en/technology/lithography-principles/"
-    "light-and-lasers (accessed 2026-05-06): ASML describes a "
-    "laser-produced plasma source using molten tin droplets around "
-    "25 microns in diameter moving at 70 m/s; a low-intensity pulse "
-    "flattens the droplet and a more powerful pulse vaporizes it into an "
-    "EUV-emitting plasma; the process is repeated 50,000 times every "
-    "second."
-)
-
-_NIST_TIN_ATOMIC_DATA_SOURCE = (
-    "NIST Atomic Data for Tin (Sn), "
-    "https://physics.nist.gov/PhysRefData/Handbook/Tables/tintable1_a.htm "
-    "(accessed 2026-05-06): Atomic Number = 50 and isotope table includes "
-    "120Sn. The choice of 120Sn here is a representative source-species "
-    "closure for the graph, not an ASML claim about isotope selection."
-)
-
-_PROVENANCE_ONLY = "provenance-only"
-_ASSIGNED_ROOT = "assigned-root"
-
-_ASML_EUV_PUBLIC_CONTEXT_FACTS: tuple[dict[str, object], ...] = (
-    {
-        "key": "euv_wavelength_13p5_nm",
-        "label": "EUV wavelength",
-        "public_value": 13.5e-9,
-        "public_units": "m",
-        "source": _ASML_EUV_PRODUCTS_SOURCE,
-        "status": _PROVENANCE_ONLY,
-        "assigned_root": None,
-        "assigned_value": None,
-        "candidate_root": "physical.lithography.wavelength",
-        "withholding_reason": (
-            "A graph exposure-wavelength root exists, but this preset is "
-            "only the source-plasma public operating context. Assigning "
-            "the imaging/exposure wavelength belongs in an explicit optics "
-            "or exposure preset."
-        ),
-    },
-    {
-        "key": "tin_droplets",
-        "label": "Molten tin droplets",
-        "public_value": "tin",
-        "public_units": None,
-        "source": _ASML_LIGHT_AND_LASERS_SOURCE,
-        "status": _PROVENANCE_ONLY,
-        "assigned_root": None,
-        "assigned_value": None,
-        "candidate_root": None,
-        "withholding_reason": (
-            "The graph source-species roots require isotope-level closure; "
-            "ASML's public context establishes tin LPP, not isotope "
-            "selection or valence-quark counts."
-        ),
-    },
-    {
-        "key": "tin_droplet_diameter_25_micron",
-        "label": "Tin droplet diameter",
-        "public_value": 25e-6,
-        "public_units": "m",
-        "source": _ASML_LIGHT_AND_LASERS_SOURCE,
-        "status": _PROVENANCE_ONLY,
-        "assigned_root": None,
-        "assigned_value": None,
-        "candidate_root": None,
-        "withholding_reason": (
-            "The current source-plasma graph has no droplet-diameter root. "
-            "Column radius, spot radius, and active volume are different "
-            "post-drive plasma quantities."
-        ),
-    },
-    {
-        "key": "tin_droplet_speed_70_m_per_s",
-        "label": "Tin droplet speed",
-        "public_value": 70.0,
-        "public_units": "m/s",
-        "source": _ASML_LIGHT_AND_LASERS_SOURCE,
-        "status": _PROVENANCE_ONLY,
-        "assigned_root": None,
-        "assigned_value": None,
-        "candidate_root": None,
-        "withholding_reason": (
-            "The graph has thermal and expansion speeds, but not a "
-            "pre-plasma droplet injection-speed root. Mapping 70 m/s onto "
-            "those variables would change the physics."
-        ),
-    },
-    {
-        "key": "dual_pulse_sequence",
-        "label": "Low-intensity pre-pulse plus stronger vaporizing pulse",
-        "public_value": "two-pulse sequence",
-        "public_units": None,
-        "source": (
-            f"{_ASML_EUV_PRODUCTS_SOURCE} {_ASML_LIGHT_AND_LASERS_SOURCE}"
-        ),
-        "status": _PROVENANCE_ONLY,
-        "assigned_root": None,
-        "assigned_value": None,
-        "candidate_root": None,
-        "withholding_reason": (
-            "The graph exposes scalar pulse-period and pulse-shape roots, "
-            "not a discrete pre-pulse/main-pulse sequence model with "
-            "separate energies, timings, or shapes."
-        ),
-    },
-    {
-        "key": "source_repetition_rate_50_khz",
-        "label": "Source repetition rate",
-        "public_value": ASML_EUV_REPETITION_RATE_HZ,
-        "public_units": "Hz",
-        "source": (
-            f"{_ASML_EUV_PRODUCTS_SOURCE} {_ASML_LIGHT_AND_LASERS_SOURCE}"
-        ),
-        "status": _ASSIGNED_ROOT,
-        "assigned_root": "physical.lithography.source_plasma_pulse_period",
-        "assigned_value": ASML_EUV_PULSE_PERIOD_S,
-        "candidate_root": "physical.lithography.source_plasma_pulse_period",
-        "withholding_reason": None,
-        "mapping_note": (
-            "ASML publishes repetition rate; the graph root is pulse period, "
-            "so the assigned value is period = 1 / repetition_rate."
-        ),
-    },
-)
-
-
-def _root_assignments(assignments: dict[str, float]) -> dict[str, float]:
-    unknown = [name for name in assignments if name not in Registry.variables]
-    if unknown:
-        raise ValueError(
-            "lithography preset assignments reference unknown variables: "
-            f"{sorted(unknown)}"
-        )
-    non_roots = [
-        name
-        for name in assignments
-        if not Registry.variables[name].is_root_input
-    ]
-    if non_roots:
-        raise ValueError(
-            "lithography preset assignments must be root inputs only: "
-            f"{sorted(non_roots)}"
-        )
-    return assignments
-
-
-def _source_nucleon_assignments(protons: int, neutrons: int) -> dict[str, int]:
-    return {
-        "physical.lithography.source_proton_count": protons,
-        "physical.lithography.source_neutron_count": neutrons,
-    }
-
-
-asml_euv_tin_lpp_public_context = Preset(
-    name="asml_euv_tin_lpp_public_context",
+euv_exposure = Preset(
+    name="euv_exposure",
     description=(
-        "Public ASML EUV laser-produced-plasma context mapped only onto the "
-        "root currently supported by this graph: the source-plasma pulse "
-        "period corresponding to 50 kHz operation."
+        "EUV exposure optics: 13.5 nm wavelength, 0.33 numerical aperture, "
+        "vacuum between lens and wafer."
     ),
-    assignments=_root_assignments(
-        {
-            "physical.lithography.source_plasma_pulse_period": (
-                ASML_EUV_PULSE_PERIOD_S
-            ),
-        }
-    ),
-    source=f"{_ASML_EUV_PRODUCTS_SOURCE} {_ASML_LIGHT_AND_LASERS_SOURCE}",
+    assignments={
+        "physical.lithography.wavelength": EUV_WAVELENGTH_M,
+        "physical.lithography.numerical_aperture": EUV_NUMERICAL_APERTURE,
+        "physical.lithography.medium_refractive_index": 1.0,
+    },
+    source=_ASML_SOURCE,
     notes=(
-        "The assigned pulse period is the reciprocal of ASML's public "
-        "50,000-times-per-second EUV source statement. Treat it as a public "
-        "operating-boundary context, not as a per-tool calibration.",
-        "ASML's 13.5 nm EUV wavelength, tin-droplet diameter, droplet speed, "
-        "dual-pulse sequence, and vacuum context are recorded in provenance "
-        "but are not assigned here because they either lack a matching root "
-        "or belong to a separate exposure/optics or source-species preset.",
-        "No drive fluence, gas pressure, gas temperature, collection optics, "
-        "detuning, heating fraction, or conversion-efficiency values are "
-        "invented here.",
+        "EUV light is absorbed by air and glass, so the optics are mirrors in "
+        "vacuum and the medium index is 1.",
+        "High-NA EUV tools use NA 0.55; assign that value to "
+        "physical.lithography.numerical_aperture to model them.",
     ),
 )
 
-
-def asml_euv_public_context_inventory() -> tuple[dict[str, object], ...]:
-    """
-    List each public ASML EUV fact with its graph-assignment status.
-
-    Only one fact is actually assigned: ASML's 50 kHz source cadence, mapped
-    to the graph's pulse-period root. Every other row is provenance-only and
-    carries a `withholding_reason` explaining why it stays unassigned.
-    """
-    assignments = asml_euv_tin_lpp_public_context.assignments
-    out: list[dict[str, object]] = []
-    for fact in _ASML_EUV_PUBLIC_CONTEXT_FACTS:
-        row = dict(fact)
-        assigned_root = row["assigned_root"]
-        row["assigned_in_preset"] = (
-            assigned_root in assignments if assigned_root is not None else False
-        )
-        if assigned_root is not None:
-            row["assigned_value"] = assignments.get(str(assigned_root))
-        out.append(row)
-    return tuple(out)
-
-
-source_tin_120_composition_assumption = Preset(
-    name="source_tin_120_composition_assumption",
+arf_immersion_exposure = Preset(
+    name="arf_immersion_exposure",
     description=(
-        "Assumption-labeled source-species composition closure for a 120Sn "
-        "tin plasma source, encoded at the proton-count and neutron-count "
-        "root layer."
+        "ArF immersion exposure optics: 193 nm wavelength, 1.35 numerical "
+        "aperture, water between lens and wafer."
     ),
-    assignments=_root_assignments(
-        _source_nucleon_assignments(protons=50, neutrons=70)
+    assignments={
+        "physical.lithography.wavelength": ARF_IMMERSION_WAVELENGTH_M,
+        "physical.lithography.numerical_aperture": (
+            ARF_IMMERSION_NUMERICAL_APERTURE
+        ),
+        "physical.lithography.medium_refractive_index": (
+            WATER_REFRACTIVE_INDEX_193NM
+        ),
+    },
+    source=(
+        f"{_ASML_SOURCE}; refractive index of water near 193 nm is about "
+        "1.44 (Burnett and Kaplan, 2004, measurement of the refractive index "
+        "of water at 193 nm)."
     ),
-    source=_NIST_TIN_ATOMIC_DATA_SOURCE,
     notes=(
-        "This preset says: model the source species as 120Sn for closure. It "
-        "does not say ASML uses isotopically selected 120Sn.",
-        "The root assignments are Z=50 and N=70 for tin-120. Valence quark "
-        "counts U=2Z+N=170 and D=Z+2N=190 are derived by the scope equations "
-        "from these root values. Binding, charge state, screening, ionization, "
-        "plasma temperature, and laser-drive roots remain open.",
+        "Numerical aperture cannot exceed the medium index, so 1.35 is "
+        "close to the limit that water allows.",
     ),
 )
 
 
-euv_tin120_lpp_source_boundary_assumption = combine(
-    source_tin_120_composition_assumption,
-    asml_euv_tin_lpp_public_context,
-    name="euv_tin120_lpp_source_boundary_assumption",
-    description=(
-        "Assumption-labeled EUV tin-plasma source boundary that combines a "
-        "120Sn source-species closure with ASML's public 50 kHz LPP context."
-    ),
-)
-
-
-SOURCE_PLASMA_OPERATING_PRESETS = (
-    asml_euv_tin_lpp_public_context,
-    source_tin_120_composition_assumption,
-    euv_tin120_lpp_source_boundary_assumption,
-)
+EXPOSURE_PRESETS = (euv_exposure, arf_immersion_exposure)
 
 
 __all__ = [
-    "ASML_EUV_REPETITION_RATE_HZ",
-    "ASML_EUV_PULSE_PERIOD_S",
-    "SOURCE_PLASMA_OPERATING_PRESETS",
-    "asml_euv_public_context_inventory",
-    "asml_euv_tin_lpp_public_context",
-    "source_tin_120_composition_assumption",
-    "euv_tin120_lpp_source_boundary_assumption",
+    "ARF_IMMERSION_NUMERICAL_APERTURE",
+    "ARF_IMMERSION_WAVELENGTH_M",
+    "EUV_NUMERICAL_APERTURE",
+    "EUV_WAVELENGTH_M",
+    "EXPOSURE_PRESETS",
+    "WATER_REFRACTIVE_INDEX_193NM",
+    "arf_immersion_exposure",
+    "euv_exposure",
 ]

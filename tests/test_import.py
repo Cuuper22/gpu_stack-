@@ -35,7 +35,7 @@ def test_top_level_resolver_surface_is_exported():
 def test_preset_package_exports_key_public_modules():
     import gpu_stack.presets as preset_package
 
-    expected = {"materials", "lithography", "nuclear", "scenarios"}
+    expected = {"lithography", "scenarios"}
     assert expected <= set(preset_package.__all__)
 
     for name in expected:
