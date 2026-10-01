@@ -79,19 +79,8 @@ body {
 .title-text,
 .icon-label,
 .desktop-icon,
-.logo-text,
-.logo-version,
-.tree-label {
+.logo-text {
   font-family: var(--font-display);
-}
-
-.file-path,
-.stat b {
-  font-family: var(--font-mono);
-}
-
-.eyebrow {
-  font-family: var(--font-body);
 }
 
 a {
@@ -123,4 +112,42 @@ a {
 :focus-visible {
   outline: 2px solid var(--accent-gold);
   outline-offset: 2px;
+}
+
+/* Tab bar for phones: Story / Calculator / Lab. Hidden on the desktop. */
+.phone-tabs {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .phone-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    background: var(--title-bar);
+    border-bottom: 2px solid var(--inset-dark);
+  }
+
+  .phone-tabs a {
+    display: grid;
+    place-items: center;
+    min-height: 46px;
+    padding: 0 6px;
+    color: var(--text-light);
+    font: 700 15px var(--font-display);
+    text-decoration: none;
+    border-right: 2px solid var(--title-bar-end);
+  }
+
+  .phone-tabs a:last-child {
+    border-right: 0;
+  }
+
+  .phone-tabs a[aria-current="page"] {
+    background: var(--window-body);
+    color: var(--title-bar);
+  }
 }
