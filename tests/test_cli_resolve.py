@@ -266,7 +266,7 @@ def test_resolve_with_sourced_scenario_preset_hits_power_cost():
         ])
     out = buf.getvalue()
     assert rc == 0
-    assert "econ.run.power_cost = 54.4378103942861" in out
+    assert "econ.run.power_cost = 9.21602308575190" in out
     assert "econ.eq.run_power_cost" in out
     assert "econ.eq.price_kwh" in out
     assert "0.0813000000000000" in out

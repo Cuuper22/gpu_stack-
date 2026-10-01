@@ -54,6 +54,10 @@ H100_SXM_BF16_DENSE_FLOPS = 989.4e12
 # lower. Change it per scenario; it is not measured for any preset here.
 ASSUMED_TRAINING_MFU = 0.40
 
+# Effective per-GPU training throughput used by the one-node DGX H100 scenario
+# closures: dense BF16 peak times the assumed MFU above (395.76 teraFLOPS).
+H100_SXM_ASSUMED_SUSTAINED_BF16_FLOPS = H100_SXM_BF16_DENSE_FLOPS * ASSUMED_TRAINING_MFU
+
 _GIB = 2**30
 
 _H100_UNIT_NOTE = (
@@ -189,6 +193,7 @@ dgx_h100_8gpu_node = Preset(
 
 __all__ = [
     "ASSUMED_TRAINING_MFU",
+    "H100_SXM_ASSUMED_SUSTAINED_BF16_FLOPS",
     "H100_SXM_BF16_DENSE_FLOPS",
     "demo_rack",
     "dgx_h100_8gpu_node",
