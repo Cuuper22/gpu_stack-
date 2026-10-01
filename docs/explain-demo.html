@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Explainer test page</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Pixelify+Sans:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/00-foundation.css">
+  <link rel="stylesheet" href="styles/explain.css">
+  <style>
+    .demo {
+      width: min(100% - 24px, 760px);
+      margin: 28px auto 0;
+      background: var(--window-chrome);
+      border: 2px outset var(--button-face);
+      box-shadow: var(--shadow);
+    }
+    .demo .title-bar {
+      background: linear-gradient(90deg, var(--title-bar), var(--title-bar-end));
+      color: var(--text-light);
+      padding: 5px 7px;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      border-bottom: 2px solid var(--inset-dark);
+    }
+    .demo .window-content {
+      background: var(--window-body);
+      border: 2px inset var(--window-chrome);
+      margin: 4px;
+    }
+    .demo .window-content {
+      padding: 6px 22px 26px;
+      font-family: var(--font-reading);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+    .demo h1 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      line-height: 1.2;
+      color: var(--title-bar);
+      margin: 18px 0 8px;
+    }
+    .demo h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      margin: 28px 0 6px;
+    }
+    .demo p { margin: 0 0 14px; }
+    .spacer { height: 70vh; }
+    @media (max-width: 600px) {
+      .demo .window-content { padding: 4px 14px 22px; font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="demo window">
+    <div class="title-bar"><span class="title-text">explain-demo.txt</span></div>
+    <div class="window-content">
+      <h1>Where does the cost of training an AI model come from?</h1>
+
+      <p>Meta trained Llama 3.1 405B on up to 16,384 <span class="term" data-term="h100">H100</span> <span class="term" data-term="gpu">GPUs</span>. Its model card lists 30.84 million <span class="term" data-term="gpu-hour">GPU-hours</span>. Rent that much GPU time at a couple of dollars an hour and you are somewhere around sixty million dollars, before anyone gets paid.</p>
+
+      <h2>Following one number down</h2>
+
+      <p>Pick one number: the <span class="term" data-term="cost-per-token">cost to train a model on one token</span>. A <span class="term" data-term="token">token</span> is a chunk of text, about three quarters of a word. The cost is GPU time, plus <span class="term" data-term="electricity">electricity</span>, plus the hardware wearing out (<abbr data-term="amortization">amortization</abbr>, if you like the accountant's word). The math is roughly <span class="term" data-term="6nd">6 times the model's size times the number of tokens</span>. The chip depends on how small its <span class="term" data-term="transistor">transistors</span> are, and that depends on the light used to print them.</p>
+
+      <h2>What actually moves the bill</h2>
+
+      <p>The biggest lever isn't which GPU you buy. It's how much of the GPU's speed you actually use, called <abbr data-term="mfu">MFU</abbr>. A GPU's <span class="term" data-term="peak-speed">spec sheet speed</span> is a ceiling. Meta reports using 38 to 43 percent of it for Llama 3. Nobody gets 100.</p>
+
+      <h2>How the chip is made</h2>
+
+      <p>The newest chips are printed with <abbr data-term="euv">EUV</abbr> light at 13.5 nanometers. The smallest line you can print is roughly a constant times the <span class="term" data-term="wavelength">wavelength</span> divided by the lens's <span class="term" data-term="numerical-aperture">numerical aperture</span>, and <span class="term" data-term="lithography">lithography</span> is the name for the whole printing process.</p>
+
+      <h2>How close does it get?</h2>
+
+      <p>I checked the calculator against <span class="term" data-term="published-runs">27 published training runs</span>. It usually lands within about 22 percent of the GPU-hours they report. A one-line <span class="term" data-term="rule-of-thumb">rule of thumb</span> does exactly as well.</p>
+
+      <h2>Can a training run survive flaky datacenters?</h2>
+
+      <p>Big training runs live in one <span class="term" data-term="datacenter">building</span> because the GPUs talk to each other constantly. A clever controller lost to the boring option: let each site train on its own and average their weights every 8 steps. Then the boring option beat perfectly <span class="term" data-term="sync-training">synchronized training</span> too. Averaging weights smooths out the noise you get from a fixed <span class="term" data-term="learning-rate">learning rate</span>, and ordinary training with a <span class="term" data-term="ema">running average</span> of its weights did even better. A rerun on fresh <span class="term" data-term="seed">seeds</span> found the reason.</p>
+
+      <p>Keeping the surviving site training through an <span class="term" data-term="outage-rollback">outage</span>, instead of rolling everyone back to the last <span class="term" data-term="checkpoint">checkpoint</span>, did about 3.6 percent less work. Also: the GPU's <span class="term" data-term="power-reading">power reading</span> only refreshed every half second.</p>
+
+      <h2>How I built it</h2>
+
+      <p>I built this with <span class="term" data-term="coding-agents">AI coding agents</span>. They write fast. They also grade their own homework badly.</p>
+
+      <div class="spacer" aria-hidden="true"></div>
+
+      <p>Near the bottom of the page, a window should flip above the term: the <span class="term" data-term="pue">PUE</span> of a building, the <span class="term" data-term="k1">k1</span> factor, and the <span class="term" data-term="equation-units">equation</span> with its units.</p>
+      <p>Two more for the end of the page: <span class="term" data-term="parameters">parameters</span> and <span class="term" data-term="flop">FLOP</span>, and <span class="term" data-term="training-run">a training run</span>.</p>
+    </div>
+  </main>
+  <script src="explain-visuals.js"></script>
+  <script src="explain.js"></script>
+</body>
+</html>
