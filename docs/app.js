@@ -4,7 +4,7 @@ const primerSteps = {
   target: {
     text: "Start with a human question, then follow the named dependencies upstream. Every hop should tell you whether you are looking at an equation, a scenario value, or an unresolved root input.",
     facts: [
-      "The registry currently names 1517 variables and 950 equations.",
+      "The registry currently names 1267 variables and 701 equations.",
       "The target is easier to trust when its ancestry is still attached."
     ],
     statusTitle: "Target selected: start with the question.",
@@ -14,7 +14,7 @@ const primerSteps = {
   upstream: {
     text: "Walking upstream means refusing to let a final number float by itself. The graph keeps run cost, token count, power, throughput, units, and constraints in the same visible chain.",
     facts: [
-      "884 equations are currently covered by unit checks.",
+      "642 equations are currently covered by unit checks.",
       "The gold highlight marks the part of the receipt you are inspecting."
     ],
     statusTitle: "Upstream selected: equations carry the number.",
@@ -24,7 +24,7 @@ const primerSteps = {
   roots: {
     text: "Root inputs are not failure badges. They are the places where the model has reached a boundary: a scenario value, a source that needs better support, or physics that has not been decomposed yet.",
     facts: [
-      "619 root inputs are still visible in the current summary.",
+      "583 root inputs are still visible in the current summary.",
       "Root debt ranks which unknowns have the largest downstream blast radius."
     ],
     statusTitle: "Roots selected: unpaid assumptions stay named.",

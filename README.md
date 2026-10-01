@@ -62,18 +62,18 @@ python -m gpu_stack.cli stats
 ```text
 Registry stats:
   systems        16
-  variables      1517
-  constants      24
-  equations      950
-  root_inputs    619
-  leaves         259
+  variables      1267
+  constants      18
+  equations      701
+  root_inputs    583
+  leaves         241
 
 Coverage:
-  non_constant_variables         1493
-  with_sp_units                  1493
-  with_references                1493
-  equations_with_references      950
-  equations_with_unit_check      884
+  non_constant_variables         1249
+  with_sp_units                  1249
+  with_references                1249
+  equations_with_references      701
+  equations_with_unit_check      642
 ```
 
 Leaves are variables nothing else depends on. Next, root debt by family (output trimmed to the first five columns):
@@ -214,19 +214,19 @@ print(to_dot(cone)[:120])                       # Graphviz text
 | Signal | Value |
 |---|---:|
 | Systems | 16 |
-| Variables | 1517 |
-| Constants | 24 |
-| Equations | 950 |
-| Root inputs | 619 |
-| Leaves | 259 |
+| Variables | 1267 |
+| Constants | 18 |
+| Equations | 701 |
+| Root inputs | 583 |
+| Leaves | 241 |
 | Cycles | 0 |
-| Topological order length | 1517 |
+| Topological order length | 1267 |
 | Hard audit failures | 0 |
-| Non-constant variables with `sp_units` | 1493 |
-| Non-constant variables with references | 1493 |
-| Equations with references | 950 |
-| Equations with unit checks | 884 |
-| Root-debt families | 151 |
+| Non-constant variables with `sp_units` | 1249 |
+| Non-constant variables with references | 1249 |
+| Equations with references | 701 |
+| Equations with unit checks | 642 |
+| Root-debt families | 142 |
 | Package version | 0.27.0 |
 
 </details>
