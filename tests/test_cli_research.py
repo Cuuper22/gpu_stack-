@@ -27,11 +27,11 @@ def test_experiment_protocol_json_is_preregistered(capsys):
 
 
 def test_experiment_protocol_catalog_is_available_without_claiming_execution(capsys):
-    assert main(["experiment-protocol", "E006", "--json"]) == 0
+    assert main(["experiment-protocol", "E002", "--json"]) == 0
     payload = json.loads(capsys.readouterr().out)
-    assert payload["experiment_id"] == "E006"
-    assert payload["title"] == "Firm Grid-responsive Inference"
-    assert any("no result" in note for note in payload["notes"])
+    assert payload["experiment_id"] == "E002"
+    assert payload["title"] == "Shape the Power Waveform"
+    assert any("no experiment result" in note for note in payload["notes"])
 
 
 def test_experiment_run_writes_full_and_observatory_artifacts(tmp_path):

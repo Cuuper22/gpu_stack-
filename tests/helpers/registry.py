@@ -43,3 +43,11 @@ def snapshot_registry_state():
 def registry_snapshot():
     with snapshot_registry_state():
         yield
+
+
+def failed_constraint(result, equation):
+    """Return the named constraint check, asserting it failed with no missing inputs."""
+    check = next(c for c in result.constraints if c.equation == equation)
+    assert check.satisfied is False
+    assert check.missing == set()
+    return check

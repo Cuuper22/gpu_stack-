@@ -272,9 +272,9 @@ def test_unit_check_failure_does_not_register_invalid_equation(registry_snapshot
     assert all(eq.name != equation_name for eq in duration.appearances)
 
 
-def test_lithography_quark_count_from_zn_rhs_infers_dimensionless():
+def test_lithography_gate_k1_rhs_infers_dimensionless():
     eq = Registry.equations[
-        "physical.eq.lithography_source_valence_up_quark_count_from_zn"
+        "physical.eq.lithography_gate_k1_from_process_factors"
     ]
     lookup = {
         sym: Registry.lookup_by_symbol(sym).sp_units

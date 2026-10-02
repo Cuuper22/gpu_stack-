@@ -73,6 +73,30 @@ def _repo_root() -> Path:
     return Path(gpu_stack.__file__).resolve().parent.parent
 
 
+def _require_source_tree(command: str, root: Path | None = None) -> Path:
+    """
+    Return the repository root, or exit with a clear message when there is none.
+
+    `verify`, `audit`, and `docs_stats_check` read files that exist
+    only in a source tree (pyproject.toml, tests/, README.md, docs/). In a
+    wheel install the package's parent directory is site-packages, so without
+    this check they fail with confusing missing-file errors or quietly report on
+    nothing.
+    """
+    root = _repo_root() if root is None else root
+    missing = [
+        name for name in ("pyproject.toml", "tests") if not (root / name).exists()
+    ]
+    if missing:
+        raise SystemExit(
+            f"gpu-stack {command}: this command needs a source clone of the "
+            f"repository (looked in {root}; missing {', '.join(missing)}). "
+            "Clone https://github.com/cuuper22/gpu_stack- and run it from there "
+            "after `pip install -e .`."
+        )
+    return root
+
+
 def _short_list(items: Sequence[str], limit: int = 4) -> str:
     shown = list(items[:limit])
     extra = len(items) - len(shown)

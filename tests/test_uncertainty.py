@@ -16,15 +16,11 @@ specifications, or price recommendations.
 from __future__ import annotations
 
 import math
-from typing import Optional
 
 import pytest
 
 from gpu_stack.uncertainty import (
-    Distribution,
-    TargetUncertaintyStats,
     UncertainAssignment,
-    UncertaintyResult,
     lognormal,
     normal,
     propagate_uncertainty,
@@ -50,8 +46,7 @@ SYNTH_AVAIL_UNIFORM = uniform(0.85, 1.0)
 SYNTH_PRICE_NORMAL = normal(mean=0.36, std=0.05)
 
 # SYNTHETIC: log-normal over power price; mu=log(0.36), sigma=0.1 (approx 10%).
-import math as _math
-SYNTH_PRICE_LOGNORMAL = lognormal(mu=_math.log(0.36), sigma=0.1)
+SYNTH_PRICE_LOGNORMAL = lognormal(mu=math.log(0.36), sigma=0.1)
 
 UNCERTAIN_PRICE = UncertainAssignment(
     "econ.power.price_kwh_peak",
@@ -582,7 +577,6 @@ def test_uncertainty_result_input_specs_echoed():
 def test_propagate_uncertainty_accepts_plain_dict():
     """Caller can pass a plain dict instead of a Preset."""
     base = dict(SYNTHETIC_PRESET.assignments)
-    base_variants = dict(SYNTHETIC_PRESET.variants)
 
     # We need to pass variants separately - but propagate_uncertainty with a
     # plain dict will use empty variants. So use a target that doesn't need
@@ -657,13 +651,26 @@ def test_propagate_uncertainty_multi_target_both_resolved():
 # Performance sanity: n_samples=200 should be fast via lambdify path
 # ---------------------------------------------------------------------------
 
-def test_performance_200_samples_reasonable_time():
+def test_performance_200_samples_reasonable_time(monkeypatch):
     """
-    200 samples on the dense fixture should complete in a few seconds via
-    the lambdify fast path. This test fails if it takes more than 30 seconds
-    (a sign the fallback per-sample path is being used unexpectedly).
+    200 samples must take the fast path: one symbolic resolve for the target,
+    then one vectorized evaluation, not 200 resolver calls. Counting resolver
+    calls is exact; wall time is only a loose backstop (the per-sample path
+    costs roughly 70 ms per sample, so 200 samples would be about 14 s).
     """
     import time
+
+    import gpu_stack.uncertainty as uncertainty_module
+
+    calls = []
+    real_resolve = uncertainty_module.resolve
+
+    def counting_resolve(*args, **kwargs):
+        calls.append(1)
+        return real_resolve(*args, **kwargs)
+
+    monkeypatch.setattr(uncertainty_module, "resolve", counting_resolve)
+
     start = time.monotonic()
     result = propagate_uncertainty(
         SYNTHETIC_PRESET,
@@ -673,5 +680,10 @@ def test_performance_200_samples_reasonable_time():
         seed=0,
     )
     elapsed = time.monotonic() - start
-    assert elapsed < 30.0, f"200 samples took {elapsed:.1f}s (expected < 30s via lambdify)"
-    assert result.targets[0].mean is not None
+
+    stats = result.targets[0]
+    assert stats.sample_count == 200
+    assert stats.failure_count == 0
+    assert stats.mean is not None
+    assert len(calls) == 1, f"fast path made {len(calls)} resolver calls"
+    assert elapsed < 30.0, f"200 samples took {elapsed:.1f}s"

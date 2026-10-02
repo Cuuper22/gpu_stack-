@@ -119,13 +119,15 @@
   }
 
   async function fetchArtifact(url) {
-    const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
+    const response = await (window.GPUStackData
+      ? window.GPUStackData.fetch(url)
+      : fetch(url, { headers: { Accept: "application/json" } }));
     if (!response.ok) throw new MissionError("ARTIFACT_UNAVAILABLE", `${url} returned HTTP ${response.status}.`);
     return response.json();
   }
 
   async function fetchGzipArtifact(url) {
-    const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/gzip" } });
+    const response = await fetch(url, { headers: { Accept: "application/gzip" } });
     if (!response.ok) throw new MissionError("ARTIFACT_UNAVAILABLE", `${url} returned HTTP ${response.status}.`);
     if (typeof DecompressionStream !== "function") {
       throw new MissionError("DECOMPRESSION_UNAVAILABLE", "This browser cannot open the bounded gzip projection.");
@@ -245,9 +247,21 @@
     );
   }
 
+  // Evidence can sit inside a folded section; open every fold around it first.
+  function revealFolds(target) {
+    let fold = target && target.closest ? target.closest("details") : null;
+    while (fold) {
+      fold.open = true;
+      fold = fold.parentElement ? fold.parentElement.closest("details") : null;
+    }
+  }
+
   function scrollToId(id) {
     const target = document.getElementById(id);
-    if (target) target.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (target) {
+      revealFolds(target);
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   }
 
   function clearHighlights() {
@@ -258,6 +272,7 @@
     clearHighlights();
     const target = document.querySelector(selector);
     if (target) {
+      revealFolds(target);
       target.classList.add("is-mission-evidence");
       target.scrollIntoView({ behavior: "smooth", block: "center" });
     }
@@ -1140,7 +1155,8 @@
     renderMission();
     refreshRegistrationStatus();
     try {
-      await Promise.all([semanticArtifact(), screeningArtifact(), observatory()]);
+      // The evidence files load on the first tool call, not on page load.
+      await observatory();
       refreshRegistrationStatus();
     } catch (error) {
       setStatus(`Evidence unavailable · ${error.message}`, "error");

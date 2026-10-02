@@ -1,7 +1,9 @@
 /* CuperOS docs shell.
-   Pixel-only type system per DESIGN.md: every rendered glyph comes from
-   the approved pixel set (Pixelify Sans for interface and reading, VT323
-   for commands, values, and registry output). No non-pixel faces load. */
+   Type system per DESIGN.md: Pixelify Sans only for window chrome (title bars,
+   wordmark, menus, taskbar, big display titles). IBM Plex Sans for every
+   paragraph, label and button. IBM Plex Mono for numbers, IDs and code.
+   Pixel faces misread C as O and E as a euro sign at small sizes, so they are
+   never used for text people have to read closely. */
 :root {
   color-scheme: light;
   --desktop-bg: oklch(0.45 0.10 195);
@@ -42,13 +44,12 @@
   --max: 1180px;
   --ease-mech: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
-  --font-display: "Pixelify Sans", monospace;
-  /* Portfolio law: only the approved pixel faces render, ever
-     (DotGothic16, Pixelify Sans, VT323, Handjet, Silkscreen). Pixelify
-     carries interface and reading; VT323 carries values and commands. */
-  --font-body: "Pixelify Sans", "VT323", monospace;
-  --font-reading: "Pixelify Sans", "VT323", monospace;
-  --font-mono: "VT323", "Pixelify Sans", monospace;
+  --font-display: "Pixelify Sans", ui-monospace, monospace;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --font-reading: var(--font-body);
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, "Courier New", monospace;
+  --font-value: var(--font-mono);
+  --font-identity: var(--font-display);
 }
 
 * {
@@ -78,12 +79,7 @@ body {
 .title-text,
 .icon-label,
 .desktop-icon,
-.logo-text,
-.logo-version,
-.tree-label,
-.file-path,
-.eyebrow,
-.stat b {
+.logo-text {
   font-family: var(--font-display);
 }
 
@@ -116,4 +112,48 @@ a {
 :focus-visible {
   outline: 2px solid var(--accent-gold);
   outline-offset: 2px;
+}
+
+/* Tab bar for phones: Story / Calculator / Lab. Hidden on the desktop. */
+.phone-tabs {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .phone-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    background: var(--title-bar);
+    border-bottom: 2px solid var(--inset-dark);
+  }
+
+  .phone-tabs a {
+    display: grid;
+    place-items: center;
+    min-height: 46px;
+    padding: 0 6px;
+    color: var(--text-light);
+    font: 700 15px var(--font-display);
+    text-decoration: none;
+    border-right: 2px solid var(--title-bar-end);
+  }
+
+  .phone-tabs a:last-child {
+    border-right: 0;
+  }
+
+  .phone-tabs a[aria-current="page"] {
+    background: var(--window-body);
+    color: var(--title-bar);
+  }
+}
+
+/* Pixelify Sans ships at weight 500 only: its bold closes the C into an O
+   ("CuperOS" read as "OuperOS"). Never fake a bold from it. */
+html {
+  font-synthesis-weight: none;
 }

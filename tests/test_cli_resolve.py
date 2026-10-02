@@ -22,62 +22,57 @@ from tests.helpers.cli import (
 )
 
 
-def test_resolve_missing_exposes_source_nucleon_root_diagnostics():
+def test_resolve_missing_exposes_lithography_root_diagnostics():
     with captured_stdout() as buf:
         rc = main([
             "resolve",
-            "physical.lithography.source_valence_up_quark_count",
+            "physical.lithography.gate_resolution",
             "--missing",
         ])
 
     out = buf.getvalue()
     assert rc == 0
     assert (
-        "missing: ['physical.lithography.source_neutron_count', "
-        "'physical.lithography.source_proton_count']"
+        "missing: ['physical.lithography.gate_k1', "
+        "'physical.lithography.numerical_aperture', "
+        "'physical.lithography.wavelength']"
     ) in out
     assert "unresolved inputs:" in out
     assert out.count("kind=ROOT_INPUT reason=root input assignment required") == 2
-    assert "kind=DERIVED reason=symbolic boundary" not in out
+    assert out.count("kind=DERIVED reason=symbolic boundary") == 1
 
-    neutron = unresolved_input_line(
+    wavelength = unresolved_input_line(
         out,
-        "physical.lithography.source_neutron_count",
+        "physical.lithography.wavelength",
     )
-    proton = unresolved_input_line(
-        out,
-        "physical.lithography.source_proton_count",
-    )
-    assert "[count] scope=physical kind=ROOT_INPUT" in neutron
-    assert "[count] scope=physical kind=ROOT_INPUT" in proton
+    assert "[m] scope=physical kind=ROOT_INPUT" in wavelength
     assert (
         "hint: --assign "
-        "physical.lithography.source_neutron_count=VALUE"
+        "physical.lithography.wavelength=VALUE"
     ) in out
     assert (
-        "direct physical.lithography.source_isotope_mass_number, "
-        "physical.lithography.source_neutron_excess"
+        "definitions: physical.eq.lithography_gate_k1_from_process_factors"
     ) in out
 
 
-def test_resolve_missing_families_groups_source_nucleon_roots():
+def test_resolve_missing_families_groups_lithography_roots():
     with captured_stdout() as buf:
         rc = main([
             "resolve",
-            "physical.lithography.source_valence_up_quark_count",
+            "physical.lithography.gate_resolution",
             "--missing-families",
         ])
 
     out = buf.getvalue()
     assert rc == 0
-    assert "physical.lithography.source_valence_up_quark_count =" in out
+    assert "physical.lithography.gate_resolution =" in out
     assert "unresolved inputs:" not in out
     assert "missing families:" in out
     assert (
-        "family=physical.lithography.source "
+        "family=physical.lithography "
         "boundary_category=primitive-root primitive_boundary=True count=2 "
-        "names=physical.lithography.source_neutron_count, "
-        "physical.lithography.source_proton_count"
+        "names=physical.lithography.numerical_aperture, "
+        "physical.lithography.wavelength"
     ) in out
 
 
@@ -177,7 +172,7 @@ def test_resolve_missing_and_missing_families_prints_both_sections():
     with captured_stdout() as buf:
         rc = main([
             "resolve",
-            "physical.lithography.source_valence_up_quark_count",
+            "physical.lithography.gate_resolution",
             "--missing",
             "--missing-families",
         ])
@@ -188,30 +183,32 @@ def test_resolve_missing_and_missing_families_prints_both_sections():
     assert "unresolved inputs:" in out
     assert "missing families:" in out
     assert (
-        "physical.lithography.source_neutron_count [count] "
+        "physical.lithography.wavelength [m] "
         "scope=physical kind=ROOT_INPUT"
     ) in unresolved_input_line(
         out,
-        "physical.lithography.source_neutron_count",
+        "physical.lithography.wavelength",
     )
     assert (
-        "family=physical.lithography.source "
+        "family=physical.lithography "
         "boundary_category=primitive-root primitive_boundary=True count=2"
     ) in out
 
 
-def test_resolve_with_material_preset_hits_formula_count():
+def test_resolve_with_exposure_preset_hits_rayleigh_resolution():
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
         rc = main([
             "resolve",
-            "physical.lithography.medium_formula_unit_electron_count",
+            "physical.lithography.gate_resolution",
             "--preset",
-            "materials.medium_h2o_h1_o16_composition",
+            "lithography.euv_exposure",
+            "--assign",
+            "physical.lithography.gate_k1=0.33",
         ])
     out = buf.getvalue()
     assert rc == 0
-    assert "physical.lithography.medium_formula_unit_electron_count = 10" in out
+    assert "physical.lithography.gate_resolution = 1.3500000000000" in out
 
 
 def test_resolve_with_preset_hits_demo_number():
@@ -266,7 +263,7 @@ def test_resolve_with_sourced_scenario_preset_hits_power_cost():
         ])
     out = buf.getvalue()
     assert rc == 0
-    assert "econ.run.power_cost = 54.4378103942861" in out
+    assert "econ.run.power_cost = 9.21602308575190" in out
     assert "econ.eq.run_power_cost" in out
     assert "econ.eq.price_kwh" in out
     assert "0.0813000000000000" in out
@@ -336,34 +333,25 @@ def test_resolve_constraints_prints_constraint_status():
     assert "physical.eq.clock_timing_constraint [satisfied]" in out
 
 
+BAD_WAVELENGTH_ARGS = [
+    "--assign", "physical.lithography.gate_k1=0.4",
+    "--assign", "physical.lithography.wavelength=-13.5e-9",
+    "--assign", "physical.lithography.numerical_aperture=0.33",
+]
+
+
 def test_resolve_approximation_validity_prints_status():
     with captured_stdout() as buf:
         rc = main([
             "resolve",
-            "physical.lithography.medium_formula_unit_intercomponent_binding_energy",
-            "--assign",
-            "physical.lithography.medium_component_a_effective_intercomponent_charge_number=1",
-            "--assign",
-            "physical.lithography.medium_component_b_effective_intercomponent_charge_number=1",
-            "--assign",
-            "physical.lithography.medium_formula_unit_intercomponent_pair_count=1",
-            "--assign",
-            "physical.lithography.medium_component_a_effective_intercomponent_radius=4e-10",
-            "--assign",
-            "physical.lithography.medium_component_b_effective_intercomponent_radius=4e-10",
-            "--assign",
-            "physical.lithography.medium_intercomponent_gap=2e-10",
-            "--assign",
-            "physical.lithography.medium_intercomponent_relative_permittivity=1",
+            "physical.lithography.gate_resolution",
+            *BAD_WAVELENGTH_ARGS,
             "--approximation-validity",
         ])
     out = buf.getvalue()
     assert rc == 0
     assert "approximation validity:" in out
-    assert (
-        "physical.eq.lithography_medium_formula_unit_intercomponent_binding_energy"
-        " [violated]"
-    ) in out
+    assert "physical.eq.gate_lithography_resolution [violated]" in out
 
 
 def test_resolve_fail_on_violated_constraints_returns_nonzero():
@@ -391,70 +379,28 @@ def test_resolve_fail_on_violated_domain_constraint_returns_nonzero():
     with captured_stdout() as buf:
         rc = main([
             "resolve",
-            "physical.lithography.source_plasma_drive_peak_intensity",
-            "--assign",
-            "physical.lithography.source_plasma_drive_pulse_fluence=-1",
-            "--assign",
-            "physical.lithography.source_plasma_drive_pulse_duration=1",
-            "--assign",
-            "physical.lithography.source_plasma_drive_pulse_temporal_shape_factor=1",
+            "physical.lithography.gate_resolution",
+            *BAD_WAVELENGTH_ARGS,
             "--constraints",
             "--fail-on-violated-constraints",
         ])
     out = buf.getvalue()
     assert rc == 1
-    assert (
-        "domain.physical.lithography.source_plasma_drive_pulse_fluence.positive"
-        " [violated]"
-    ) in out
+    assert "domain.physical.lithography.wavelength.positive [violated]" in out
 
 
 def test_resolve_fail_on_violated_approximation_validity_returns_nonzero():
     with captured_stdout() as buf:
         rc = main([
             "resolve",
-            "physical.lithography.medium_formula_unit_intercomponent_binding_energy",
-            "--assign",
-            "physical.lithography.medium_component_a_effective_intercomponent_charge_number=1",
-            "--assign",
-            "physical.lithography.medium_component_b_effective_intercomponent_charge_number=1",
-            "--assign",
-            "physical.lithography.medium_formula_unit_intercomponent_pair_count=1",
-            "--assign",
-            "physical.lithography.medium_component_a_effective_intercomponent_radius=4e-10",
-            "--assign",
-            "physical.lithography.medium_component_b_effective_intercomponent_radius=4e-10",
-            "--assign",
-            "physical.lithography.medium_intercomponent_gap=2e-10",
-            "--assign",
-            "physical.lithography.medium_intercomponent_relative_permittivity=1",
+            "physical.lithography.gate_resolution",
+            *BAD_WAVELENGTH_ARGS,
             "--approximation-validity",
             "--fail-on-violated-approximation-validity",
         ])
     out = buf.getvalue()
     assert rc == 1
-    assert (
-        "physical.eq.lithography_medium_formula_unit_intercomponent_binding_energy"
-        " [violated]"
-    ) in out
-
-
-def test_resolve_fail_on_recovered_violated_approximation_validity_returns_nonzero():
-    with captured_stdout() as buf:
-        rc = main([
-            "resolve",
-            "physical.lithography.source_nuclear_radius_coefficient",
-            "--assign",
-            "physical.lithography.source_binding_coulomb_coefficient=-1",
-            "--approximation-validity",
-            "--fail-on-violated-approximation-validity",
-        ])
-    out = buf.getvalue()
-    assert rc == 1
-    assert (
-        "physical.eq.lithography_source_nuclear_radius_coefficient"
-        " [violated]"
-    ) in out
+    assert "physical.eq.gate_lithography_resolution [violated]" in out
 
 
 def test_resolve_bad_variant_selector_returns_clean_error():

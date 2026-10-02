@@ -7,26 +7,18 @@ paper reports values to three decimals, so the honest uncertainty is the
 rounding half-width: each fixture must carry bounds of +/-0.0005 around the
 printed value, with no invented standard deviation or confidence level.
 
-The observations live in two places — the research tree and the installed
-package data — because tools read whichever is available. The second test
-requires the two copies to match byte for byte, so they can never drift.
+The single copy of the data lives in the package data directory
+(gpu_stack/data/observations), so it is also available from an installed wheel.
 """
 
 from importlib import resources
-from pathlib import Path
 
 import pytest
 
 from gpu_stack.research.observations import Observation
 
 
-OBSERVATION_DIR = (
-    Path(__file__).resolve().parents[1]
-    / "observations"
-    / "literature"
-    / "e001-one-step-delay"
-)
-BUNDLED_OBSERVATION_DIR = resources.files("gpu_stack").joinpath(
+OBSERVATION_DIR = resources.files("gpu_stack").joinpath(
     "data",
     "observations",
     "literature",
@@ -34,10 +26,21 @@ BUNDLED_OBSERVATION_DIR = resources.files("gpu_stack").joinpath(
 )
 
 
+def _observation_files():
+    return sorted(
+        (
+            entry
+            for entry in OBSERVATION_DIR.iterdir()
+            if entry.is_file() and entry.name.endswith(".json")
+        ),
+        key=lambda entry: entry.name,
+    )
+
+
 def test_e001_paper_observations_are_parseable_and_keep_rounding_uncertainty():
     observations = tuple(
-        Observation.from_json(path.read_text(encoding="utf-8"))
-        for path in sorted(OBSERVATION_DIR.glob("*.json"))
+        Observation.from_json(entry.read_text(encoding="utf-8"))
+        for entry in _observation_files()
     )
 
     assert len(observations) == 3
@@ -57,28 +60,16 @@ def test_e001_paper_observations_are_parseable_and_keep_rounding_uncertainty():
         assert measurement.uncertainty.upper_bound == pytest.approx(value + 0.0005)
 
 
-def test_bundled_e001_observations_match_research_copies_byte_for_byte():
-    research_copies = {
-        path.name: path.read_bytes()
-        for path in sorted(OBSERVATION_DIR.glob("*.json"))
-    }
-    bundled_copies = {
-        resource.name: resource.read_bytes()
-        for resource in sorted(
-            (
-                entry
-                for entry in BUNDLED_OBSERVATION_DIR.iterdir()
-                if entry.is_file() and entry.name.endswith(".json")
-            ),
-            key=lambda entry: entry.name,
-        )
-    }
+def test_observation_json_is_declared_as_package_data():
+    # setuptools only ships files matched by [tool.setuptools.package-data].
+    # Keep the declared glob in step with the directory the tests read.
+    from pathlib import Path
 
-    assert bundled_copies == research_copies
-    assert {
-        name: Observation.from_json(payload.decode("utf-8"))
-        for name, payload in bundled_copies.items()
-    } == {
-        name: Observation.from_json(payload.decode("utf-8"))
-        for name, payload in research_copies.items()
-    }
+    tomllib = pytest.importorskip("tomllib")  # stdlib from Python 3.11
+    pyproject = tomllib.loads(
+        (Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(
+            encoding="utf-8"
+        )
+    )
+    patterns = pyproject["tool"]["setuptools"]["package-data"]["gpu_stack"]
+    assert "data/observations/literature/e001-one-step-delay/*.json" in patterns

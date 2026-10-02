@@ -144,12 +144,6 @@ class TestPythiaDgxH100RunClosureAssumption:
         original_result = original.resolve("econ.cost.per_token")
         original_missing = set(original_result.missing)
 
-        bom_assignments = set(dgx_h100_tco.dgx_h100_node_power_bom.assignments)
-        assumption_assignments = set(
-            dgx_h100_tco.pythia_70m_dgx_h100_run_closure_assumption.assignments
-        )
-        covered = bom_assignments | assumption_assignments
-
         # Closure means: every root the original pack was missing is either
         # assigned by one of the two new presets or is a symbolic boundary
         # that now resolves from assigned primitive roots. The proof is that

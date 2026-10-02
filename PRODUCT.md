@@ -1,61 +1,35 @@
 # Product
 
-## Register
+A short brief for anyone (person or agent) changing the README or the site.
 
-brand
+## What this is
 
-## Users
+A personal project by Cuper: a first-person story of tracing what AI training costs, from the
+bill down to how chips are printed, plus two tools under it. The Calculator turns model size,
+data and hardware into time, energy and cost, and shows what each number is made of. The Lab is
+a small simulator of training across unreliable datacenters.
 
-`gpu_stack` is for builders, students, researchers, and curious technical readers who want to understand frontier training infrastructure without treating it as a sealed industrial magic box. The reader may know Python, ML, physics, GPUs, or none of those deeply yet. The README should meet them visually first, then let the equations become less intimidating.
+## Who it is for
 
-## Product Purpose
+First, a smart reader with no ML or GPU background. Then hiring managers skimming for a minute.
+Then ML infrastructure engineers who want the numbers. If the first group can't follow the first
+screen, the first screen is wrong.
 
-`gpu_stack` is a causal, uncertainty-aware virtual AI datacenter. Causal means it
-models what drives what, not just what correlates. Uncertainty-aware means it
-says how sure it is. It joins learning progress, training and inference
-execution, communication, memory, failures, power, cooling, grid behavior, and
-economics in one inspectable world model.
+## Voice
 
-The same engine has three inseparable jobs:
+Cuper's: plain, direct, calm, a little dry. Explain things the way you would to a friend at a
+table. Numbers only when they build intuition, rounded and explained where they appear. A joke
+is welcome when it carries a fact. No hooks, no hype, no growth-thread rhythm, no exclamation
+points, no em dashes, no study codes or verdict tables in public text.
 
-1. Predict measured outcomes accurately enough to support real decisions.
-2. Explain any result at progressively deeper levels, from a freshman-readable
-   visual story to equations, provenance, uncertainty, and raw observations.
-3. Act as an experimental substrate for hypotheses that would otherwise require
-   a large AI datacenter to screen.
+## Honesty
 
-The recursive physical graph remains valuable, but graph depth is not the
-objective. A deeper lithography or particle relation counts as research
-progress only when it improves an externally evaluated prediction, reduces
-decision-relevant uncertainty, explains a residual, or enables a falsifiable
-experiment.
+Say what the evidence supports and no more. The calculator is about as accurate as a rule of
+thumb; say so. Small experiments are small; say so. When something was wrong, fix it and keep
+the story readable rather than turning the page into an audit.
 
-Success means the engine transfers to held-out hardware and workloads, carries
-calibrated uncertainty, recommends interventions with low decision regret, and
-makes the causal reason visible. A simulation result is a hypothesis. It
-becomes evidence about the real datacenter only after measurements validate it.
+## Design
 
-## Brand Personality
-
-Curious, rigorous, visual, slightly allergic to fake polish. It should feel like Cuper wrote a technical Medium article after falling into a physics rabbit hole with an AI collaborator and deciding the right response was to build the rabbit hole.
-
-## Anti-references
-
-Do not make it sound like a SaaS landing page, a package index stub, or a generic AI-generated README. Avoid empty hype, feature-card grids, "passionate about", "game changer", inflated claims, and trophy-stat chest beating. No em dashes.
-
-## Design Principles
-
-1. Show the stack before explaining the stack.
-2. Treat root inputs honestly as visible modeling debt, not embarrassing gaps.
-3. Keep the human origin in frame: this started as a learning project, not a product committee.
-4. Let equations feel spatial and inspectable.
-5. Preserve factual claims by tying them to commands or generated registry stats.
-6. Rank work by predictive error, uncertainty, and scientific leverage, not equation or root counts.
-7. Keep observations, calibration data, assumptions, predictions, and interventions as distinct types.
-8. Evaluate decisions on held-out systems. Never grade the engine on the data used to tune it.
-9. Use semantic zoom: every visual claim must open into its mechanism, evidence, caveats, and equations.
-10. Design experiments with explicit falsifiers and a path to real-cluster validation.
-
-## Accessibility & Inclusion
-
-The README should be readable in plain GitHub Markdown, work without JavaScript, use alt text for every image, keep diagrams understandable in grayscale, and avoid assuming the reader already knows GPU infrastructure jargon. Define shorthand near first use when practical.
+Retro CuperOS desktop. Pixel face only for window chrome and titles; readable sans for reading,
+mono for numbers. Every technical word gets a hover or tap explainer; every section gets a figure
+that carries the idea on its own. Works on a phone, works with reduced motion, keyboard reachable.

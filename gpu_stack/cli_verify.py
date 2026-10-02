@@ -18,7 +18,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Sequence, Tuple
 
-from gpu_stack.cli_common import _repo_root
+from gpu_stack.cli_common import _repo_root, _require_source_tree
 
 
 @dataclass(frozen=True)
@@ -37,9 +37,11 @@ class VerifyGateResult:
 
 
 VERIFY_TIMEOUT_RETURN_CODE = 124
+# The full pytest gate takes about 5 minutes on a 4-core machine, so the
+# defaults leave several times that much room for slower CI runners.
 DEFAULT_GATE_TIMEOUT_SECONDS = {
-    "fast": 120.0,
-    "full": 300.0,
+    "fast": 600.0,
+    "full": 1800.0,
 }
 
 
@@ -94,7 +96,7 @@ def _verify_gates(profile: str, read_only: bool = False) -> List[VerifyGate]:
                 "core-tests",
                 _pytest_command(
                     "tests/test_import.py",
-                    "tests/test_import_physical_exports.py",
+                    "tests/test_import_physical_scopes.py",
                     "tests/test_import_registry.py",
                     "tests/test_graph_health.py",
                     "tests/test_units.py",
@@ -114,12 +116,7 @@ def _verify_gates(profile: str, read_only: bool = False) -> List[VerifyGate]:
                     "tests/test_cli_root_debt.py",
                     "tests/test_cli_scenarios.py",
                     "tests/test_cli_verify.py",
-                    "tests/test_next_work.py",
-                    "tests/test_next_work_continuation_contract.py",
-                    (
-                        "tests/test_process_geometry.py::"
-                        "test_source_plasma_radial_expansion_uses_species_mass_chain"
-                    ),
+                    "tests/test_process_geometry.py",
                     "-q",
                     read_only=read_only,
                 ),
@@ -244,7 +241,9 @@ def cmd_verify(args: argparse.Namespace, *, run_gate=None) -> int:
     if run_gate is None:
         run_gate = _run_verify_gate
     gates = _verify_gates(args.profile, read_only=args.read_only)
-    cwd = Path(args.cwd).resolve() if args.cwd else _repo_root()
+    cwd = _require_source_tree(
+        "verify", Path(args.cwd).resolve() if args.cwd else _repo_root()
+    )
     timeout_seconds = _gate_timeout(args.profile, args.gate_timeout)
     started = time.perf_counter()
 

@@ -16,7 +16,7 @@ above the temperature where condensation starts.
 import sympy as sp
 
 from ..core import Inequality, Reference, eq, var
-from ..core.units import JOULE, KELVIN, KILOGRAM, METER, SECOND
+from ..core.units import JOULE, KELVIN, KILOGRAM, KWH, LITER, METER, SECOND
 from .cluster import cluster_power_it
 from .thermal_package import T_ambient, T_coolant_inlet
 from .thermal_facility import heat_to_reject
@@ -25,9 +25,11 @@ from .thermal_facility import heat_to_reject
 DIMENSIONLESS = sp.Integer(1)
 LATENT_HEAT = JOULE / KILOGRAM
 MASS_FLOW = KILOGRAM / SECOND
-LIQUID_DENSITY = KILOGRAM / METER**3
 VOLUMETRIC_FLOW = METER**3 / SECOND
-WUE_RATE = METER**3 / JOULE
+# Water bookkeeping is in liters, so these units carry the liter scale.
+WATER_DENSITY = KILOGRAM / LITER
+WATER_VOLUME_FLOW = LITER / SECOND
+WUE_RATE = LITER / KWH
 
 THERMAL_ENV_REF = Reference(
     "Thermal environment model uses cooling-tower evaporation, blowdown, "
@@ -51,7 +53,7 @@ water_density = var(
     "thermal.water.density", "rho_wL", "kg/L",
     "Water density expressed in kilograms per liter for WUE conversions.",
     scope="thermal",
-    sp_units=LIQUID_DENSITY,
+    sp_units=WATER_DENSITY,
     references=[THERMAL_ENV_REF],
 )
 water_cycles_of_concentration = var(
@@ -93,7 +95,7 @@ water_usage_rate = var(
     "thermal.water.usage_rate", "Wdot_use", "L/s",
     "Total site water usage rate.",
     scope="thermal",
-    sp_units=VOLUMETRIC_FLOW,
+    sp_units=WATER_VOLUME_FLOW,
     references=[THERMAL_ENV_REF],
 )
 wue = var(

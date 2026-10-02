@@ -831,7 +831,7 @@ def test_failed_aggregate_replay_can_be_retargeted_without_double_counting():
             (_failure("replay-failure", site_id="site-b", start_ns=160),),
         ),
     )
-    failed = WorkLedger((original, failed_replay))
+    WorkLedger((original, failed_replay))
     successful_replay = evaluate_work_attempt(
         _attempt(
             "replay-2",

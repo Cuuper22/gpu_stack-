@@ -207,70 +207,6 @@ ELECTRON_MASS = Constant(
     sp_units=kilogram if _UNITS_AVAILABLE else None,
 )
 
-PROTON_MASS = Constant(
-    name="physics.proton_mass",
-    symbol="m_p",
-    units="kg",
-    description="Rest mass of the proton.",
-    value=1.67262192369e-27,
-    source="CODATA 2018",
-    sp_units=kilogram if _UNITS_AVAILABLE else None,
-)
-
-NEUTRON_MASS = Constant(
-    name="physics.neutron_mass",
-    symbol="m_n",
-    units="kg",
-    description="Rest mass of the neutron.",
-    value=1.67492749804e-27,
-    source="CODATA 2018",
-    sp_units=kilogram if _UNITS_AVAILABLE else None,
-)
-
-ATOMIC_MASS_UNIT = Constant(
-    name="physics.amu",
-    symbol="u",
-    units="kg",
-    description="Unified atomic mass unit (1/12 of a 12C atom at rest).",
-    value=1.66053906660e-27,
-    source="CODATA 2018",
-    sp_units=kilogram if _UNITS_AVAILABLE else None,
-)
-
-BOHR_RADIUS = Constant(
-    name="physics.bohr_radius",
-    symbol="a_0",
-    units="m",
-    description=(
-        "Bohr radius a_0 = hbar/(m_e * c * alpha). Natural length scale for "
-        "atomic wavefunctions; relevant when channel length approaches "
-        "atomic dimensions."
-    ),
-    value=5.29177210903e-11,
-    source="CODATA 2018",
-    sp_units=meter if _UNITS_AVAILABLE else None,
-)
-
-RYDBERG_ENERGY = Constant(
-    name="physics.rydberg_energy",
-    symbol="Ry",
-    units="J",
-    description="Rydberg energy. Natural atomic energy scale (~13.6 eV).",
-    value=2.1798723611035e-18,
-    source="CODATA 2018",
-    sp_units=joule if _UNITS_AVAILABLE else None,
-)
-
-CLASSICAL_ELECTRON_RADIUS = Constant(
-    name="physics.classical_electron_radius",
-    symbol="r_e",
-    units="m",
-    description="Classical electron radius r_e = e^2 / (4*pi*epsilon_0*m_e*c^2).",
-    value=2.8179403262e-15,
-    source="CODATA 2018",
-    sp_units=meter if _UNITS_AVAILABLE else None,
-)
-
 
 # ---------------------------------------------------------------------------
 # Mechanical / environmental reference (used in data-center engineering)
@@ -339,9 +275,7 @@ __all__ = [
     # thermodynamics
     "BOLTZMANN", "AVOGADRO", "GAS_CONSTANT", "STEFAN_BOLTZMANN",
     # quantum / atomic
-    "PLANCK", "HBAR", "ELECTRON_MASS", "PROTON_MASS", "NEUTRON_MASS",
-    "ATOMIC_MASS_UNIT", "BOHR_RADIUS", "RYDBERG_ENERGY",
-    "CLASSICAL_ELECTRON_RADIUS",
+    "PLANCK", "HBAR", "ELECTRON_MASS",
     # mechanical / environmental
     "STANDARD_GRAVITY", "STANDARD_ATMOSPHERE", "ICE_POINT",
     # math helpers

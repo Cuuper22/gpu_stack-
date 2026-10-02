@@ -86,10 +86,12 @@ eq_allgather_hier = eq(
     "col.eq.allgather_hier",
     t_allgather_hier.symbol,
     (n_nodes.symbol - 1) * alpha_scale_out.symbol
-    + (n_nodes.symbol - 1) * beta_scale_out.symbol * N_payload.symbol / n_nodes.symbol
+    + (n_nodes.symbol - 1) * beta_scale_out.symbol * N_payload.symbol / (ranks_per_node.symbol * n_nodes.symbol)
     + (ranks_per_node.symbol - 1) * alpha_nvlink.symbol
     + (ranks_per_node.symbol - 1) * beta_nvlink.symbol * N_payload.symbol / ranks_per_node.symbol,
-    "Hierarchical allgather first gathers across nodes and then expands inside the fast local domain.",
+    "Hierarchical allgather first gathers across nodes and then expands inside the fast local domain. "
+    "Across nodes each rank holds only its N/ranks_per_node shard, so the inter-node bandwidth term "
+    "is N (nodes-1) / (nodes ranks_per_node) beta, the mirror image of hierarchical reducescatter.",
     references=[COLLECTIVE_ALGORITHM_REF],
     check_units=True,
 )

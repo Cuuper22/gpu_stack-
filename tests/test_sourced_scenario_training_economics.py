@@ -10,6 +10,8 @@ pack to confirm the user-facing targets resolve cleanly through the expected
 equations. Shared markers and helpers come from test_sourced_scenarios.
 """
 
+import pytest
+
 from gpu_stack import Registry
 from gpu_stack.core.resolver import AmbiguousVariant, ResolverError, Underdetermined
 
@@ -110,6 +112,7 @@ def test_pythia_dgx_h100_energy_floor_cost_resolves_all_advertised_targets():
     _assert_resolves_cleanly(preset, targets)
 
 
+@pytest.mark.slow
 def test_sourced_scenario_packs_resolve_user_facing_targets_cleanly():
     for preset in _require_training_economics_scenario_packs():
         failures: list[str] = []

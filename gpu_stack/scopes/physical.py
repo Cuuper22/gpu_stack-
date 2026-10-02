@@ -35,7 +35,7 @@ from .physical_noise import NOISE_VARIABLES, NOISE_EQUATIONS
 sys_physical = System(
     name="physical",
     scope="physical",
-    description="Lithography quantum source/optics, process geometry, local self-heating, transport, transistor behavior, interconnect delay, CMOS logic, and noise.",
+    description="Lithography resolution (Rayleigh, k1), process geometry, local self-heating, transport, transistor behavior, interconnect delay, CMOS logic, and noise.",
 )
 
 

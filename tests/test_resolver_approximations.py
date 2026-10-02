@@ -17,7 +17,7 @@ from gpu_stack.core import (
     RelationRole,
 )
 from gpu_stack.core.variable import Variable
-from tests.helpers.registry import registry_snapshot
+from tests.helpers.registry import registry_snapshot  # noqa: F401  (pytest fixture)
 
 
 def test_resolver_value_trace_ignores_validity_only_dependencies():
@@ -95,46 +95,67 @@ def test_variant_approximation_reports_unresolved_validity(registry_snapshot):
 
 def test_resolve_reports_violated_approximation_validity():
     result = resolve(
-        "physical.lithography.medium_formula_unit_intercomponent_binding_energy",
+        "physical.lithography.gate_resolution",
         assignments={
-            "physical.lithography.medium_component_a_effective_intercomponent_charge_number": 1,
-            "physical.lithography.medium_component_b_effective_intercomponent_charge_number": 1,
-            "physical.lithography.medium_formula_unit_intercomponent_pair_count": 1,
-            "physical.lithography.medium_intercomponent_effective_separation": 1e-9,
-            "physical.lithography.medium_intercomponent_relative_permittivity": 1,
+            "physical.lithography.gate_k1": 0.4,
+            "physical.lithography.wavelength": -13.5e-9,
+            "physical.lithography.numerical_aperture": 0.33,
         },
     )
     check = next(
         c for c in result.approximation_validity
-        if c.equation
-        == "physical.eq.lithography_medium_formula_unit_intercomponent_binding_energy"
+        if c.equation == "physical.eq.gate_lithography_resolution"
     )
     assert isinstance(check, ApproximationValidityCheck)
     assert check.satisfied is False
 
 
-def test_recovered_approximation_validity_detects_violated_domain():
-    result = resolve(
-        "physical.lithography.source_nuclear_radius_coefficient",
-        assignments={
-            "physical.lithography.source_binding_coulomb_coefficient": -1.0,
-        },
+def _recovered_domain_approximation():
+    """A temporary approximation whose validity is recovered from RHS domains."""
+    x = Variable(
+        "test.recovered.x",
+        "x_recovered_test",
+        "value",
+        "Temporary approximation output.",
+        scope="test",
     )
+    y = Variable(
+        "test.recovered.y",
+        "y_recovered_test",
+        "value",
+        "Temporary approximation input with a positive domain.",
+        scope="test",
+        positive=True,
+    )
+    Approximation(
+        "test.eq.recovered_domain",
+        x.symbol,
+        2 * y.symbol,
+        True,
+        "Temporary approximation that recovers its validity from y being positive.",
+    )
+    return x, y
+
+
+def test_recovered_approximation_validity_detects_violated_domain(registry_snapshot):
+    x, y = _recovered_domain_approximation()
+    result = resolve(x.name, assignments={y.name: -1.0})
     check = next(
         c for c in result.approximation_validity
-        if c.equation == "physical.eq.lithography_source_nuclear_radius_coefficient"
+        if c.equation == "test.eq.recovered_domain"
     )
     assert check.satisfied is False
     assert check.missing == set()
 
 
-def test_recovered_approximation_validity_stays_symbolic_when_domain_missing():
-    result = resolve("physical.lithography.source_nuclear_radius_coefficient")
+def test_recovered_approximation_validity_stays_symbolic_when_domain_missing(
+    registry_snapshot,
+):
+    x, y = _recovered_domain_approximation()
+    result = resolve(x.name)
     check = next(
         c for c in result.approximation_validity
-        if c.equation == "physical.eq.lithography_source_nuclear_radius_coefficient"
+        if c.equation == "test.eq.recovered_domain"
     )
     assert check.satisfied is None
-    assert check.missing == {
-        "physical.lithography.source_binding_coulomb_coefficient"
-    }
+    assert check.missing == {y.name}

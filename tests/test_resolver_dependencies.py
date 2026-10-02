@@ -14,7 +14,7 @@ from gpu_stack import Registry
 from gpu_stack.core import IterativeEquation
 from gpu_stack.core.resolver import _value_dependencies
 from gpu_stack.core.variable import Variable
-from tests.helpers.registry import registry_snapshot
+from tests.helpers.registry import registry_snapshot  # noqa: F401  (pytest fixture)
 
 
 def _resolver_dep_names(equation_name):

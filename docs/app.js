@@ -1,345 +1,143 @@
-// The guide copy and numbers shown on the page. Keep them aligned with the
-// README summaries, because readers will compare the two.
-const primerSteps = {
-  target: {
-    text: "Start with a human question, then follow the named dependencies upstream. Every hop should tell you whether you are looking at an equation, a scenario value, or an unresolved root input.",
-    facts: [
-      "The registry currently names 1517 variables and 950 equations.",
-      "The target is easier to trust when its ancestry is still attached."
-    ],
-    statusTitle: "Target selected: start with the question.",
-    statusBody: "The page keeps the output attached to the labels underneath it.",
-    active: ["target"]
-  },
-  upstream: {
-    text: "Walking upstream means refusing to let a final number float by itself. The graph keeps run cost, token count, power, throughput, units, and constraints in the same visible chain.",
-    facts: [
-      "884 equations are currently covered by unit checks.",
-      "The gold highlight marks the part of the receipt you are inspecting."
-    ],
-    statusTitle: "Upstream selected: equations carry the number.",
-    statusBody: "This is where a plain claim becomes a dependency cone.",
-    active: ["target", "upstream"]
-  },
-  roots: {
-    text: "Root inputs are not failure badges. They are the places where the model has reached a boundary: a scenario value, a source that needs better support, or physics that has not been decomposed yet.",
-    facts: [
-      "619 root inputs are still visible in the current summary.",
-      "Root debt ranks which unknowns have the largest downstream blast radius."
-    ],
-    statusTitle: "Roots selected: unpaid assumptions stay named.",
-    statusBody: "The point is to find the debt, not hide it under a cleaner-looking answer.",
-    active: ["target", "upstream", "roots"]
-  },
-  fixture: {
-    text: "A fixture is a reproducible set of explicit assignments. It can make a target resolve for testing and explanation, but it is not a claim that the outside world has that exact value.",
-    facts: [
-      "Synthetic fixtures are anchors for the resolver, not vendor truth.",
-      "The trace panel below shows how representative fixture values are labeled."
-    ],
-    statusTitle: "Fixture selected: resolved does not mean calibrated.",
-    statusBody: "Explicit assignments make the path testable without pretending the assumptions vanished.",
-    active: ["target", "upstream", "roots", "fixture"]
+// CuperOS desktop: two windows (Story, Calculator) and a link to the Lab.
+// On phones the windows become plain full-width pages with a tab bar on top.
+(() => {
+  "use strict";
+
+  const phone = window.matchMedia("(max-width: 760px)");
+  const windows = {};
+  document.querySelectorAll("[data-window]").forEach((node) => { windows[node.dataset.window] = node; });
+  const tasks = [...document.querySelectorAll("[data-task]")];
+  const tabs = [...document.querySelectorAll(".phone-tabs [data-open]")];
+  let front = "story";
+  let zCounter = 5;
+
+  function isOpen(name) {
+    return Boolean(windows[name]) && !windows[name].hidden;
   }
-};
 
-const layers = {
-  datacenter: {
-    text: "The visible machine is a building, but the model treats it as a constraint bundle: grid interconnect, substations, cooling loops, water, occupancy, capex, operations, and uptime.",
-    facts: [
-      "Inputs include power envelope, PUE, utilization, cooling load, and build cost.",
-      "Outputs feed cluster capacity, cost allocation, emissions, and schedule pressure."
-    ],
-    stack: ["Grid", "Substation", "Cooling", "Power envelope", "Cluster capacity", "Cost per token"]
-  },
-  gpu: {
-    text: "The GPU layer ties compute units, memory bandwidth, HBM capacity, interconnect, thermal limits, and board power to the throughput the training job actually sees.",
-    facts: [
-      "Peak FLOP/s is only one ceiling among several.",
-      "Memory bandwidth, precision, and activation traffic can dominate."
-    ],
-    stack: ["SMs", "Tensor cores", "HBM", "Package power", "MFU", "Tokens per second"]
-  },
-  kernel: {
-    text: "The kernel layer is where high-level operations become instructions, memory movement, occupancy, launch overhead, and numerical format choices.",
-    facts: [
-      "A model-level equation can hide several kernel-level bottlenecks.",
-      "PTX, tiling, fusion, and quantization all change the usable machine."
-    ],
-    stack: ["Operation", "Tiling", "Fusion", "Memory traffic", "Occupancy", "Effective throughput"]
-  },
-  model: {
-    text: "The model layer asks how parameters, sequence length, batch size, optimizer state, activation storage, and data schedule become compute and memory demand.",
-    facts: [
-      "Training cost is not one equation. It is a stack of coupled choices.",
-      "Context length and activation strategy reshape the memory problem."
-    ],
-    stack: ["Parameters", "Tokens", "Context", "Batch", "Optimizer", "Compute demand"]
-  },
-  physics: {
-    text: "The physical-floor layer is the north star: keep decomposing until a number is grounded in a measured property, a derivable relation, or an honestly marked scenario assumption.",
-    facts: [
-      "Thermal, electrical, optical, and material limits are not background color.",
-      "Universal constants are the preferred hard numerical floor."
-    ],
-    stack: ["Geometry", "Materials", "Heat", "Charge", "Constants", "Constraint floor"]
-  },
-  economics: {
-    text: "The economic layer is where hardware, power, time, reliability, labor, utilization, financing, and token demand meet inside outputs like cost per token.",
-    facts: [
-      "A price is not a primitive number. It has upstream machinery.",
-      "Root debt is especially useful here because economics tempts hand-waving."
-    ],
-    stack: ["Capex", "Opex", "Utilization", "Amortization", "Throughput", "Cost per token"]
+  function mountCalculator() {
+    const root = document.getElementById("calculator-root");
+    if (!root || root.dataset.mounted) return;
+    const api = window.GPUStackCalculator;
+    if (api && typeof api.mount === "function") {
+      root.dataset.mounted = "1";
+      api.mount(root);
+    } else {
+      root.replaceChildren();
+      const note = document.createElement("p");
+      note.className = "coming-soon";
+      note.textContent = "Calculator coming soon";
+      root.append(note);
+    }
   }
-};
 
-const traces = {
-  cost: {
-    summary: "Cost per token is not a lone price. It depends on run cost, token count, facility power, throughput, utilization, hardware choices, and root assumptions that still need better evidence.",
-    facts: [
-      "The dense cost fixture resolves 4 of 4 advertised targets.",
-      "The representative fixture value is 3.000078e-06, and the README marks it synthetic."
-    ],
-    note: "This path is why the project keeps economics attached to physics. A price can inherit assumptions from power, cooling, utilization, kernels, and lower physical boundaries.",
-    meterLabel: "scenario-report resolves 4 of 4 targets",
-    meterFoot: "status: ok, issue_count: 0",
-    meterScale: "1",
-    path: [
-      ["econ.cost.per_token", "target", "What does one token cost?"],
-      ["econ.run.power_cost", "equation", "Power has to be paid for."],
-      ["econ.job.dc_power", "scenario", "Fixture value: 5200.0."],
-      ["training.tokens_per_sec", "scenario", "Fixture value: 6666666.66666667."],
-      ["cluster and cooling", "constraint", "PUE and facility overhead enter here."],
-      ["physical roots", "root", "Unresolved assumptions stay named."]
-    ]
-  },
-  throughput: {
-    summary: "Tokens per second is the visible training speed, but the graph treats it as the result of model math, kernels, communication, bubbles, memory traffic, and available hardware.",
-    facts: [
-      "MFU means Model FLOPs Utilization.",
-      "HBM bandwidth and communication can matter as much as raw peak FLOP/s."
-    ],
-    note: "The trace view keeps the easy phrase, faster training, connected to the things that actually move it: tensors, kernels, collectives, memory, topology, and utilization.",
-    meterLabel: "representative fixture: 6666666.66666667 tokens/s",
-    meterFoot: "synthetic anchor, not vendor truth",
-    meterScale: "0.82",
-    path: [
-      ["training.tokens_per_sec", "target", "How fast do tokens move?"],
-      ["training.step_time", "equation", "Compute plus comms plus bubbles."],
-      ["kernel throughput", "equation", "Tiling, fusion, occupancy."],
-      ["gpu.peak_flops", "variable", "Ceiling, not guarantee."],
-      ["memory and HBM", "constraint", "Traffic can become the bottleneck."],
-      ["process roots", "root", "Device limits need physical support."]
-    ]
-  },
-  power: {
-    summary: "Datacenter power is a rollup, not a wall-plug vibe. IT load, cooling, racks, auxiliary systems, PUE, utilization, and scenario boundaries all feed the number.",
-    facts: [
-      "PUE means Power Usage Effectiveness.",
-      "The representative dense fixture reports econ.job.dc_power = 5200.0."
-    ],
-    note: "This is the layer where non-experts can see why cooling and facility assumptions are part of model training, not an external footnote.",
-    meterLabel: "representative fixture: econ.job.dc_power = 5200.0",
-    meterFoot: "explicit fixture assignment path",
-    meterScale: "0.68",
-    path: [
-      ["econ.job.dc_power", "target", "What power does the job imply?"],
-      ["cluster.site.power_it", "equation", "GPU and infrastructure load."],
-      ["thermal.dc.pue", "scenario", "Facility overhead multiplier."],
-      ["cooling plant", "constraint", "Heat has to leave the building."],
-      ["racks and nodes", "variable", "Topology sets the rollup."],
-      ["thermal roots", "root", "Local behavior stays inspectable."]
-    ]
-  }
-};
-
-// Static DOM hooks for the three interactive panels.
-const primerTabs = document.querySelectorAll("[data-primer]");
-const primerNodes = document.querySelectorAll("[data-primer-node]");
-const primerText = document.getElementById("primer-text");
-const primerFacts = document.getElementById("primer-facts");
-const primerStatusTitle = document.getElementById("primer-status-title");
-const primerStatusBody = document.getElementById("primer-status-body");
-const tabs = document.querySelectorAll("[data-layer]");
-const targetTabs = document.querySelectorAll("[data-target]");
-const layerText = document.getElementById("layer-text");
-const layerFacts = document.getElementById("layer-facts");
-const stack = document.getElementById("dependency-stack");
-const traceSummary = document.getElementById("trace-summary");
-const traceFacts = document.getElementById("trace-facts");
-const tracePath = document.getElementById("trace-path");
-const traceNote = document.getElementById("trace-note");
-const traceMeterLabel = document.getElementById("trace-meter-label");
-const traceMeterFoot = document.getElementById("trace-meter-foot");
-const traceMeter = document.getElementById("trace-meter");
-const clock = document.getElementById("clock");
-
-// Each render helper swaps out only the content inside its panel. The
-// surrounding markup never changes, so the page structure stays stable.
-function renderPrimer(key) {
-  const step = primerSteps[key];
-  primerText.textContent = step.text;
-  primerFacts.replaceChildren(...step.facts.map((fact) => {
-    const item = document.createElement("li");
-    item.textContent = fact;
-    return item;
-  }));
-  primerStatusTitle.textContent = step.statusTitle;
-  primerStatusBody.textContent = step.statusBody;
-  primerNodes.forEach((node) => {
-    const active = step.active.includes(node.dataset.primerNode);
-    node.classList.toggle("is-lit", active);
-    node.classList.toggle("is-active", node.dataset.primerNode === key);
-  });
-  primerTabs.forEach((tab) => {
-    tab.setAttribute("aria-selected", String(tab.dataset.primer === key));
-  });
-}
-
-function renderLayer(key) {
-  const layer = layers[key];
-  layerText.textContent = layer.text;
-  layerFacts.replaceChildren(...layer.facts.map((fact) => {
-    const item = document.createElement("li");
-    item.textContent = fact;
-    return item;
-  }));
-  stack.replaceChildren(...layer.stack.map((item, index) => {
-    const row = document.createElement("div");
-    row.className = `dependency-row${index === layer.stack.length - 1 ? " active" : ""}`;
-    row.style.setProperty("--i", String(index));
-    const label = document.createElement("span");
-    label.textContent = item;
-    const depth = document.createElement("span");
-    depth.textContent = index === layer.stack.length - 1 ? "output" : `depth ${index + 1}`;
-    row.append(label, depth);
-    return row;
-  }));
-  tabs.forEach((tab) => {
-    tab.setAttribute("aria-selected", String(tab.dataset.layer === key));
-  });
-}
-
-function renderTrace(key) {
-  const trace = traces[key];
-  traceSummary.textContent = trace.summary;
-  traceFacts.replaceChildren(...trace.facts.map((fact) => {
-    const item = document.createElement("li");
-    item.textContent = fact;
-    return item;
-  }));
-  tracePath.replaceChildren(...trace.path.map(([labelText, role, detail], index) => {
-    const node = document.createElement("div");
-    node.className = `trace-node${index === trace.path.length - 1 ? " active" : ""}`;
-    node.style.setProperty("--i", String(index));
-    const roleLabel = document.createElement("small");
-    roleLabel.textContent = role;
-    const label = document.createElement("b");
-    label.textContent = labelText;
-    const text = document.createElement("span");
-    text.textContent = detail;
-    node.append(roleLabel, label, text);
-    return node;
-  }));
-  traceNote.textContent = trace.note;
-  traceMeterLabel.textContent = trace.meterLabel;
-  traceMeterFoot.textContent = trace.meterFoot;
-  traceMeter.style.setProperty("--meter-scale", trace.meterScale);
-  targetTabs.forEach((tab) => {
-    tab.setAttribute("aria-selected", String(tab.dataset.target === key));
-  });
-}
-
-function updateClock() {
-  const now = new Date();
-  const h = now.getHours() % 12 || 12;
-  const m = now.getMinutes().toString().padStart(2, "0");
-  clock.textContent = `${h}:${m} ${now.getHours() >= 12 ? "PM" : "AM"}`;
-}
-
-// Wire controls after the static page has parsed.
-primerTabs.forEach((tab) => {
-  tab.addEventListener("click", () => renderPrimer(tab.dataset.primer));
-});
-
-tabs.forEach((tab) => {
-  tab.addEventListener("click", () => renderLayer(tab.dataset.layer));
-});
-
-targetTabs.forEach((tab) => {
-  tab.addEventListener("click", () => renderTrace(tab.dataset.target));
-});
-
-// Each panel checks its own DOM hooks before rendering, so one missing
-// element cannot take down the other panels.
-if (primerText && primerFacts && primerStatusTitle && primerStatusBody) {
-  renderPrimer("target");
-}
-if (layerText && layerFacts && stack) {
-  renderLayer("datacenter");
-}
-if (traceSummary && traceFacts && tracePath && traceNote && traceMeter && traceMeterLabel && traceMeterFoot) {
-  renderTrace("cost");
-}
-if (clock) {
-  updateClock();
-  setInterval(updateClock, 1000);
-}
-
-// Cone diagram: clicking a layer explains what it owes. Clicking the active
-// layer again restores the default caption.
-(function initConeDiagram() {
-  const diagram = document.getElementById("cone-diagram");
-  const note = document.getElementById("cone-diagram-note");
-  if (!diagram || !note) {
-    return;
-  }
-  const defaultNote = note.textContent;
-  const layers = [...diagram.querySelectorAll(".cone-layer")];
-  layers.forEach((layer) => {
-    layer.addEventListener("click", () => {
-      const wasActive = layer.classList.contains("is-active");
-      layers.forEach((other) => other.classList.remove("is-active"));
-      if (wasActive) {
-        note.textContent = defaultNote;
-        return;
-      }
-      layer.classList.add("is-active");
-      note.textContent = layer.dataset.coneNote || defaultNote;
+  function refresh() {
+    tasks.forEach((button) => {
+      const name = button.dataset.task;
+      button.classList.toggle("is-active", isOpen(name) && front === name);
+      button.setAttribute("aria-pressed", String(isOpen(name)));
     });
-  });
-})();
-
-// Scroll reveals. Content is only hidden after html.js-anim is set, so a
-// reader without JS, without IntersectionObserver, or with reduced motion
-// requested always gets the fully visible page. Hiding first and revealing
-// later would break for exactly those readers.
-(function initReveals() {
-  const motionOk = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!("IntersectionObserver" in window) || !motionOk) {
-    return;
-  }
-  const targets = document.querySelectorAll(
-    ".primer-panel, .journey-strip, .section-window, .stat-grid .stat, " +
-    ".glossary-grid .glossary-term, .dialog-grid .dialog-body, .timeline-row"
-  );
-  if (!targets.length) {
-    return;
-  }
-  targets.forEach((el, index) => {
-    el.classList.add("reveal");
-    // Stagger siblings that arrive in the same viewport batch.
-    el.style.setProperty("--reveal-i", String(index % 4));
-  });
-  document.documentElement.classList.add("js-anim");
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("in-view");
-        observer.unobserve(entry.target);
-      }
+    tabs.forEach((tab) => {
+      if (tab.dataset.open === front) tab.setAttribute("aria-current", "page");
+      else tab.removeAttribute("aria-current");
     });
-  }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
-  targets.forEach((el) => observer.observe(el));
+    Object.entries(windows).forEach(([name, node]) => node.classList.toggle("is-front", isOpen(name) && front === name));
+  }
+
+  function open(name, options = {}) {
+    const node = windows[name];
+    if (!node) return;
+    if (phone.matches) {
+      Object.entries(windows).forEach(([other, el]) => { el.hidden = other !== name; });
+    } else {
+      node.hidden = false;
+    }
+    node.classList.remove("is-max");
+    front = name;
+    zCounter += 1;
+    node.style.zIndex = String(zCounter);
+    if (name === "calculator") mountCalculator();
+    refresh();
+    if (options.updateHash !== false && window.history && window.history.replaceState) {
+      const hash = name === "story" && !window.location.hash ? "" : `#${name}`;
+      if (window.location.hash !== hash && hash) window.history.replaceState(null, "", hash);
+    }
+  }
+
+  function close(name) {
+    const node = windows[name];
+    if (!node || phone.matches) return;
+    node.hidden = true;
+    if (front === name) {
+      front = Object.keys(windows).find(isOpen) || "";
+    }
+    refresh();
+  }
+
+  document.addEventListener("click", (event) => {
+    const opener = event.target.closest("[data-open]");
+    if (opener) {
+      event.preventDefault();
+      open(opener.dataset.open);
+      return;
+    }
+    const task = event.target.closest("[data-task]");
+    if (task) {
+      const name = task.dataset.task;
+      if (isOpen(name) && front === name && !phone.matches) close(name);
+      else open(name);
+      return;
+    }
+    const action = event.target.closest("[data-window-action]");
+    if (action) {
+      const node = action.closest("[data-window]");
+      if (!node) return;
+      const name = node.dataset.window;
+      if (action.dataset.windowAction === "max") node.classList.toggle("is-max");
+      else close(name);
+      return;
+    }
+    const win = event.target.closest("[data-window]");
+    if (win && !phone.matches && win.dataset.window !== front) open(win.dataset.window, { updateHash: false });
+  });
+
+  phone.addEventListener("change", () => {
+    if (phone.matches) {
+      const name = isOpen(front) ? front : "story";
+      open(name, { updateHash: false });
+    } else {
+      windows.story.hidden = false;
+      refresh();
+    }
+  });
+
+  function start() {
+    const wanted = window.location.hash.slice(1);
+    if (phone.matches) {
+      open(windows[wanted] ? wanted : "story", { updateHash: false });
+    } else {
+      windows.story.hidden = false;
+      open("story", { updateHash: false });
+      if (wanted === "calculator") open("calculator", { updateHash: false });
+    }
+    refresh();
+  }
+
+  window.addEventListener("hashchange", () => {
+    const wanted = window.location.hash.slice(1);
+    if (windows[wanted]) open(wanted, { updateHash: false });
+  });
+
+  const clock = document.getElementById("clock");
+  function tick() {
+    if (!clock) return;
+    const now = new Date();
+    const hours = now.getHours() % 12 || 12;
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    clock.textContent = `${hours}:${minutes} ${now.getHours() >= 12 ? "PM" : "AM"}`;
+  }
+  tick();
+  window.setInterval(tick, 30000);
+
+  start();
 })();

@@ -30,12 +30,11 @@ from .resolver_advanced import (
     _find_small_cycles,
     _not_selectable_alternatives,
     _selection_reason_for_equation,
-    enrich_trace_step_reason,
     resolve_small_system,
     try_fallback_for_step,
 )
 from .resolver_diagnostics import (
-    _boundary_family,
+    _boundary_family,  # noqa: F401  (re-exported for cli_root_debt)
     _constraint_evaluation_scope,
     _describe_constraint_violations,
     _describe_unresolved_inputs,
@@ -67,7 +66,6 @@ from .resolver_selection import (
     _normalize_assignments,
     _select_equation,
     _validate_variant_selectors,
-    _variant_keys,
 )
 from .variable import Variable
 
@@ -301,7 +299,6 @@ def _topo_order_with_cycle_handling(
 
     # Find which nodes are NOT part of cycles by progressively excluding
     # nodes that form a cycle.
-    from .resolver_graph import _value_dependencies
     from .resolver_selection import _select_equation as _se
 
     cone_set = {v.name for v in cone}

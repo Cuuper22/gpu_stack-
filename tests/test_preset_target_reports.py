@@ -222,10 +222,10 @@ def test_preset_evaluate_targets_deduplicates_aggregate_missing_families():
         ) == _field(target, "missing_count")
 
 
-def test_preset_evaluate_targets_report_has_no_aggregate_missing_families_for_euv():
-    preset = scenarios.euv_tin120_lpp_source_context_assumption
+def test_preset_evaluate_targets_report_has_no_aggregate_missing_families_for_clean_pack():
+    preset = scenarios.pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost
 
-    report = preset.evaluate_targets(scenarios.EUV_TIN120_SOURCE_TARGETS.items())
+    report = preset.evaluate_targets(scenarios.scenario_targets_for(preset))
 
     assert _field(report, "status") == "ok"
     assert _field(report, "issue_count") == 0

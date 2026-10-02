@@ -24,7 +24,7 @@ import pytest
 from gpu_stack import Registry
 from gpu_stack.core import Preset
 from gpu_stack.core.resolver import AmbiguousVariant, ResolverError, Underdetermined
-from gpu_stack.presets import hardware, lithography, materials, scenarios
+from gpu_stack.presets import hardware, scenarios  # noqa: F401  (registers presets)
 
 
 USER_FACING_TARGETS: Mapping[str, str] = {
@@ -123,23 +123,8 @@ ECONOMICS_PREFIXES = (
     "thermal.facility.",
 )
 
-FORBIDDEN_EUV_TIN_SOURCE_ROOTS = {
-    "physical.lithography.source_plasma_drive_pulse_fluence",
-    "physical.lithography.source_plasma_species_partial_pressure",
-    "physical.lithography.source_plasma_species_gas_temperature",
-}
-
-EUV_TIN120_SCENARIO_NAME = "euv_tin120_lpp_source_context_assumption"
 PYTHIA_DGX_H100_ENERGY_FLOOR_SCENARIO_NAME = (
     "pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost"
-)
-
-CALIBRATION_ASSIGNMENT_MARKERS = (
-    "binding_volume_coefficient",
-    "binding_surface_coefficient",
-    "binding_coulomb_coefficient",
-    "binding_asymmetry_coefficient",
-    "pairing_gap_reference_energy",
 )
 
 EXPLICIT_ASSUMPTION_CLOSURE_MARKERS = (
@@ -246,18 +231,6 @@ def _public_advertised_targets_for(preset: Preset) -> tuple[tuple[str, str], ...
             pytest.fail(f"{preset.name!r} has malformed target variable {target!r}")
         normalized.append((label, target))
     return tuple(normalized)
-
-
-def _semf_calibration_roots() -> set[str]:
-    try:
-        from gpu_stack.presets import nuclear
-    except ImportError as exc:  # pragma: no cover - assertion message path
-        pytest.fail(f"missing public nuclear calibration API: {exc}")
-
-    roots = getattr(nuclear, "SEMF_CALIBRATION_ROOTS", None)
-    if roots is None:
-        pytest.fail("missing public nuclear API: SEMF_CALIBRATION_ROOTS")
-    return set(roots)
 
 
 def _iter_inventory() -> Iterable[Preset]:

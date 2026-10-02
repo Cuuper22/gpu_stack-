@@ -16,18 +16,19 @@
   const CHECKPOINT_ENERGY_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-checkpoint-energy.v2";
   const CHECKPOINT_ENERGY_RAW_ARTIFACT_URL = "data/e002-checkpoint-energy-raw-v2.json";
   const CHECKPOINT_ENERGY_RAW_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-checkpoint-energy.raw.v2";
-  const RACK_DEPHASING_ARTIFACT_URL = "data/e002-rack-dephasing-v3.json";
-  const RACK_DEPHASING_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e002-rack-dephasing.v3";
   const SEMANTIC_CONSISTENCY_ARTIFACT_URL = "data/e001-semantic-consistency-v1.json";
   const SEMANTIC_CONSISTENCY_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001-semantic-consistency.v1";
   const SEMANTIC_CONSISTENCY_RAW_ARTIFACT_URL = "data/e001-semantic-consistency-raw-v1.json";
   const SEMANTIC_CONSISTENCY_RAW_ARTIFACT_SCHEMA = "gpu-stack.causal-observatory.e001-semantic-consistency.raw.v1";
   const SVG_NS = "http://www.w3.org/2000/svg";
+  // data-cache.js shares one download per file with webmcp-mission.js; fall back to plain fetch.
+  const sharedFetch = (url) => (window.GPUStackData
+    ? window.GPUStackData.fetch(url)
+    : fetch(url, { headers: { Accept: "application/json" } }));
   const VALID_DEPTHS = new Set(["freshman", "researcher", "full_trace"]);
-  const VALID_EXPERIMENTS = new Set(["E001-SC1", "E001"]);
+  const VALID_EXPERIMENTS = new Set(["E001-SC1", "E001"]); // view ids; kept as data keys, never shown
   const VALID_POLICIES = new Set(["synchronous", "fixed_local", "adaptive_cadence"]);
   const VALID_UNCERTAINTY = new Set(["intervals", "point"]);
-  const VALID_RACK_COMPARATORS = new Set(["synchronized", "random_jitter"]);
   const POLICY_ORDER = ["synchronous", "fixed_local", "adaptive_cadence"];
   const POLICY_LABELS = {
     synchronous: "Synchronous",
@@ -165,7 +166,7 @@
       evidence_class: "unmeasured",
       freshman: "The real question stays unanswered until training quality is measured.",
       researcher: "Prior-projected equivalent-progress time is shown only as sensitivity, never as a falsifier result.",
-      full_trace: "No held-out multi-site learning observation is attached to E001's current artifact.",
+      full_trace: "No held-out multi-site learning observation is attached to the current artifact.",
     },
   ]);
 
@@ -199,8 +200,6 @@
   let checkpointEnergyRawArtifact = null;
   let checkpointEnergyRawArtifactError = null;
   let checkpointEnergyRawLoad = null;
-  let rackDephasingArtifact = null;
-  let rackDephasingArtifactError = null;
   let semanticConsistencyArtifact = null;
   let semanticConsistencyArtifactError = null;
   let semanticConsistencyRawArtifact = null;
@@ -265,22 +264,29 @@
   // companion. Nothing here changes a value or a verdict; it only restates.
   const PLAIN_WORDS = {
     abstain_without_policy_claim:
-      "We stress-tested the controller in conditions it had never seen. It noticed it was out of its depth, logged an honest fallback 104 times, and declined to call itself the winner. That refusal is the result, and it is the most trustworthy behavior a controller can show.",
+      "The adaptive controller lost to a simpler rule, periodic_local, where two sites train on their own and average their weights every 8 steps. On held-out learning it was worse in 6 of 6 test families and it sent about twice the data between sites. Separately, periodic_local beat fully synchronous training in all 10 families. A later replication (R001) found why: averaging smooths the noise of a constant learning rate, and synchronous training with weight averaging does even better. The 104 abstentions came from how the test scenarios were set up. They did not change any decision.",
     candidate_falsified_equal_canonical_work:
-      "With the workload held exactly equal, the adaptive policy kept learning quality and finished sooner, but drew more energy than the rule frozen before the run allowed. The experiment's own rule killed the claim. That is the system working.",
+      "At equal work, the adaptive policy learned slightly worse (worse in 6 of 6 schedules, by a small margin) and saved about 3% of the work. Its energy came out 1.07 times higher on a meter too noisy for the 1.05 bar. The valid counter later gave 1.02. So the energy question is open, not settled either way.",
     candidate_falsified_small_model_calibration:
-      "On this small test model, the clever adaptive policy did not beat the boring baseline. The hypothesis lost, and the loss is recorded instead of retried until it flattered us.",
+      "This test could not see the question. Every run hit the target at the first check, and the per-FLOP score favored whichever policy did less work. The label says falsified. The evidence says the hypothesis was never tested.",
     checkpoint_cadence_attributed_sparse_continuation_survives:
-      "Checkpoint timing really was the cause of the extra energy draw, and the lighter checkpointing variant passed every gate. One real causal result, valid for one GPU on one workload, and not a datacenter claim.",
+      "Dense checkpointing used a bit more energy, but replaying lost work cost more than writing snapshots, so \u201ccheckpoint timing caused it\u201d is not shown. The lighter checkpointing variant used about 3% less energy. One GPU, one small model, six pairs. Not a datacenter claim.",
     measurement_invalid:
       "The power meter turned out to sample about 25 times slower than requested, so every energy number from this run was thrown out instead of quietly kept. A broken measurement gets recorded as broken.",
     inconclusive_frontier_hypothesis:
-      "The virtual mechanics ran and every event is inspectable, but nothing here proves the big multi-datacenter question either way yet.",
+      "These modeled runs read their own inputs back. They show how the simulator's mechanics work, not what a real datacenter does.",
     protocol_failed_calibration_validity:
       "The experiment's own preflight checks failed, so it stopped before making any claim.",
     protocol_failed_warm_start_not_late_stage:
       "The experiment's own preflight checks failed, so it stopped before making any claim.",
   };
+
+  function gateBadge(state, override) {
+    const label = override || (state === "pass" ? "Met" : state === "fail" ? "Not met" : "Unclear");
+    const badge = element("span", "gate-badge", label);
+    badge.dataset.badge = label.toLowerCase().replaceAll(" ", "-");
+    return badge;
+  }
 
   function setPlainWords(id, conclusionKey) {
     const target = document.getElementById(id);
@@ -375,15 +381,13 @@
   function sanitizeState(candidate) {
     const timeCandidate = Number(candidate.time);
     return {
-      experiment: VALID_EXPERIMENTS.has(candidate.experiment) ? candidate.experiment : "E001-SC1",
+      experiment: VALID_EXPERIMENTS.has(candidate.experiment) ? candidate.experiment : "E001",
       policy: VALID_POLICIES.has(candidate.policy) ? candidate.policy : "synchronous",
       node: typeof candidate.node === "string" && candidate.node.trim() && candidate.node.length <= 300 ? candidate.node : "event:central-curtailment-1",
       event: typeof candidate.event === "string" && candidate.event.trim() && candidate.event.length <= 300 ? candidate.event : "central-curtailment-1",
       time: Number.isFinite(timeCandidate) && timeCandidate >= 0 ? timeCandidate : 100,
       depth: VALID_DEPTHS.has(candidate.depth) ? candidate.depth : "freshman",
       uncertainty: VALID_UNCERTAINTY.has(candidate.uncertainty) ? candidate.uncertainty : "intervals",
-      rackBlock: typeof candidate.rackBlock === "string" && candidate.rackBlock.length <= 80 ? candidate.rackBlock : "",
-      rackComparator: VALID_RACK_COMPARATORS.has(candidate.rackComparator) ? candidate.rackComparator : "synchronized",
       semanticFamily: typeof candidate.semanticFamily === "string" && candidate.semanticFamily.length <= 120 ? candidate.semanticFamily : "",
       semanticRun: typeof candidate.semanticRun === "string" && candidate.semanticRun.length <= 180 ? candidate.semanticRun : "",
     };
@@ -403,9 +407,6 @@
     url.searchParams.set("time", String(Math.round(state.time * 1000000) / 1000000));
     url.searchParams.set("depth", state.depth);
     url.searchParams.set("uncertainty", state.uncertainty);
-    if (state.rackBlock) url.searchParams.set("rackBlock", state.rackBlock);
-    else url.searchParams.delete("rackBlock");
-    url.searchParams.set("rackComparator", state.rackComparator);
     if (state.semanticFamily) url.searchParams.set("semanticFamily", state.semanticFamily);
     else url.searchParams.delete("semanticFamily");
     if (state.semanticRun) url.searchParams.set("semanticRun", state.semanticRun);
@@ -632,27 +633,6 @@
     return value;
   }
 
-  function validateRackDephasingArtifact(value) {
-    const record = (candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate);
-    if (!record(value)) throw new ArtifactContractError("rack-dephasing artifact root is not an object");
-    if (value.schema !== RACK_DEPHASING_ARTIFACT_SCHEMA) throw new ArtifactContractError(`unsupported rack-dephasing schema: ${String(value.schema || "missing")}`);
-    if (value.experiment_id !== "E002-PW3") throw new ArtifactContractError("rack-dephasing artifact experiment_id is not E002-PW3");
-    if (typeof value.artifact_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(value.artifact_sha256)) throw new ArtifactContractError("rack-dephasing artifact sha256 is invalid");
-    ["freshman", "researcher", "full_trace", "source_result", "evidence_boundary", "next_experiment"].forEach((key) => {
-      if (!record(value[key])) throw new ArtifactContractError(`rack-dephasing artifact ${key} is missing`);
-    });
-    if (!Array.isArray(value.freshman.cards) || value.freshman.cards.length !== 4) throw new ArtifactContractError("rack-dephasing freshman cards are incomplete");
-    if (!Array.isArray(value.researcher.active_invalidators) || !Array.isArray(value.researcher.waveform_blocks)) throw new ArtifactContractError("rack-dephasing researcher evidence is incomplete");
-    if (!Array.isArray(value.full_trace.blocks) || !finiteNumber(value.full_trace.block_count) || !finiteNumber(value.full_trace.arm_count)) throw new ArtifactContractError("rack-dephasing full trace is incomplete");
-    value.researcher.waveform_blocks.forEach((block) => {
-      if (!record(block) || typeof block.block_id !== "string" || !Array.isArray(block.arms)) throw new ArtifactContractError("rack-dephasing waveform block is invalid");
-      block.arms.forEach((arm) => {
-        if (!record(arm) || typeof arm.policy_id !== "string" || !record(arm.event_summary) || !Array.isArray(arm.event_summary.display_events)) throw new ArtifactContractError("rack-dephasing waveform arm is invalid");
-      });
-    });
-    return value;
-  }
-
   function validateSemanticConsistencyArtifact(value) {
     const record = (candidate) => candidate && typeof candidate === "object" && !Array.isArray(candidate);
     if (!record(value)) throw new ArtifactContractError("semantic-consistency artifact root is not an object");
@@ -692,7 +672,7 @@
 
   async function loadArtifact() {
     try {
-      const response = await fetch(ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(ARTIFACT_URL);
       if (!response.ok) throw new Error(`artifact request returned ${response.status}`);
       artifact = validateArtifact(await response.json());
       artifactError = null;
@@ -707,7 +687,7 @@
 
   async function loadRecoveryArtifact() {
     try {
-      const response = await fetch(RECOVERY_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(RECOVERY_ARTIFACT_URL);
       if (!response.ok) throw new Error(`recovery artifact request returned ${response.status}`);
       recoveryArtifact = validateRecoveryArtifact(await response.json());
       recoveryArtifactError = null;
@@ -722,7 +702,7 @@
 
   async function loadLearningArtifact() {
     try {
-      const response = await fetch(LEARNING_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(LEARNING_ARTIFACT_URL);
       if (!response.ok) throw new Error(`learning artifact request returned ${response.status}`);
       learningArtifact = validateLearningArtifact(await response.json());
       learningArtifactError = null;
@@ -737,7 +717,7 @@
 
   async function loadEqualWorkArtifact() {
     try {
-      const response = await fetch(EQUAL_WORK_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(EQUAL_WORK_ARTIFACT_URL);
       if (!response.ok) throw new Error(`equal-work artifact request returned ${response.status}`);
       equalWorkArtifact = validateEqualWorkArtifact(await response.json());
       equalWorkArtifactError = null;
@@ -752,7 +732,7 @@
 
   async function loadCheckpointPowerArtifact() {
     try {
-      const response = await fetch(CHECKPOINT_POWER_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(CHECKPOINT_POWER_ARTIFACT_URL);
       if (!response.ok) throw new Error(`checkpoint-power artifact request returned ${response.status}`);
       checkpointPowerArtifact = validateCheckpointPowerArtifact(await response.json());
       checkpointPowerArtifactError = null;
@@ -771,7 +751,7 @@
     dom.checkpointpowerrawstate.textContent = "Loading the separate raw point artifact…";
     checkpointPowerRawLoad = (async () => {
       try {
-        const response = await fetch(CHECKPOINT_POWER_RAW_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+        const response = await sharedFetch(CHECKPOINT_POWER_RAW_ARTIFACT_URL);
         if (!response.ok) throw new Error(`checkpoint-power raw artifact request returned ${response.status}`);
         checkpointPowerRawArtifact = validateCheckpointPowerRawArtifact(await response.json());
         checkpointPowerRawArtifactError = null;
@@ -793,7 +773,7 @@
 
   async function loadCheckpointEnergyArtifact() {
     try {
-      const response = await fetch(CHECKPOINT_ENERGY_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(CHECKPOINT_ENERGY_ARTIFACT_URL);
       if (!response.ok) throw new Error(`checkpoint-energy artifact request returned ${response.status}`);
       checkpointEnergyArtifact = validateCheckpointEnergyArtifact(await response.json());
       checkpointEnergyArtifactError = null;
@@ -812,7 +792,7 @@
     dom.checkpointenergyrawstate.textContent = "Loading the separate cumulative-counter point artifact…";
     checkpointEnergyRawLoad = (async () => {
       try {
-        const response = await fetch(CHECKPOINT_ENERGY_RAW_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+        const response = await sharedFetch(CHECKPOINT_ENERGY_RAW_ARTIFACT_URL);
         if (!response.ok) throw new Error(`checkpoint-energy raw artifact request returned ${response.status}`);
         checkpointEnergyRawArtifact = validateCheckpointEnergyRawArtifact(await response.json());
         checkpointEnergyRawArtifactError = null;
@@ -832,24 +812,9 @@
     return checkpointEnergyRawLoad;
   }
 
-  async function loadRackDephasingArtifact() {
-    try {
-      const response = await fetch(RACK_DEPHASING_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
-      if (!response.ok) throw new Error(`rack-dephasing artifact request returned ${response.status}`);
-      rackDephasingArtifact = validateRackDephasingArtifact(await response.json());
-      rackDephasingArtifactError = null;
-      document.body.dataset.rackDephasingState = "ready";
-    } catch (error) {
-      rackDephasingArtifact = null;
-      rackDephasingArtifactError = error;
-      document.body.dataset.rackDephasingState = error instanceof ArtifactContractError ? "invalid" : "missing";
-    }
-    renderRackDephasingV3();
-  }
-
   async function loadSemanticConsistencyArtifact() {
     try {
-      const response = await fetch(SEMANTIC_CONSISTENCY_ARTIFACT_URL, { cache: "no-store", headers: { Accept: "application/json" } });
+      const response = await sharedFetch(SEMANTIC_CONSISTENCY_ARTIFACT_URL);
       if (!response.ok) throw new Error(`semantic-consistency artifact request returned ${response.status}`);
       semanticConsistencyArtifact = validateSemanticConsistencyArtifact(await response.json());
       semanticConsistencyArtifactError = null;
@@ -870,7 +835,7 @@
       try {
         const binding = semanticConsistencyArtifact && semanticConsistencyArtifact.full_trace.raw_trace_artifact;
         const uri = binding && typeof binding.uri === "string" && binding.uri ? binding.uri : SEMANTIC_CONSISTENCY_RAW_ARTIFACT_URL;
-        const response = await fetch(uri.startsWith("data/") ? uri : `data/${uri}`, { cache: "no-store", headers: { Accept: "application/json" } });
+        const response = await sharedFetch(uri.startsWith("data/") ? uri : `data/${uri}`);
         if (!response.ok) throw new Error(`semantic-consistency raw artifact request returned ${response.status}`);
         semanticConsistencyRawArtifact = validateSemanticConsistencyRawArtifact(await response.json());
         semanticConsistencyRawArtifactError = null;
@@ -892,13 +857,13 @@
 
   function cacheDOM() {
     [
-      "experiment-select", "share-state", "plain-answer", "artifact-state", "stage-boundary",
+      "share-state",
       "site-field-source", "site-viewport", "site-rail", "site-position", "causal-svg",
       "causal-fallback", "evidence-inspector", "inspector-title", "inspector-body", "inspector-close",
       "timeline-svg", "timeline-viewport", "timeline-readout", "time-scrubber", "previous-event",
       "next-event", "timeline-fallback", "uncertainty-select", "comparison-body", "comparison-boundary",
       "source-observation-body", "prior-parameters", "decision-ledger-body", "raw-trace-summary",
-      "raw-trace-json", "source-chain-item", "source-chain-label", "source-chain-evidence", "footer-evidence-state", "sr-status",
+      "raw-trace-json", "source-chain-item", "source-chain-label", "source-chain-evidence", "sr-status",
       "recovery-v2", "recovery-v2-state", "recovery-depth-copy", "recovery-timeline-svg",
       "recovery-timeline-fallback", "recovery-work-bars", "recovery-byte-bars",
       "recovery-completion-ruler", "recovery-learning-boundary", "recovery-learning-trace",
@@ -928,18 +893,8 @@
       "checkpoint-energy-run-select", "checkpoint-energy-run-ledger", "checkpoint-energy-counter-summary",
       "checkpoint-energy-phase-metrics", "checkpoint-energy-provenance-json", "checkpoint-energy-raw-details",
       "checkpoint-energy-raw-state", "checkpoint-energy-raw-meta", "checkpoint-energy-raw-points",
-      "rack-dephasing-v3", "rack-dephasing-v3-state", "rack-dephasing-eyebrow",
-      "rack-dephasing-insight-title", "rack-dephasing-plain-answer", "rack-dephasing-boundary-short",
-      "rack-dephasing-freshman-copy", "rack-dephasing-researcher-copy", "rack-dephasing-depth-trace",
-      "rack-dephasing-freshman-grid", "rack-dephasing-block-select", "rack-dephasing-comparator-select",
-      "rack-dephasing-waveform-svg", "rack-dephasing-waveform-desc", "rack-dephasing-waveform-fallback",
-      "rack-dephasing-effect-grid", "rack-dephasing-policy-body", "rack-dephasing-gate-summary",
-      "rack-dephasing-gate-strip", "rack-dephasing-evidence-boundary", "rack-dephasing-next-question",
-      "rack-dephasing-event-body", "rack-dephasing-trace-summary", "rack-dephasing-raw-manifest",
-      "rack-dephasing-provenance-json",
     ].forEach((id) => { dom[id.replaceAll("-", "")] = byId(id); });
     [
-      "experiment-kicker-code", "experiment-kicker-name", "experiment-question",
       "semantic-consistency-v1", "semantic-consistency-v1-state", "semantic-consistency-eyebrow",
       "semantic-consistency-insight-title", "semantic-consistency-plain-answer", "semantic-consistency-boundary-short",
       "semantic-consistency-freshman-copy", "semantic-consistency-researcher-copy", "semantic-consistency-depth-trace",
@@ -952,16 +907,20 @@
       "semantic-consistency-raw-state", "semantic-consistency-raw-meta",
     ].forEach((id) => { dom[id.replaceAll("-", "")] = byId(id); });
     dom.researchBand = document.querySelector(".research-band");
-    dom.depthButtons = [...document.querySelectorAll(".depth-control button")];
-    dom.experimentViews = [...document.querySelectorAll("[data-experiment-view]")];
+    dom.depthButtons = [];
   }
 
   function bindStaticInteractions() {
-    dom.depthButtons.forEach((button) => {
-      button.addEventListener("click", () => commitState({ depth: button.dataset.depth }));
-    });
-    dom.experimentselect.addEventListener("change", () => commitState({ experiment: dom.experimentselect.value }));
     dom.uncertaintyselect.addEventListener("change", () => commitState({ uncertainty: dom.uncertaintyselect.value }));
+    const detailToggle = document.getElementById("detail-toggle");
+    if (detailToggle) {
+      detailToggle.addEventListener("click", () => {
+        const on = detailToggle.getAttribute("aria-pressed") !== "true";
+        detailToggle.setAttribute("aria-pressed", String(on));
+        detailToggle.textContent = on ? "Hide technical detail" : "Show technical detail";
+        commitState({ depth: on ? "full_trace" : "freshman" });
+      });
+    }
     dom.sharestate.addEventListener("click", async () => {
       writeStateToURL(true);
       showShareFeedback(await copyText(window.location.href, "State URL copied."));
@@ -988,34 +947,19 @@
       renderCheckpointPowerPhaseMetrics();
       if (checkpointPowerRawArtifact) renderCheckpointPowerRawTrace();
     });
-    dom.checkpointpowerrawdetails.addEventListener("toggle", () => {
-      if (!dom.checkpointpowerrawdetails.open || state.depth !== "full_trace") return;
-      loadCheckpointPowerRawArtifact().catch(() => {});
-    });
+    dom.checkpointpowerrawdetails.addEventListener("toggle", renderRawGates);
     dom.checkpointenergyrunselect.addEventListener("change", () => {
       renderCheckpointEnergyPhaseMetrics();
       if (checkpointEnergyRawArtifact) renderCheckpointEnergyRawTrace();
     });
-    dom.checkpointenergyrawdetails.addEventListener("toggle", () => {
-      if (!dom.checkpointenergyrawdetails.open || state.depth !== "full_trace") return;
-      loadCheckpointEnergyRawArtifact().catch(() => {});
-    });
-    dom.rackdephasingblockselect.addEventListener("change", () => {
-      commitState({ rackBlock: dom.rackdephasingblockselect.value });
-    });
-    dom.rackdephasingcomparatorselect.addEventListener("change", () => {
-      commitState({ rackComparator: dom.rackdephasingcomparatorselect.value });
-    });
+    dom.checkpointenergyrawdetails.addEventListener("toggle", renderRawGates);
     dom.semanticconsistencyfamilyselect.addEventListener("change", () => {
       commitState({ semanticFamily: dom.semanticconsistencyfamilyselect.value, semanticRun: "" });
     });
     dom.semanticconsistencyrunselect.addEventListener("change", () => {
       commitState({ semanticRun: dom.semanticconsistencyrunselect.value });
     });
-    dom.semanticconsistencyrawdetails.addEventListener("toggle", () => {
-      if (!dom.semanticconsistencyrawdetails.open || state.depth !== "full_trace") return;
-      loadSemanticConsistencyRawArtifact().catch(() => {});
-    });
+    dom.semanticconsistencyrawdetails.addEventListener("toggle", renderRawGates);
     dom.timelineviewport.addEventListener("keydown", (event) => {
       if (event.target !== dom.timelineviewport) return;
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
@@ -1042,26 +986,193 @@
         resizeFrame = 0;
         renderCausalGraph();
         renderTimeline();
-        renderRackDephasingWaveform();
         renderSemanticConsistencyRanking();
         renderSemanticConsistencyTimeline();
       });
     }, { passive: true });
   }
 
+  // Raw traces are large (sizes measured from docs/data/*.json). They download only when the
+  // reader presses the button, and the button says how big the file is first.
+  const RAW_TRACES = [
+    { key: "semantic-consistency", bytes: 72194752, details: "semanticconsistencyrawdetails", status: "semanticconsistencyrawstate", loaded: () => semanticConsistencyRawArtifact, loading: () => semanticConsistencyRawLoad, failed: () => semanticConsistencyRawArtifactError, load: () => loadSemanticConsistencyRawArtifact() },
+    { key: "checkpoint-energy", bytes: 19255860, details: "checkpointenergyrawdetails", status: "checkpointenergyrawstate", loaded: () => checkpointEnergyRawArtifact, loading: () => checkpointEnergyRawLoad, failed: () => checkpointEnergyRawArtifactError, load: () => loadCheckpointEnergyRawArtifact() },
+    { key: "checkpoint-power", bytes: 8774472, details: "checkpointpowerrawdetails", status: "checkpointpowerrawstate", loaded: () => checkpointPowerRawArtifact, loading: () => checkpointPowerRawLoad, failed: () => checkpointPowerRawArtifactError, load: () => loadCheckpointPowerRawArtifact() },
+  ];
+
+  function formatMegabytes(bytes) {
+    return `${(bytes / 1e6).toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} MB`;
+  }
+
+  function renderRawGates() {
+    RAW_TRACES.forEach((trace) => {
+      const details = dom[trace.details];
+      const status = dom[trace.status];
+      if (!details || !status) return;
+      let button = document.getElementById(`${trace.key}-raw-load`);
+      if (trace.loaded() || trace.loading()) {
+        if (button) button.hidden = true;
+        return;
+      }
+      const size = formatMegabytes(trace.bytes);
+      if (!button) {
+        button = element("button", "raw-load-button", "");
+        button.id = `${trace.key}-raw-load`;
+        button.type = "button";
+        button.addEventListener("click", () => {
+          button.disabled = true;
+          trace.load().catch(() => {}).finally(() => { button.disabled = false; renderRawGates(); });
+        });
+        status.after(button);
+      }
+      button.hidden = false;
+      button.textContent = trace.failed() ? `Try again (${size})` : `Load exact trace (${size})`;
+      if (!trace.failed()) status.textContent = `Not loaded. This file is ${size} and downloads only if you press the button.`;
+    });
+  }
+
+  // The mission bar details and the review queue / receipts rail are secondary to the question and
+  // result. They start closed on narrow screens and open on wide desktops, and they open by
+  // themselves when something is staged for human review.
+  function bindMissionRail() {
+    // The review queue and receipts always sit open inside the Agent tools panel.
+    document.body.dataset.rail = "open";
+  }
+
+  // Study codes (LC1, PW2, R001 and so on) stay in the data and in IDs. People see plain names.
+  const CODE_NAMES = {
+    LC1: "the first learning check",
+    LC2: "the second learning check",
+    LC3: "the equal-work check",
+    PW1: "the first power test",
+    PW2: "the energy test",
+    PW3: "the rack power test",
+    SC1: "the controller test",
+    R001: "the replication",
+    "E001-SC1": "the controller test",
+    E001: "the datacenter experiment",
+    E002: "the energy experiment",
+  };
+  const CODE_PATTERN = /\s*\((?:R001|LC\d|PW\d|SC1)\)|\b(?:E001-SC1|E00[12]|LC[123]|PW[123]|SC1|R001)\b/g;
+  let scrubFrame = 0;
+
+  function scrubCodes(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!CODE_PATTERN.test(node.nodeValue)) return NodeFilter.FILTER_REJECT;
+        CODE_PATTERN.lastIndex = 0;
+        const parent = node.parentElement;
+        return parent && parent.closest("pre, code, script, style") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+      },
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((node) => {
+      node.nodeValue = node.nodeValue.replace(CODE_PATTERN, (match, offset, whole) => {
+        if (match.trim().startsWith("(")) return "";
+        const name = CODE_NAMES[match] || match;
+        const before = whole.slice(0, offset).trimEnd();
+        const atStart = before === "" || /[.!?:]$/.test(before);
+        if (/\bthe(?:\s+\w+)?$/i.test(before) && name.startsWith("the ")) return name.slice(4);
+        return atStart ? name.charAt(0).toUpperCase() + name.slice(1) : name;
+      });
+    });
+  }
+
+  function watchCodes() {
+    const main = document.getElementById("observatory-main");
+    if (!main || typeof MutationObserver !== "function") return;
+    const run = () => {
+      scrubFrame = 0;
+      scrubCodes(main);
+    };
+    new MutationObserver(() => {
+      if (!scrubFrame) scrubFrame = window.requestAnimationFrame(run);
+    }).observe(main, { childList: true, characterData: true, subtree: true });
+    run();
+  }
+
+  // Everything below the first screen is folded. Each fold fetches its data the first
+  // time it opens, so the first screen only downloads the recovery chart.
+  const FOLD_LOADERS = {
+    learning: () => loadLearningArtifact(),
+    equalwork: () => loadEqualWorkArtifact(),
+    checkpoints: () => Promise.all([loadCheckpointPowerArtifact(), loadCheckpointEnergyArtifact()]),
+    controller: () => loadSemanticConsistencyArtifact(),
+    simulator: () => loadArtifact(),
+  };
+  const foldRequests = {};
+
+  function loadFold(name) {
+    if (!foldRequests[name] && FOLD_LOADERS[name]) foldRequests[name] = Promise.resolve(FOLD_LOADERS[name]());
+    return foldRequests[name] || Promise.resolve();
+  }
+
+  function openFold(name) {
+    const fold = document.querySelector(`details[data-fold="${name}"]`);
+    if (fold) fold.open = true;
+    return loadFold(name);
+  }
+
+  function relayout() {
+    window.dispatchEvent(new Event("resize"));
+  }
+
+  function bindFolds() {
+    document.querySelectorAll("details[data-fold]").forEach((fold) => {
+      fold.addEventListener("toggle", () => {
+        if (!fold.open) return;
+        fold.dataset.state = "loading";
+        loadFold(fold.dataset.fold).finally(() => {
+          fold.dataset.state = "ready";
+          relayout();
+        });
+        relayout();
+      });
+    });
+    const target = window.location.hash ? document.getElementById(window.location.hash.slice(1)) : null;
+    const fold = target && target.closest("details[data-fold]");
+    if (fold) openFold(fold.dataset.fold);
+  }
+
+  // The agent panels (WebMCP review queue, receipts, mission bar) stay out of sight until asked for.
+  function bindAgentTools() {
+    const button = document.getElementById("agent-tools-toggle");
+    const panel = document.getElementById("agent-tools");
+    if (!button || !panel) return;
+    const label = button.querySelector("[data-agent-label]") || button;
+    const setShown = (shown) => {
+      panel.hidden = !shown;
+      button.setAttribute("aria-expanded", String(shown));
+      if (shown) relayout();
+    };
+    button.addEventListener("click", () => setShown(panel.hidden));
+    const staged = document.getElementById("pending-change-count");
+    const receipts = document.getElementById("webmcp-receipt-count");
+    const refresh = () => {
+      const pending = staged ? parseInt(staged.textContent, 10) || 0 : 0;
+      const calls = receipts ? parseInt(receipts.textContent, 10) || 0 : 0;
+      label.textContent = pending ? `Agent tools (${pending} waiting)` : calls ? `Agent tools (${calls})` : "Agent tools";
+      if (pending > 0) setShown(true);
+    };
+    if (typeof MutationObserver === "function") {
+      [staged, receipts].filter(Boolean).forEach((node) => {
+        new MutationObserver(refresh).observe(node, { childList: true, characterData: true, subtree: true });
+      });
+    }
+    refresh();
+  }
+
   function init() {
     cacheDOM();
+    bindMissionRail();
     bindStaticInteractions();
     writeStateToURL(true);
     renderAll();
-    loadArtifact();
+    bindFolds();
+    bindAgentTools();
+    watchCodes();
     loadRecoveryArtifact();
-    loadLearningArtifact();
-    loadEqualWorkArtifact();
-    loadCheckpointPowerArtifact();
-    loadCheckpointEnergyArtifact();
-    loadRackDephasingArtifact();
-    loadSemanticConsistencyArtifact();
     resolveObservatoryReady();
     document.dispatchEvent(new CustomEvent("gpustack:observatory-ready"));
   }
@@ -1071,10 +1182,7 @@
   function renderAll() {
     document.body.dataset.depth = state.depth;
     document.body.dataset.experiment = state.experiment;
-    dom.depthButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.depth === state.depth)));
-    dom.experimentselect.value = state.experiment;
     dom.uncertaintyselect.value = state.uncertainty;
-    renderStatus();
     renderSiteRail();
     renderCausalGraph();
     renderComparison();
@@ -1089,18 +1197,8 @@
     renderEqualWorkV1();
     renderCheckpointPowerV1();
     renderCheckpointEnergyV2();
-    renderRackDephasingV3();
     renderSemanticConsistencyV1();
-    renderExperimentView();
-    if (state.experiment === "E001-SC1" && state.depth === "full_trace" && dom.semanticconsistencyrawdetails?.open && semanticConsistencyArtifact && !semanticConsistencyRawArtifact && !semanticConsistencyRawLoad && !semanticConsistencyRawArtifactError) {
-      loadSemanticConsistencyRawArtifact().catch(() => {});
-    }
-  }
-
-  function renderExperimentView() {
-    dom.experimentViews.forEach((view) => {
-      view.hidden = view.dataset.experimentView !== state.experiment;
-    });
+    renderRawGates();
   }
 
   function recoveryRuns() {
@@ -1200,7 +1298,7 @@
 
     const minNs = Math.min(...records.map((record) => record.start_ns));
     const maxNs = Math.max(...records.map((record) => record.end_ns), minNs + 1);
-    const left = 240;
+    const left = 292;
     const right = 975;
     const axisY = 30;
     const rowHeight = 90;
@@ -1268,7 +1366,7 @@
         const bracketY = top + 4;
         svg.append(svgElement("path", { d: `M${startX} ${bracketY + 7}V${bracketY}H${endX}V${bracketY + 7}`, class: "recovery-debt-bracket" }));
         const label = svgElement("text", { x: (startX + endX) / 2, y: bracketY - 3, "text-anchor": "middle", class: "recovery-debt-label" });
-        label.textContent = `DURABLE RECOVERY ${formatSecondsFromNs(recovered.start_ns - failure.start_ns)}`;
+        label.textContent = `SAFE AGAIN AFTER ${formatSecondsFromNs(recovered.start_ns - failure.start_ns)}`;
         svg.append(label);
       }
     });
@@ -1402,21 +1500,20 @@
   function renderRecoveryV2() {
     if (!dom.recoveryv2) return;
     if (!recoveryArtifact) {
-      dom.recoveryv2.hidden = true;
+      dom.recoveryv2state.textContent = recoveryArtifactError ? "The chart could not be loaded." : "Loading the chart…";
       return;
     }
-    dom.recoveryv2.hidden = false;
     const status = recoveryArtifact.status || {};
     const protocol = String(recoveryArtifact.protocol_hash || "not reported").slice(0, 12);
-    dom.recoveryv2state.textContent = `${String(status.conclusion || "inconclusive").replaceAll("_", " ")} · MODELED mechanics · protocol ${protocol}`;
+    dom.recoveryv2state.textContent = "Simulated in software";
     renderRecoveryTimeline();
     renderRecoveryWorkBars();
     renderRecoveryByteBars();
     renderRecoveryCompletion();
     const unsupported = recoveryArtifact.result_scope && Array.isArray(recoveryArtifact.result_scope.unsupported) ? recoveryArtifact.result_scope.unsupported : [];
     dom.recoverylearningtrace.textContent = unsupported.length
-      ? `Recovery-v2 boundary: ${unsupported.join("; ")}. LC1 below is a separate local small-model calibration.`
-      : "Recovery-v2 has no held-out recovery-quality observation; LC1 below is separate evidence.";
+      ? `What this simulation does not cover: ${unsupported.join("; ")}. The measured small-model learning check further down is a separate test.`
+      : "This simulation has no held-out learning measurement. The learning check further down is separate evidence.";
   }
 
   function canonicalLearningArmId(value) {
@@ -1480,7 +1577,7 @@
 
   function learningInsightTitle(status) {
     const normalized = String(status || "").toLowerCase();
-    if (normalized.includes("falsif")) return "Adaptive recovery lost the paired learning-efficiency test";
+    if (normalized.includes("falsif")) return "The paired learning test never tested its hypothesis";
     if (normalized.includes("surviv")) return "Adaptive recovery survived the paired learning-efficiency test";
     if (normalized.includes("inconclusive")) return "The paired calibration did not separate the policies";
     return String(status || "Measured learning calibration").replaceAll("_", " ");
@@ -1706,7 +1803,7 @@
       gate.dataset.passed = String(passed === true);
       gate.setAttribute("aria-label", `${label}: ${passed === true ? "pass" : "fail"}`);
       gate.append(
-        element("span", "learning-gate-state", passed === true ? "PASS" : "FAIL"),
+        element("span", "learning-gate-state", passed === true ? "Met" : "Not met"),
         element("span", "learning-gate-label", label),
       );
       dom.learninggatestrip.append(gate);
@@ -1791,7 +1888,7 @@
     dom.learningv1.hidden = false;
     const conclusion = learningArtifact.conclusion;
     const hash = String(learningArtifact.artifact_sha256).replace(/^sha256:/, "").slice(0, 12);
-    dom.learningv1state.textContent = `${String(conclusion.status).replaceAll("_", " ")} · OBSERVED learning · artifact ${hash}`;
+    dom.learningv1state.textContent = "Measured on one laptop GPU";
     dom.learninginsighttitle.textContent = learningInsightTitle(conclusion.status);
     dom.learningplainanswer.textContent = conclusion.plain_answer;
     setPlainWords("learning-plain-words", conclusion.status);
@@ -1859,7 +1956,8 @@
       },
       {
         state: "fail",
-        kicker: "Why LC3 failed",
+        badge: "Unclear",
+        kicker: "Why this check was marked not met",
         value: formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.median),
         title: "device-energy ratio",
         body: `${formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.lower_bound)} to ${formatEqualWorkRatio(effects.adaptive_to_fixed_device_energy_ratio.upper_bound)}; the frozen limit was ${formatEqualWorkRatio(equalWorkEnergyLimit())}.`,
@@ -1871,6 +1969,7 @@
       card.append(
         element("p", "equal-work-plain-kicker", entry.kicker),
         element("strong", "equal-work-plain-value", entry.value),
+        gateBadge(entry.state, entry.badge),
         element("h3", "", entry.title),
         element("p", "equal-work-plain-body", entry.body),
       );
@@ -1944,7 +2043,7 @@
       const card = element("article", "equal-work-effect-card");
       card.dataset.effect = definition.id;
       card.dataset.passed = String(definition.passed);
-      const status = element("span", "equal-work-effect-status", definition.passed ? "PASS" : "FAIL");
+      const status = element("span", "equal-work-effect-status", definition.passed ? "Met" : "Not met");
       const header = element("header");
       header.append(element("h4", "", definition.label), status);
       card.append(
@@ -1967,7 +2066,7 @@
       gate.dataset.passed = String(passed === true);
       gate.setAttribute("aria-label", `${label}: ${passed === true ? "pass" : "fail"}`);
       gate.append(
-        element("span", "equal-work-gate-state", passed === true ? "PASS" : "FAIL"),
+        element("span", "equal-work-gate-state", passed === true ? "Met" : "Not met"),
         element("span", "equal-work-gate-label", label),
       );
       dom.equalworkgatestrip.append(gate);
@@ -2051,7 +2150,7 @@
       mechanics_bridge: equalWorkArtifact.mechanics_bridge,
     };
     dom.equalworkprovenancejson.textContent = JSON.stringify(provenance, null, 2);
-    dom.equalworkdepthtrace.textContent = `${equalWorkArtifact.evaluation_pairs.length} paired evaluation rows · ${equalWorkArtifact.run_details.length} run records · ${equalWorkArtifact.source_lc2_protocol_results.length} LC2 protocol predecessors · source result ${equalWorkArtifact.source_result.artifact_sha256}.`;
+    dom.equalworkdepthtrace.textContent = `${equalWorkArtifact.evaluation_pairs.length} paired evaluation rows · ${equalWorkArtifact.run_details.length} run records · source result ${equalWorkArtifact.source_result.artifact_sha256}.`;
   }
 
   function renderEqualWorkV1() {
@@ -2062,8 +2161,8 @@
     }
     dom.equalworkv1.hidden = false;
     const conclusion = equalWorkArtifact.conclusion;
-    dom.equalworkv1state.textContent = `${String(conclusion.status).replaceAll("_", " ")} · OBSERVED local learning · artifact ${equalWorkArtifact.artifact_sha256.slice(0, 12)}`;
-    dom.equalworkinsighttitle.textContent = "Adaptive kept the learning and saved work, but missed the energy bound";
+    dom.equalworkv1state.textContent = "Measured on one laptop GPU";
+    dom.equalworkinsighttitle.textContent = "At equal work, adaptive saved about 3% of the work; its energy cost is undetermined";
     dom.equalworkplainanswer.textContent = conclusion.plain_answer;
     setPlainWords("equal-work-plain-words", conclusion.status);
     dom.equalworkevidenceboundary.textContent = learningBoundaryText(equalWorkArtifact.evidence_boundary);
@@ -2211,7 +2310,7 @@
         `${checkpointPowerInterval(signals.checkpoint_related_interaction, (value) => formatScientific(value))} J per canonical token.`,
       ),
       checkpointPowerContrastCard(
-        "LC3 corner energy ratio",
+        "Equal-work energy ratio",
         formatEqualWorkRatio(signals.lc3_corner_reproduction.dense_continue_to_sparse_restart_energy_ratio.median),
         `${checkpointPowerInterval(signals.lc3_corner_reproduction.dense_continue_to_sparse_restart_energy_ratio, (value) => formatEqualWorkRatio(value))}. Penalty reproduced: ${signals.lc3_corner_reproduction.penalty_reproduced ? "yes" : "no"}.`,
       ),
@@ -2357,7 +2456,7 @@
     }
     dom.checkpointpowerv1.hidden = false;
     const freshman = checkpointPowerArtifact.freshman;
-    dom.checkpointpowerv1state.textContent = `measurement invalid · 32/32 runs · artifact ${checkpointPowerArtifact.artifact_sha256.slice(0, 12)}`;
+    dom.checkpointpowerv1state.textContent = "Measured on one laptop GPU";
     dom.checkpointpowerinsighttitle.textContent = freshman.headline;
     dom.checkpointpowerplainanswer.textContent = freshman.plain_answer;
     setPlainWords("checkpoint-power-plain-words", "measurement_invalid");
@@ -2382,6 +2481,7 @@
       card.append(
         element("p", "checkpoint-energy-plain-label", entry.label),
         element("strong", "checkpoint-energy-plain-value", entry.value),
+        gateBadge(entry.state),
         element("p", "checkpoint-energy-plain-detail", entry.detail),
       );
       dom.checkpointenergyfreshmangrid.append(card);
@@ -2408,7 +2508,7 @@
     });
   }
 
-  function checkpointEnergyEffectCard(title, effect, plainMeaning, status = "SUPPORTED") {
+  function checkpointEnergyEffectCard(title, effect, plainMeaning, status = "Supported") {
     const card = element("article", "checkpoint-energy-effect-card");
     card.dataset.status = status.toLowerCase().replaceAll(" ", "-");
     card.append(
@@ -2433,7 +2533,7 @@
       checkpointEnergyEffectCard(
         "Checkpoint-related phase group",
         researcher.checkpoint_related_group_interaction,
-        "The preregistered checkpoint group also stayed positive, locating part of the mechanism in checkpoint cadence.",
+        "The frozen checkpoint group also stayed positive, locating part of the mechanism in checkpoint cadence.",
       ),
       checkpointEnergyEffectCard(
         "Idle-subtracted interaction sensitivity",
@@ -2450,8 +2550,8 @@
     [
       ["Sparse snapshot pool", support.pooled_checkpoint_snapshot_updates_by_cadence.sparse, "checkpoint snapshots"],
       ["Dense snapshot pool", support.pooled_checkpoint_snapshot_updates_by_cadence.dense, "checkpoint snapshots"],
-      ["Sparse checkpoint group", support.pooled_checkpoint_related_updates_by_cadence.sparse, "preregistered group"],
-      ["Dense checkpoint group", support.pooled_checkpoint_related_updates_by_cadence.dense, "preregistered group"],
+      ["Sparse checkpoint group", support.pooled_checkpoint_related_updates_by_cadence.sparse, "frozen group"],
+      ["Dense checkpoint group", support.pooled_checkpoint_related_updates_by_cadence.dense, "frozen group"],
     ].forEach(([label, value, detail]) => {
       const card = element("article", "checkpoint-energy-support-card");
       card.append(
@@ -2495,7 +2595,7 @@
       const gate = element("div", "checkpoint-energy-gate");
       gate.dataset.passed = String(passed === true);
       gate.append(
-        element("span", "checkpoint-energy-gate-state", passed === true ? "PASS" : "FAIL"),
+        element("span", "checkpoint-energy-gate-state", passed === true ? "Met" : "Not met"),
         element("span", "checkpoint-energy-gate-label", checkpointPowerHumanLabel(gateId)),
       );
       container.append(gate);
@@ -2646,9 +2746,10 @@
     }
     dom.checkpointenergyv2.hidden = false;
     const freshman = checkpointEnergyArtifact.freshman;
-    dom.checkpointenergyv2state.textContent = `measurement valid · 11/11 gates pass · artifact ${checkpointEnergyArtifact.artifact_sha256.slice(0, 12)}`;
-    dom.checkpointenergyinsighttitle.textContent = freshman.headline;
-    dom.checkpointenergyplainanswer.textContent = freshman.plain_answer;
+    dom.checkpointenergyv2state.textContent = "Measured on one laptop GPU";
+    // Display copy matches EVIDENCE.md; the artifact file keeps its original wording.
+    dom.checkpointenergyinsighttitle.textContent = "Sparse checkpointing used a little less energy; what causes the penalty is not shown";
+    dom.checkpointenergyplainanswer.textContent = "The four-arm experiment separated checkpoint frequency from survivor continuation. Dense checkpointing carried a small positive energy interaction, but replaying lost work was its largest part, not snapshot writing. With sparse checkpoints, continuation kept the same useful learning, avoided replay work, finished earlier and used about 3% less energy. One GPU, six pairs.";
     setPlainWords("checkpoint-energy-plain-words", checkpointEnergyArtifact.researcher.conclusion);
     dom.checkpointenergymechanism.textContent = freshman.mechanism;
     const gpu = checkpointEnergyArtifact.full_trace.runtime.hardware.gpu;
@@ -2703,9 +2804,10 @@
       card.append(
         element("p", "checkpoint-energy-plain-label", entry.label),
         element("strong", "checkpoint-energy-plain-value", entry.value),
+        gateBadge(entry.state),
         element("p", "checkpoint-energy-plain-detail", entry.detail),
-        evidenceTag(entry.evidence_class || "unmeasured"),
       );
+      card.append(evidenceTag(entry.evidence_class || "unmeasured"));
       dom.semanticconsistencyfreshmangrid.append(card);
     });
   }
@@ -2714,7 +2816,7 @@
     dom.semanticconsistencyeffectgrid.replaceChildren();
     semanticConsistencyArtifact.researcher.paired_effects.forEach((effect) => {
       const passed = effect.passed;
-      const stateLabel = passed === true ? "PASS" : passed === false ? "FAIL" : "UNRESOLVED";
+      const stateLabel = passed === true ? "Met" : passed === false ? "Not met" : "Unclear";
       const card = element("article", "equal-work-effect-card");
       card.dataset.passed = passed === null || passed === undefined ? "unresolved" : String(passed);
       card.dataset.effectId = effect.effect_id || "";
@@ -3114,22 +3216,23 @@
 
   function renderSemanticConsistencyV1() {
     if (!dom.semanticconsistencyv1) return;
-    dom.semanticconsistencyv1.hidden = state.experiment !== "E001-SC1";
+    dom.semanticconsistencyv1.hidden = false;
     if (!semanticConsistencyArtifact) {
       dom.semanticconsistencyv1state.textContent = semanticConsistencyArtifactError instanceof ArtifactContractError
         ? `Artifact rejected · ${semanticConsistencyArtifactError.message}`
         : semanticConsistencyArtifactError
-          ? "No result artifact yet · experiment not run"
-          : "Reading semantic-consistency artifact…";
+          ? "No result yet"
+          : "Loading…";
       return;
     }
     const status = semanticConsistencyArtifact.status;
     const freshman = semanticConsistencyArtifact.freshman;
     const familyCount = semanticConsistencyArtifact.researcher.family_results.length;
-    dom.semanticconsistencyv1state.textContent = `${String(status.conclusion).replaceAll("_", " ")} · ${familyCount} held-out families · comparator ${semanticPolicyLabel(semanticConsistencyArtifact.comparison.selected_fixed_policy_id)} · artifact ${semanticConsistencyArtifact.artifact_sha256.slice(0, 12)}`;
+    dom.semanticconsistencyv1state.textContent = `${familyCount} unseen test cases`;
     dom.semanticconsistencyeyebrow.textContent = `${semanticConsistencyArtifact.work_contract.canonical_tokens.toLocaleString("en-US")} canonical tokens · ${familyCount} untouched families`;
     dom.semanticconsistencyinsighttitle.textContent = freshman.headline;
     dom.semanticconsistencyplainanswer.textContent = freshman.plain_answer;
+    dom.semanticconsistencyplainanswer.hidden = false;
     setPlainWords("semantic-consistency-plain-words", status.conclusion);
     dom.semanticconsistencyboundaryshort.textContent = freshman.boundary;
     dom.semanticconsistencyfreshmancopy.textContent = freshman.explanation;
@@ -3148,663 +3251,6 @@
     renderSemanticConsistencyTrace();
   }
 
-  const RACK_POLICY_ORDER = ["synchronized", "random_jitter", "throughput_pacing", "static_cohorts", "telemetry_feedback"];
-  const RACK_POLICY_LABELS = {
-    synchronized: "Synchronized",
-    random_jitter: "Random legal jitter",
-    throughput_pacing: "Storage-only pacing",
-    static_cohorts: "Static cohorts",
-    telemetry_feedback: "Telemetry feedback",
-  };
-
-  function rackHumanLabel(value) {
-    return String(value || "not reported")
-      .replaceAll("_", " ")
-      .replaceAll("-", " ")
-      .replace(/\b\w/g, (letter) => letter.toUpperCase());
-  }
-
-  function rackRecord(value) {
-    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
-  }
-
-  function rackMetricValue(metric) {
-    if (finiteNumber(metric)) return metric;
-    const record = rackRecord(metric);
-    for (const key of ["median", "value", "point_estimate", "estimate", "observed_value"]) {
-      if (finiteNumber(record[key])) return record[key];
-    }
-    return null;
-  }
-
-  function rackInterval(metric) {
-    const record = rackRecord(metric);
-    const interval = record.confidence_interval_90 || record.interval_90 || record.confidence_interval;
-    if (Array.isArray(interval) && interval.length === 2 && interval.every(finiteNumber)) return [interval[0], interval[1]];
-    if (rackRecord(interval) && finiteNumber(interval.lower) && finiteNumber(interval.upper)) return [interval.lower, interval.upper];
-    if (finiteNumber(record.lower_bound) && finiteNumber(record.upper_bound)) return [record.lower_bound, record.upper_bound];
-    return null;
-  }
-
-  function rackEffectDisplay(metric) {
-    const record = rackRecord(metric);
-    const value = finiteNumber(record.median_effect) ? record.median_effect : rackMetricValue(record);
-    const kind = String(record.effect_kind || "absolute_difference");
-    const unit = String(record.unit || "");
-    if (!finiteNumber(value)) return { value: "unresolved", interval: "No admissible paired estimate" };
-    let valueText;
-    if (kind === "relative_reduction") valueText = `${(100 * value).toLocaleString("en-US", { maximumFractionDigits: 1 })}% lower`;
-    else if (["relative_increase", "relative_change", "relative_regression"].includes(kind)) valueText = `${(100 * value).toLocaleString("en-US", { maximumFractionDigits: 1, signDisplay: "always" })}%`;
-    else valueText = `${value.toLocaleString("en-US", { maximumSignificantDigits: 5, signDisplay: "always" })}${unit ? ` ${unit}` : ""}`;
-    const interval = rackInterval(record);
-    if (!interval) return { value: valueText, interval: "90% paired interval unavailable" };
-    const intervalText = ["relative_reduction", "relative_increase", "relative_change", "relative_regression"].includes(kind)
-      ? `${(100 * interval[0]).toLocaleString("en-US", { maximumFractionDigits: 1 })}% to ${(100 * interval[1]).toLocaleString("en-US", { maximumFractionDigits: 1 })}%`
-      : `${interval[0].toLocaleString("en-US", { maximumSignificantDigits: 5 })} to ${interval[1].toLocaleString("en-US", { maximumSignificantDigits: 5 })}${unit ? ` ${unit}` : ""}`;
-    return { value: valueText, interval: `90% interval ${intervalText}` };
-  }
-
-  function rackComparison(comparator = state.rackComparator) {
-    if (!rackDephasingArtifact) return {};
-    const comparisons = rackRecord(rackDephasingArtifact.researcher.comparisons);
-    return rackRecord(comparisons[`telemetry_feedback_vs_${comparator}`]);
-  }
-
-  function rackComparisonMetrics(comparator = state.rackComparator) {
-    const comparison = rackComparison(comparator);
-    return Object.keys(rackRecord(comparison.metrics)).length ? rackRecord(comparison.metrics) : comparison;
-  }
-
-  function rackMetric(metrics, ids) {
-    for (const id of ids) {
-      if (rackRecord(metrics[id]) && Object.keys(metrics[id]).length) return metrics[id];
-      if (finiteNumber(metrics[id])) return { median_effect: metrics[id] };
-    }
-    return {};
-  }
-
-  function rackSelectedBlock() {
-    if (!rackDephasingArtifact) return null;
-    const blocks = rackDephasingArtifact.researcher.waveform_blocks;
-    return blocks.find((block) => block.block_id === state.rackBlock) || blocks[0] || null;
-  }
-
-  function rackSelectedArms() {
-    const block = rackSelectedBlock();
-    if (!block) return { block: null, baseline: null, feedback: null };
-    const baseline = block.arms.find((arm) => arm.policy_id === state.rackComparator) || null;
-    const feedback = block.arms.find((arm) => arm.policy_id === "telemetry_feedback") || null;
-    return { block, baseline, feedback };
-  }
-
-  function renderRackBlockControls() {
-    const blocks = rackDephasingArtifact.researcher.waveform_blocks;
-    dom.rackdephasingblockselect.replaceChildren();
-    blocks.forEach((block) => {
-      const option = element("option", "", `${block.block_id} · ${rackHumanLabel(block.split)}`);
-      option.value = block.block_id;
-      dom.rackdephasingblockselect.append(option);
-    });
-    const selected = blocks.some((block) => block.block_id === state.rackBlock) ? state.rackBlock : blocks[0]?.block_id;
-    if (selected) dom.rackdephasingblockselect.value = selected;
-    dom.rackdephasingcomparatorselect.value = state.rackComparator;
-  }
-
-  function rackTracePointArrays(displayTrace) {
-    if (Array.isArray(displayTrace)) return displayTrace;
-    const trace = rackRecord(displayTrace);
-    for (const key of ["rack_pdu_points", "rack_pdu_power_points", "rack_power_points", "points", "samples"]) {
-      if (Array.isArray(trace[key])) return trace[key];
-      if (Array.isArray(rackRecord(trace[key]).points)) return trace[key].points;
-    }
-    if (Array.isArray(rackRecord(trace.rack_pdu).points)) return trace.rack_pdu.points;
-    const channels = rackRecord(trace.channels);
-    for (const key of ["rack_pdu_power", "rack_power_w", "rack-pdu.power-w"]) {
-      if (Array.isArray(channels[key])) return channels[key];
-      if (Array.isArray(rackRecord(channels[key]).points)) return channels[key].points;
-    }
-    return [];
-  }
-
-  function rackTraceSeries(arm) {
-    const rawPoints = rackTracePointArrays(arm && arm.display_trace);
-    const normalized = [];
-    rawPoints.forEach((point) => {
-      if (Array.isArray(point) && point.length >= 2 && finiteNumber(point[0]) && finiteNumber(point[1])) {
-        normalized.push({ rawTime: point[0], isNs: Math.abs(point[0]) > 1e11, powerW: point[1] });
-        return;
-      }
-      const record = rackRecord(point);
-      const nsKeys = ["utc_ns", "reference_interval_end_ns", "reference_time_ns", "timestamp_ns", "time_ns", "monotonic_ns", "t_ns"];
-      const secondKeys = ["relative_seconds", "time_seconds", "time_s", "seconds", "timestamp"];
-      let rawTime = null;
-      let isNs = false;
-      for (const key of nsKeys) {
-        if (finiteNumber(record[key])) { rawTime = record[key]; isNs = true; break; }
-      }
-      if (rawTime === null) {
-        for (const key of secondKeys) {
-          if (finiteNumber(record[key])) { rawTime = record[key]; break; }
-        }
-      }
-      let powerW = null;
-      for (const key of ["rack_pdu_power_w", "rack_power_w", "power_w", "value"]) {
-        if (finiteNumber(record[key])) { powerW = record[key]; break; }
-      }
-      if (rawTime !== null && powerW !== null) normalized.push({ rawTime, isNs, powerW });
-    });
-    normalized.sort((left, right) => left.rawTime - right.rawTime);
-    if (!normalized.length) return { points: [], originNs: null, duration: 0 };
-    const origin = normalized[0].rawTime;
-    const usesNs = normalized[0].isNs;
-    const points = normalized.map((point) => ({
-      seconds: usesNs ? (point.rawTime - origin) / 1e9 : point.rawTime - origin,
-      powerW: point.powerW,
-    })).filter((point) => finiteNumber(point.seconds) && finiteNumber(point.powerW));
-    return {
-      points,
-      originNs: usesNs ? origin : null,
-      duration: points.length ? points[points.length - 1].seconds : 0,
-    };
-  }
-
-  function rackEventStart(event) {
-    for (const key of ["actual_start_ns", "start_ns", "scheduled_release_ns", "earliest_start_ns"]) {
-      if (finiteNumber(event[key])) return event[key];
-    }
-    return null;
-  }
-
-  function rackEventEnd(event, start) {
-    for (const key of ["actual_end_ns", "end_ns", "completed_at_ns"]) {
-      if (finiteNumber(event[key])) return Math.max(start, event[key]);
-    }
-    return start;
-  }
-
-  function rackDisplayEvents(arm) {
-    return arm && arm.event_summary && Array.isArray(arm.event_summary.display_events) ? arm.event_summary.display_events : [];
-  }
-
-  function rackChartEvents(arm) {
-    const intervals = rackRecord(arm && arm.display_trace).state_flow_intervals;
-    return Array.isArray(intervals) ? intervals : rackDisplayEvents(arm);
-  }
-
-  function rackSeriesPath(points, xScale, yScale) {
-    return points.map((point, index) => `${index ? "L" : "M"}${xScale(point.seconds).toFixed(2)},${yScale(point.powerW).toFixed(2)}`).join(" ");
-  }
-
-  function renderRackPanel(svg, arm, series, layout, shared) {
-    const { left, right, top, waveformHeight, railTop, railHeight, width, label } = layout;
-    const x = (seconds) => left + (Math.max(0, Math.min(shared.duration, seconds)) / Math.max(shared.duration, 1e-9)) * (width - left - right);
-    const y = (power) => top + waveformHeight - ((power - shared.minPower) / Math.max(shared.maxPower - shared.minPower, 1e-9)) * waveformHeight;
-    svg.append(svgElement("text", { x: left, y: top - 9, class: "rack-dephasing-direct-label" })).textContent = label;
-    for (let index = 0; index <= 4; index += 1) {
-      const power = shared.minPower + (shared.maxPower - shared.minPower) * index / 4;
-      const yPosition = y(power);
-      svg.append(
-        svgElement("line", { x1: left, x2: width - right, y1: yPosition, y2: yPosition, class: "rack-dephasing-grid-line" }),
-        svgElement("text", { x: left - 8, y: yPosition + 4, "text-anchor": "end", class: "rack-dephasing-axis-label" }),
-      );
-      svg.lastChild.textContent = formatPower(power);
-    }
-    if (series.points.length) {
-      const path = svgElement("path", {
-        d: rackSeriesPath(series.points, x, y),
-        class: `rack-dephasing-wave-line rack-dephasing-wave-line--${arm.policy_id === "telemetry_feedback" ? "feedback" : "baseline"}`,
-      });
-      svg.append(path);
-      const last = series.points[series.points.length - 1];
-      const direct = svgElement("text", { x: Math.min(width - right + 7, width - 8), y: y(last.powerW) + 4, class: "rack-dephasing-direct-label" });
-      direct.textContent = arm.policy_id === "telemetry_feedback" ? "feedback" : RACK_POLICY_LABELS[arm.policy_id] || arm.policy_id;
-      svg.append(direct);
-    }
-
-    const events = rackChartEvents(arm).filter((event) => rackEventStart(event) !== null);
-    const jobs = [...new Set(events.map((event) => String(event.job_id ?? "rack")))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).slice(0, 8);
-    const rowHeight = Math.max(8, Math.min(15, railHeight / Math.max(jobs.length, 1)));
-    const eventOrigin = series.originNs !== null ? series.originNs : Math.min(...events.map(rackEventStart));
-    jobs.forEach((job, jobIndex) => {
-      const yPosition = railTop + jobIndex * rowHeight;
-      const jobLabel = svgElement("text", { x: left - 8, y: yPosition + rowHeight * 0.72, "text-anchor": "end", class: "rack-dephasing-rail-label" });
-      jobLabel.textContent = `job ${job}`;
-      svg.append(jobLabel, svgElement("line", { x1: left, x2: width - right, y1: yPosition + rowHeight, y2: yPosition + rowHeight, class: "rack-dephasing-grid-line" }));
-      events.filter((event) => String(event.job_id ?? "rack") === job).forEach((event) => {
-        const startNs = rackEventStart(event);
-        const endNs = rackEventEnd(event, startNs);
-        const startSeconds = (startNs - eventOrigin) / 1e9;
-        const endSeconds = (endNs - eventOrigin) / 1e9;
-        if (endSeconds < 0 || startSeconds > shared.duration) return;
-        const rect = svgElement("rect", {
-          x: x(Math.max(0, startSeconds)),
-          y: yPosition + 1,
-          width: Math.max(1.5, x(Math.min(shared.duration, endSeconds)) - x(Math.max(0, startSeconds))),
-          height: Math.max(5, rowHeight - 2),
-          rx: 1,
-          class: "rack-dephasing-event-mark",
-          "data-kind": String(event.kind || "event"),
-        });
-        svg.append(rect);
-      });
-    });
-  }
-
-  function renderRackWaveformFallback(baseline, feedback, baselineSeries, feedbackSeries) {
-    dom.rackdephasingwaveformfallback.replaceChildren();
-    const table = element("table", "rack-dephasing-table");
-    table.style.minWidth = "0";
-    const caption = element("caption", "visually-hidden", "Selected block waveform values and event counts");
-    const head = element("thead");
-    const headRow = element("tr");
-    ["Arm", "Rack samples", "Power range", "State-flow events", "Rack ramp", "Spectral energy"].forEach((label) => headRow.append(element("th", "", label)));
-    head.append(headRow);
-    const body = element("tbody");
-    [[baseline, baselineSeries], [feedback, feedbackSeries]].forEach(([arm, series]) => {
-      if (!arm) return;
-      const powers = series.points.map((point) => point.powerW);
-      const range = powers.length ? `${formatPower(Math.min(...powers))} to ${formatPower(Math.max(...powers))}` : "trace unavailable";
-      const row = element("tr");
-      row.append(
-        element("td", "", RACK_POLICY_LABELS[arm.policy_id] || rackHumanLabel(arm.policy_id)),
-        element("td", "", series.points.length.toLocaleString("en-US")),
-        element("td", "", range),
-        element("td", "", rackChartEvents(arm).length.toLocaleString("en-US")),
-        element("td", "", finiteNumber(arm.p99_9_rack_ramp_w_per_s) ? `${arm.p99_9_rack_ramp_w_per_s.toLocaleString("en-US", { maximumSignificantDigits: 5 })} W/s` : "unmeasured"),
-        element("td", "", finiteNumber(arm.rack_spectral_energy_0_1_10_hz) ? arm.rack_spectral_energy_0_1_10_hz.toLocaleString("en-US", { maximumSignificantDigits: 5 }) : "unmeasured"),
-      );
-      body.append(row);
-    });
-    table.append(caption, head, body);
-    dom.rackdephasingwaveformfallback.append(element("p", "", "Solid violet is telemetry feedback; dashed orange is the selected comparator. Rectangles encode checkpoint, transfer, rebuild, rejoin, compute, and merge intervals; the table keeps all essential values available without color or hover."), table);
-  }
-
-  function renderRackDephasingWaveform() {
-    if (!rackDephasingArtifact || !dom.rackdephasingwaveformsvg) return;
-    const { block, baseline, feedback } = rackSelectedArms();
-    const svg = dom.rackdephasingwaveformsvg;
-    svg.replaceChildren();
-    if (!block || !baseline || !feedback) {
-      dom.rackdephasingwaveformfallback.textContent = "The selected block does not contain both the comparator and telemetry-feedback arms.";
-      return;
-    }
-    const baselineSeries = rackTraceSeries(baseline);
-    const feedbackSeries = rackTraceSeries(feedback);
-    renderRackWaveformFallback(baseline, feedback, baselineSeries, feedbackSeries);
-    const allPoints = [...baselineSeries.points, ...feedbackSeries.points];
-    if (!allPoints.length) {
-      dom.rackdephasingwaveformdesc.textContent = `${block.block_id} has no compact rack-PDU display trace. The metric table and raw chunk manifest remain available.`;
-      return;
-    }
-    const width = Math.max(320, Math.round(svg.getBoundingClientRect().width || 960));
-    const mobile = width < 620;
-    const height = mobile ? 680 : 540;
-    const left = mobile ? 58 : 84;
-    const right = mobile ? 18 : 118;
-    const minObserved = Math.min(...allPoints.map((point) => point.powerW));
-    const maxObserved = Math.max(...allPoints.map((point) => point.powerW));
-    const padding = Math.max((maxObserved - minObserved) * 0.08, Math.abs(maxObserved) * 0.015, 1);
-    const shared = {
-      duration: Math.max(baselineSeries.duration, feedbackSeries.duration, 1),
-      minPower: minObserved - padding,
-      maxPower: maxObserved + padding,
-    };
-    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-    svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
-    const panelGap = mobile ? 34 : 28;
-    const panelHeight = (height - 48 - panelGap) / 2;
-    const waveformHeight = Math.max(105, panelHeight * 0.58);
-    const railTopOffset = waveformHeight + 19;
-    const railHeight = Math.max(46, panelHeight - railTopOffset - 5);
-    const baselineTop = 30;
-    const feedbackTop = baselineTop + panelHeight + panelGap;
-    const baselineLabel = `${block.block_id} · ${RACK_POLICY_LABELS[baseline.policy_id] || baseline.policy_id}`;
-    const feedbackLabel = `${block.block_id} · Telemetry feedback`;
-    const timeLabels = [];
-    for (let index = 0; index <= 4; index += 1) {
-      const seconds = shared.duration * index / 4;
-      const x = left + (seconds / shared.duration) * (width - left - right);
-      svg.append(svgElement("line", { x1: x, x2: x, y1: 24, y2: height - 22, class: "rack-dephasing-grid-line" }));
-      const label = svgElement("text", { x, y: height - 7, "text-anchor": index === 0 ? "start" : index === 4 ? "end" : "middle", class: "rack-dephasing-axis-label" });
-      label.textContent = `${seconds.toLocaleString("en-US", { maximumFractionDigits: 1 })} s`;
-      timeLabels.push(label);
-    }
-    renderRackPanel(svg, baseline, baselineSeries, { left, right, top: baselineTop, waveformHeight, railTop: baselineTop + railTopOffset, railHeight, width, label: baselineLabel }, shared);
-    renderRackPanel(svg, feedback, feedbackSeries, { left, right, top: feedbackTop, waveformHeight, railTop: feedbackTop + railTopOffset, railHeight, width, label: feedbackLabel }, shared);
-    timeLabels.forEach((label) => svg.append(label));
-    dom.rackdephasingwaveformdesc.textContent = `${block.block_id} compares ${RACK_POLICY_LABELS[baseline.policy_id]} with telemetry feedback on a shared relative time axis. The comparator has ${baselineSeries.points.length} rack-PDU samples and ${rackChartEvents(baseline).length} displayed state-flow events; feedback has ${feedbackSeries.points.length} samples and ${rackChartEvents(feedback).length} events.`;
-  }
-
-  function renderRackFreshman() {
-    dom.rackdephasingfreshmangrid.replaceChildren();
-    rackDephasingArtifact.freshman.cards.forEach((entry) => {
-      const card = element("article", "rack-dephasing-plain-card");
-      card.append(element("span", "", entry.label), element("strong", "", entry.value), element("small", "", entry.detail));
-      dom.rackdephasingfreshmangrid.append(card);
-    });
-  }
-
-  function renderRackEffects() {
-    dom.rackdephasingeffectgrid.replaceChildren();
-    const metrics = rackComparisonMetrics();
-    const definitions = [
-      ["Rack ramp", ["rack_ramp", "rack_ramp_reduction", "p99_9_rack_ramp_w_per_s"], "p99.9 absolute rack-PDU ramp"],
-      ["0.1–10 Hz energy", ["rack_spectral_energy", "rack_spectral_reduction", "rack_spectral_energy_0_1_10_hz"], "detrended rack-PDU spectral energy"],
-      ["Useful-token rate", ["useful_token_throughput", "useful_token_throughput_regression"], "throughput constraint"],
-      ["Rack J / token", ["rack_energy_per_useful_token", "rack_energy_per_useful_token_increase"], "whole-rack energy constraint"],
-      ["p95 recovery", ["p95_recovery_time_s", "p95_recovery_time_regression", "recovery_time"], "failure-to-rejoin constraint"],
-      ["Held-out NLL", ["final_held_out_nll", "held_out_nll", "held_out_nll_absolute_difference"], "learning-equivalence constraint"],
-    ];
-    definitions.forEach(([label, ids, meaning]) => {
-      const metric = rackMetric(metrics, ids);
-      const display = rackEffectDisplay(metric);
-      const passed = rackRecord(metric).passed;
-      const card = element("article", "rack-dephasing-effect-card");
-      card.dataset.state = rackDephasingArtifact.researcher.measurement_valid !== true ? "invalid" : passed === false ? "fail" : passed === true ? "pass" : "unresolved";
-      card.append(element("span", "", `${rackHumanLabel(state.rackComparator)} comparison`), element("strong", "", display.value), element("small", "", `${display.interval} · ${meaning}`));
-      dom.rackdephasingeffectgrid.append(card);
-    });
-  }
-
-  function rackPolicyMetric(policy, ids) {
-    const policyMetrics = rackDephasingArtifact.researcher.policy_metrics;
-    const metrics = Array.isArray(policyMetrics)
-      ? rackRecord(policyMetrics.find((entry) => entry.policy_id === policy))
-      : rackRecord(rackRecord(policyMetrics)[policy]);
-    return rackMetric(metrics, ids);
-  }
-
-  function rackFormatMetric(metric, unit, formatter) {
-    const value = rackMetricValue(metric);
-    if (!finiteNumber(value)) return "unmeasured";
-    if (formatter) return formatter(value);
-    return `${value.toLocaleString("en-US", { maximumSignificantDigits: 5 })}${unit ? ` ${unit}` : ""}`;
-  }
-
-  function renderRackPolicyTable() {
-    dom.rackdephasingpolicybody.replaceChildren();
-    RACK_POLICY_ORDER.forEach((policy) => {
-      const row = element("tr");
-      row.append(
-        element("td", "", RACK_POLICY_LABELS[policy]),
-        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["rack_ramp", "p99_9_rack_ramp_w_per_s"]), "W/s")),
-        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["rack_spectral_energy", "rack_spectral_energy_0_1_10_hz"]), "")),
-        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["useful_token_throughput"]), "token/s")),
-        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["rack_energy_per_useful_token"]), "J/token")),
-        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["p95_recovery_time_s", "recovery_time"]), "", (value) => formatSeconds(value, 2))),
-        element("td", "", rackFormatMetric(rackPolicyMetric(policy, ["final_held_out_nll", "held_out_nll"]), "")),
-      );
-      dom.rackdephasingpolicybody.append(row);
-    });
-  }
-
-  function rackGateEntries(value, prefix = "") {
-    const entries = [];
-    Object.entries(rackRecord(value)).forEach(([key, candidate]) => {
-      const id = prefix ? `${prefix}.${key}` : key;
-      if (typeof candidate === "boolean") {
-        entries.push({ id, state: candidate ? "pass" : "fail", detail: candidate ? "passed" : "failed" });
-        return;
-      }
-      const record = rackRecord(candidate);
-      const status = String(record.status || "").toLowerCase();
-      if (typeof record.passed === "boolean" || ["pass", "passed", "fail", "failed", "unresolved", "invalid"].includes(status)) {
-        const stateValue = typeof record.passed === "boolean" ? (record.passed ? "pass" : "fail") : status.startsWith("pass") ? "pass" : status.startsWith("fail") ? "fail" : "unresolved";
-        const observedValue = finiteNumber(record.observed) ? record.observed : record.observed_value;
-        const observed = finiteNumber(observedValue) ? ` · observed ${observedValue.toLocaleString("en-US", { maximumSignificantDigits: 5 })}` : "";
-        entries.push({ id, state: stateValue, detail: `${record.description || record.reason || record.status || stateValue}${observed}` });
-        return;
-      }
-      entries.push(...rackGateEntries(record, id));
-    });
-    return entries;
-  }
-
-  function renderRackGates() {
-    dom.rackdephasinggatestrip.replaceChildren();
-    const gates = rackGateEntries(rackDephasingArtifact.researcher.gates);
-    gates.forEach((entry) => {
-      const gate = element("div", "rack-dephasing-gate");
-      gate.dataset.state = entry.state;
-      gate.append(element("strong", "", `${entry.state.toUpperCase()} · ${rackHumanLabel(entry.id)}`), element("span", "", entry.detail));
-      dom.rackdephasinggatestrip.append(gate);
-    });
-    if (!gates.length) {
-      const gate = element("div", "rack-dephasing-gate");
-      gate.dataset.state = "unresolved";
-      gate.append(element("strong", "", "UNRESOLVED"), element("span", "", "No gate records were emitted."));
-      dom.rackdephasinggatestrip.append(gate);
-    }
-    const passed = gates.filter((gate) => gate.state === "pass").length;
-    const failed = gates.filter((gate) => gate.state === "fail").length;
-    dom.rackdephasinggatesummary.textContent = `${passed}/${gates.length} pass · ${failed} fail`;
-  }
-
-  function rackBoundaryText(boundary) {
-    if (typeof boundary === "string") return boundary;
-    const record = rackRecord(boundary);
-    const parts = [];
-    for (const key of ["plain_boundary", "summary", "scope", "observed_boundary"]) {
-      if (typeof record[key] === "string" && record[key]) parts.push(record[key]);
-    }
-    if (Array.isArray(record.observed) && record.observed.length) parts.push(`Observed: ${record.observed.join(", ")}.`);
-    if (Array.isArray(record.can_resolve) && record.can_resolve.length) parts.push(`Can resolve: ${record.can_resolve.join(", ")}.`);
-    if (Array.isArray(record.cannot_resolve) && record.cannot_resolve.length) parts.push(`Cannot resolve: ${record.cannot_resolve.join(", ")}.`);
-    if (Array.isArray(record.unmeasured) && record.unmeasured.length) parts.push(`Unmeasured: ${record.unmeasured.join(", ")}.`);
-    if (Array.isArray(record.not_claimed) && record.not_claimed.length) parts.push(`Not claimed: ${record.not_claimed.join(", ")}.`);
-    return parts.join(" ") || JSON.stringify(record);
-  }
-
-  function renderRackEventLedger() {
-    dom.rackdephasingeventbody.replaceChildren();
-    const { baseline, feedback } = rackSelectedArms();
-    const arms = [baseline, feedback].filter(Boolean);
-    const records = arms.flatMap((arm) => rackDisplayEvents(arm).map((event) => ({ arm, event })));
-    const displayLimit = 1000;
-    records.slice(0, displayLimit).forEach(({ arm, event }) => {
-      const ready = event.earliest_start_ns;
-      const release = event.scheduled_release_ns;
-      const start = rackEventStart(event);
-      const end = start === null ? null : rackEventEnd(event, start);
-      const row = element("tr");
-      row.append(
-        element("td", "", `${RACK_POLICY_LABELS[arm.policy_id] || arm.policy_id} / ${event.job_id ?? "rack"}`),
-        element("td", "", String(event.kind || "not reported")),
-        element("td", "", String(event.state_generation || "not reported")),
-        element("td", "", finiteNumber(ready) && finiteNumber(release) ? `${ready.toLocaleString("en-US")} → ${release.toLocaleString("en-US")} ns` : "not reported"),
-        element("td", "", finiteNumber(start) && finiteNumber(end) ? `${start.toLocaleString("en-US")} → ${end.toLocaleString("en-US")} ns` : "not reported"),
-        element("td", "", finiteNumber(event.bytes) ? formatBytes(event.bytes) : "not reported"),
-        element("td", "", String(event.outcome || "not reported")),
-      );
-      dom.rackdephasingeventbody.append(row);
-    });
-    if (!records.length) {
-      const row = element("tr");
-      const cell = element("td", "", "No display-event records are present for the selected pair. Exact raw chunk bindings remain below.");
-      cell.colSpan = 7;
-      row.append(cell);
-      dom.rackdephasingeventbody.append(row);
-    } else if (records.length > displayLimit) {
-      const row = element("tr");
-      const cell = element("td", "", `${(records.length - displayLimit).toLocaleString("en-US")} additional compact events are omitted from the DOM; the complete hash-chained event stream is in the raw manifest.`);
-      cell.colSpan = 7;
-      row.append(cell);
-      dom.rackdephasingeventbody.append(row);
-    }
-  }
-
-  function rackFact(label, value) {
-    const fact = element("div", "rack-dephasing-trace-fact");
-    fact.append(element("strong", "", label), element("span", "", value));
-    return fact;
-  }
-
-  function rackManifestRefs(value, path = "raw", output = []) {
-    if (Array.isArray(value)) {
-      value.forEach((item, index) => rackManifestRefs(item, `${path}[${index}]`, output));
-      return output;
-    }
-    const record = rackRecord(value);
-    if (!Object.keys(record).length) return output;
-    const uri = record.uri || record.path || record.relative_path || record.chunk_path;
-    if (typeof uri === "string" && uri) {
-      output.push({ path, uri, sha256: record.sha256 || record.content_sha256 || record.artifact_sha256 || record.chunk_sha256 || null, recordCount: record.record_count || record.sample_count || null });
-    }
-    Object.entries(record).forEach(([key, item]) => {
-      if (["uri", "path", "relative_path", "chunk_path"].includes(key)) return;
-      if (item && typeof item === "object") rackManifestRefs(item, `${path}.${key}`, output);
-    });
-    return output;
-  }
-
-  function renderRackTrace() {
-    const trace = rackDephasingArtifact.full_trace;
-    const researcher = rackDephasingArtifact.researcher;
-    const { block, baseline, feedback } = rackSelectedArms();
-    dom.rackdephasingtracesummary.replaceChildren(
-      rackFact("Selected block", block ? `${block.block_id} · ${block.split}` : "unavailable"),
-      rackFact("Result volume", `${trace.block_count.toLocaleString("en-US")} blocks · ${trace.arm_count.toLocaleString("en-US")} arms`),
-      rackFact("Measurement", researcher.measurement_valid ? "VALID" : `INVALID · ${researcher.active_invalidators.join(", ") || "reason not reported"}`),
-      rackFact("Comparator semantics", JSON.stringify(baseline ? baseline.semantics : null)),
-      rackFact("Feedback semantics", JSON.stringify(feedback ? feedback.semantics : null)),
-      rackFact("Clock alignment", JSON.stringify(researcher.clock_alignment)),
-      rackFact("Sensor manifest", JSON.stringify(researcher.sensor_manifest)),
-      rackFact("Source artifact", rackDephasingArtifact.source_result.artifact_sha256),
-    );
-
-    dom.rackdephasingrawmanifest.replaceChildren();
-    const refs = rackManifestRefs(trace.raw_trace_manifest);
-    refs.slice(0, 200).forEach((entry) => {
-      const fact = element("div", "rack-dephasing-trace-fact");
-      fact.append(element("strong", "", entry.path));
-      const isLocalAbsolute = /^[A-Za-z]:[\\/]/.test(entry.uri) || entry.uri.startsWith("/") || entry.uri.startsWith("\\\\");
-      if (isLocalAbsolute) {
-        fact.append(element("span", "", `${entry.uri} · local execution path`));
-      } else {
-        const link = element("a", "", entry.uri);
-        link.href = entry.uri;
-        link.rel = "noreferrer";
-        fact.append(link);
-      }
-      fact.append(element("span", "", `${entry.sha256 ? `SHA-256 ${entry.sha256}` : "hash not reported"}${finiteNumber(entry.recordCount) ? ` · ${entry.recordCount.toLocaleString("en-US")} records` : ""}`));
-      dom.rackdephasingrawmanifest.append(fact);
-    });
-    if (!refs.length) dom.rackdephasingrawmanifest.append(rackFact("Raw trace", "No chunk URI was emitted."));
-    if (refs.length > 200) dom.rackdephasingrawmanifest.append(rackFact("Additional chunks", `${(refs.length - 200).toLocaleString("en-US")} bindings remain in compact provenance below.`));
-    dom.rackdephasingprovenancejson.textContent = JSON.stringify({
-      schema: rackDephasingArtifact.schema,
-      artifact_sha256: rackDephasingArtifact.artifact_sha256,
-      artifact_state: rackDephasingArtifact.artifact_state,
-      source_result: rackDephasingArtifact.source_result,
-      scenario_sha256: trace.scenario_sha256,
-      source_bindings: trace.source_bindings,
-      engine: trace.engine,
-      runtime: trace.runtime,
-      sensor_manifest: researcher.sensor_manifest,
-      clock_alignment: researcher.clock_alignment,
-      raw_trace_manifest: trace.raw_trace_manifest,
-      evidence_boundary: rackDephasingArtifact.evidence_boundary,
-    }, null, 2);
-    dom.rackdephasingdepthtrace.textContent = `${trace.block_count.toLocaleString("en-US")} paired blocks · ${trace.arm_count.toLocaleString("en-US")} physical arms · exact raw streams are hash-chained and bound by the manifest · compact artifact ${rackDephasingArtifact.artifact_sha256}.`;
-    renderRackEventLedger();
-  }
-
-  function renderRackDephasingV3() {
-    if (!dom.rackdephasingv3) return;
-    if (!rackDephasingArtifact) {
-      dom.rackdephasingv3.hidden = true;
-      return;
-    }
-    dom.rackdephasingv3.hidden = false;
-    const freshman = rackDephasingArtifact.freshman;
-    const researcher = rackDephasingArtifact.researcher;
-    const decision = typeof researcher.decision === "string" ? researcher.decision : rackRecord(researcher.decision).conclusion || rackRecord(researcher.decision).status || rackDephasingArtifact.artifact_state;
-    dom.rackdephasingv3state.textContent = `${researcher.measurement_valid ? "measurement valid" : "measurement invalid"} · ${rackHumanLabel(decision)} · artifact ${rackDephasingArtifact.artifact_sha256.slice(0, 12)}`;
-    dom.rackdephasingeyebrow.textContent = researcher.measurement_valid ? `${rackDephasingArtifact.full_trace.evaluation_block_count} physical evaluation blocks` : "Physical measurement invalid";
-    dom.rackdephasinginsighttitle.textContent = freshman.headline;
-    dom.rackdephasingplainanswer.textContent = freshman.plain_answer;
-    dom.rackdephasingboundaryshort.textContent = freshman.boundary;
-    dom.rackdephasingfreshmancopy.textContent = freshman.plain_answer;
-    dom.rackdephasingresearchercopy.textContent = `Only legal release timing changed. ${RACK_POLICY_LABELS.telemetry_feedback} is compared with synchronized, random jitter, storage-only pacing, and static cohorts under the same useful work, failures, state generations, and held-out learning batches.`;
-    dom.rackdephasingevidenceboundary.textContent = rackBoundaryText(rackDephasingArtifact.evidence_boundary);
-    const next = rackDephasingArtifact.next_experiment;
-    dom.rackdephasingnextquestion.textContent = `${next.id}: ${next.question} Do not claim yet: ${next.do_not_claim_yet.join(", ")}.`;
-    renderRackBlockControls();
-    renderRackFreshman();
-    renderRackDephasingWaveform();
-    renderRackEffects();
-    renderRackPolicyTable();
-    renderRackGates();
-    renderRackTrace();
-  }
-
-  function renderStatus() {
-    dom.stageboundary.replaceChildren();
-    const mark = element("span", "stage-mark");
-    mark.setAttribute("aria-hidden", "true");
-    dom.stageboundary.append(mark);
-
-    if (state.experiment === "E001-SC1") {
-      dom.experimentkickercode.textContent = "E001-SC1";
-      dom.experimentkickername.textContent = "Observable Semantic Slack";
-      dom.experimentquestion.textContent = semanticConsistencyArtifact
-        ? semanticConsistencyArtifact.question
-        : "Can one observable controller safely spend semantic slack?";
-      if (semanticConsistencyArtifact) {
-        const status = semanticConsistencyArtifact.status;
-        dom.stageboundary.append(
-          element("strong", "", String(status.stage || "software experiment").replaceAll("_", " ")),
-          document.createTextNode("·"),
-          document.createTextNode(String(status.validation || "held-out family evaluation").replaceAll("_", " ")),
-        );
-        dom.plainanswer.textContent = String(status.plain_answer || semanticConsistencyArtifact.freshman.plain_answer || "The artifact does not report a plain answer.");
-        setPlainWords("plain-words", status.conclusion);
-        dom.artifactstate.textContent = `Artifact loaded · ${String(status.conclusion || "inconclusive").replaceAll("_", " ")} · ${semanticConsistencyArtifact.schema} · ${semanticConsistencyArtifact.artifact_sha256.slice(0, 12)}`;
-        dom.footerevidencestate.lastChild.textContent = " Evidence state: measured learning + exact accounting + modeled infrastructure";
-      } else {
-        dom.stageboundary.append(element("strong", "", "Software experiment"), document.createTextNode("·"), document.createTextNode("result not loaded"));
-        dom.plainanswer.textContent = "No semantic-consistency result is loaded. No controller ranking, interval, or learning conclusion is shown.";
-        setPlainWords("plain-words", null);
-        if (semanticConsistencyArtifactError instanceof ArtifactContractError) {
-          dom.artifactstate.textContent = `Artifact rejected: ${semanticConsistencyArtifactError.message}.`;
-        } else if (semanticConsistencyArtifactError) {
-          dom.artifactstate.textContent = `${SEMANTIC_CONSISTENCY_ARTIFACT_URL} is absent or unreadable. The experiment has not produced a browser result yet.`;
-        } else {
-          dom.artifactstate.textContent = `Reading ${SEMANTIC_CONSISTENCY_ARTIFACT_URL}…`;
-        }
-        dom.footerevidencestate.lastChild.textContent = " Evidence state: awaiting semantic-consistency artifact";
-      }
-      return;
-    }
-
-    dom.experimentkickercode.textContent = "E001";
-    dom.experimentkickername.textContent = "Beyond One Datacenter · Prior Evidence Chain";
-    dom.experimentquestion.textContent = "Can one training run survive across three datacenters?";
-
-    if (artifact) {
-      const stage = String(artifact.status.stage || "virtual_mechanics_screen").replaceAll("_", " ");
-      const stageStrong = element("strong", "", stage);
-      const validation = artifact.status.held_out_learning_validation === true ? "held-out validation attached" : "held-out validation absent";
-      dom.stageboundary.append(stageStrong, document.createTextNode("·"), document.createTextNode(validation));
-      dom.plainanswer.textContent = String(artifact.status.plain_answer || "The artifact does not report a plain answer.");
-      setPlainWords("plain-words", artifact.status.conclusion);
-      const protocol = typeof artifact.protocol_hash === "string" ? artifact.protocol_hash.slice(0, 12) : "not reported";
-      dom.artifactstate.textContent = `Artifact loaded · ${conclusionLabel(artifact.status.conclusion)} · ${artifact.schema} · protocol ${protocol}`;
-      dom.footerevidencestate.lastChild.textContent = " Evidence state: mixed artifact evidence";
-    } else {
-      dom.stageboundary.append(element("strong", "", "Virtual screening"), document.createTextNode("·"), document.createTextNode("held-out validation absent"));
-      dom.plainanswer.textContent = "No generated experiment artifact is loaded. The scenario can be inspected, but policy results and the learning-efficiency answer remain not run.";
-      setPlainWords("plain-words", null);
-      if (artifactError instanceof ArtifactContractError) {
-        dom.artifactstate.textContent = `Artifact rejected: ${artifactError.message}. No result values are displayed.`;
-      } else if (artifactError) {
-        dom.artifactstate.textContent = `${ARTIFACT_URL} is absent or unreadable. Only approved scenario inputs are visible; results are not run.`;
-      } else {
-        dom.artifactstate.textContent = `Reading ${ARTIFACT_URL}…`;
-      }
-      dom.footerevidencestate.lastChild.textContent = " Evidence state: awaiting artifact";
-    }
-  }
 
   function scenarioData() {
     return artifact && artifact.scenario ? artifact.scenario : SAFE_SCENARIO;
@@ -3938,26 +3384,26 @@
   function nodeLayout(nodes, mobile) {
     if (mobile) {
       const map = new Map();
-      nodes.forEach((node, index) => map.set(node.node_id, { x: 12, y: 18 + index * 96, width: 336, height: 72 }));
-      return { width: 360, height: Math.max(696, 34 + nodes.length * 96), map };
+      nodes.forEach((node, index) => map.set(node.node_id, { x: 12, y: 18 + index * 112, width: 336, height: 88 }));
+      return { width: 360, height: 36 + nodes.length * 112, map };
     }
     const named = {
-      site_availability: { x: 30, y: 38 },
-      membership: { x: 310, y: 38 },
-      sync_cadence: { x: 310, y: 150 },
-      collective_payload: { x: 30, y: 265 },
-      mechanical_elapsed_time: { x: 310, y: 265 },
-      learning_progress: { x: 590, y: 150 },
-      time_to_target: { x: 590, y: 342 },
+      site_availability: { x: 10, y: 40 },
+      membership: { x: 330, y: 40 },
+      sync_cadence: { x: 330, y: 170 },
+      collective_payload: { x: 10, y: 300 },
+      mechanical_elapsed_time: { x: 330, y: 300 },
+      learning_progress: { x: 650, y: 170 },
+      time_to_target: { x: 650, y: 410 },
     };
     const map = new Map();
     nodes.forEach((node, index) => {
       const fallbackColumn = index % 3;
       const fallbackRow = Math.floor(index / 3);
-      const point = named[node.node_id] || { x: 30 + fallbackColumn * 280, y: 38 + fallbackRow * 112 };
-      map.set(node.node_id, { ...point, width: 220, height: 74 });
+      const point = named[node.node_id] || { x: 10 + fallbackColumn * 320, y: 40 + fallbackRow * 130 };
+      map.set(node.node_id, { ...point, width: 200, height: 88 });
     });
-    return { width: 840, height: 440, map };
+    return { width: 860, height: 520, map };
   }
 
   function causalEdgePath(source, target, mobile) {
@@ -4009,10 +3455,13 @@
     const svg = dom.causalsvg;
     svg.replaceChildren();
     svg.setAttribute("viewBox", `0 0 ${layout.width} ${layout.height}`);
+    // 1 user unit is about 1 CSS pixel: the SVG keeps a minimum width (see 96-readability.css) so the
+    // 13 to 15 unit labels never render below 12px.
     svg.setAttribute("height", String(layout.height));
+    svg.dataset.layout = mobile ? "stacked" : "wide";
 
     const title = svgElement("title", { id: "causal-svg-title" });
-    title.textContent = "E001 causal graph";
+    title.textContent = "Causal graph";
     const description = svgElement("desc", { id: "causal-svg-desc" });
     description.textContent = artifact ? "Artifact-derived causal nodes connect scenario availability, policy mechanics, traffic, elapsed time, an unfitted learning prior, and an unmeasured target." : "The generated artifact is not loaded. This is the schema-level causal path only; result values are not run.";
     svg.append(title, description);
@@ -4069,9 +3518,9 @@
       group.append(svgElement("rect", { class: "node-frame", x: 0, y: 0, width: box.width, height: box.height, rx: 0 }));
       addSVGEvidenceGlyph(group, kind, 14, 15);
       // Wrap long labels onto two lines instead of letting them escape the
-      // frame. 13px mono advances ~7.8px per character; 60px is glyph + pad.
+      // frame. The 16px sans title advances ~8.8px per character; 60px is glyph + pad.
       const label = String(node.label);
-      const fitChars = Math.max(10, Math.floor((box.width - 60) / 7.8));
+      const fitChars = Math.max(10, Math.floor((box.width - 56) / 8.8));
       let lines = [label];
       if (label.length > fitChars) {
         const mid = Math.floor(label.length / 2);
@@ -4083,16 +3532,16 @@
         if (split > 0) lines = [label.slice(0, split), label.slice(split + 1)];
       }
       const wrapped = lines.length > 1;
-      const titleNode = svgElement("text", { class: "node-title", x: 50, y: wrapped ? 20 : 27 });
+      const titleNode = svgElement("text", { class: "node-title", x: 50, y: wrapped ? 25 : 31 });
       lines.forEach((line, lineIndex) => {
-        const span = svgElement("tspan", { x: 50, dy: lineIndex === 0 ? 0 : 15 });
+        const span = svgElement("tspan", { x: 50, dy: lineIndex === 0 ? 0 : 18 });
         span.textContent = line;
         titleNode.append(span);
       });
-      const evidence = svgElement("text", { class: "node-evidence", x: 50, y: wrapped ? 52 : 47 });
+      const evidence = svgElement("text", { class: "node-evidence", x: 50, y: wrapped ? 62 : 54 });
       evidence.textContent = EVIDENCE_LABELS[kind];
       group.append(titleNode, evidence);
-      const traceId = svgElement("text", { class: "node-detail depth-full_trace", x: 50, y: wrapped ? 66 : 63 });
+      const traceId = svgElement("text", { class: "node-detail depth-full_trace", x: 50, y: wrapped ? 79 : 75 });
       traceId.textContent = String(node.node_id);
       group.append(traceId);
       group.addEventListener("click", () => openInspectorFor(String(node.node_id)));
@@ -4203,7 +3652,7 @@
     dom.comparisonbody.replaceChildren();
     if (!artifact) {
       POLICY_ORDER.forEach((policy) => dom.comparisonbody.append(emptyComparisonRow(policy)));
-      dom.comparisonboundary.textContent = "Generated E001 artifact not loaded. Scenario inputs are visible, but all policy result cells remain not run.";
+      dom.comparisonboundary.textContent = "Generated artifact not loaded. Scenario inputs are visible, but all policy result cells remain not run.";
       return;
     }
 
@@ -4290,7 +3739,7 @@
     svg.replaceChildren();
     timelineScale = null;
     const title = svgElement("title", { id: "timeline-svg-title" });
-    title.textContent = "Aligned E001 policy event timeline";
+    title.textContent = "Aligned policy event timeline";
     const description = svgElement("desc", { id: "timeline-svg-desc" });
     svg.append(title, description);
 
@@ -4518,7 +3967,7 @@
 
   function inspectorSection(title, ...children) {
     const section = element("section", "inspector-section");
-    const researcherTitles = new Set(["Mechanism", "Policy rule", "Uncertainty", "What it changes", "Controller boundary", "Known transfer limit", "Transfer limit", "Preregistered falsifier", "Source"]);
+    const researcherTitles = new Set(["Mechanism", "Policy rule", "Uncertainty", "What it changes", "Controller boundary", "Known transfer limit", "Transfer limit", "Frozen falsifier", "Source"]);
     const fullTraceTitles = new Set(["Exact event record", "Event metadata", "Source observations", "Residual attribution"]);
     if (researcherTitles.has(title)) section.classList.add("depth-researcher");
     if (fullTraceTitles.has(title)) section.classList.add("depth-full_trace");
@@ -4704,7 +4153,7 @@
   function mechanismForNode(nodeId) {
     const mechanisms = {
       site_availability: "Failure and recovery timestamps are fixed scenario inputs. The event engine reserves the affected site's operational resources over that interval.",
-      membership: "No reactive active-outage membership rule is implemented in E001's current mechanics screen.",
+      membership: "No reactive active-outage membership rule is implemented in the current mechanics screen.",
       sync_cadence: "After a completed synchronization cycle, the controller reads communication-phase fraction. High pressure can double local steps; low pressure can halve them within configured bounds. It does not react to an active outage.",
       collective_payload: "modeled_collective_payload_link_bytes = sum of one gradient payload per modeled WAN link and synchronization cycle.",
       mechanical_elapsed_time: "Successive epochs enforce compute before collective, share explicit resources, and postpone a whole overlapping operation around an assumed outage.",
@@ -4770,7 +4219,7 @@
     if (node.node_id === "learning_progress") {
       dom.inspectorbody.append(inspectorSection("Source observations", sourceIdList(Array.isArray(prior.seed_observation_ids) ? prior.seed_observation_ids : [])));
     } else {
-      dom.inspectorbody.append(inspectorSection("Source", node.node_id === "site_availability" ? "E001 scenario input; no observed fleet trace." : "E001 virtual datacenter artifact and preregistered protocol."));
+      dom.inspectorbody.append(inspectorSection("Source", node.node_id === "site_availability" ? "Scenario input; no observed fleet trace." : "Virtual datacenter artifact."));
     }
 
     const boundaryText = node.node_id === "collective_payload" ? "Payload-link bytes omit complete algorithm-specific collective traffic and protocol overhead." : node.node_id === "mechanical_elapsed_time" ? "Preemption, lost work, checkpoint recovery, and resumable mid-operation control are not modeled." : node.node_id === "learning_progress" || node.node_id === "time_to_target" ? learningTransferBoundary() : "The value does not transfer beyond the explicit scenario and supported result scope without new evidence.";
@@ -4778,7 +4227,7 @@
 
     if (falsifier) {
       const status = falsifier.survived === true ? "survived virtual screen" : falsifier.survived === false ? "failed virtual screen gate" : "unresolved";
-      dom.inspectorbody.append(inspectorSection("Preregistered falsifier", factList([
+      dom.inspectorbody.append(inspectorSection("Frozen falsifier", factList([
         ["ID", String(falsifier.falsifier_id)],
         ["Metric", String(falsifier.metric)],
         ["Reported value", finiteNumber(falsifier.observed_value) ? formatRatio(falsifier.observed_value) : "unmeasured"],
@@ -4822,7 +4271,7 @@
       inspectorSection("Event metadata", metadataCode),
     );
     if (record.kind === "failure" || record.kind === "recovery") {
-      dom.inspectorbody.append(inspectorSection("Controller boundary", "The active interruption is a scenario event. The current E001 controller does not detect it or issue a failure-response membership decision; cadence changes follow completed communication cycles only."));
+      dom.inspectorbody.append(inspectorSection("Controller boundary", "The active interruption is a scenario event. The current controller does not detect it or issue a failure-response membership decision; cadence changes follow completed communication cycles only."));
     }
     dom.inspectorbody.append(inspectorSection("Known transfer limit", "An event interval demonstrates virtual ordering and contention. It is not an observed production trace, and it does not validate training quality."));
   }
@@ -5033,6 +4482,8 @@
     async selectView(patch, options = {}) {
       await observatoryReady;
       commitState(patch, { replace: Boolean(options.replace) });
+      if (patch && patch.experiment === "E001-SC1") await openFold("controller");
+      else if (patch && patch.experiment === "E001") await openFold("simulator");
       return { ...state };
     },
     async focusCausalPath(nodeIds, edges = []) {
@@ -5040,6 +4491,7 @@
       const pathNodes = Array.isArray(nodeIds) ? nodeIds.filter((value) => typeof value === "string") : [];
       const terminalNode = pathNodes[pathNodes.length - 1] || "time_to_target";
       commitState({ experiment: "E001", depth: "researcher", node: terminalNode });
+      await openFold("simulator");
       const selectedNodes = new Set(pathNodes);
       const selectedEdges = new Set(edges.map((edge) => `${edge.source}>${edge.target}`));
       document.querySelectorAll("#causal-svg [data-node-id]").forEach((node) => {

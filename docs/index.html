@@ -3,452 +3,193 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="GPUSTACK is a causal, uncertainty-aware virtual AI datacenter, visual observatory, and research lab for frontier training and inference systems questions.">
+  <meta name="description" content="A personal project tracing what AI training really costs, from the electricity bill down to how chips are made.">
   <meta property="og:title" content="gpu_stack">
-  <meta property="og:description" content="A virtual datacenter that connects measured evidence, causal mechanics, interactive explanation, and falsifiable ML systems experiments.">
+  <meta property="og:description" content="A personal project tracing what AI training really costs, from the electricity bill down to how chips are made.">
   <meta property="og:image" content="https://cuuper22.github.io/gpu_stack-/assets/readme-hero.png">
   <meta property="og:url" content="https://cuuper22.github.io/gpu_stack-/">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
-  <title>GPUSTACK · Virtual Datacenter</title>
+  <meta name="twitter:title" content="gpu_stack">
+  <meta name="twitter:description" content="A personal project tracing what AI training really costs, from the electricity bill down to how chips are made.">
+  <meta name="twitter:image" content="https://cuuper22.github.io/gpu_stack-/assets/readme-hero.png">
+  <meta name="theme-color" content="#0e7d84">
+  <title>gpu_stack · What AI training costs</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23008080'/%3E%3Crect x='3' y='3' width='10' height='10' fill='%23808080' stroke='%231A1A1A'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23C0C0C0'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Pixelify+Sans:wght@500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/00-foundation.css">
-  <link rel="stylesheet" href="styles/10-desktop-chrome.css">
-  <link rel="stylesheet" href="styles/20-window-shell.css">
-  <link rel="stylesheet" href="styles/30-interactive-sections.css">
-  <link rel="stylesheet" href="styles/40-supporting-sections.css">
-  <link rel="stylesheet" href="styles/50-animations.css">
+  <link rel="stylesheet" href="styles/10-desktop.css">
+  <link rel="stylesheet" href="styles/20-story.css">
   <link rel="stylesheet" href="styles/60-taskbar.css">
   <link rel="stylesheet" href="styles/70-pixel-icons.css">
-  <link rel="stylesheet" href="styles/80-responsive.css">
+  <!-- The Calculator ships as its own script and stylesheet. Until both exist, the window says "coming soon". -->
+  <link rel="stylesheet" href="styles/calculator.css">
+  <link rel="stylesheet" href="styles/figures.css">
+  <link rel="stylesheet" href="styles/explain.css">
+  <script defer src="calculator.js"></script>
+  <script defer src="app.js"></script>
+  <script defer src="figures/index.js"></script>
+  <script defer src="figures/hook-gpu-hours.js"></script>
+  <script defer src="figures/cost-ladder.js"></script>
+  <script defer src="figures/drivers.js"></script>
+  <script defer src="figures/lithography.js"></script>
+  <script defer src="figures/accuracy.js"></script>
+  <script defer src="figures/flaky-sites.js"></script>
+  <script defer src="figures/agents-report-card.js"></script>
+  <script defer src="explain-visuals.js"></script>
+  <script defer src="explain.js" data-manual></script>
+  <script defer src="story-init.js"></script>
 </head>
 <body>
+  <nav class="phone-tabs" aria-label="Sections">
+    <a href="#story" data-open="story" aria-current="page">Story</a>
+    <a href="#calculator" data-open="calculator">Calculator</a>
+    <a href="observatory.html">Lab</a>
+  </nav>
+
   <div class="desktop">
     <div class="desktop-icons" aria-label="CuperOS shortcuts">
-      <a class="desktop-icon" href="https://cuuper22.github.io/" aria-label="Back to CuperOS desktop">
-        <span class="icon-image px-icon px-folder" style="width:36px;height:36px;"></span>
-        <span class="icon-label">Desktop</span>
+      <a class="desktop-icon" href="#story" data-open="story">
+        <span class="icon-image px-icon px-doc"></span>
+        <span class="icon-label">Story</span>
       </a>
-      <a class="desktop-icon" href="https://github.com/Cuuper22/gpu_stack-#readme">
-        <span class="icon-image px-icon px-doc" style="width:36px;height:36px;"></span>
-        <span class="icon-label">README.md</span>
+      <a class="desktop-icon" href="#calculator" data-open="calculator">
+        <span class="icon-image px-icon px-chip"></span>
+        <span class="icon-label">Calculator</span>
       </a>
       <a class="desktop-icon" href="observatory.html">
-        <span class="icon-image px-icon px-graph" style="width:36px;height:36px;"></span>
-        <span class="icon-label">Observatory</span>
-      </a>
-      <a class="desktop-icon" href="#layers">
-        <span class="icon-image px-icon px-atom" style="width:36px;height:36px;"></span>
-        <span class="icon-label">layers.sys</span>
+        <span class="icon-image px-icon px-graph"></span>
+        <span class="icon-label">Lab</span>
       </a>
     </div>
 
     <div class="desktop-logo">
       <span class="logo-text">CuperOS</span>
-      <span class="logo-version">GPUSTACK RESEARCH V0.27</span>
     </div>
 
-    <main class="window app-window" id="top" aria-label="gpu_stack project window">
+    <main class="window os-window story-window" id="win-story" data-window="story" aria-label="Story">
       <div class="title-bar">
-        <div class="title-text"><span class="px-icon px-chip"></span> gpu_stack.exe</div>
-        <div class="window-controls" aria-hidden="true">
-          <span class="window-btn">_</span>
-          <span class="window-btn">□</span>
-          <span class="window-btn">x</span>
+        <div class="title-text"><span class="px-icon px-doc"></span> Story</div>
+        <div class="window-controls">
+          <button class="window-btn" type="button" data-window-action="min" aria-label="Minimize Story">_</button>
+          <button class="window-btn" type="button" data-window-action="max" aria-label="Maximize Story">□</button>
+          <button class="window-btn" type="button" data-window-action="close" aria-label="Close Story">x</button>
         </div>
       </div>
-      <div class="window-content app-shell">
-        <nav class="app-nav" aria-label="Page sections">
-          <div class="tree-label">D:\CUPEROS\GPU_STACK</div>
-          <a class="tree-button" href="observatory.html"><span class="px-icon px-graph"></span> Causal observatory</a>
-          <a class="tree-button" href="https://github.com/Cuuper22/gpu_stack-/blob/main/RESEARCH.md"><span class="px-icon px-doc"></span> Research program</a>
-          <a class="tree-button" href="#what"><span class="px-icon px-doc"></span> What is it?</a>
-          <a class="tree-button" href="#stats"><span class="px-icon px-graph"></span> Registry stats</a>
-          <a class="tree-button" href="#read-graph"><span class="px-icon px-graph"></span> Read graph</a>
-          <a class="tree-button" href="#layers"><span class="px-icon px-atom"></span> Layer viewer</a>
-          <a class="tree-button" href="#trace"><span class="px-icon px-graph"></span> Trace target</a>
-          <a class="tree-button" href="#cone-browser"><span class="px-icon px-graph"></span> Cone browser</a>
-          <a class="tree-button" href="#root-debt"><span class="px-icon px-folder"></span> Root debt</a>
-          <a class="tree-button" href="#run"><span class="px-icon px-term"></span> Run commands</a>
-          <a class="tree-button" href="#glossary"><span class="px-icon px-doc"></span> Glossary</a>
-          <a class="tree-button" href="#next"><span class="px-icon px-folder"></span> Next work</a>
-          <a class="tree-button" href="https://github.com/Cuuper22/gpu_stack-"><span class="px-icon px-folder"></span> GitHub repo</a>
-        </nav>
+      <div class="window-content window-scroll" tabindex="0" role="region" aria-label="Story, scrolling page">
+        <article class="story" id="story">
+<!-- STORY START -->
+          <header class="story-head">
+            <h1>Where does the cost of training an AI model come from?</h1>
+            <p class="story-lede">I'm Cuper. People usually explain AI training with "more GPUs, more data, more money." It's true, and it never told me anything, so I followed that sentence down until it hit something physical: what the money buys, what the GPUs are doing, and what decides how fast they can do it. This is what I found. Hover or tap any underlined word for a quick picture of what it means.</p>
+          </header>
 
-        <div class="app-main">
-          <section class="hero-row" id="what" aria-labelledby="page-title">
-            <div class="headline">
-              <p class="file-path">gpu_stack/readme/frontdoor.txt</p>
-              <h1 id="page-title">gpu_stack</h1>
-              <p class="tagline">
-                A virtual AI datacenter you can question. It estimates what a training run costs in time, power, and money, states how sure it is, and shows you what every number is built from.
-              </p>
-              <div class="action-row">
-                <a class="retro-btn primary" href="observatory.html"><span class="px-icon px-graph"></span> Open observatory</a>
-                <a class="retro-btn" href="https://github.com/Cuuper22/gpu_stack-/blob/main/RESEARCH.md"><span class="px-icon px-doc"></span> Research program</a>
-                <a class="retro-btn" href="#layers"><span class="px-icon px-atom"></span> Inspect symbolic engine</a>
-              </div>
-            </div>
-            <aside class="status-panel" aria-label="Project status lights">
-              <div class="status-light"><span class="led"></span><span>registry import graph coherent</span></div>
-              <div class="status-light"><span class="led"></span><span>E001 recovery mechanics published</span></div>
-              <div class="status-light"><span class="led"></span><span>LC1-LC3 learning loop measured and recorded</span></div>
-              <div class="status-light"><span class="led warn"></span><span>LC3 kept the learning and saved work and time, but failed on energy</span></div>
-              <div class="status-light"><span class="led red"></span><span>no frontier-scale multi-site learning evidence yet</span></div>
-            </aside>
+          <section class="story-section" id="story-1">
+            <h2>Why does training need so many GPUs?</h2>
+            <figure class="figure">
+              <div class="figure-slot" data-figure="hook-gpu-hours"></div>
+              <figcaption>Try different numbers of GPUs. The work stays the same; only the wait changes.</figcaption>
+            </figure>
+            <p>A large model has to read trillions of <span class="term" data-term="token">tokens</span>, and for each one it does a fixed amount of arithmetic per <span class="term" data-term="parameters">parameter</span>. Meta reports that Llama 3.1 405B took about 31 million <span class="term" data-term="gpu-hour">GPU-hours</span>. On a single <span class="term" data-term="gpu">GPU</span> that would be roughly 3,500 years, so they spread it across about 16,000 at once and finished in months.</p>
+            <p>Everything after this is about what that crowd of GPUs costs, and which parts of the cost are worth worrying about.</p>
           </section>
 
-          <section class="primer-panel" id="read-graph" aria-labelledby="primer-heading">
-            <div class="primer-copy">
-              <p class="eyebrow">read_graph.exe</p>
-              <h2 id="primer-heading">Read it like a receipt, not a magic answer.</h2>
-              <p id="primer-text">
-                Start with a human question, then follow the named dependencies upstream. Every hop should tell you whether you are looking at an equation, a scenario value, or an unresolved root input.
-              </p>
-              <ul class="note-list" id="primer-facts">
-                <li>The registry currently names 1517 variables and 950 equations.</li>
-                <li>Root debt is the pile of inputs the model cannot yet derive. All 619 stay named instead of being smoothed over.</li>
-              </ul>
-            </div>
-            <div class="primer-visual">
-              <div class="primer-controls" role="tablist" aria-label="Graph reading steps">
-                <button class="tree-button" type="button" role="tab" aria-selected="true" data-primer="target">1. Target</button>
-                <button class="tree-button" type="button" role="tab" aria-selected="false" data-primer="upstream">2. Upstream</button>
-                <button class="tree-button" type="button" role="tab" aria-selected="false" data-primer="roots">3. Roots</button>
-                <button class="tree-button" type="button" role="tab" aria-selected="false" data-primer="fixture">4. Fixture</button>
-              </div>
-              <div class="primer-map" aria-label="Plain-language dependency receipt">
-                <div class="primer-node is-active is-lit" data-primer-node="target">
-                  <small>target</small>
-                  <b>cost.per_token</b>
-                  <span>The number a human asks about.</span>
-                </div>
-                <div class="primer-node" data-primer-node="upstream">
-                  <small>equations</small>
-                  <b>run cost, tokens, power</b>
-                  <span>The graph walks upstream through what defines it.</span>
-                </div>
-                <div class="primer-node" data-primer-node="roots">
-                  <small>root debt</small>
-                  <b>619 named inputs</b>
-                  <span>Every unknown keeps its name.</span>
-                </div>
-                <div class="primer-node" data-primer-node="fixture">
-                  <small>scenario</small>
-                  <b>explicit assignments</b>
-                  <span>A fixture is a test anchor, not a price.</span>
-                </div>
-              </div>
-              <div class="primer-status" aria-live="polite">
-                <span class="primer-beacon" aria-hidden="true"></span>
-                <div>
-                  <b id="primer-status-title">Target selected: start with the question.</b>
-                  <span id="primer-status-body">The page keeps the output attached to the labels underneath it.</span>
-                </div>
-              </div>
-            </div>
+          <section class="story-section" id="story-2">
+            <h2>What is the cost made of?</h2>
+            <figure class="figure">
+              <div class="figure-slot" data-figure="cost-ladder"></div>
+              <figcaption>One number, followed down. Click a step to see what it depends on.</figcaption>
+            </figure>
+            <p>Start with the <span class="term" data-term="cost-per-token">cost of training on one token</span> and keep asking what it's made of. Part of it is the GPUs, part is electricity, and part is the hardware slowly wearing out (<span class="term" data-term="amortization">amortization</span>, if you want the accounting word).</p>
+            <p>GPU time depends on how much math the training needs and how fast the GPUs do it. The math works out to about <span class="term" data-term="6nd">6 operations per parameter per token</span>. GPU speed depends on the chip, the chip depends on how small its <span class="term" data-term="transistor">transistors</span> are, and that depends on the light used to print them.</p>
+            <p>I wrote each of those links down as an <span class="term" data-term="equation-units">equation with units</span> and connected them. The map has 1,267 quantities and 701 equations, from the electricity bill down to that light, and you can pick any number in it and see what sits underneath.</p>
           </section>
 
-          <section class="stat-grid" id="stats" aria-label="Current registry statistics">
-            <div class="stat"><b>1517</b><span>registered variables</span></div>
-            <div class="stat"><b>950</b><span>equations connecting them</span></div>
-            <div class="stat"><b>619</b><span>root inputs, named instead of hidden</span></div>
-            <div class="stat"><b>884</b><span>equations with unit checks</span></div>
+          <section class="story-section" id="story-3">
+            <h2>What actually moves the bill?</h2>
+            <figure class="figure">
+              <div class="figure-slot" data-figure="drivers"></div>
+              <figcaption>Each input nudged between half and double its usual value. Bars show how much of the change in cost each one causes.</figcaption>
+            </figure>
+            <p>Once everything was connected, most of the map turned out to collapse into one short line: the math per token, divided by how fast your GPUs really run, times what an hour of GPU costs you. The chip's <span class="term" data-term="peak-speed">speed on paper</span>, the share of that speed you actually get, and the size of the model move the cost by the same amount, because each one shows up in that line exactly once. After those comes how long you keep the hardware before replacing it.</p>
+            <p>The share of speed you actually get is called <span class="term" data-term="mfu">MFU</span>, and it's the one I underestimated. The spec sheet number is a ceiling. Meta reports about 40 percent for Llama 3, and that counts as good.</p>
+            <p>Electricity was the surprise. For a 7 billion parameter model trained on 2 trillion tokens with 1,024 <span class="term" data-term="h100">H100s</span>, the <span class="term" data-term="electricity">power bill</span>, cooling included (<span class="term" data-term="pue">PUE</span>), comes to about 6 percent of the cost. The rest is expensive hardware gradually becoming old hardware.</p>
+            <p class="go-deeper"><a href="#calculator" data-open="calculator">Try your own numbers in the Calculator</a></p>
           </section>
 
-          <section class="journey-strip" id="journey" aria-label="One token's journey down the stack">
-            <div class="journey-head">
-              <p class="eyebrow">token_journey.exe</p>
-              <h2>Follow one token from math to money.</h2>
-              <p class="caption">Each station is one layer of the model. The lamp lights as the token passes through, and the trip always ends at an invoice.</p>
-            </div>
-            <div class="journey-track">
-              <div class="journey-station" style="--i:0;">
-                <span class="journey-lamp" aria-hidden="true"></span>
-                <b>Model math</b>
-                <span>attention, FFN, parameters</span>
-              </div>
-              <div class="journey-hop" style="--i:0;" aria-hidden="true"></div>
-              <div class="journey-station" style="--i:1;">
-                <span class="journey-lamp" aria-hidden="true"></span>
-                <b>Kernels</b>
-                <span>instructions, tiling, occupancy</span>
-              </div>
-              <div class="journey-hop" style="--i:1;" aria-hidden="true"></div>
-              <div class="journey-station" style="--i:2;">
-                <span class="journey-lamp" aria-hidden="true"></span>
-                <b>Memory</b>
-                <span>HBM traffic, caches, bandwidth</span>
-              </div>
-              <div class="journey-hop" style="--i:2;" aria-hidden="true"></div>
-              <div class="journey-station" style="--i:3;">
-                <span class="journey-lamp" aria-hidden="true"></span>
-                <b>Silicon</b>
-                <span>transistors, lithography, atoms</span>
-              </div>
-              <div class="journey-hop" style="--i:3;" aria-hidden="true"></div>
-              <div class="journey-station" style="--i:4;">
-                <span class="journey-lamp" aria-hidden="true"></span>
-                <b>Power</b>
-                <span>board, rack, cooling, PUE</span>
-              </div>
-              <div class="journey-hop" style="--i:4;" aria-hidden="true"></div>
-              <div class="journey-invoice">
-                <span class="journey-lamp" aria-hidden="true"></span>
-                <b>Invoice: ~$3 per million tokens</b>
-                <span>synthetic fixture value, not a market price</span>
-              </div>
-            </div>
+          <section class="story-section" id="story-4">
+            <h2>How is the chip made, and does it matter here?</h2>
+            <figure class="figure">
+              <div class="figure-slot" data-figure="lithography"></div>
+              <figcaption>Shorter light and wider-angle optics print finer lines. Try both kinds of light.</figcaption>
+            </figure>
+            <p>I went further down than the cost needed. Chips are printed with light through a stencil, a process called <span class="term" data-term="lithography">lithography</span>. The newest machines use <span class="term" data-term="euv">extreme ultraviolet</span> light with a <span class="term" data-term="wavelength">wavelength</span> of 13.5 nanometers. The finest line they can print is roughly the wavelength divided by how wide an angle the optics gather light from (the <span class="term" data-term="numerical-aperture">numerical aperture</span>), times a constant called <span class="term" data-term="k1">k1</span>. That one relation explains decades of the industry chasing shorter light and wider optics.</p>
+            <p>For a while my map went all the way down to protons, neutrons and quarks. None of it changes the bill, because everything below the chip reaches the cost through a single number, how fast the GPU is, and that number is already on the spec sheet. The deep layers were curiosity, not cost. I removed the quarks and kept this one layer, because it's worth knowing.</p>
           </section>
 
-          <section class="section-window" aria-labelledby="model-heading">
-            <div class="section-copy">
-              <p class="eyebrow">Symbolic causal backbone</p>
-              <h2 id="model-heading">A model earns trust when a measurement can prove it wrong.</h2>
-              <p>
-                The registry keeps every equation next to its units, sources, constraints, scenario assumptions, and the boundaries it has not resolved. The research layer adds the things that can contradict it: real observations, timed events, interventions, uncertainty, residuals, held-out splits, and regret. A held-out split is data the model never saw while it was being fitted, so a prediction on that data is a real test. Regret is what the choice cost you compared with the choice you would have made knowing the outcome. A complete graph is not the same thing as a tested one.
-              </p>
-              <ul class="note-list">
-                <li>Only universal physics constants belong in <code>Constant</code>.</li>
-                <li>Everything else stays a <code>Variable</code>: clocks, voltages, tariffs, GPU counts, batch sizes, and facility assumptions.</li>
-                <li>A root input is modeling debt you can see. That beats hidden debt papered over with a fudge factor.</li>
-              </ul>
-            </div>
-            <div class="section-visual">
-              <div class="cone-diagram" id="cone-diagram" role="group" aria-label="Dependency cone: a datacenter question at the top rests on cluster, GPU, transistor, and atomic layers, ending at universal constants and named root inputs">
-                <button class="cone-layer" type="button" style="--w:100%; --i:0;" data-cone-note="The wide end. Questions people actually ask, and the numbers that answer them.">
-                  <b>Datacenter question</b>
-                  <span>cost per token, tokens per second, site power</span>
-                </button>
-                <button class="cone-layer" type="button" style="--w:87%; --i:1;" data-cone-note="The building. Racks, network topology, cooling loops, and the capex meter running behind all of it.">
-                  <b>Cluster, rack, node</b>
-                  <span>topology, bisection, facility power, PUE, capex</span>
-                </button>
-                <button class="cone-layer" type="button" style="--w:74%; --i:2;" data-cone-note="The machine itself. Peak compute is a ceiling; memory traffic and kernel shape decide what you actually get.">
-                  <b>GPU, memory, kernels</b>
-                  <span>FLOPs, HBM, roofline, occupancy, MFU</span>
-                </button>
-                <button class="cone-layer" type="button" style="--w:61%; --i:3;" data-cone-note="Where switching costs energy and geometry sets the speed limit.">
-                  <b>Transistor and process</b>
-                  <span>gate pitch, RC delay, leakage, thermal transport</span>
-                </button>
-                <button class="cone-layer" type="button" style="--w:48%; --i:4;" data-cone-note="How chips get made at all: light, plasma, and materials physics.">
-                  <b>Atoms and lithography</b>
-                  <span>source plasma, imaging medium, materials</span>
-                </button>
-                <button class="cone-layer is-roots" type="button" style="--w:38%; --i:5;" data-cone-note="The floor. Universal constants, next to the root inputs the model names instead of hiding.">
-                  <b>Constants and roots</b>
-                  <span>universal constants, named unknowns</span>
-                </button>
-              </div>
-              <p class="caption" id="cone-diagram-note">One answer at the top rests on every layer beneath it. Click a layer to see what it owes.</p>
-            </div>
+          <section class="story-section" id="story-5">
+            <h2>How close does the map get to real training runs?</h2>
+            <figure class="figure">
+              <div class="figure-slot" data-figure="accuracy"></div>
+              <figcaption>27 published training runs. Toggle between the full map and the one-line rule and watch the dots not move.</figcaption>
+            </figure>
+            <p>I checked the Calculator against 27 <span class="term" data-term="published-runs">published training runs</span> (Llama, Pythia, BLOOM, OLMo and others), using only what the papers report about model size, data and hardware. It usually lands within about a fifth of the GPU time they report.</p>
+            <p>A <span class="term" data-term="rule-of-thumb">one-line rule of thumb</span> does exactly as well: 6 operations per parameter per token, divided by about 40 percent of the GPU's top speed. All that machinery ends up where one line of arithmetic ends up. It was a little deflating, and it was the most useful thing the map taught me: for time and cost, the hard part isn't the equations, it's knowing how efficiently a real run uses its GPUs.</p>
+            <p>Energy and money I couldn't check fairly. Published energy figures are mostly hours multiplied by the GPU's rated power, and published costs are hours multiplied by a rental price, so there's nothing independent to compare against.</p>
+            <p class="go-deeper"><a href="#calculator" data-open="calculator">Open the Calculator</a></p>
           </section>
 
-          <section class="section-window" id="layers" aria-labelledby="layers-heading">
-            <div class="section-copy">
-              <p class="eyebrow">layers.sys</p>
-              <h2 id="layers-heading">Click a layer. Watch the dependency chain move.</h2>
-              <p id="layer-text">
-                The visible machine is a building, but the model treats it as a constraint bundle: grid interconnect, substations, cooling loops, water, occupancy, capex, operations, and uptime.
-              </p>
-              <ul class="note-list" id="layer-facts">
-                <li>Inputs include power envelope, PUE, utilization, cooling load, and build cost.</li>
-                <li>Outputs feed cluster capacity, cost allocation, emissions, and schedule pressure.</li>
-              </ul>
-            </div>
-            <div class="section-visual">
-              <div class="action-row" role="tablist" aria-label="Model layers">
-                <button class="tree-button" type="button" role="tab" aria-selected="true" data-layer="datacenter">Datacenter</button>
-                <button class="tree-button" type="button" role="tab" aria-selected="false" data-layer="gpu">GPU</button>
-                <button class="tree-button" type="button" role="tab" aria-selected="false" data-layer="kernel">Kernel</button>
-                <button class="tree-button" type="button" role="tab" aria-selected="false" data-layer="model">Model</button>
-                <button class="tree-button" type="button" role="tab" aria-selected="false" data-layer="physics">Physical floor</button>
-                <button class="tree-button" type="button" role="tab" aria-selected="false" data-layer="economics">Economics</button>
-              </div>
-              <div class="dependency-stack" id="dependency-stack" aria-label="Dependency stack for selected layer"></div>
-            </div>
+          <section class="story-section" id="story-6">
+            <h2>Can a training run survive flaky datacenters?</h2>
+            <figure class="figure">
+              <div class="figure-slot" data-figure="flaky-sites"></div>
+              <figcaption>Three ways to train across two sites when one keeps going down. Schematic, not data.</figcaption>
+            </figure>
+            <p>Large training runs stay in one <span class="term" data-term="datacenter">building</span> because the GPUs talk to each other constantly. I wanted to see what happens if you spread a run across sites that go down now and then. I don't have a datacenter, so I trained a very small model on my laptop's GPU and simulated the sites and the outages around it.</p>
+            <p>I wrote a controller that changed how the sites stayed in sync based on what it could observe. It lost to the plain option, where each site trains on its own and they <span class="term" data-term="weight-averaging">average their weights</span> every 8 steps. The plain option also beat keeping the sites in perfect <span class="term" data-term="sync-training">lockstep</span>, which looked like a discovery for about a day. A rerun on fresh <span class="term" data-term="seed">seeds</span> explained it: averaging smooths out the jitter that comes from training at a fixed <span class="term" data-term="learning-rate">learning rate</span>. That effect is already known, and ordinary training with a <span class="term" data-term="ema">running average</span> of its weights did even better.</p>
+            <p>Letting the surviving site keep training through an <span class="term" data-term="outage-rollback">outage</span>, instead of rolling both back to the last <span class="term" data-term="checkpoint">save</span>, did a few percent less work and learned about 1 percent worse. Whether that trade is worth it depends on what your time costs. One thing I didn't expect: the GPU's <span class="term" data-term="power-reading">power sensor</span> only refreshed every half second, not every 20 milliseconds as I asked, so the first batch of energy measurements went in the bin.</p>
+            <p class="go-deeper"><a href="observatory.html">Open the Lab</a></p>
           </section>
 
-          <section class="section-window" id="trace" aria-labelledby="trace-heading">
-            <div class="section-copy">
-              <p class="eyebrow">trace_target.exe</p>
-              <h2 id="trace-heading">Choose a question and follow what it depends on.</h2>
-              <p id="trace-summary">
-                Cost per token is not a lone price. It depends on run cost, token count, facility power, throughput, utilization, hardware choices, and root assumptions that still need better evidence.
-              </p>
-              <ul class="note-list" id="trace-facts">
-                <li>This is a picture of how the resolver works, the code that walks the graph and computes a value. It is not a live solver.</li>
-                <li>The moving gold segment shows which way the dependencies run.</li>
-              </ul>
-            </div>
-            <div class="section-visual trace-lab">
-              <div class="trace-controls" role="tablist" aria-label="Trace targets">
-                <button class="tree-button" type="button" role="tab" aria-selected="true" data-target="cost">cost.per_token</button>
-                <button class="tree-button" type="button" role="tab" aria-selected="false" data-target="throughput">tokens_per_second</button>
-                <button class="tree-button" type="button" role="tab" aria-selected="false" data-target="power">dc_power</button>
-              </div>
-              <div class="trace-screen" aria-live="polite">
-                <div class="trace-map" id="trace-path" aria-label="Selected target dependency path"></div>
-                <div class="trace-connector" aria-hidden="true"></div>
-                <div class="trace-details">
-                  <div class="trace-note">
-                    <p id="trace-note">Every hop keeps its label, and that is what makes the graph useful. If a hop cannot be worked out from equations or scenario assignments, it comes back as a named missing boundary instead of a guess.</p>
-                  </div>
-                  <div class="trace-meter" aria-label="Trace status">
-                    <strong id="trace-meter-label">synthetic fixture resolves 4 of 4 targets</strong>
-                    <div class="meter-bar" id="trace-meter"><span></span></div>
-                    <span id="trace-meter-foot">scenario-report status: ok</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <section class="story-section" id="story-7">
+            <h2>How did I build it?</h2>
+            <figure class="figure">
+              <div class="figure-slot" data-figure="agents-report-card"></div>
+              <figcaption>The agents' own grades, after I checked them.</figcaption>
+            </figure>
+            <p>I built this with <span class="term" data-term="coding-agents">AI coding agents</span>. They write quickly, and they grade their own work unreliably in both directions: some real results were marked as failures because the pass mark was impossible, and some accidents were written up as insights. Going back through every result from the raw files taught me more than building the map did, and it's why the conclusions on this page are smaller than the early drafts claimed.</p>
+            <p class="go-deeper"><a href="https://github.com/Cuuper22/gpu_stack-">The code is on GitHub</a></p>
           </section>
-
-          <section class="section-window" id="cone-browser" aria-labelledby="cone-heading">
-            <div class="section-copy">
-              <p class="eyebrow">cone_browser.exe</p>
-              <h2 id="cone-heading">Inspect any variable's upstream cone.</h2>
-              <p>
-                Pick a target, then click any node to open its direct dependencies.
-                Each hop shows its unit, its scope, meaning the part of the system it
-                belongs to, and whether it is an equation, a root input, or a physics
-                constant. Root inputs carry a gold badge because they are the debt you
-                can still see.
-              </p>
-              <ul class="note-list">
-                <li>The tree loads from a JSON snapshot of the registry, generated ahead of time.</li>
-                <li>Click a node to open or close its direct dependencies.</li>
-                <li>Constants carry their own mark, so universal physics values are easy to tell apart.</li>
-              </ul>
-            </div>
-            <div class="section-visual">
-              <div class="cone-browser" id="cone-browser-panel" aria-label="Dependency cone browser">
-                <div class="cone-target-controls" role="tablist" aria-label="Cone browser targets">
-                  <button class="tree-button" type="button" role="tab" aria-selected="true"
-                    data-cone-target="econ.cost.per_token">cost.per_token</button>
-                  <button class="tree-button" type="button" role="tab" aria-selected="false"
-                    data-cone-target="training.tokens_per_sec">tokens_per_sec</button>
-                  <button class="tree-button" type="button" role="tab" aria-selected="false"
-                    data-cone-target="thermal.dc.pue">thermal.dc.pue</button>
-                </div>
-                <div class="cone-status-bar" id="cone-status" aria-live="polite">Loading dependency data...</div>
-                <div class="cone-tree-pane" id="cone-tree" aria-label="Dependency tree for selected target"></div>
-              </div>
-            </div>
-          </section>
-
-          <section class="section-window" id="root-debt" aria-labelledby="root-debt-heading">
-            <div class="section-copy">
-              <p class="eyebrow">root_debt.dat</p>
-              <h2 id="root-debt-heading">Root inputs are the visible unpaid invoices.</h2>
-              <p>
-                <code>root-debt</code> ranks unresolved root inputs by how much depends on them. A large family is not automatically a bad one. The ranking exists so you know which unknowns are expensive right now.
-              </p>
-              <ul class="note-list">
-                <li>Total roots in the observed summary: 619.</li>
-                <li>Grouped root families in the observed summary: 151.</li>
-                <li>The heaviest shown family is <code>physical.lithography.medium</code> with total weight 3014.</li>
-              </ul>
-            </div>
-            <div class="section-visual">
-              <div class="root-family-list" aria-label="Top root-debt families from the README observed summary">
-                <div class="family-row" style="--impact: 100%;"><div><b>physical.lithography.medium</b><br><span>weight 3014, roots 15</span></div><div class="impact-bar"></div></div>
-                <div class="family-row" style="--impact: 73%;"><div><b>physical.lithography</b><br><span>weight 2185, roots 11</span></div><div class="impact-bar"></div></div>
-                <div class="family-row" style="--impact: 64%;"><div><b>physical.lithography.source_plasma_drive</b><br><span>weight 1943, roots 8</span></div><div class="impact-bar"></div></div>
-                <div class="family-row" style="--impact: 62%;"><div><b>physical.mosfet</b><br><span>weight 1866, roots 18</span></div><div class="impact-bar"></div></div>
-                <div class="family-row" style="--impact: 43%;"><div><b>physical.process</b><br><span>weight 1293, roots 8</span></div><div class="impact-bar"></div></div>
-              </div>
-              <p class="caption">The bars scale the five README weights against the heaviest family. Nothing new is being measured here.</p>
-            </div>
-          </section>
-
-          <section class="section-window" id="run" aria-labelledby="run-heading">
-            <div class="section-copy">
-              <p class="eyebrow">CLI.exe</p>
-              <h2 id="run-heading">Use the command line as a microscope.</h2>
-              <p>
-                This is a research instrument, not a polished app, and right now that is the useful thing to be. Ask it what exists, what is still unresolved, and where a claim bottoms out.
-              </p>
-            </div>
-            <pre class="console-window" aria-label="Example gpu_stack commands"><code>python -m gpu_stack.cli stats
-python -m gpu_stack.cli verify --profile fast
-python -m gpu_stack.cli resolve econ.cost.per_token --preset scenarios.dense_training_cost_fixture --trace --missing
-python -m gpu_stack.cli root-debt --families --limit 5
-python -m gpu_stack.cli scenario-report scenarios.dense_training_cost_fixture --json
-python -m gpu_stack.cli next-work
-python -m gpu_stack.cli experiment-protocol E001 --json
-python -m gpu_stack.cli experiment-run E001 --scenario experiments/e001-beyond-one-datacenter/screening-scenario-v1.json --output result.json --observatory-output docs/data/e001-screening-v1.json</code></pre>
-          </section>
-
-          <section class="glossary-grid" id="glossary" aria-label="Plain-language glossary">
-            <article class="glossary-term">
-              <h3>Root input</h3>
-              <p>A variable the model cannot yet compute from anything else. It may be a genuine edge of the scenario, or physics that nobody has broken down yet.</p>
-            </article>
-            <article class="glossary-term">
-              <h3>Dependency cone</h3>
-              <p>Everything upstream of one number: the variables, equations, assumptions, and constants you need in order to explain it.</p>
-            </article>
-            <article class="glossary-term">
-              <h3>Scenario fixture</h3>
-              <p>A named set of fixed input values, so a target resolves the same way every time. Synthetic fixtures are test anchors, not claims about real prices.</p>
-            </article>
-            <article class="glossary-term">
-              <h3>MFU</h3>
-              <p>Model FLOPs Utilization: the share of the machine's peak math rate that training actually uses. When it is low, the run is usually waiting on memory instead of doing math, which is exactly what a roofline chart is drawn to show.</p>
-            </article>
-            <article class="glossary-term">
-              <h3>HBM</h3>
-              <p>High Bandwidth Memory: the fast memory stacked right next to the accelerator. Moving data in and out of it is often the real speed limit, not the math.</p>
-            </article>
-            <article class="glossary-term">
-              <h3>PUE</h3>
-              <p>Power Usage Effectiveness: total facility power divided by IT equipment power. Cooling and everything else the building draws shows up here.</p>
-            </article>
-          </section>
-
-          <section class="dialog-grid" aria-label="Current usefulness and limitations">
-            <article class="dialog-body">
-              <h3>Good for now</h3>
-              <p>Tracing a result back to mechanics and evidence. Replaying compute, communication, checkpoint, outage, and recovery events one at a time. Keeping observations, assumptions, priors, modeled values, and unmeasured claims clearly apart.</p>
-            </article>
-            <article class="dialog-body">
-              <h3>Not finished yet</h3>
-              <p>E001 now has explicit recovery mechanics and three measured learning stages. LC3 held useful work equal across policies: adaptive continuation kept the learning and saved both attempted work and opportunity ticks, the scheduled time it no longer needed, but it went past its frozen device-energy bound. None of that shows a frontier-scale multi-site run converges, and energy measured at one GPU is not energy measured at a facility.</p>
-            </article>
-          </section>
-
-          <section class="timeline" id="next" aria-labelledby="next-heading">
-            <div class="dialog-body">
-              <p class="eyebrow">next_work.exe</p>
-              <h2 id="next-heading">The frontier program is six questions a result could prove wrong.</h2>
-            </div>
-            <div class="timeline-row"><b>1. Beyond One Datacenter · energy gate failed</b><span>At equal useful work, adaptive continuation learned just as well and saved work and scheduled time, but its measured RTX energy interval went past the frozen bound. Scaling stays blocked.</span></div>
-            <div class="timeline-row"><b>2. Shape the Power Waveform · next</b><span>Separate checkpoint cadence from survivor continuation, attribute power phase by phase, and test whether scheduling that respects dependencies removes the energy penalty without giving back the measured learning, work, or time gains.</span></div>
-            <div class="timeline-row"><b>3. Semantic Fault Tolerance</b><span>Spend canaries, replay, and redundancy on the faults that would really have hurt learning, not on whatever the fault is labeled.</span></div>
-            <div class="timeline-row"><b>4. Fluid Inference Topology</b><span>Measure what is gained, and where the behavior flips, when the serving topology changes for every request.</span></div>
-            <div class="timeline-row"><b>5. Architecture as a Datacenter Variable</b><span>Design the model's parts and the mixed hardware together, under a single facility power and time budget.</span></div>
-            <div class="timeline-row"><b>6. Firm Grid-responsive Inference</b><span>Measure meter-verified demand response with output quality, tail latency, rebound, and hidden work all counted inside the same boundary.</span></div>
-          </section>
-        </div>
+<!-- STORY END -->
+        </article>
       </div>
     </main>
+
+    <section class="window os-window calc-window" id="win-calculator" data-window="calculator" aria-label="Calculator" hidden>
+      <div class="title-bar">
+        <div class="title-text"><span class="px-icon px-chip"></span> Calculator</div>
+        <div class="window-controls">
+          <button class="window-btn" type="button" data-window-action="min" aria-label="Minimize Calculator">_</button>
+          <button class="window-btn" type="button" data-window-action="max" aria-label="Maximize Calculator">□</button>
+          <button class="window-btn" type="button" data-window-action="close" aria-label="Close Calculator">x</button>
+        </div>
+      </div>
+      <div class="window-content window-scroll" tabindex="0" role="region" aria-label="Calculator">
+        <div id="calculator-root"></div>
+      </div>
+    </section>
   </div>
 
   <footer class="taskbar" aria-label="CuperOS taskbar">
     <div class="taskbar-left">
       <a class="start-button" href="https://cuuper22.github.io/"><span class="px-icon px-start"></span> Start</a>
-      <span class="task-button"><span class="px-icon px-chip"></span> gpu_stack.exe</span>
+      <button class="task-button" type="button" data-task="story"><span class="px-icon px-doc"></span> Story</button>
+      <button class="task-button" type="button" data-task="calculator"><span class="px-icon px-chip"></span> Calculator</button>
+      <a class="task-button" href="observatory.html"><span class="px-icon px-graph"></span> Lab</a>
     </div>
     <div class="taskbar-clock" id="clock">12:00 PM</div>
   </footer>
-
-  <script src="app.js"></script>
-  <script src="cone-browser.js"></script>
 </body>
 </html>

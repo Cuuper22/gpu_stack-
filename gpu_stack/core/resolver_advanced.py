@@ -247,10 +247,8 @@ def _find_small_cycles(
     deps: Dict[str, Set[str]] = {}
     eq_map: Dict[str, Equation] = {}
     for var in unresolved:
-        try:
-            eq_obj = _select_equation(var, variants)
-        except Exception:
-            continue
+        # AmbiguousVariant / InvalidVariantSelector are caller errors and propagate.
+        eq_obj = _select_equation(var, variants)
         if eq_obj is None:
             continue
         eq_map[var.name] = eq_obj
@@ -358,18 +356,14 @@ def _solve_small_system(
     Returns a dict name->value on success (unique real solution consistent
     with symbol assumptions), or None when no unique valid solution exists.
     """
-    from .resolver_graph import _value_dependencies
 
     symbols = [var.symbol for var in group]
-    sym_set = set(symbols)
 
     # Build the equation system as lhs - rhs = 0 for each variable.
     eqs_list = []
     for var in group:
-        try:
-            eq_obj = _select_equation(var, variants)
-        except Exception:
-            return None
+        # AmbiguousVariant / InvalidVariantSelector are caller errors and propagate.
+        eq_obj = _select_equation(var, variants)
         if eq_obj is None:
             return None
         subs = _sym_subs(values)
@@ -467,10 +461,8 @@ def resolve_small_system(
     for var in sorted(group, key=lambda v: v.name):
         if var.name not in solution:
             return None
-        try:
-            eq_obj = _select_equation(var, variants)
-        except Exception:
-            return None
+        # AmbiguousVariant / InvalidVariantSelector are caller errors and propagate.
+        eq_obj = _select_equation(var, variants)
         if eq_obj is None:
             return None
 

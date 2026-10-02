@@ -42,7 +42,11 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=7",
-    "pytest-asyncio>=0.24",
+]
+# numpy enables the vectorized fast path in gpu_stack.uncertainty; without it
+# propagation falls back to a pure-Python loop.
+perf = [
+    "numpy>=1.24",
 ]
 release = [
     "build>=1.0",
@@ -60,8 +64,36 @@ include = ["gpu_stack*"]
 exclude = ["tests*", "__pycache__", "*.__pycache__"]
 
 [tool.setuptools.package-data]
-gpu_stack = ["data/observations/literature/e001-one-step-delay/*.json"]
+gpu_stack = ["data/observations/literature/e001-one-step-delay/*.json", "data/published_runs.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra --strict-markers"
+markers = [
+    "slow: slowest tests (several seconds each); run by default, deselect with -m 'not slow'",
+]
+
+[tool.ruff]
+target-version = "py310"
+# Input scenarios for the lab simulator.
+extend-exclude = ["experiments"]
+
+[tool.ruff.lint]
+# Pin the rule set so a newer ruff release cannot change what CI checks.
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+# Scope modules are star-import facades: names are re-exported on purpose, so
+# F401 (unused import), F403 and F405 (star-import) are expected there.
+"gpu_stack/scopes/**" = ["F401", "F403", "F405"]
+# Research engines hash their own source bytes into artifact identities, so
+# lint autofix must not touch them.
+"gpu_stack/research/**" = ["F401", "F841"]
+# Fixtures imported from tests/helpers look like redefinitions to F811.
+"tests/**" = ["F811"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["gpu_stack/core"]
+# SymPy ships no type information; treat it as Any.
+ignore_missing_imports = true

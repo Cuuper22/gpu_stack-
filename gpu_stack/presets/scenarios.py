@@ -16,11 +16,10 @@ from __future__ import annotations
 from types import MappingProxyType
 
 from ..core.presets import Preset, combine
-from . import dgx_h100_tco, economics, hardware, lithography, materials, workload
+from . import dgx_h100_tco, economics, hardware, workload
 from .scenario_targets import (
     COST_PER_TOKEN_TARGET,
     DENSE_TRAINING_COST_TARGETS,
-    EUV_TIN120_SOURCE_TARGETS,
     ScenarioTargetSet,
     build_scenario_target_sets,
     targets_for,
@@ -120,7 +119,7 @@ pythia_70m_dgx_h100_single_node_run_closure = Preset(
         "arch.ffn.weight_matrices": 2,
         "arch.norm.param_multiplier": 4,
         "par.n_gpus": 8,
-        "gpu.peak_flops_power_limited": 67e12,
+        "gpu.peak_flops_power_limited": hardware.H100_SXM_ASSUMED_SUSTAINED_BF16_FLOPS,
         "gpu.power.total": 700.0,
         "cluster.rack.n_nodes": 1,
         "cluster.site.n_racks": 1,
@@ -137,8 +136,11 @@ pythia_70m_dgx_h100_single_node_run_closure = Preset(
         "User Guide, Introduction to NVIDIA DGX H100/H200 Systems, states "
         "DGX H100 systems are built on eight NVIDIA H100 GPUs and Table 3 "
         "lists 10.2 kW max for 200-240 V AC input. NVIDIA H100 product "
-        "specifications list H100 SXM FP32 at 67 teraFLOPS and max TDP up "
-        "to 700 W. Architecture closures select standard dense GPT-NeoX "
+        "specifications list max TDP up to 700 W and FP16 Tensor "
+        "Core 1,979 teraFLOPS with sparsity, so dense BF16 is half of that, "
+        "989.4 teraFLOPS. Effective per-GPU throughput is that dense peak "
+        "times an ASSUMED 40% utilization (hardware.ASSUMED_TRAINING_MFU), "
+        "not a measurement. Architecture closures select standard dense GPT-NeoX "
         "accounting assumptions for this graph: no grouped-query attention "
         "(arch.n_kv_heads=arch.n_heads=8), a two-matrix MLP FFN, and two "
         "LayerNorm modules with learned weight and bias per block. The "
@@ -156,8 +158,11 @@ pythia_70m_dgx_h100_single_node_run_closure = Preset(
         "par.n_gpus=8 matches the single DGX H100 node GPU count.",
         "thermal.dc.total_power=10.2 kW uses NVIDIA's max system-power entry "
         "as the site-power boundary for the one-node scenario.",
-        "gpu.peak_flops_power_limited=67e12 uses the sourced H100 SXM FP32 "
-        "peak as the effective per-GPU throughput boundary for this run.",
+        "gpu.peak_flops_power_limited=395.76e12 is the dense BF16 peak "
+        "(989.4e12) times an ASSUMED 40% utilization "
+        "(hardware.ASSUMED_TRAINING_MFU). The utilization is an assumption, "
+        "not a measurement, and 100% would give the ideal lower bound on "
+        "time and energy.",
         "Neutral overhead closures keep recomputation, optimizer extra FLOPs, "
         "exposed communication, memory-bound auxiliary time, non-nominal "
         "overhead, and availability from dominating a source-composition "
@@ -276,48 +281,10 @@ pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption = (
 )
 
 
-_TIN120_SOURCE_CONTEXT_ASSUMPTION = (
-    "Scenario-layer tin-120 assumption: this pack models the EUV tin source "
-    "species as 120Sn for isotope-level closure only. ASML public material "
-    "establishes tin laser-produced-plasma context, not isotope selection."
-)
-
-
-def _euv_tin120_lpp_source_context_assumption() -> Preset:
-    combined = combine(
-        materials.source_tin_120,
-        lithography.asml_euv_tin_lpp_public_context,
-        name="euv_tin120_lpp_source_context_assumption",
-        description=(
-            "Assumption-labeled EUV tin-source scenario pack combining the "
-            "materials.source_tin_120 composition closure with ASML's public "
-            "50 kHz laser-produced-plasma repetition-rate context."
-        ),
-    )
-    return combined.with_overrides(
-        name=combined.name,
-        source=f"{combined.source} | {_TIN120_SOURCE_CONTEXT_ASSUMPTION}",
-        notes=(
-            *combined.notes,
-            "This scenario pack assigns only tin-120 source composition roots "
-            "and the ASML public pulse-period root.",
-            "It does not assign drive fluence, species pressure, gas "
-            "temperature, focusing geometry, plasma heating, or conversion "
-            "efficiency roots.",
-        ),
-    )
-
-
-euv_tin120_lpp_source_context_assumption = (
-    _euv_tin120_lpp_source_context_assumption()
-)
-
-
 SOURCED_SCENARIO_PACKS = (
     pythia_70m_dgx_h100_us_2024_industrial_power,
     pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost,
     pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption,
-    euv_tin120_lpp_source_context_assumption,
     *SOURCED_SCENARIO_PACKS_2026,
 )
 
@@ -332,7 +299,6 @@ SCENARIO_TARGET_SETS = MappingProxyType(
             pythia_full_tco=(
                 pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption
             ),
-            euv_tin120_source_context=euv_tin120_lpp_source_context_assumption,
         ),
         **SCENARIO_TARGET_SETS_2026,
     }
@@ -347,12 +313,10 @@ def scenario_targets_for(preset_or_name: Preset | str) -> ScenarioTargetSet:
 __all__ = [
     "COST_PER_TOKEN_TARGET",
     "DENSE_TRAINING_COST_TARGETS",
-    "EUV_TIN120_SOURCE_TARGETS",
     "SCENARIO_TARGET_SETS",
     "SOURCED_SCENARIO_PACKS",
     "dense_training_cost_inputs",
     "dense_training_cost_fixture",
-    "euv_tin120_lpp_source_context_assumption",
     "pythia_70m_dgx_h100_energy_floor_cost_closure",
     "pythia_70m_dgx_h100_single_node_run_closure",
     "pythia_70m_dgx_h100_us_2024_industrial_energy_floor_cost",

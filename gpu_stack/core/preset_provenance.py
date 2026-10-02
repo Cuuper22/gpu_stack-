@@ -19,7 +19,9 @@ def has_source_text(source: Optional[str]) -> bool:
 
 def normalized_source(source: Optional[str]) -> Optional[str]:
     """Return stripped source text, or ``None`` for blank/missing provenance."""
-    return source.strip() if has_source_text(source) else None
+    if source is not None and has_source_text(source):
+        return source.strip()
+    return None
 
 
 def preset_source_summary(

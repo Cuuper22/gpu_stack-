@@ -12,7 +12,7 @@ import contextlib
 import io
 import sys
 
-from tests.helpers.registry import snapshot_registry_state as registry_snapshot
+from tests.helpers.registry import snapshot_registry_state as registry_snapshot  # noqa: F401  (re-exported)
 
 
 ORIGINAL_PYTHIA_SCENARIO = "pythia_70m_dgx_h100_us_2024_industrial_power"

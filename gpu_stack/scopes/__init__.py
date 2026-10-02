@@ -46,7 +46,7 @@ SCOPE_MODULES = [
 
 
 SCOPE_DESCRIPTIONS = {
-    "physical":         "lithography, process pitch, self-heating, transport, transistor, interconnect, CMOS logic",
+    "physical":         "lithography resolution (k1 * wavelength / NA), process pitch, self-heating, transport, transistor, interconnect, CMOS logic",
     "memory_cell":      "SRAM 6T, DRAM 1T1C, flip-flop",
     "memory_subsystem": "register file, SMEM, TMEM, L1, L2, stacked-die/channelized HBM",
     "precision":        "FP formats, microscaling (MXFP4/NVFP4), stochastic rounding",

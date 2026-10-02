@@ -100,7 +100,6 @@ def _boundary_family(var: Variable) -> str:
     Compact unresolved-input family derived from existing names and scope.
 
     Root-debt work often leaves primitive inputs with long names such as
-    ``physical.lithography.source_plasma_drive_edge_detuning_ratio`` or
     ``econ.power.capacity_charge_kw_month``. The resolver preserves the exact
     variable name, but diagnostics also need a short bucket derived from the
     public name prefix so aliases like ``econ`` do not collapse into
@@ -113,39 +112,12 @@ def _boundary_family(var: Variable) -> str:
 
     family_root = name_parts[0]
     namespace = name_parts[1:-1]
-    leaf = name_parts[-1]
 
     base_parts = [family_root]
     if namespace:
         base_parts.extend(namespace[:1])
 
-    leaf_family = _leaf_boundary_family(leaf)
-    if leaf_family and leaf_family not in base_parts:
-        base_parts.append(leaf_family)
-
     return ".".join(base_parts)
-
-
-def _leaf_boundary_family(leaf: str) -> str:
-    """Return a compact family stem for a leaf variable name."""
-    stems = (
-        "source_plasma_drive",
-        "source_plasma_absorption",
-        "source_plasma_species",
-        "source_plasma_energy_loss",
-        "source_plasma_free_electron",
-        "source_plasma_electron",
-        "source_plasma",
-        "source_valence",
-        "source",
-        "medium_intercomponent",
-        "medium",
-        "semf",
-    )
-    for stem in stems:
-        if leaf == stem or leaf.startswith(f"{stem}_"):
-            return stem
-    return ""
 
 
 def _format_underdetermined_message(

@@ -229,10 +229,6 @@ from .protocols import (
 )
 from .programs import (
     E002_PROTOCOL,
-    E003_PROTOCOL,
-    E004_PROTOCOL,
-    E005_PROTOCOL,
-    E006_PROTOCOL,
     EXPERIMENT_PROTOCOLS,
     protocol_catalog,
     protocol_for,
@@ -318,10 +314,6 @@ __all__ = [
     "FalsifierSpec",
     "MetricSpec",
     "E002_PROTOCOL",
-    "E003_PROTOCOL",
-    "E004_PROTOCOL",
-    "E005_PROTOCOL",
-    "E006_PROTOCOL",
     "EXPERIMENT_PROTOCOLS",
     "protocol_catalog",
     "protocol_for",

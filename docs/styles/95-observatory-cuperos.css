@@ -9,20 +9,20 @@
    brand. The No New Brand Rule is enforced here. */
 
 /* ------------------------------------------------------------------ */
+
 /* Token remap: the --obs-* palette now resolves to CuperOS tokens.     */
+
 /* Evidence classes keep distinct hues, but every hue is a CuperOS one:  */
+
 /*   OBSERVED -> indigo, MODELED -> deep cyan, ASSUMED -> deep gold,     */
+
 /*   UNMEASURED/failure -> red. Shape and label stay the primary        */
+
 /*   carriers, so this remap cannot change any meaning.                 */
+
 /* ------------------------------------------------------------------ */
 
 :root {
-  /* Pixelify carries everything here too, matching the portfolio and the
-     index. --font-reading stays as the one-line seam to soften long prose
-     back to Plex Sans if that ever becomes the call. */
-  --font-reading: "Pixelify Sans", "VT323", monospace;
-  --font-value: "VT323", "Pixelify Sans", monospace;
-  --font-identity: "Pixelify Sans", "VT323", monospace;
   --obs-paper: var(--window-body);
   --obs-paper-raised: var(--pane-bright);
   --obs-paper-deep: var(--chrome-well);
@@ -46,7 +46,9 @@
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Desktop surface: the paper page becomes a window on the teal desktop */
+
 /* ------------------------------------------------------------------ */
 
 body {
@@ -57,6 +59,7 @@ body {
 }
 
 /* The full-viewport paper grid belonged to the standalone brand. */
+
 body::before {
   display: none;
 }
@@ -80,14 +83,10 @@ body::before {
   text-shadow: 2px 2px 0 var(--pixel-ink);
 }
 
-.logo-version {
-  color: var(--gold-soft);
-  font: 600 11px/1 var(--font-display);
-  text-shadow: 1px 1px 0 var(--pixel-ink);
-}
-
 /* ------------------------------------------------------------------ */
+
 /* Window chrome (mirrors the index shell)                              */
+
 /* ------------------------------------------------------------------ */
 
 .obs-app-window {
@@ -139,7 +138,7 @@ body::before {
   background: var(--button-face);
   color: var(--text-dark);
   padding: 0;
-  font: 700 12px var(--font-display);
+  font: 700 13px var(--font-display);
 }
 
 .obs-window-content {
@@ -152,13 +151,16 @@ body::before {
 
 /* Main already draws its own hairline side rules; the window supplies the
    outer boundary now. */
+
 main {
   border-right: 0;
   border-left: 0;
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Header: paper toolbar inside the window                              */
+
 /* ------------------------------------------------------------------ */
 
 .obs-header {
@@ -181,70 +183,65 @@ main {
 }
 
 /* ------------------------------------------------------------------ */
-/* Display typography: Pixelify carries titles, Plex carries reading    */
+
+/* Typography: Pixelify only for window chrome; Plex for everything read */
+
 /* ------------------------------------------------------------------ */
 
 h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   letter-spacing: 0;
   font-weight: 700;
 }
 
 /* Long research questions stay readable: cap the pixel face size. */
+
 h1 {
   line-height: 1.12;
 }
 
 /* ------------------------------------------------------------------ */
-/* Portfolio type rule: Pixelify carries every label, control, and      */
-/* nav item. Plex Sans stays only on multi-sentence reading             */
-/* paragraphs; mono stays only on values, intervals, identifiers,       */
-/* and tables.                                                          */
+
+/* Type rule: Pixelify carries only the wordmark, nav menu and window   */
+
+/* chrome. Labels, controls and paragraphs are Plex Sans; values, IDs,  */
+
+/* intervals and tables are Plex Mono.                                  */
+
 /* ------------------------------------------------------------------ */
 
 .obs-nav a {
-  font: 600 0.95rem var(--font-display);
-}
-
-.experiment-picker select {
-  font: 600 0.9rem var(--font-display);
+  font: 600 1rem var(--font-display);
 }
 
 .share-state {
-  font: 600 0.9rem var(--font-display);
+  font: 600 0.9rem var(--font-body);
 }
 
 .control-label {
-  font: 700 0.8rem/1.2 var(--font-display);
+  font: 700 0.8125rem/1.2 var(--font-body);
   letter-spacing: 0.04em;
 }
 
-.experiment-kicker,
-.stage-boundary,
 .equal-work-eyebrow {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
 }
 
 .obs-product {
-  font: 600 0.85rem var(--font-display);
-}
-
-.obs-footer,
-.obs-footer span {
-  font-family: var(--font-display);
-  font-size: 0.85rem;
+  font: 600 0.95rem var(--font-body);
 }
 
 .site-button .site-name,
 .site-name {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
   font-weight: 700;
 }
 
 /* Multi-sentence verdicts and translations follow the reading rule. */
+
 .plain-answer {
   font-family: var(--font-reading);
 }
@@ -254,11 +251,17 @@ h1 {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Pixel sweep: 90-observatory used mono as its label-and-heading font. */
+
 /* Every heading, label, kicker, note, summary, and control flips to    */
+
 /* the pixel face (family only; sizes and weights stay). Mono remains   */
+
 /* on values, intervals, identifiers, tables, stamps, and small SVG     */
+
 /* plot annotations where pixel would be illegible.                     */
+
 /* ------------------------------------------------------------------ */
 
 .causal-reading h2,
@@ -269,7 +272,6 @@ h1 {
 .inspector-header h2,
 .inspector-section h3,
 .source-observations h3,
-.residual-panel h3,
 .decision-ledger h3,
 .equal-work-section-header h3,
 .equal-work-clue h3,
@@ -296,16 +298,12 @@ h1 {
 .recovery-learning-boundary h3,
 .recovery-measure-heading span,
 .transfer-boundary h4,
-.resolve-list h4,
-.semantic-consistency-evidence-grid h4,
-.rack-dephasing-section-header h3,
-.rack-dephasing-boundary h3 {
-  font-family: var(--font-display);
+.semantic-consistency-evidence-grid h4 {
+  font-family: var(--font-body);
 }
 
 .skip-link,
 .causal-reading > ol li > span,
-.resolve-list li > span,
 .causal-reading > ol p,
 .causal-svg .node-title,
 .structured-fallback summary,
@@ -327,34 +325,27 @@ h1 {
 .checkpoint-power-trace summary,
 .checkpoint-energy-trace summary,
 .learning-trace summary,
-.rack-dephasing-trace summary,
 .raw-trace summary,
 .checkpoint-power-run-selector label,
 .checkpoint-energy-run-selector label,
-.rack-dephasing-controls label,
 .timeline-controls > label,
 .timeline-control-row button,
 .event-legend,
 .evidence-key li,
 .recovery-measure-label,
 .recovery-stack-legend,
-.recovery-completion-note,
 .comparison-boundary,
-.empty-residual-message strong,
 .checkpoint-power-boundary-badge,
 .checkpoint-power-inadmissible,
 .checkpoint-power-insight > div:last-child strong,
 .checkpoint-energy-insight > div:last-child strong,
 .semantic-consistency-insight > div:last-child strong,
-.rack-dephasing-insight > div:last-child strong,
 .checkpoint-energy-boundary p + p,
-.rack-dephasing-boundary p + p,
 .semantic-mode-label,
 .learning-paired-summary,
 .checkpoint-power-eyebrow,
 .checkpoint-energy-eyebrow,
 .learning-eyebrow,
-.rack-dephasing-eyebrow,
 .event-legend li,
 .equal-work-bridge-class,
 .checkpoint-power-invalidator div,
@@ -364,38 +355,41 @@ h1 {
 .checkpoint-power-trace-warning,
 .checkpoint-energy-effect-meaning,
 details p[role="status"] {
-  font-family: var(--font-display);
+  font-family: var(--font-body);
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Legibility floor: pixel faces break down under ~11px. The densest    */
+
 /* instrument details ran 9 to 10.5px; raise them to the floor. VT323   */
+
 /* is narrow, so these bumps do not threaten the layouts.               */
+
 /* ------------------------------------------------------------------ */
 
 .equal-work-eyebrow,
 .checkpoint-power-eyebrow,
 .checkpoint-energy-eyebrow,
-.learning-eyebrow,
-.rack-dephasing-eyebrow {
-  font-size: 0.78rem;
+.learning-eyebrow {
+  font-size: 0.8125rem;
 }
 
 .checkpoint-power-plain-label,
 .checkpoint-energy-plain-label {
-  font-size: 0.74rem;
+  font-size: 0.8125rem;
 }
 
 .equal-work-effect-status,
 .checkpoint-energy-gate-state,
 .equal-work-gate-state,
 .learning-gate-state {
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
 }
 
 .equal-work-effect-interval,
 .equal-work-effect-bound {
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
 }
 
 .equal-work-trace-table,
@@ -407,16 +401,14 @@ details p[role="status"] {
 .decision-ledger table,
 .recovery-stack-legend span,
 .checkpoint-energy-run-selector select,
-.checkpoint-power-run-selector select,
-.rack-dephasing-controls select {
-  font-size: 0.72rem;
+.checkpoint-power-run-selector select {
+  font-size: 0.8125rem;
 }
 
 .checkpoint-power-run-selector label,
 .checkpoint-energy-run-selector label,
-.rack-dephasing-controls label,
 .timeline-controls > label {
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
 }
 
 .timeline-svg .axis-text,
@@ -428,22 +420,14 @@ details p[role="status"] {
 .semantic-ranking-tick,
 .semantic-ranking-label,
 .semantic-mode-label,
-.semantic-mode-event,
 .recovery-tick,
-.recovery-event-id,
-.residual-axis-labels,
-.residual-axis-labels text,
-.rack-dephasing-axis-label,
-.rack-dephasing-direct-label,
-.rack-dephasing-rail-label,
-.rack-dephasing-event-label {
-  font-size: 11px;
+.recovery-event-id {
+  font-size: 13px;
 }
 
 .equal-work-section-header > span,
 .checkpoint-power-section-header > span,
 .checkpoint-energy-section-header > span,
-.rack-dephasing-section-header > span,
 .semantic-consistency-evidence-grid dt,
 .evidence-key li b,
 .evidence-key li span,
@@ -452,7 +436,7 @@ details p[role="status"] {
 .site-outage-chip,
 .checkpoint-energy-raw-panel p,
 .checkpoint-power-raw-panel p {
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
 }
 
 .equal-work-trace pre,
@@ -460,25 +444,29 @@ details p[role="status"] {
 .checkpoint-power-trace pre,
 .learning-trace pre,
 .raw-trace pre {
-  font-size: 0.72rem;
+  font-size: 0.8125rem;
 }
 
 /* Unstyled <small> shrinks to ~0.83em of already-small parents; pin it
    to the floor. Classed small rules above still win. */
+
 main small {
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
 }
 
 /* Hard legibility floor for chart text. The !important is deliberate:
    90-observatory sets dozens of 0.56 to 0.6rem tick and annotation sizes
    behind high-specificity scoped selectors, and pixel faces are simply
    unreadable down there. Nothing in a chart may render below 11px. */
+
 main svg text {
   font-size: 11px !important;
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Controls: OS buttons, not outline pills                              */
+
 /* ------------------------------------------------------------------ */
 
 button,
@@ -492,20 +480,8 @@ button:active {
   border-style: inset;
 }
 
-.depth-control button {
-  font: 600 13px var(--font-display);
-  color: var(--text-dark);
-}
-
-.depth-control button[aria-pressed="true"] {
-  border-style: inset;
-  border-color: var(--button-face);
-  background: var(--title-bar);
-  color: var(--text-light);
-}
-
 /* Header controls sit flush in the toolbar strip. */
-.experiment-picker select,
+
 .share-state,
 .icon-button {
   border: 0;
@@ -527,10 +503,15 @@ summary:focus-visible,
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Freshman translation companions                                      */
+
 /* The artifact verdict stays verbatim above; this box restates it in   */
+
 /* plain words at freshman depth only. Marked visually as commentary,   */
+
 /* never as data: gold well, labeled, no evidence tag.                  */
+
 /* ------------------------------------------------------------------ */
 
 .plain-words {
@@ -552,6 +533,7 @@ body[data-depth="freshman"] .plain-words.has-text {
    .semantic-consistency-insight > div:last-child p (0,2,2). The translation
    box is always gold, so its ink must always be dark regardless of the card
    it sits in; three classes plus the element outrank every card rule. */
+
 .obs-window-content p.plain-words.has-text {
   color: var(--text-dark);
   font-size: 15px;
@@ -562,13 +544,15 @@ body[data-depth="freshman"] .plain-words.has-text {
   content: "In plain words";
   display: block;
   margin-bottom: 4px;
-  font: 700 11px/1.2 var(--font-display);
+  font: 700 13px/1.2 var(--font-body);
   text-transform: uppercase;
   color: oklch(0.45 0.09 88);
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Taskbar labels                                                       */
+
 /* ------------------------------------------------------------------ */
 
 .taskbar .task-button {
@@ -581,10 +565,15 @@ body[data-depth="freshman"] .plain-words.has-text {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Scenario band micro-motion                                           */
+
 /* The curtailment event and WAN traffic become something you watch.    */
+
 /* Meaning never depends on the motion: the outage chip and evidence    */
+
 /* tags carry it statically.                                            */
+
 /* ------------------------------------------------------------------ */
 
 .site-outage-chip {
@@ -593,12 +582,13 @@ body[data-depth="freshman"] .plain-words.has-text {
   padding: 2px 6px;
   border: 2px dashed oklch(0.52 0.12 88);
   color: oklch(0.45 0.09 88);
-  font: 700 11px/1.2 var(--font-value);
+  font: 700 13px/1.2 var(--font-value);
   text-transform: uppercase;
 }
 
 /* The assumed interruption: the site periodically drops dark for a
    slice of the loop, matching the scenario's outage-then-recovery shape. */
+
 @keyframes site-curtail {
   0%,
   58%,
@@ -620,6 +610,7 @@ body[data-depth="freshman"] .plain-words.has-text {
 
 /* WAN traffic: a gold packet sweeps along the link. Paint-only
    background-position animation on a 14px strip. */
+
 .wan-packet {
   position: absolute;
   right: 6px;
@@ -656,7 +647,7 @@ body[data-depth="freshman"] .plain-words.has-text {
 
 @media (prefers-reduced-motion: reduce) {
   .site-button.has-assumed-outage,
-  .wan-packet {
+.wan-packet {
     animation: none;
   }
 
@@ -666,7 +657,9 @@ body[data-depth="freshman"] .plain-words.has-text {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Small screens: the desktop margin collapses, the window fills        */
+
 /* ------------------------------------------------------------------ */
 
 @media (max-width: 620px) {

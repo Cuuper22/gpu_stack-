@@ -8,8 +8,8 @@ A preset is a bundle of variable assignments: it fills in every input a
 resolver call needs to evaluate a target, so callers do not have to
 rediscover each number by hand. The machinery for building presets lives in
 `gpu_stack.core.presets`; this package holds the actual instances, grouped
-by domain: hardware, workload, economics, materials, lithography, nuclear
-calibration scaffolding, and combined scenarios.
+by domain: hardware, workload, economics, lithography exposure optics, and
+combined scenarios.
 
 Current inventory:
 
@@ -27,19 +27,9 @@ Current inventory:
 * `workload.moe_variant_selector`: the MoE counterpart.
 * `economics.POWER_PRICE_PRESETS`: EIA 2024 historical average flat power
   tariffs for U.S. and California commercial/industrial electricity prices.
-* `materials.source_hydrogen_1`, `materials.source_oxygen_16`, and
-  `materials.medium_h2o_h1_o16_composition`: composition-only isotope and
-  formula-unit presets that assign exact quark-count roots without pretending
-  to calibrate density, binding, or optical response.
-* `lithography.asml_euv_tin_lpp_public_context` and
-  `lithography.euv_tin120_lpp_source_boundary_assumption`: narrow
-  source-plasma/EUV scaffolds that map ASML public tin-plasma context and an
-  explicitly assumption-labeled 120Sn source-species closure onto root inputs
-  only.
-* `nuclear.semf_calibration_root_inventory` and
-  `nuclear.semf_calibration_preset`: SEMF calibration-root scaffolding. The
-  nuclear module publishes no coefficient defaults; it only creates a preset
-  when explicit source text and SEMF root-only assignments are supplied.
+* `lithography.euv_exposure` and `lithography.arf_immersion_exposure`:
+  exposure optics (wavelength, numerical aperture, medium index) for EUV at
+  13.5 nm and ArF immersion at 193 nm, from ASML product specifications.
 * `scenarios.dense_training_cost_fixture`: synthetic end-to-end fixture that
   resolves training step time, allocated site power, run cost, and cost per
   token through the existing resolver. Values are round-number assumptions,
@@ -58,15 +48,13 @@ back to where it came from. A preset without a cited source is labeled an
 assumption and should not be treated as authoritative.
 """
 
-from . import dgx_h100_tco, economics, hardware, lithography, materials, nuclear, scenarios, workload
+from . import dgx_h100_tco, economics, hardware, lithography, scenarios, workload
 
 __all__ = [
     "dgx_h100_tco",
     "economics",
     "hardware",
     "lithography",
-    "materials",
-    "nuclear",
     "scenarios",
     "workload",
 ]

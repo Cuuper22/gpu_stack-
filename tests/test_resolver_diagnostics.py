@@ -79,126 +79,15 @@ def test_unselected_variant_diagnostic_lists_variant_keys():
 
 
 def test_physical_lithography_unresolved_inputs_expose_boundary_family():
-    result = resolve("physical.lithography.source_plasma_drive_beam_wavelength")
-
-    diagnostics = {item.variable: item for item in result.unresolved_inputs}
-    detuning = diagnostics["physical.lithography.source_plasma_drive_edge_detuning_ratio"]
-    assert detuning.family == "physical.lithography.source_plasma_drive"
-    assert detuning.boundary_category == "primitive-root"
-    assert detuning.primitive_boundary is True
-
-    ionization = diagnostics["physical.lithography.source_ionization_energy"]
-    assert ionization.family == "physical.lithography.source"
-    assert ionization.boundary_category == "symbolic-boundary"
-    assert ionization.primitive_boundary is False
-
-
-def test_nucleon_count_roots_share_compact_primitive_boundary_family():
-    result = resolve("physical.lithography.source_valence_up_quark_count")
-
-    diagnostics = {item.variable: item for item in result.unresolved_inputs}
-    for variable in (
-        "physical.lithography.source_proton_count",
-        "physical.lithography.source_neutron_count",
-    ):
-        diagnostic = diagnostics[variable]
-        assert diagnostic.family == "physical.lithography.source"
-        assert diagnostic.boundary_category == "primitive-root"
-        assert diagnostic.primitive_boundary is True
-
-
-def test_source_plasma_gas_roots_keep_species_family_metadata():
-    diagnostics = _diagnostics_by_variable(
-        "physical.lithography.source_plasma_species_number_density"
-    )
-
-    assert set(diagnostics) == {
-        "physical.lithography.source_plasma_species_gas_temperature",
-        "physical.lithography.source_plasma_species_partial_pressure",
-    }
-    for variable in diagnostics:
-        _assert_primitive_boundary(
-            diagnostics[variable],
-            "physical.lithography.source_plasma_species",
-        )
-
-
-def test_source_plasma_focus_roots_keep_drive_family_metadata():
-    waist = _diagnostics_by_variable(
-        "physical.lithography.source_plasma_drive_beam_parameter_waist_radius"
-    )
-    acceptance = _diagnostics_by_variable(
-        "physical.lithography.source_plasma_drive_acceptance_half_angle"
-    )
-    bpp = _diagnostics_by_variable(
-        "physical.lithography.source_plasma_drive_beam_parameter_product"
-    )
-
-    for diagnostics, expected_variables in (
-        (
-            waist,
-            {
-                "physical.lithography.source_plasma_drive_objective_pupil_radius",
-                "physical.lithography.source_plasma_drive_pupil_beam_fill_factor",
-            },
-        ),
-        (
-            acceptance,
-            {
-                "physical.lithography.source_plasma_drive_objective_focal_length",
-                "physical.lithography.source_plasma_drive_objective_pupil_radius",
-            },
-        ),
-    ):
-        assert set(diagnostics) == expected_variables
-        for variable in expected_variables:
-            _assert_primitive_boundary(
-                diagnostics[variable],
-                "physical.lithography.source_plasma_drive",
-            )
-
-    divergence = bpp[
-        "physical.lithography.source_plasma_drive_far_field_divergence_half_angle"
-    ]
-    _assert_primitive_boundary(divergence, "physical.lithography.source_plasma_drive")
-    waist_boundary = bpp[
-        "physical.lithography.source_plasma_drive_beam_parameter_waist_radius"
-    ]
-    _assert_symbolic_boundary(waist_boundary, "physical.lithography.source_plasma_drive")
-
-
-def test_medium_response_roots_keep_medium_family_metadata():
-    polarizable = _diagnostics_by_variable(
-        "physical.lithography.medium_polarizable_electron_fraction"
-    )
-    oscillator = _diagnostics_by_variable(
-        "physical.lithography.medium_oscillator_sum_rule_fraction"
-    )
-    resonance = _diagnostics_by_variable(
-        "physical.lithography.medium_resonance_to_source_frequency_ratio"
-    )
-
-    _assert_primitive_boundary(
-        polarizable["physical.lithography.medium_polarizable_electron_count"],
-        "physical.lithography.medium",
-    )
-    _assert_symbolic_boundary(
-        polarizable["physical.lithography.medium_formula_unit_electron_count"],
-        "physical.lithography.medium",
-    )
+    diagnostics = _diagnostics_by_variable("physical.lithography.gate_resolution")
 
     for variable in (
-        "physical.lithography.medium_dominant_oscillator_electron_count",
-        "physical.lithography.medium_polarizable_electron_count",
+        "physical.lithography.wavelength",
+        "physical.lithography.numerical_aperture",
     ):
-        _assert_primitive_boundary(oscillator[variable], "physical.lithography.medium")
-
-    _assert_primitive_boundary(
-        resonance["physical.lithography.medium_resonance_energy"],
-        "physical.lithography.medium",
-    )
+        _assert_primitive_boundary(diagnostics[variable], "physical.lithography")
     _assert_symbolic_boundary(
-        resonance["physical.lithography.photon_energy"],
+        diagnostics["physical.lithography.gate_k1"],
         "physical.lithography",
     )
 

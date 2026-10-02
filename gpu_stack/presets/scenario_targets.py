@@ -32,24 +32,12 @@ DENSE_TRAINING_COST_TARGETS: Mapping[str, str] = MappingProxyType(
     }
 )
 
-EUV_TIN120_SOURCE_TARGETS: Mapping[str, str] = MappingProxyType(
-    {
-        "source_proton_count": "physical.lithography.source_proton_count",
-        "source_neutron_count": "physical.lithography.source_neutron_count",
-        "pulse_repetition_rate": (
-            "physical.lithography.source_plasma_pulse_repetition_rate"
-        ),
-    }
-)
-
-
 def build_scenario_target_sets(
     *,
     dense_training_cost_fixture: Preset,
     pythia_industrial_power: Preset,
     pythia_energy_floor_cost: Preset,
     pythia_full_tco: Preset,
-    euv_tin120_source_context: Preset,
 ) -> Mapping[str, ScenarioTargetSet]:
     """Build the read-only registry mapping each preset name to its target set."""
     pythia_targets = (
@@ -66,9 +54,6 @@ def build_scenario_target_sets(
             pythia_industrial_power.name: pythia_targets,
             pythia_energy_floor_cost.name: pythia_targets,
             pythia_full_tco.name: pythia_targets,
-            euv_tin120_source_context.name: tuple(
-                EUV_TIN120_SOURCE_TARGETS.items()
-            ),
         }
     )
 
@@ -94,7 +79,6 @@ def targets_for(
 __all__ = [
     "COST_PER_TOKEN_TARGET",
     "DENSE_TRAINING_COST_TARGETS",
-    "EUV_TIN120_SOURCE_TARGETS",
     "ScenarioTargetSet",
     "build_scenario_target_sets",
     "targets_for",

@@ -2,17 +2,18 @@
 docs_stats_check.py
 ====================
 
-Freshness gate: parse numeric claims in README.md, docs/index.html, and
-docs/app.js, then compare them against live registry values.  Every claim
-is anchored to a specific label so cosmetic rewording does not cause false
-positives, but numeric drift fails loudly.
+Freshness gate: parse numeric claims in the checked files and compare them
+against live registry values.  Every claim is anchored to a specific label so
+cosmetic rewording does not cause false positives, but numeric drift fails
+loudly.
 
-Claim IDs and their sources:
+By default only README.md is checked.  Pass ``--files`` (or the ``files``
+argument of :func:`check_docs_stats`) to check others.  Known files:
 
-  README "stats code block" (lines like "  variables      1517")
-  README "Current Snapshot" table (markdown table rows)
-  docs/index.html stat-grid <b>NNN</b> cells
-  docs/app.js embedded fact strings with numeric literals
+  README.md        "stats code block" (lines like "  variables      1517")
+                   and the "Current Snapshot" table (markdown table rows)
+  docs/index.html  stat-grid <b>NNN</b> cells
+  docs/app.js      embedded fact strings with numeric literals
 
 The checker reports each mismatch as:
   [file:claim_id] expected <live_value>, found <doc_value>
@@ -26,7 +27,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 
 # ---------------------------------------------------------------------------
@@ -35,7 +36,6 @@ from typing import Dict, List, Optional, Tuple
 
 def _live_stats(repo_root: Optional[Path] = None) -> Dict[str, int]:
     """Return registry stats, coverage, and derived audit numbers."""
-    import gpu_stack
     from gpu_stack import Registry, find_cycles, topological_sort
     from importlib.metadata import version as _pkg_version
 
@@ -329,123 +329,112 @@ def _parse_appjs_facts(text: str) -> Dict[str, int]:
 # Main checker
 # ---------------------------------------------------------------------------
 
-def check_docs_stats(repo_root: Path) -> List[StatMismatch]:
-    """
-    Compute live registry truth, parse all claim surfaces, return mismatches.
+DEFAULT_FILES: Tuple[str, ...] = ("README.md",)
+KNOWN_FILES: Tuple[str, ...] = ("README.md", "docs/index.html", "docs/app.js")
 
-    Never raises on missing values from documents; instead records a mismatch
-    with found="<not found>".
+
+def _mismatch(
+    file: str, claim_id: str, expected: str, found: Optional[str]
+) -> Optional[StatMismatch]:
+    if found == expected:
+        return None
+    return StatMismatch(
+        file=file,
+        claim_id=claim_id,
+        expected=expected,
+        found="<not found>" if found is None else found,
+    )
+
+
+def _check_readme(text: str, live: Dict[str, int]) -> List[StatMismatch]:
+    out: List[Optional[StatMismatch]] = []
+    block = _parse_readme_stats_block(text)
+    for key, stats_key in _README_STATS_BLOCK_KEYS.items():
+        found = block.get(key)
+        out.append(_mismatch(
+            "README.md", f"stats_block:{key}", str(live[stats_key]),
+            None if found is None else str(found),
+        ))
+    table = _parse_readme_snapshot_table(text)
+    for label, stats_key in _README_TABLE_LABELS.items():
+        expected = (
+            str(live["_pkg_version"]) if stats_key == "_version"
+            else str(live[stats_key])
+        )
+        out.append(_mismatch(
+            "README.md", f"snapshot_table:{label}", expected, table.get(label),
+        ))
+    return [m for m in out if m is not None]
+
+
+def _check_html(text: str, live: Dict[str, int]) -> List[StatMismatch]:
+    out: List[Optional[StatMismatch]] = []
+    stats = _parse_html_stat_grid(text)
+    for key, stats_key in _HTML_STAT_LABELS.items():
+        found = stats.get(stats_key)
+        out.append(_mismatch(
+            "docs/index.html", f"stat_grid:{key}", str(live[stats_key]),
+            None if found is None else str(found),
+        ))
+    return [m for m in out if m is not None]
+
+
+def _check_appjs(text: str, live: Dict[str, int]) -> List[StatMismatch]:
+    out: List[Optional[StatMismatch]] = []
+    vals = _parse_appjs_facts(text)
+    for stats_key, claim_id in (
+        ("variables", "appjs:fact_variables_and_equations:variables"),
+        ("equations", "appjs:fact_variables_and_equations:equations"),
+        ("equations_with_unit_check", "appjs:fact_unit_checks"),
+        ("root_inputs", "appjs:fact_root_inputs"),
+    ):
+        found = vals.get(stats_key)
+        out.append(_mismatch(
+            "docs/app.js", claim_id, str(live[stats_key]),
+            None if found is None else str(found),
+        ))
+    return [m for m in out if m is not None]
+
+
+_FILE_CHECKERS = {
+    "README.md": _check_readme,
+    "docs/index.html": _check_html,
+    "docs/app.js": _check_appjs,
+}
+
+
+def check_docs_stats(
+    repo_root: Path, files: Sequence[str] = DEFAULT_FILES
+) -> List[StatMismatch]:
     """
+    Compute live registry truth, parse the requested files, return mismatches.
+
+    ``files`` are paths relative to ``repo_root``; each must be one of
+    KNOWN_FILES.  A claim missing from a file is a mismatch with
+    found="<not found>".
+    """
+    unknown = [f for f in files if f not in _FILE_CHECKERS]
+    if unknown:
+        raise ValueError(
+            f"unknown file(s) {unknown!r}; known: {', '.join(KNOWN_FILES)}"
+        )
     live = _live_stats(repo_root)
     mismatches: List[StatMismatch] = []
-
-    readme_path = repo_root / "README.md"
-    html_path = repo_root / "docs" / "index.html"
-    appjs_path = repo_root / "docs" / "app.js"
-
-    readme_text = readme_path.read_text(encoding="utf-8")
-    html_text = html_path.read_text(encoding="utf-8")
-    appjs_text = appjs_path.read_text(encoding="utf-8")
-
-    # -- README stats code block --
-    readme_block = _parse_readme_stats_block(readme_text)
-    for key, stats_key in _README_STATS_BLOCK_KEYS.items():
-        expected = live[stats_key]
-        found_val = readme_block.get(key)
-        if found_val is None:
-            mismatches.append(StatMismatch(
-                file="README.md",
-                claim_id=f"stats_block:{key}",
-                expected=str(expected),
-                found="<not found>",
-            ))
-        elif found_val != expected:
-            mismatches.append(StatMismatch(
-                file="README.md",
-                claim_id=f"stats_block:{key}",
-                expected=str(expected),
-                found=str(found_val),
-            ))
-
-    # -- README Current Snapshot table --
-    readme_table = _parse_readme_snapshot_table(readme_text)
-    for label, stats_key in _README_TABLE_LABELS.items():
-        found_raw = readme_table.get(label)
-        if stats_key == "_version":
-            expected_str = live["_pkg_version"]
-        else:
-            expected_str = str(live[stats_key])
-        if found_raw is None:
-            mismatches.append(StatMismatch(
-                file="README.md",
-                claim_id=f"snapshot_table:{label}",
-                expected=expected_str,
-                found="<not found>",
-            ))
-        elif found_raw != expected_str:
-            mismatches.append(StatMismatch(
-                file="README.md",
-                claim_id=f"snapshot_table:{label}",
-                expected=expected_str,
-                found=found_raw,
-            ))
-
-    # -- docs/index.html stat grid --
-    html_stats = _parse_html_stat_grid(html_text)
-    for key, stats_key in _HTML_STAT_LABELS.items():
-        expected = live[stats_key]
-        found_val = html_stats.get(stats_key)
-        if found_val is None:
-            mismatches.append(StatMismatch(
-                file="docs/index.html",
-                claim_id=f"stat_grid:{key}",
-                expected=str(expected),
-                found="<not found>",
-            ))
-        elif found_val != expected:
-            mismatches.append(StatMismatch(
-                file="docs/index.html",
-                claim_id=f"stat_grid:{key}",
-                expected=str(expected),
-                found=str(found_val),
-            ))
-
-    # -- docs/app.js fact strings --
-    appjs_vals = _parse_appjs_facts(appjs_text)
-
-    def _check_appjs(stats_key: str, claim_id: str) -> None:
-        expected = live[stats_key]
-        found_val = appjs_vals.get(stats_key)
-        if found_val is None:
-            mismatches.append(StatMismatch(
-                file="docs/app.js",
-                claim_id=claim_id,
-                expected=str(expected),
-                found="<not found>",
-            ))
-        elif found_val != expected:
-            mismatches.append(StatMismatch(
-                file="docs/app.js",
-                claim_id=claim_id,
-                expected=str(expected),
-                found=str(found_val),
-            ))
-
-    _check_appjs("variables", "appjs:fact_variables_and_equations:variables")
-    _check_appjs("equations", "appjs:fact_variables_and_equations:equations")
-    _check_appjs("equations_with_unit_check", "appjs:fact_unit_checks")
-    _check_appjs("root_inputs", "appjs:fact_root_inputs")
-
+    for name in files:
+        text = (repo_root / name).read_text(encoding="utf-8")
+        mismatches.extend(_FILE_CHECKERS[name](text, live))
     return mismatches
 
 
-def run_docs_stats_gate(repo_root: Path) -> int:
+def run_docs_stats_gate(
+    repo_root: Path, files: Sequence[str] = DEFAULT_FILES
+) -> int:
     """
     Entry point for the docs-stats gate.
 
     Prints OK or a list of mismatches.  Returns 0 on success, 1 on failure.
     """
-    mismatches = check_docs_stats(repo_root)
+    mismatches = check_docs_stats(repo_root, files)
     if not mismatches:
         print("docs-stats: OK")
         return 0
@@ -458,19 +447,29 @@ def run_docs_stats_gate(repo_root: Path) -> int:
 def main(argv: Optional[List[str]] = None) -> int:
     """Stand-alone entry point."""
     import argparse
-    from gpu_stack.cli_common import _repo_root
+    from gpu_stack.cli_common import _repo_root, _require_source_tree
 
     parser = argparse.ArgumentParser(
         prog="docs-stats-check",
-        description="Check that README.md and docs/ stats match live registry values.",
+        description="Check that registry numbers quoted in docs match the live registry.",
     )
     parser.add_argument(
         "--repo-root",
         help="path to the repository root; defaults to auto-detected repo root",
     )
+    parser.add_argument(
+        "--files",
+        nargs="+",
+        default=list(DEFAULT_FILES),
+        choices=KNOWN_FILES,
+        help="files to check, relative to the repo root (default: README.md)",
+    )
     args = parser.parse_args(argv)
-    root = Path(args.repo_root).resolve() if args.repo_root else _repo_root()
-    return run_docs_stats_gate(root)
+    root = _require_source_tree(
+        "docs_stats_check",
+        Path(args.repo_root).resolve() if args.repo_root else _repo_root(),
+    )
+    return run_docs_stats_gate(root, args.files)
 
 
 if __name__ == "__main__":

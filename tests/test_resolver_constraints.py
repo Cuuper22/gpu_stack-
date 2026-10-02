@@ -22,7 +22,7 @@ from gpu_stack.core import (
     var,
 )
 from gpu_stack.core.variable import Variable
-from tests.helpers.registry import registry_snapshot
+from tests.helpers.registry import registry_snapshot  # noqa: F401  (pytest fixture)
 
 
 def test_constraint_helper_uses_selected_variant(registry_snapshot):
@@ -409,18 +409,17 @@ def test_raw_symbols_on_expression_lhs_constraints_are_reported(registry_snapsho
 
 def test_resolve_reports_violated_variable_domain_for_assigned_boundary():
     result = resolve(
-        "physical.lithography.source_plasma_drive_peak_intensity",
+        "physical.lithography.gate_resolution",
         assignments={
-            "physical.lithography.source_plasma_drive_pulse_fluence": -1.0,
-            "physical.lithography.source_plasma_drive_pulse_duration": 1.0,
-            "physical.lithography.source_plasma_drive_pulse_temporal_shape_factor": 1.0,
+            "physical.lithography.gate_k1": 1.0,
+            "physical.lithography.wavelength": -1.0,
+            "physical.lithography.numerical_aperture": 1.0,
         },
     )
 
     assert float(result.value) == pytest.approx(-1.0)
     domain_check = next(
         c for c in result.constraints
-        if c.equation
-        == "domain.physical.lithography.source_plasma_drive_pulse_fluence.positive"
+        if c.equation == "domain.physical.lithography.wavelength.positive"
     )
     assert domain_check.satisfied is False

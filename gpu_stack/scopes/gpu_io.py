@@ -102,7 +102,7 @@ nvlink_rate_per_lane = var(
 )
 nvlink_bw_per_gpu = var(
     "gpu.nvlink.bw", "BW_NVL_GPU", "byte/s",
-    "Raw aggregate NVLink injection bandwidth per GPU package.",
+    "Raw NVLink injection bandwidth per GPU package in one direction (vendor totals such as 900 GB/s on H100 count both directions, so enter half). The collective beta term charges bytes moved in one direction.",
     scope="gpu",
     sp_units=BPS,
     references=[GPU_FABRIC_IO_REF],

@@ -17,6 +17,7 @@ body[data-mission-mode="active"] .obs-desktop {
 }
 
 /* Reserve a real column for the rail. It never floats over evidence. */
+
 .obs-window-content {
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--mission-rail);
@@ -24,8 +25,7 @@ body[data-mission-mode="active"] .obs-desktop {
 }
 
 .obs-header,
-.mission-control,
-.obs-footer {
+.mission-control {
   grid-column: 1 / -1;
 }
 
@@ -50,12 +50,10 @@ body[data-mission-mode="active"] .obs-desktop {
   grid-column: 2;
 }
 
-.obs-footer {
-  grid-row: 4;
-}
-
 /* ------------------------------------------------------------------ */
+
 /* Mission bar                                                         */
+
 /* ------------------------------------------------------------------ */
 
 .mission-control {
@@ -71,7 +69,7 @@ body[data-mission-mode="active"] .obs-desktop {
   background: var(--pane-bright);
   box-shadow: 0 2px 0 oklch(0.18 0.006 250 / 0.14);
   color: var(--text-dark);
-  font: 600 13px/1.2 var(--font-display);
+  font: 600 13px/1.2 var(--font-body);
 }
 
 .mission-control > div {
@@ -122,9 +120,7 @@ body[data-mission-mode="active"] .obs-desktop {
 .mission-objective-block strong,
 .mission-live-copy {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .mission-objective-block strong {
@@ -222,7 +218,9 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Human decision rail                                                 */
+
 /* ------------------------------------------------------------------ */
 
 .mission-sidecar {
@@ -262,7 +260,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 .mission-panel-header h2 {
   margin: 0;
   color: var(--text-dark);
-  font: 700 14px/1.1 var(--font-display);
+  font: 700 14px/1.1 var(--font-body);
   letter-spacing: 0.035em;
   text-transform: uppercase;
 }
@@ -270,7 +268,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 .mission-count {
   flex: 0 0 auto;
   color: var(--text-soft);
-  font: 500 12px/1 var(--font-mono);
+  font: 500 13px/1 var(--font-mono);
 }
 
 .mission-list,
@@ -322,17 +320,18 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
   display: block;
   margin-bottom: 3px;
   color: var(--text-dark);
-  font: 700 12px/1.25 var(--font-display);
+  font: 700 13px/1.25 var(--font-body);
   text-transform: uppercase;
 }
 
 .mission-empty p {
   margin: 0;
-  font: 500 12px/1.35 var(--font-display);
+  font: 500 13px/1.35 var(--font-body);
 }
 
 /* The bridge can render either class names or semantic data attributes.
    Both receive the same compact, evidence-first card treatment. */
+
 .mission-change,
 .pending-change,
 #pending-changes > [data-change-id] {
@@ -365,14 +364,14 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 .pending-change h3,
 #pending-changes > [data-change-id] h3 {
   margin: 0 0 8px;
-  font: 700 13px/1.25 var(--font-display);
+  font: 700 13px/1.25 var(--font-body);
 }
 
 .mission-change p,
 .pending-change p,
 #pending-changes > [data-change-id] p {
   margin: 4px 0;
-  font: 500 12px/1.35 var(--font-display);
+  font: 500 13px/1.35 var(--font-body);
   overflow-wrap: anywhere;
 }
 
@@ -394,7 +393,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
   border-radius: 0;
   background: var(--pane-bright);
   color: var(--text-dark);
-  font: 500 13px/1.45 var(--font-display);
+  font: 500 13px/1.45 var(--font-body);
 }
 
 .mission-claim-editor:focus-visible {
@@ -427,7 +426,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
   border-radius: 0;
   background: var(--button-face);
   color: var(--text-dark);
-  font: 700 12px/1 var(--font-display);
+  font: 700 13px/1 var(--font-body);
   letter-spacing: 0.025em;
   text-transform: uppercase;
 }
@@ -451,7 +450,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 .mission-button--compact {
   min-height: 28px;
   padding: 4px 7px;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .mission-button--reject:not(:disabled) {
@@ -468,29 +467,29 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
   border-top: 2px solid var(--inset-dark);
   background: var(--chrome-well);
   color: var(--text-dark);
-  font: 600 11px/1.3 var(--font-display);
+  font: 600 13px/1.3 var(--font-body);
   text-align: center;
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Receipts                                                            */
+
 /* ------------------------------------------------------------------ */
 
 .receipt-list > li:not(.mission-empty),
-.webmcp-receipt,
-.receipt-item {
+.webmcp-receipt {
   position: relative;
   min-width: 0;
   padding: 9px 10px 9px 27px;
   border: 1px solid var(--chrome-border);
   background: var(--pane-bright);
   color: var(--text-dark);
-  font: 500 12px/1.35 var(--font-display);
+  font: 500 13px/1.35 var(--font-body);
 }
 
 .receipt-list > li:not(.mission-empty)::before,
-.webmcp-receipt::before,
-.receipt-item::before {
+.webmcp-receipt::before {
   position: absolute;
   top: 12px;
   left: 10px;
@@ -527,7 +526,6 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 
 .receipt-list code,
 .receipt-list time,
-.receipt-id,
 .receipt-delta {
   font-family: var(--font-mono);
 }
@@ -544,6 +542,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 
 /* Agent-read paths are a temporary cyan spotlight, never a new evidence
    class. The node's original evidence label and glyph remain untouched. */
+
 #causal-svg .causal-node.is-mission-path .node-frame {
   fill: var(--mission-cyan-wash);
   stroke: var(--accent-cyan-deep);
@@ -566,6 +565,7 @@ body[data-mission-status="fallback"] .mission-meter i:nth-child(n + 3) {
 
 /* Family rows and effect cards opened by an agent keep their original
    PASS/FAIL and evidence state; this gold focus band only shows location. */
+
 .is-mission-evidence:not(tr) {
   position: relative;
   z-index: 1;
@@ -596,7 +596,9 @@ tr.is-mission-evidence > :last-child {
 }
 
 /* ------------------------------------------------------------------ */
+
 /* Responsive                                                          */
+
 /* ------------------------------------------------------------------ */
 
 @media (max-width: 1380px) {
@@ -616,16 +618,16 @@ tr.is-mission-evidence > :last-child {
 
 /* Below a wide desktop, an inline rail gives the dense observatory its full
    width. This deliberately switches before any research grid can collide. */
+
 @media (max-width: 1280px) {
   .obs-window-content {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .obs-header,
-  .mission-control,
-  .mission-sidecar,
-  #observatory-main,
-  .obs-footer {
+.mission-control,
+.mission-sidecar,
+#observatory-main {
     grid-column: 1;
   }
 
@@ -653,12 +655,8 @@ tr.is-mission-evidence > :last-child {
     border-right: 0;
   }
 
-  .obs-footer {
-    grid-row: 5;
-  }
-
   .mission-list,
-  .receipt-list {
+.receipt-list {
     max-height: 250px;
   }
 }
@@ -722,7 +720,7 @@ tr.is-mission-evidence > :last-child {
   }
 
   .mission-control {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .mission-control > div {
@@ -730,16 +728,16 @@ tr.is-mission-evidence > :last-child {
   }
 
   .mission-objective-block,
-  .mission-policy,
-  .mission-live-block {
+.mission-policy,
+.mission-live-block {
     display: grid !important;
     grid-template-columns: 1fr;
     gap: 3px !important;
   }
 
   .mission-objective-block strong,
-  .mission-live-copy,
-  .mission-policy strong {
+.mission-live-copy,
+.mission-policy strong {
     overflow: visible;
     white-space: normal;
   }
@@ -756,14 +754,14 @@ tr.is-mission-evidence > :last-child {
     min-height: 36px;
     padding-right: 5px;
     padding-left: 5px;
-    font-size: 11px;
+    font-size: 13px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .mission-meter i,
-  #causal-svg .causal-edge.is-mission-path,
-  .is-mission-evidence:not(tr) {
+#causal-svg .causal-edge.is-mission-path,
+.is-mission-evidence:not(tr) {
     animation: none;
   }
 }

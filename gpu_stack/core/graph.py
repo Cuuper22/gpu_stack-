@@ -17,8 +17,7 @@ this module answers the basic questions about it:
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Set, Tuple
-from collections import defaultdict
+from typing import Dict, List, Optional, Set
 
 from .registry import Registry
 from .variable import Variable, Constant

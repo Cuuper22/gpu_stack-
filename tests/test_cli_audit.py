@@ -86,7 +86,7 @@ def test_audit_fails_on_raw_symbol_in_expression_lhs_constraint():
 def test_audit_fails_on_collapsed_approximation_validity():
     with registry_snapshot():
         equation = Registry.equations[
-            "physical.eq.lithography_source_nuclear_radius_coefficient"
+            "physical.eq.gate_lithography_resolution"
         ]
         original_validity = equation.validity
         try:
@@ -100,4 +100,4 @@ def test_audit_fails_on_collapsed_approximation_validity():
     out = buf.getvalue()
     assert rc == 1
     assert "collapsed_approximation_validity 1" in out
-    assert "physical.eq.lithography_source_nuclear_radius_coefficient" in out
+    assert "physical.eq.gate_lithography_resolution" in out

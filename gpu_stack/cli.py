@@ -10,12 +10,13 @@ Subcommands:
   stats              Print Registry.stats() and the coverage report.
   audit              Print graph-integrity and metadata audit signals.
   root-debt          Rank unresolved root inputs by downstream blast radius.
-  next-work          Print a live continuation compass from graph evidence.
   experiment-protocol
                      Print a preregistered research protocol.
   experiment-run     Execute a virtual research experiment from an explicit
                      scenario artifact.
   verify             Run a compact local verification profile.
+  estimate           Estimate training time, energy and cost (the calculator);
+                     `--explain` shows what each number is made of.
   list-presets       List the named presets under gpu_stack.presets.*.
   export-graph-json  Export dependency-cone JSON for portfolio page viewer.
   resolve TARGET     Resolve a target variable. Supply `--assign k=v` to
@@ -34,48 +35,21 @@ point in pyproject.toml is `gpu-stack`.
 from __future__ import annotations
 
 import argparse
-import subprocess
+import subprocess  # noqa: F401  (tests patch cli.subprocess)
 import sys
 
 from gpu_stack.cli_audit import (
-    _large_project_files,
-    _large_scope_files,
+    _large_project_files,  # noqa: F401  (imported by tests)
     cmd_audit,
     cmd_stats,
 )
-from gpu_stack.cli_common import (
-    _coerce_value,
-    _format_inputs,
-    _iter_presets,
-    _lookup_preset,
-    _missing_family_groups,
-    _parse_kv,
-    _print_missing_family_groups,
-    _print_unresolved_inputs,
-    _print_violated_constraints,
-    _repo_root,
-    _short_list,
-)
+from gpu_stack.cli_common import _iter_presets  # noqa: F401  (imported by tests)
+from gpu_stack.cli_estimate import add_estimate_parser
 from gpu_stack.cli_resolve import cmd_resolve
 from gpu_stack.cli_root_debt import (
-    RootDebtEntry,
-    RootDebtFamily,
-    _format_weighted_roots,
-    _root_debt_families,
-    _root_debt_families_json,
-    _root_debt_family_json,
-    _root_debt_json,
-    _root_debt_row_json,
     cmd_root_debt,
 )
 from gpu_stack.cli_scenario import (
-    DEFAULT_SCENARIO_REPORT_TARGETS,
-    _coerce_json_value,
-    _parse_report_targets,
-    _scenario_audit_json_dict,
-    _scenario_audit_presets,
-    _scenario_audit_targets,
-    _scenario_report_json_dict,
     cmd_list_presets,
     cmd_scenario_audit,
     cmd_scenario_report,
@@ -83,68 +57,11 @@ from gpu_stack.cli_scenario import (
 from gpu_stack.cli_export_graph import cmd_export_graph
 from gpu_stack.cli_research import cmd_experiment_protocol, cmd_experiment_run
 from gpu_stack.cli_verify import (
-    DEFAULT_GATE_TIMEOUT_SECONDS,
-    VERIFY_TIMEOUT_RETURN_CODE,
-    VerifyGate,
-    VerifyGateResult,
-    _coerce_timeout_text,
-    _format_command,
-    _format_timeout,
-    _gate_timeout,
-    _python_command,
-    _pytest_command,
-    _read_only_env,
+    VERIFY_TIMEOUT_RETURN_CODE,  # noqa: F401  (imported by tests)
+    VerifyGate,  # noqa: F401  (imported by tests)
     _run_verify_gate,
-    _syntax_check_command,
-    _tail,
-    _verify_gates,
     cmd_verify as _cmd_verify,
 )
-
-
-def cmd_next_work(args: argparse.Namespace) -> int:
-    from gpu_stack.next_work import build_next_work_plan
-
-    plan = build_next_work_plan()
-    if args.json:
-        import json
-
-        print(json.dumps(plan.to_dict(), indent=2, sort_keys=True))
-        return 0
-
-    sections = (
-        ("Top 3 highest impact", plan.highest_impact),
-        ("4 best implementations", plan.best_implementations),
-        ("10 active experiment risks", plan.bug_risks),
-    )
-    print("Next work:")
-    print(
-        "  graph evidence: "
-        f"variables={plan.graph_evidence['variables']} "
-        f"equations={plan.graph_evidence['equations']} "
-        f"root_inputs={plan.graph_evidence['root_inputs']}"
-    )
-    for title, items in sections:
-        print()
-        print(f"{title}:")
-        for index, item in enumerate(items, start=1):
-            print(f"  {index}. {item.title}")
-            print(f"     evidence: {item.evidence}")
-            if item.command:
-                print(f"     command: {item.command}")
-            if item.path:
-                print(f"     path: {item.path}")
-    if plan.legacy_diagnostics:
-        print()
-        print("Legacy diagnostics (not scientific priorities):")
-        for index, item in enumerate(plan.legacy_diagnostics, start=1):
-            print(f"  {index}. {item.title}")
-            print(f"     evidence: {item.evidence}")
-            if item.command:
-                print(f"     command: {item.command}")
-            if item.path:
-                print(f"     path: {item.path}")
-    return 0
 
 
 def cmd_verify(args: argparse.Namespace) -> int:
@@ -199,17 +116,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_roots.set_defaults(func=cmd_root_debt)
 
-    p_next_work = subparsers.add_parser(
-        "next-work",
-        help="print the research-first priority, implementation, and risk compass",
-    )
-    p_next_work.add_argument(
-        "--json",
-        action="store_true",
-        help="emit the live next-work compass as structured JSON",
-    )
-    p_next_work.set_defaults(func=cmd_next_work)
-
     p_experiment_protocol = subparsers.add_parser(
         "experiment-protocol",
         help="print a preregistered research protocol and falsifiers",
@@ -220,10 +126,6 @@ def build_parser() -> argparse.ArgumentParser:
             "E001",
             "E001-RECOVERY-V2",
             "E002",
-            "E003",
-            "E004",
-            "E005",
-            "E006",
         ),
         help="experiment identifier",
     )
@@ -303,7 +205,7 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help=(
             "observation JSON to embed in the observatory artifact; repeat for "
-            "multiple. E001 defaults to the repository literature observations"
+            "multiple. E001 defaults to the packaged literature observations"
         ),
     )
     p_experiment_run.set_defaults(func=cmd_experiment_run)
@@ -545,6 +447,8 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     p_resolve.set_defaults(func=cmd_resolve)
+
+    add_estimate_parser(subparsers)
     return parser
 
 

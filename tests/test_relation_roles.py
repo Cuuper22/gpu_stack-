@@ -12,7 +12,7 @@ over every registered inequality, guarantee ``as_sympy()`` keeps a real
 Relational.
 
 Second, a variable with several defining equations is only usable if each
-equation's role is known. The audited table from IMPROVEMENT_MAP.md pins the
+equation's role is known. The audited table below pins the
 exact identity/constraint/approximation/variant counts per multi-definition
 variable, checks the role accessors partition all defining equations with
 none unclassified, and requires distinct variant keys. Constructor tests
@@ -24,7 +24,6 @@ must use the CONSTRAINT role.
 import pytest
 import sympy as sp
 
-import gpu_stack
 from gpu_stack import Equation, Inequality, Registry, RelationRole
 
 
@@ -64,38 +63,8 @@ def test_no_inequality_collapses_to_true():
 
 # Each tuple: (variable_name, expected_identity_count, expected_constraint_count,
 #              expected_approximation_count, expected_variant_count)
-# The counts reflect the audited variables from IMPROVEMENT_MAP.md after
-# role tagging in this batch.
+# The counts reflect the audited multi-definition variables after role tagging.
 MULTI_DEFINITION_EXPECTATIONS = [
-    ("physical.lithography.source_plasma_species_number_density", 0, 1, 1, 0),
-    ("physical.lithography.source_plasma_species_thermal_speed", 0, 2, 1, 0),
-    ("physical.lithography.source_plasma_drive_acceptance_half_angle", 0, 1, 1, 0),
-    ("physical.lithography.source_plasma_drive_pulse_duration", 0, 1, 1, 0),
-    ("physical.lithography.source_plasma_drive_peak_intensity", 0, 1, 1, 0),
-    ("physical.lithography.source_plasma_drive_pulse_rise_fraction", 0, 2, 0, 0),
-    ("physical.lithography.source_plasma_drive_pulse_fall_fraction", 0, 2, 1, 0),
-    ("physical.lithography.source_plasma_drive_pulse_flat_fraction", 0, 1, 1, 0),
-    ("physical.lithography.source_plasma_drive_pulse_temporal_shape_factor", 0, 1, 1, 0),
-    ("physical.lithography.source_plasma_drive_far_field_divergence_half_angle", 0, 2, 0, 0),
-    ("physical.lithography.source_plasma_drive_beam_parameter_product", 0, 1, 1, 0),
-    ("physical.lithography.source_plasma_drive_beam_quality_factor", 0, 1, 1, 0),
-    ("physical.lithography.source_plasma_drive_spot_area", 0, 1, 1, 0),
-    ("physical.lithography.acceptance_half_angle", 0, 1, 1, 0),
-    ("physical.lithography.numerical_aperture", 0, 1, 1, 0),
-    ("physical.lithography.source_nuclear_mass", 1, 1, 0, 0),
-    ("physical.lithography.source_reduced_mass", 1, 1, 0, 0),
-    ("physical.lithography.source_reduced_mass_ratio", 1, 1, 0, 0),
-    (
-        "physical.lithography.medium_formula_unit_intercomponent_charge_transfer_electron_count",
-        0,
-        2,
-        0,
-        0,
-    ),
-    ("physical.lithography.medium_polarizable_electron_fraction", 0, 1, 1, 0),
-    ("physical.lithography.medium_dominant_oscillator_electron_count", 0, 2, 0, 0),
-    ("physical.lithography.medium_oscillator_sum_rule_fraction", 0, 1, 1, 0),
-    ("physical.lithography.medium_resonance_to_source_frequency_ratio", 0, 1, 1, 0),
     ("physical.process.drawn_gate_length", 0, 1, 1, 0),
     ("physical.process.source_drain_contact_width", 0, 1, 1, 0),
     ("physical.process.gate_contact_spacing", 0, 1, 1, 0),

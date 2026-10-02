@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-07-13T22:11:53Z",
+  "generated_at": "2026-10-01T20:21:47Z",
   "targets": [
     "econ.cost.per_token",
     "thermal.dc.pue",
@@ -135,7 +135,7 @@
       "name": "arch.flops.step_dense",
       "units": "FLOP",
       "scope": "architecture",
-      "description": "Dense-model training FLOPs per step.",
+      "description": "Dense-model training FLOPs per step, approximated as 6 * total parameters * tokens per step (embeddings included, attention score FLOPs omitted).",
       "is_root_input": false,
       "is_constant": false,
       "defining_equations": [
@@ -1449,7 +1449,7 @@
       "name": "gpu.nvlink.bw",
       "units": "byte/s",
       "scope": "gpu",
-      "description": "Raw aggregate NVLink injection bandwidth per GPU package.",
+      "description": "Raw NVLink injection bandwidth per GPU package in one direction (vendor totals such as 900 GB/s on H100 count both directions, so enter half). The collective be...",
       "is_root_input": false,
       "is_constant": false,
       "defining_equations": [
@@ -2389,7 +2389,7 @@
       "name": "par.pp.bubble_1f1b",
       "units": "dimensionless",
       "scope": "parallelism",
-      "description": "Bubble fraction under 1F1B.",
+      "description": "Share of total step time lost to the bubble under 1F1B, (p-1)/(p-1+m). Overhead over ideal time is (p-1)/m.",
       "is_root_input": false,
       "is_constant": false,
       "defining_equations": [
@@ -6909,7 +6909,7 @@
       "name": "training.overhead_fraction",
       "units": "dimensionless",
       "scope": "training",
-      "description": "Total non-nominal fractional overhead added on top of the compute, communication, and memory-bound baseline.",
+      "description": "Total non-nominal overhead: extra time divided by nominal step time. Every term summed into it (pipeline, straggler, restart, eval) is an overhead over nominal,...",
       "is_root_input": false,
       "is_constant": false,
       "defining_equations": [
@@ -6931,7 +6931,7 @@
       "name": "training.pipeline_bubble_fraction",
       "units": "dimensionless",
       "scope": "training",
-      "description": "Fractional pipeline bubble penalty applied to the nominal step time.",
+      "description": "Pipeline bubble time divided by nominal (bubble-free) step time, i.e. an overhead over nominal, equal to (p-1)/m for 1F1B. Not the bubble share of the total ste...",
       "is_root_input": false,
       "is_constant": false,
       "defining_equations": [

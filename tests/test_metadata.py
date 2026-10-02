@@ -16,7 +16,6 @@ auto_classify_kinds a second time changes nothing — classification is
 idempotent, so re-importing scopes cannot corrupt the registry.
 """
 
-import gpu_stack
 from gpu_stack import Registry
 from gpu_stack.core import Constant, Extensivity, VariableKind
 
@@ -86,7 +85,7 @@ def test_coverage_report_fields_present():
 
 def test_auto_classify_is_idempotent():
     before = len(Registry.variables)
-    first = Registry.auto_classify_kinds()
+    Registry.auto_classify_kinds()
     second = Registry.auto_classify_kinds()
     # First call may be zero if already classified; second must be zero.
     assert second == 0

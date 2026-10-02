@@ -17,11 +17,12 @@ and Chimera run two pipelines in opposite directions and overlap them,
 scaling the bubble by their overlap factors. Zero-bubble schedules split
 the backward pass into input-gradient and weight-gradient halves and
 reorder them to fill the gaps almost completely. This module states each
-schedule's bubble fraction so a training plan can compare them.
+schedule's bubble as a share of total step time (not overhead over ideal
+time, which is share / (1 - share)) so a training plan can compare them.
 """
 
 import sympy as sp
-from ..core import Approximation, Reference, eq, var
+from ..core import Reference, eq, var
 from ..core.units import SECOND
 
 
@@ -34,6 +35,23 @@ PIPELINE_SCHEDULE_REF = Reference(
     "stage forward/backward times.",
     kind="model",
 )
+
+NARAYANAN_2021_REF = Reference(
+    "Narayanan et al., Efficient Large-Scale Language Model Training on GPU "
+    "Clusters Using Megatron-LM, SC21, Sec. 2.2: with p stages and m "
+    "microbatches the GPipe and 1F1B bubble is (p-1)(t_f+t_b) on top of an "
+    "ideal m(t_f+t_b), i.e. (p-1)/m over ideal; interleaving with v chunks "
+    "per device divides it by v. 1F1B differs from GPipe in activation "
+    "memory, not in bubble.",
+    kind="paper",
+    url="https://arxiv.org/abs/2104.04473",
+    year=2021,
+    doi="10.1145/3458817.3476209",
+)
+
+# Convention for every bubble variable in this module: idle bubble time as a
+# share of the total step time, phi = overhead / (ideal + overhead). Narayanan's
+# overhead over ideal time is phi / (1 - phi).
 
 
 # ---------------------------------------------------------------------------
@@ -70,14 +88,14 @@ t_backward = var(
 )
 bubble_gpipe = var(
     "par.pp.bubble_gpipe", "phi_gpipe_PP", "dimensionless",
-    "Bubble fraction for flush-style GPipe.",
+    "Share of total step time lost to the bubble under flush-style GPipe, (p-1)/(p-1+m). Same as 1F1B.",
     scope="parallelism",
     sp_units=DIMENSIONLESS,
     references=[PIPELINE_SCHEDULE_REF],
 )
 bubble_1f1b = var(
     "par.pp.bubble_1f1b", "phi_1f1b_PP", "dimensionless",
-    "Bubble fraction under 1F1B.",
+    "Share of total step time lost to the bubble under 1F1B, (p-1)/(p-1+m). Overhead over ideal time is (p-1)/m.",
     scope="parallelism",
     sp_units=DIMENSIONLESS,
     references=[PIPELINE_SCHEDULE_REF],
@@ -91,7 +109,7 @@ virtual_stages = var(
 )
 bubble_interleaved = var(
     "par.pp.bubble_interleaved", "phi_il_PP", "dimensionless",
-    "Bubble fraction under interleaved 1F1B.",
+    "Share of total step time lost to the bubble under interleaved 1F1B: effective depth (p-1)/v, phi = ((p-1)/v)/((p-1)/v+m).",
     scope="parallelism",
     sp_units=DIMENSIONLESS,
     references=[PIPELINE_SCHEDULE_REF],
@@ -105,7 +123,7 @@ dualpipe_overlap = var(
 )
 bubble_dualpipe = var(
     "par.pp.bubble_dualpipe", "phi_dual_PP", "dimensionless",
-    "Bubble fraction under DualPipe-style overlap.",
+    "Share of total step time lost to the bubble under DualPipe-style overlap (heuristic scaling of the 1F1B share).",
     scope="parallelism",
     sp_units=DIMENSIONLESS,
     references=[PIPELINE_SCHEDULE_REF],
@@ -119,7 +137,7 @@ chimera_overlap = var(
 )
 bubble_chimera = var(
     "par.pp.bubble_chimera", "phi_chim_PP", "dimensionless",
-    "Bubble fraction under Chimera-style overlap.",
+    "Share of total step time lost to the bubble under Chimera-style overlap (heuristic scaling of the 1F1B share).",
     scope="parallelism",
     sp_units=DIMENSIONLESS,
     references=[PIPELINE_SCHEDULE_REF],
@@ -137,27 +155,28 @@ eq_bubble_1f1b = eq(
     "par.eq.bubble_1f1b",
     bubble_1f1b.symbol,
     (n_stages.symbol - 1) / (n_stages.symbol - 1 + n_microbatches.symbol),
-    "1F1B bubble fraction is the pipeline fill-drain overhead divided by the total steady-state stage slots.",
-    references=[PIPELINE_SCHEDULE_REF],
+    "1F1B bubble share of total step time: fill-drain idle time (p-1)(t_f+t_b) over the total (p-1+m)(t_f+t_b).",
+    references=[PIPELINE_SCHEDULE_REF, NARAYANAN_2021_REF],
     check_units=True,
 )
 
-eq_bubble_gpipe = Approximation(
+eq_bubble_gpipe = eq(
     "par.eq.bubble_gpipe",
     bubble_gpipe.symbol,
-    (n_stages.symbol - 1) / n_microbatches.symbol,
-    n_microbatches.symbol > n_stages.symbol,
-    "For GPipe with many microbatches, bubble fraction is approximately (stages - 1) / microbatches.",
-    references=[PIPELINE_SCHEDULE_REF],
+    (n_stages.symbol - 1) / (n_stages.symbol - 1 + n_microbatches.symbol),
+    "GPipe has the same bubble as 1F1B (Narayanan 2021): (p-1)/(p-1+m) of total step time. They differ in activation memory, not bubble.",
+    references=[PIPELINE_SCHEDULE_REF, NARAYANAN_2021_REF],
     check_units=True,
 )
 
 eq_bubble_interleaved = eq(
     "par.eq.bubble_interleaved",
     bubble_interleaved.symbol,
-    (n_stages.symbol / virtual_stages.symbol - 1) / (n_stages.symbol / virtual_stages.symbol - 1 + n_microbatches.symbol),
-    "Interleaving reduces the effective pipeline depth seen by the schedule.",
-    references=[PIPELINE_SCHEDULE_REF],
+    ((n_stages.symbol - 1) / virtual_stages.symbol)
+    / ((n_stages.symbol - 1) / virtual_stages.symbol + n_microbatches.symbol),
+    "Interleaving with v chunks per device divides the fill-drain depth: effective depth (p-1)/v, "
+    "giving overhead (p-1)/(v m) over ideal and share ((p-1)/v)/((p-1)/v+m) of total (Narayanan 2021).",
+    references=[PIPELINE_SCHEDULE_REF, NARAYANAN_2021_REF],
     check_units=True,
 )
 

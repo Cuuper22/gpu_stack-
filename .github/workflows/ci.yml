@@ -4,7 +4,69 @@ on:
   push:
   pull_request:
 
+# Dependencies stay on pip. uv.lock exists, but `uv sync --locked` is not used
+# here: the lock file has to be regenerated whenever pyproject.toml changes and
+# nothing in CI would catch it drifting. Revisit if the lock is kept current.
+
 jobs:
+  lint:
+    name: Ruff
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install ruff
+        run: python -m pip install "ruff==0.15.20"
+
+      # Rules and per-directory exceptions live in [tool.ruff] in pyproject.toml.
+      - name: Lint
+        run: ruff check .
+
+  typecheck:
+    name: Mypy (gpu_stack/core)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install mypy and runtime dependency
+        run: python -m pip install mypy sympy
+
+      # Files and options live in [tool.mypy] in pyproject.toml.
+      - name: Type-check
+        run: mypy
+
+  js:
+    name: Node tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run node tests
+        run: node --test tests/*.mjs
+
   test:
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
@@ -23,8 +85,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
+      # The perf extra installs numpy so the uncertainty fast path is tested.
       - name: Install package
-        run: python -m pip install -e ".[dev]"
+        run: python -m pip install -e ".[dev,perf]"
 
       - name: Run tests
         run: python -m pytest -q
@@ -38,31 +101,11 @@ jobs:
       - name: Compile source
         run: python -m compileall -q gpu_stack tests
 
-  verify:
-    name: Verify profile (full)
-    # Gate on the matrix so red commits do not consume verify/build runners.
-    needs: test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-
-      - name: Install package
-        run: python -m pip install -e ".[dev]"
-
-      # --gate-timeout 0 disables per-gate timeouts (0 is treated as "no limit"
-      # by _gate_timeout in cli_verify.py). The full profile re-runs pytest by
-      # design; the read-only variant stays a local/release-time check (see
-      # RELEASING.md) so CI does not run the suite a sixth time.
-      - name: Run verify --profile full
-        run: python -m gpu_stack.cli verify --profile full --gate-timeout 0
+      # The one gate of `verify --profile full` that the steps above do not
+      # cover. `verify` itself is not run here because its pytest gate would
+      # repeat the whole suite a second time.
+      - name: Check docs stats are current
+        run: python -m gpu_stack.docs_stats_check
 
   build:
     name: Build distribution
