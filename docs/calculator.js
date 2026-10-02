@@ -437,7 +437,7 @@
           el("span", { class: "gsc-step-label", text: s.label }),
           el("span", { class: "gsc-step-value", text: formatValue(s.value, s.unit) }),
           el("span", { class: "gsc-step-formula", text: "= " + s.formula }),
-          el("span", { class: "gsc-step-kind", title: s.equation || "", text: kindText + (s.equation ? " (" + s.equation + ")" : "") })
+          el("span", { class: "gsc-step-kind", title: s.equation || "", text: kindText })
         ]);
         ol.appendChild(li);
       });
