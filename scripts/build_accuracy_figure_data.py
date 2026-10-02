@@ -1,8 +1,10 @@
 """Build docs/data/published-runs.json for the accuracy figure.
 
-Reads the held-out published runs (primary-source citations included) and the
-prediction results, and writes one row per tier-A run: reported GPU-hours, the
-one-line rule of thumb at 40 percent MFU, and the calculator's own prediction.
+Reads the 27 published runs in gpu_stack/data/published_runs.json (citations
+included) and the calculator, and writes one row per run: reported GPU-hours,
+the one-line rule of thumb at 40 percent MFU, and the calculator's own
+prediction. Everything is per trillion training tokens so that the three
+throughput-only MT-NLG rows can sit beside full training runs.
 
 Run from the repository root:  python scripts/build_accuracy_figure_data.py
 """
@@ -10,78 +12,84 @@ Run from the repository root:  python scripts/build_accuracy_figure_data.py
 from __future__ import annotations
 
 import json
+import statistics
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-STUDY = ROOT / "experiments" / "v002-graph-published-runs"
+sys.path.insert(0, str(ROOT))
+
+from gpu_stack import calculator  # noqa: E402
+
 OUT = ROOT / "docs" / "data" / "published-runs.json"
-
 MFU = 0.40
-# results.json stores times as accelerator-seconds per training token.
-# Times 1e12 tokens and divided by 3600 that is accelerator-hours per trillion tokens.
-TO_HOURS_PER_TRILLION = 1e12 / 3600
+PER_TRILLION_TOKENS = 1e12
 
 
-def _cites(entry: dict, sources: dict) -> list[dict]:
+def _cites(entries: list[dict] | None, sources: dict) -> list[dict]:
     out = []
-    for c in (entry or {}).get("cite", []):
+    for c in entries or []:
         src = sources.get(c["src"], {})
         out.append(
             {
-                "source": src.get("description", c["src"]),
+                "source": src.get("what", c["src"]),
                 "url": src.get("url"),
-                "where": c.get("loc"),
+                "where": c.get("where"),
                 "quote": c.get("quote"),
             }
         )
     return out
 
 
-def main() -> None:
-    held = json.loads((STUDY / "heldout-runs.json").read_text())
-    results = json.loads((STUDY / "results" / "results.json").read_text())
-    sources = held["sources"]
-    graph = {r["id"]: r for r in results["T1_tierA"]["rows"]}
+def _median_error(pairs: list[tuple[float, float]]) -> float:
+    return statistics.median(abs(pred / rep - 1.0) for pred, rep in pairs)
 
+
+def main() -> None:
+    doc = calculator.load_published_runs()
+    sources = doc["sources"]
     rows = []
-    for rec in held["records"]:
-        if rec["tier"] != "A" or "T1" not in rec.get("used_in", []):
-            continue
-        g = graph[rec["id"]]
-        per_tn = g["true"] * TO_HOURS_PER_TRILLION
-        tokens = (rec.get("tokens") or {}).get("value")
-        reported_total = rec["time"].get("accel_hours", {}).get("value")
-        cites = {"params": _cites(rec["params"], sources)}
-        if rec.get("tokens"):
-            cites["tokens"] = _cites(rec["tokens"], sources)
-        for key, entry in rec["time"].items():
-            cites[key] = _cites(entry, sources)
-        if rec.get("accel_count"):
-            cites["accel_count"] = _cites(rec["accel_count"], sources)
+    rule_pairs: list[tuple[float, float]] = []
+    graph_pairs: list[tuple[float, float]] = []
+    for r in doc["runs"]:
+        hw = doc["hardware"][r["accelerator"]]
+        chip = calculator.GPU(
+            r["accelerator"], r["accelerator"], hw["peak_flops_dense_16bit"], hw["tdp_w"] or 0.0,
+            0.0, 0.0, "", "",
+        )
+        est = calculator.estimate(
+            r["params"], r["tokens"], gpu=chip, n_gpus=r["n_gpus"] or 1024, gpu_price=0.0
+        )
+        scale = PER_TRILLION_TOKENS / r["tokens"]
+        reported = r["gpu_hours"] * scale
+        rule = 6.0 * r["params"] * r["tokens"] / (MFU * hw["peak_flops_dense_16bit"]) / 3600.0 * scale
+        graph = est.gpu_hours * scale
+        rule_pairs.append((rule, reported))
+        graph_pairs.append((graph, reported))
+        benchmark = "one training step" in (r.get("note") or "")
         rows.append(
             {
-                "id": rec["id"],
-                "name": rec["name"],
-                "family": rec["family"],
+                "id": r["id"],
+                "name": r["name"],
+                "family": r["family"],
                 "tier": "A",
-                "kind": rec.get("kind", "training_run"),
-                "accelerator": rec["accelerator"],
-                "params": rec["params"]["value"],
-                "tokens": tokens,
-                "reported_gpu_hours": reported_total,
-                "reported_per_trillion_tokens": round(per_tn, 1),
-                "predicted_rule_40pct_mfu_per_trillion_tokens": round(
-                    g["A"] * TO_HOURS_PER_TRILLION, 1
-                ),
-                "predicted_graph_per_trillion_tokens": round(
-                    g["G1"] * TO_HOURS_PER_TRILLION, 1
-                ),
-                "citations": cites,
+                "kind": "throughput_benchmark" if benchmark else "training_run",
+                "accelerator": r["accelerator"],
+                "params": r["params"],
+                "tokens": None if benchmark else r["tokens"],
+                "reported_gpu_hours": None if benchmark else r["gpu_hours"],
+                "reported_per_trillion_tokens": round(reported, 1),
+                "predicted_rule_40pct_mfu_per_trillion_tokens": round(rule, 1),
+                "predicted_graph_per_trillion_tokens": round(graph, 1),
+                "citations": {
+                    "params": _cites(r.get("params_cite"), sources),
+                    "reported": _cites(r.get("cite"), sources),
+                    "accelerator": _cites(hw.get("cite"), sources),
+                },
             }
         )
 
-    arms = results["T1_tierA"]["arms"]
-    doc = {
+    out = {
         "description": (
             "27 published runs, as accelerator-hours per trillion training tokens so that "
             "three throughput-only benchmarks (MT-NLG) can sit beside full training runs. "
@@ -89,18 +97,18 @@ def main() -> None:
             "the calculator's own prediction, and what each paper reports. Some rows are TPU-hours."
         ),
         "built_from": [
-            "experiments/v002-graph-published-runs/heldout-runs.json",
-            "experiments/v002-graph-published-runs/results/results.json",
+            "gpu_stack/data/published_runs.json",
+            "gpu_stack/calculator.py",
         ],
         "mfu": MFU,
         "median_error": {
-            "rule_of_thumb": arms["A"]["mdape"],
-            "graph": arms["G1"]["mdape"],
+            "rule_of_thumb": _median_error(rule_pairs),
+            "graph": _median_error(graph_pairs),
         },
         "rows": rows,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(doc, indent=1) + "\n")
+    OUT.write_text(json.dumps(out, indent=1) + "\n")
     print(f"wrote {OUT.relative_to(ROOT)} with {len(rows)} rows")
 
 

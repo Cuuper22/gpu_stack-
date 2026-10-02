@@ -11,7 +11,7 @@
 
   // [name, reported, rule of thumb at 40% MFU, full calculator, run total GPU-hours]
   // Same numbers as published-runs.json, kept here so the figure also works from a file.
-  var FALLBACK = [["LLaMA-7B",82432.0,89476.5,89597.6,82432],["LLaMA-13B",135168.0,173611.1,173846.1,135168],["LLaMA-33B",378880.0,434027.8,434615.2,530432],["LLaMA-65B",730258.6,870726.5,871905.0,1022362],["Llama 2 7B",92160.0,89989.6,90111.4,184320],["Llama 2 13B",184320.0,173823.0,174058.3,368640],["Llama 2 34B",519168.0,454059.8,454674.4,1038336],["Llama 2 70B",860160.0,921162.6,922409.4,1720320],["Llama 3.1 405B",1976923.1,1709864.3,1712178.6,30840000.0],["Pythia 70M",1700.6,940.5,941.8,510],["Pythia 160M",3434.6,2167.8,2170.7,1030],["Pythia 410M",8469.7,5413.1,5420.4,2540],["Pythia 1B",16105.8,13512.0,13530.3,4830],["Pythia 1.4B",23741.8,18892.2,18917.8,7120],["Pythia 2.8B",47483.6,37062.1,37112.2,14240],["Pythia 6.9B",111706.6,91563.2,91687.1,33500],["Pythia 12B",241086.2,158148.2,158362.3,72300],["BLOOM 176B",2958989.1,2353726.0,2356911.7,1082990],["PaLM 540B",10775630.8,8187121.2,8198202.5,8404992],["Gopher 280B",12561066.7,9485094.9,9497932.9,3768320],["MPT-7B",100320.0,89476.5,89597.6,100320.0],["SmolLM3 3B",19748.6,12955.4,12973.0,221184],["BloombergGPT 50B",1144576.4,675747.9,676662.5,651264],["StarCoderBase 15.5B",320256.0,206997.9,207278.0,320256],["MT-NLG 530B, 280 nodes",9510181.6,7077991.5,7087571.5,null],["MT-NLG 530B, 350 nodes",9929515.7,7077991.5,7087571.5,null],["MT-NLG 530B, 420 nodes",10538737.0,7077991.5,7087571.5,null]];
+  var FALLBACK = [["LLaMA-7B",82432.0,89476.5,89476.5,82432],["LLaMA-13B",135168.0,173611.1,173611.1,135168],["LLaMA-33B",378880.0,434027.8,434027.8,530432],["LLaMA-65B",730258.6,870726.5,870726.5,1022362],["Llama 2 7B",92160.0,89989.6,89989.6,184320],["Llama 2 13B",184320.0,173823.0,173823.0,368640],["Llama 2 34B",519168.0,454059.8,454059.8,1038336],["Llama 2 70B",860160.0,921162.6,921162.6,1720320],["Llama 3.1 405B",1976923.1,1709864.3,1709864.3,30840000.0],["Pythia 70M",1700.6,940.5,940.5,510],["Pythia 160M",3434.6,2167.8,2167.8,1030],["Pythia 410M",8469.7,5413.1,5413.1,2540],["Pythia 1B",16105.8,13512.0,13512.0,4830],["Pythia 1.4B",23741.8,18892.2,18892.2,7120],["Pythia 2.8B",47483.6,37062.1,37062.1,14240],["Pythia 6.9B",111706.6,91563.2,91563.2,33500],["Pythia 12B",241086.2,158148.2,158148.2,72300],["BLOOM 176B",2958989.1,2353726.0,2353726.0,1082990],["PaLM 540B",10775630.8,8187121.2,8187121.2,8404992],["Gopher 280B",12561066.7,9485094.9,9485094.9,3768320],["MPT-7B",100320.0,89476.5,89476.5,100320.0],["SmolLM3 3B",19748.6,12955.4,12955.4,221184],["BloombergGPT 50B",1144576.4,675747.9,675747.9,651264],["StarCoderBase 15.5B",320256.0,206997.9,206997.9,320256],["MT-NLG 530B, 280 nodes",9510181.6,7077991.5,7077991.5,null],["MT-NLG 530B, 350 nodes",9929515.7,7077991.5,7077991.5,null],["MT-NLG 530B, 420 nodes",10538737.0,7077991.5,7077991.5,null]];
 
   function fromJson(j) {
     if (!j || !Array.isArray(j.rows)) return null;
@@ -115,7 +115,7 @@
         g.appendChild(s("line", { class: "ac-diag", x1: X(lo), y1: Y(lo), x2: X(hi), y2: Y(hi) }));
         svg.appendChild(g);
         svg.appendChild(s("rect", { x: lay.L, y: lay.T, width: lay.P, height: lay.P, fill: "none", stroke: "var(--f-ink)", "stroke-width": 1.5 }));
-        svg.appendChild(s("text", { class: "ac-axis-title", x: lay.W / 2, y: lay.H - 6, "text-anchor": "middle", style: "font-size:12px", text: "Reported GPU-hours / trillion tokens" }));
+        svg.appendChild(s("text", { class: "ac-axis-title", x: lay.W / 2, y: lay.H - 6, "text-anchor": "middle", style: "font-size:13px", text: "Reported GPU-hours / trillion tokens" }));
         svg.appendChild(s("text", { class: "ac-axis-title", transform: "translate(13 " + (lay.T + lay.P / 2) + ") rotate(-90)", "text-anchor": "middle", text: "Predicted" }));
         pts = data.map(function (r, i) {
           var c = s("circle", {
@@ -138,6 +138,19 @@
         mark();
         paintIntro();
       }
+      /* Dots are too small to tap one by one, so a touch anywhere on the plot picks the nearest dot. */
+      svg.addEventListener("pointerdown", function (e) {
+        if (e.pointerType !== "touch" || !lay) return;
+        var box = svg.getBoundingClientRect(), k = box.width / lay.W;
+        var px = (e.clientX - box.left) / k, py = (e.clientY - box.top) / k;
+        var best = -1, bestD = 22 / k;
+        data.forEach(function (r, i) {
+          var d = Math.hypot(X(r[1]) - px, Y(predicted(r)) - py);
+          if (d < bestD) { bestD = d; best = i; }
+        });
+        if (best >= 0) showTip(best);
+        else hideTip();
+      });
       function mark() {
         data.forEach(function (r, i) {
           var out = Math.abs(predicted(r) / r[1] - 1) > BAND;

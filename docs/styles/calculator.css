@@ -110,7 +110,7 @@
 }
 
 /* Tags */
-.gsc-tag { display: inline-block; font-size: 12px; line-height: 1.3; padding: 2px 8px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
+.gsc-tag { display: inline-block; font-size: 13px; line-height: 1.3; padding: 2px 8px; border-radius: 999px; font-weight: 600; white-space: nowrap; }
 .gsc-tag-user { background: var(--gsc-user-bg); color: var(--gsc-user-ink); }
 .gsc-tag-spec { background: var(--gsc-spec-bg); color: var(--gsc-spec-ink); }
 .gsc-tag-assume { background: var(--gsc-assume-bg); color: var(--gsc-assume-ink); }
@@ -119,7 +119,7 @@
 .gsc-tip {
   position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none;
   width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--gsc-line); background: var(--gsc-panel);
-  color: var(--gsc-soft); font-size: 12px; font-weight: 700; cursor: help; user-select: none;
+  color: var(--gsc-soft); font-size: 13px; font-weight: 700; cursor: help; user-select: none;
 }
 .gsc-tip-text {
   display: none; position: absolute; z-index: 20; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
@@ -169,7 +169,7 @@
   text-align: right; font-size: 14px; overflow-wrap: anywhere;
 }
 .gsc-step-formula { grid-column: 1 / -1; color: var(--gsc-soft); font-size: 14px; }
-.gsc-step-kind { grid-column: 1 / -1; color: var(--gsc-soft); font-size: 12px; overflow-wrap: anywhere; }
+.gsc-step-kind { grid-column: 1 / -1; color: var(--gsc-soft); font-size: 13px; overflow-wrap: anywhere; }
 .gsc-chain.is-compact .is-minor { display: none; }
 .gsc-toggle-steps { margin-bottom: 8px; }
 @media (max-width: 520px) {

@@ -1,13 +1,13 @@
 {
  "description": "27 published runs, as accelerator-hours per trillion training tokens so that three throughput-only benchmarks (MT-NLG) can sit beside full training runs. Predicted at 40 percent MFU (6 x params x tokens / (0.4 x peak speed)) next to the calculator's own prediction, and what each paper reports. Some rows are TPU-hours.",
  "built_from": [
-  "experiments/v002-graph-published-runs/heldout-runs.json",
-  "experiments/v002-graph-published-runs/results/results.json"
+  "gpu_stack/data/published_runs.json",
+  "gpu_stack/calculator.py"
  ],
  "mfu": 0.4,
  "median_error": {
   "rule_of_thumb": 0.21947681085043702,
-  "graph": 0.2184203753082229
+  "graph": 0.21947681085043702
  },
  "rows": [
   {
@@ -22,30 +22,36 @@
    "reported_gpu_hours": 82432,
    "reported_per_trillion_tokens": 82432.0,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 89476.5,
-   "predicted_graph_per_trillion_tokens": 89597.6,
+   "predicted_graph_per_trillion_tokens": 89476.5,
    "citations": {
     "params": [
      {
       "source": "Touvron et al. 2023, LLaMA",
       "url": "https://arxiv.org/abs/2302.13971",
       "where": "PDF p3, Table 2",
-      "quote": "params 6.7B"
+      "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Touvron et al. 2023, LLaMA",
-      "url": "https://arxiv.org/abs/2302.13971",
-      "where": "PDF p3, Table 2",
-      "quote": "n tokens 1.0T"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Touvron et al. 2023, LLaMA",
       "url": "https://arxiv.org/abs/2302.13971",
       "where": "PDF p11, Table 15",
       "quote": "A100-80GB 400W GPU-hours 82,432"
+     }
+    ],
+    "accelerator": [
+     {
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -62,30 +68,36 @@
    "reported_gpu_hours": 135168,
    "reported_per_trillion_tokens": 135168.0,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 173611.1,
-   "predicted_graph_per_trillion_tokens": 173846.1,
+   "predicted_graph_per_trillion_tokens": 173611.1,
    "citations": {
     "params": [
      {
       "source": "Touvron et al. 2023, LLaMA",
       "url": "https://arxiv.org/abs/2302.13971",
       "where": "PDF p3, Table 2",
-      "quote": "params 13.0B"
+      "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Touvron et al. 2023, LLaMA",
-      "url": "https://arxiv.org/abs/2302.13971",
-      "where": "PDF p3, Table 2",
-      "quote": "n tokens 1.0T"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Touvron et al. 2023, LLaMA",
       "url": "https://arxiv.org/abs/2302.13971",
       "where": "PDF p11, Table 15",
       "quote": "A100-80GB 400W GPU-hours 135,168"
+     }
+    ],
+    "accelerator": [
+     {
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -102,30 +114,36 @@
    "reported_gpu_hours": 530432,
    "reported_per_trillion_tokens": 378880.0,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 434027.8,
-   "predicted_graph_per_trillion_tokens": 434615.2,
+   "predicted_graph_per_trillion_tokens": 434027.8,
    "citations": {
     "params": [
      {
       "source": "Touvron et al. 2023, LLaMA",
       "url": "https://arxiv.org/abs/2302.13971",
       "where": "PDF p3, Table 2",
-      "quote": "params 32.5B"
+      "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Touvron et al. 2023, LLaMA",
-      "url": "https://arxiv.org/abs/2302.13971",
-      "where": "PDF p3, Table 2",
-      "quote": "n tokens 1.4T"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Touvron et al. 2023, LLaMA",
       "url": "https://arxiv.org/abs/2302.13971",
       "where": "PDF p11, Table 15",
       "quote": "A100-80GB 400W GPU-hours 530,432"
+     }
+    ],
+    "accelerator": [
+     {
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -142,25 +160,17 @@
    "reported_gpu_hours": 1022362,
    "reported_per_trillion_tokens": 730258.6,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 870726.5,
-   "predicted_graph_per_trillion_tokens": 871905.0,
+   "predicted_graph_per_trillion_tokens": 870726.5,
    "citations": {
     "params": [
      {
       "source": "Touvron et al. 2023, LLaMA",
       "url": "https://arxiv.org/abs/2302.13971",
       "where": "PDF p3, Table 2",
-      "quote": "params 65.2B"
+      "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Touvron et al. 2023, LLaMA",
-      "url": "https://arxiv.org/abs/2302.13971",
-      "where": "PDF p3, Table 2",
-      "quote": "n tokens 1.4T"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Touvron et al. 2023, LLaMA",
       "url": "https://arxiv.org/abs/2302.13971",
@@ -168,12 +178,18 @@
       "quote": "A100-80GB 400W GPU-hours 1,022,362"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Touvron et al. 2023, LLaMA",
-      "url": "https://arxiv.org/abs/2302.13971",
-      "where": "PDF p4",
-      "quote": "380 tokens/sec/GPU on 2048 A100 GPU with 80GB"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -190,7 +206,7 @@
    "reported_gpu_hours": 184320,
    "reported_per_trillion_tokens": 92160.0,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 89989.6,
-   "predicted_graph_per_trillion_tokens": 90111.4,
+   "predicted_graph_per_trillion_tokens": 89989.6,
    "citations": {
     "params": [
      {
@@ -200,20 +216,26 @@
       "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Touvron et al. 2023, Llama 2",
-      "url": "https://arxiv.org/abs/2307.09288",
-      "where": "PDF p6, Table 1",
-      "quote": "7B ... 2.0T"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Touvron et al. 2023, Llama 2",
       "url": "https://arxiv.org/abs/2307.09288",
       "where": "PDF p7, Table 2",
       "quote": "7B GPU hours 184320"
+     }
+    ],
+    "accelerator": [
+     {
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -230,7 +252,7 @@
    "reported_gpu_hours": 368640,
    "reported_per_trillion_tokens": 184320.0,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 173823.0,
-   "predicted_graph_per_trillion_tokens": 174058.3,
+   "predicted_graph_per_trillion_tokens": 173823.0,
    "citations": {
     "params": [
      {
@@ -240,20 +262,26 @@
       "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Touvron et al. 2023, Llama 2",
-      "url": "https://arxiv.org/abs/2307.09288",
-      "where": "PDF p6, Table 1",
-      "quote": "13B ... 2.0T"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Touvron et al. 2023, Llama 2",
       "url": "https://arxiv.org/abs/2307.09288",
       "where": "PDF p7, Table 2",
       "quote": "13B GPU hours 368640"
+     }
+    ],
+    "accelerator": [
+     {
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -270,30 +298,36 @@
    "reported_gpu_hours": 1038336,
    "reported_per_trillion_tokens": 519168.0,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 454059.8,
-   "predicted_graph_per_trillion_tokens": 454674.4,
+   "predicted_graph_per_trillion_tokens": 454059.8,
    "citations": {
     "params": [
      {
       "source": "Touvron et al. 2023, Llama 2",
       "url": "https://arxiv.org/abs/2307.09288",
       "where": "PDF p6, Table 1",
-      "quote": "34B (model never released; no exact count)"
+      "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Touvron et al. 2023, Llama 2",
-      "url": "https://arxiv.org/abs/2307.09288",
-      "where": "PDF p6, Table 1",
-      "quote": "34B ... 2.0T"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Touvron et al. 2023, Llama 2",
       "url": "https://arxiv.org/abs/2307.09288",
       "where": "PDF p7, Table 2",
       "quote": "34B GPU hours 1038336"
+     }
+    ],
+    "accelerator": [
+     {
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -310,7 +344,7 @@
    "reported_gpu_hours": 1720320,
    "reported_per_trillion_tokens": 860160.0,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 921162.6,
-   "predicted_graph_per_trillion_tokens": 922409.4,
+   "predicted_graph_per_trillion_tokens": 921162.6,
    "citations": {
     "params": [
      {
@@ -320,20 +354,26 @@
       "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Touvron et al. 2023, Llama 2",
-      "url": "https://arxiv.org/abs/2307.09288",
-      "where": "PDF p6, Table 1",
-      "quote": "70B ... 2.0T"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Touvron et al. 2023, Llama 2",
       "url": "https://arxiv.org/abs/2307.09288",
       "where": "PDF p7, Table 2",
       "quote": "70B GPU hours 1720320"
+     }
+    ],
+    "accelerator": [
+     {
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -350,7 +390,7 @@
    "reported_gpu_hours": 30840000.0,
    "reported_per_trillion_tokens": 1976923.1,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 1709864.3,
-   "predicted_graph_per_trillion_tokens": 1712178.6,
+   "predicted_graph_per_trillion_tokens": 1709864.3,
    "citations": {
     "params": [
      {
@@ -360,15 +400,7 @@
       "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Llama Team 2024, The Llama 3 Herd of Models",
-      "url": "https://arxiv.org/abs/2407.21783",
-      "where": "PDF p1 and p3",
-      "quote": "pre-train a model with 405B parameters on 15.6T tokens"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Meta Llama 3.1 model card (raw file fetched 2026-10-01)",
       "url": "https://github.com/meta-llama/llama-models/blob/main/models/llama3_1/MODEL_CARD.md",
@@ -376,12 +408,18 @@
       "quote": "Llama 3.1 405B 30.84M"
      }
     ],
-    "accel_count": [
+    "accelerator": [
+     {
+      "source": "NVIDIA H100 product page, fetched via r.jina.ai on 2026-10-01 (Product Specifications table)",
+      "url": "https://www.nvidia.com/en-us/data-center/h100/",
+      "where": "Product Specifications table, H100 SXM column",
+      "quote": "BFLOAT16 Tensor Core* 1,979 teraFLOPS (*with sparsity); Max TDP up to 700W"
+     },
      {
       "source": "Llama Team 2024, The Llama 3 Herd of Models",
       "url": "https://arxiv.org/abs/2407.21783",
       "where": "PDF p9",
-      "quote": "trained on up to 16K H100 GPUs"
+      "quote": "each running at 700W TDP"
      }
     ]
    }
@@ -398,31 +436,23 @@
    "reported_gpu_hours": 510,
    "reported_per_trillion_tokens": 1700.6,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 940.5,
-   "predicted_graph_per_trillion_tokens": 941.8,
+   "predicted_graph_per_trillion_tokens": 940.5,
    "citations": {
     "params": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
       "where": "PDF p2, Table 1",
-      "quote": "non-embedding params 18,915,328"
+      "quote": null
      },
      {
       "source": "Pythia README (raw file fetched 2026-10-01)",
       "url": "https://github.com/EleutherAI/pythia",
       "where": "README Models table + HF config",
-      "quote": "untied embedding and unembedding, vocab 50304"
-     }
-    ],
-    "tokens": [
-     {
-      "source": "Pythia README (raw file fetched 2026-10-01)",
-      "url": "https://github.com/EleutherAI/pythia",
-      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
       "quote": null
      }
     ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
@@ -430,12 +460,12 @@
       "quote": "total GPU hours 510 (iteration time x iterations x GPUs / 3600)"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Biderman et al. 2023, Pythia",
-      "url": "https://arxiv.org/abs/2304.01373",
-      "where": "PDF p21, Table 5",
-      "quote": "70M GPU count 32"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (*with sparsity); Max TDP SXM 400W"
      }
     ]
    }
@@ -452,31 +482,23 @@
    "reported_gpu_hours": 1030,
    "reported_per_trillion_tokens": 3434.6,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 2167.8,
-   "predicted_graph_per_trillion_tokens": 2170.7,
+   "predicted_graph_per_trillion_tokens": 2167.8,
    "citations": {
     "params": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
       "where": "PDF p2, Table 1",
-      "quote": "non-embedding params 85,056,000"
+      "quote": null
      },
      {
       "source": "Pythia README (raw file fetched 2026-10-01)",
       "url": "https://github.com/EleutherAI/pythia",
       "where": "README Models table + HF config",
-      "quote": "untied embedding and unembedding, vocab 50304"
-     }
-    ],
-    "tokens": [
-     {
-      "source": "Pythia README (raw file fetched 2026-10-01)",
-      "url": "https://github.com/EleutherAI/pythia",
-      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
       "quote": null
      }
     ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
@@ -484,12 +506,12 @@
       "quote": "total GPU hours 1,030 (iteration time x iterations x GPUs / 3600)"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Biderman et al. 2023, Pythia",
-      "url": "https://arxiv.org/abs/2304.01373",
-      "where": "PDF p21, Table 5",
-      "quote": "160M GPU count 32"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (*with sparsity); Max TDP SXM 400W"
      }
     ]
    }
@@ -506,31 +528,23 @@
    "reported_gpu_hours": 2540,
    "reported_per_trillion_tokens": 8469.7,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 5413.1,
-   "predicted_graph_per_trillion_tokens": 5420.4,
+   "predicted_graph_per_trillion_tokens": 5413.1,
    "citations": {
     "params": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
       "where": "PDF p2, Table 1",
-      "quote": "non-embedding params 302,311,424"
+      "quote": null
      },
      {
       "source": "Pythia README (raw file fetched 2026-10-01)",
       "url": "https://github.com/EleutherAI/pythia",
       "where": "README Models table + HF config",
-      "quote": "untied embedding and unembedding, vocab 50304"
-     }
-    ],
-    "tokens": [
-     {
-      "source": "Pythia README (raw file fetched 2026-10-01)",
-      "url": "https://github.com/EleutherAI/pythia",
-      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
       "quote": null
      }
     ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
@@ -538,12 +552,12 @@
       "quote": "total GPU hours 2,540 (iteration time x iterations x GPUs / 3600)"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Biderman et al. 2023, Pythia",
-      "url": "https://arxiv.org/abs/2304.01373",
-      "where": "PDF p21, Table 5",
-      "quote": "410M GPU count 32"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (*with sparsity); Max TDP SXM 400W"
      }
     ]
    }
@@ -560,31 +574,23 @@
    "reported_gpu_hours": 4830,
    "reported_per_trillion_tokens": 16105.8,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 13512.0,
-   "predicted_graph_per_trillion_tokens": 13530.3,
+   "predicted_graph_per_trillion_tokens": 13512.0,
    "citations": {
     "params": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
       "where": "PDF p2, Table 1",
-      "quote": "non-embedding params 805,736,448"
+      "quote": null
      },
      {
       "source": "Pythia README (raw file fetched 2026-10-01)",
       "url": "https://github.com/EleutherAI/pythia",
       "where": "README Models table + HF config",
-      "quote": "untied embedding and unembedding, vocab 50304"
-     }
-    ],
-    "tokens": [
-     {
-      "source": "Pythia README (raw file fetched 2026-10-01)",
-      "url": "https://github.com/EleutherAI/pythia",
-      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
       "quote": null
      }
     ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
@@ -592,12 +598,12 @@
       "quote": "total GPU hours 4,830 (iteration time x iterations x GPUs / 3600)"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Biderman et al. 2023, Pythia",
-      "url": "https://arxiv.org/abs/2304.01373",
-      "where": "PDF p21, Table 5",
-      "quote": "1B GPU count 64"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (*with sparsity); Max TDP SXM 400W"
      }
     ]
    }
@@ -614,31 +620,23 @@
    "reported_gpu_hours": 7120,
    "reported_per_trillion_tokens": 23741.8,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 18892.2,
-   "predicted_graph_per_trillion_tokens": 18917.8,
+   "predicted_graph_per_trillion_tokens": 18892.2,
    "citations": {
     "params": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
       "where": "PDF p2, Table 1",
-      "quote": "non-embedding params 1,208,602,624"
+      "quote": null
      },
      {
       "source": "Pythia README (raw file fetched 2026-10-01)",
       "url": "https://github.com/EleutherAI/pythia",
       "where": "README Models table + HF config",
-      "quote": "untied embedding and unembedding, vocab 50304"
-     }
-    ],
-    "tokens": [
-     {
-      "source": "Pythia README (raw file fetched 2026-10-01)",
-      "url": "https://github.com/EleutherAI/pythia",
-      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
       "quote": null
      }
     ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
@@ -646,12 +644,12 @@
       "quote": "total GPU hours 7,120 (iteration time x iterations x GPUs / 3600)"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Biderman et al. 2023, Pythia",
-      "url": "https://arxiv.org/abs/2304.01373",
-      "where": "PDF p21, Table 5",
-      "quote": "1.4B GPU count 64"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (*with sparsity); Max TDP SXM 400W"
      }
     ]
    }
@@ -668,31 +666,23 @@
    "reported_gpu_hours": 14240,
    "reported_per_trillion_tokens": 47483.6,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 37062.1,
-   "predicted_graph_per_trillion_tokens": 37112.2,
+   "predicted_graph_per_trillion_tokens": 37062.1,
    "citations": {
     "params": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
       "where": "PDF p2, Table 1",
-      "quote": "non-embedding params 2,517,652,480"
+      "quote": null
      },
      {
       "source": "Pythia README (raw file fetched 2026-10-01)",
       "url": "https://github.com/EleutherAI/pythia",
       "where": "README Models table + HF config",
-      "quote": "untied embedding and unembedding, vocab 50304"
-     }
-    ],
-    "tokens": [
-     {
-      "source": "Pythia README (raw file fetched 2026-10-01)",
-      "url": "https://github.com/EleutherAI/pythia",
-      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
       "quote": null
      }
     ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
@@ -700,12 +690,12 @@
       "quote": "total GPU hours 14,240 (iteration time x iterations x GPUs / 3600)"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Biderman et al. 2023, Pythia",
-      "url": "https://arxiv.org/abs/2304.01373",
-      "where": "PDF p21, Table 5",
-      "quote": "2.8B GPU count 64"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (*with sparsity); Max TDP SXM 400W"
      }
     ]
    }
@@ -722,31 +712,23 @@
    "reported_gpu_hours": 33500,
    "reported_per_trillion_tokens": 111706.6,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 91563.2,
-   "predicted_graph_per_trillion_tokens": 91687.1,
+   "predicted_graph_per_trillion_tokens": 91563.2,
    "citations": {
     "params": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
       "where": "PDF p2, Table 1",
-      "quote": "non-embedding params 6,444,163,072"
+      "quote": null
      },
      {
       "source": "Pythia README (raw file fetched 2026-10-01)",
       "url": "https://github.com/EleutherAI/pythia",
       "where": "README Models table + HF config",
-      "quote": "untied embedding and unembedding, vocab 50304"
-     }
-    ],
-    "tokens": [
-     {
-      "source": "Pythia README (raw file fetched 2026-10-01)",
-      "url": "https://github.com/EleutherAI/pythia",
-      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
       "quote": null
      }
     ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
@@ -754,12 +736,12 @@
       "quote": "total GPU hours 33,500 (iteration time x iterations x GPUs / 3600)"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Biderman et al. 2023, Pythia",
-      "url": "https://arxiv.org/abs/2304.01373",
-      "where": "PDF p21, Table 5",
-      "quote": "6.9B GPU count 128"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (*with sparsity); Max TDP SXM 400W"
      }
     ]
    }
@@ -776,31 +758,23 @@
    "reported_gpu_hours": 72300,
    "reported_per_trillion_tokens": 241086.2,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 158148.2,
-   "predicted_graph_per_trillion_tokens": 158362.3,
+   "predicted_graph_per_trillion_tokens": 158148.2,
    "citations": {
     "params": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
       "where": "PDF p2, Table 1",
-      "quote": "non-embedding params 11,327,027,200"
+      "quote": null
      },
      {
       "source": "Pythia README (raw file fetched 2026-10-01)",
       "url": "https://github.com/EleutherAI/pythia",
       "where": "README Models table + HF config",
-      "quote": "untied embedding and unembedding, vocab 50304"
-     }
-    ],
-    "tokens": [
-     {
-      "source": "Pythia README (raw file fetched 2026-10-01)",
-      "url": "https://github.com/EleutherAI/pythia",
-      "where": "README: 'Each model saw 299,892,736,000 ~= 300B tokens'",
       "quote": null
      }
     ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Biderman et al. 2023, Pythia",
       "url": "https://arxiv.org/abs/2304.01373",
@@ -808,12 +782,12 @@
       "quote": "total GPU hours 72,300 (iteration time x iterations x GPUs / 3600)"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Biderman et al. 2023, Pythia",
-      "url": "https://arxiv.org/abs/2304.01373",
-      "where": "PDF p21, Table 5",
-      "quote": "12B GPU count 256"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (*with sparsity); Max TDP SXM 400W"
      }
     ]
    }
@@ -830,25 +804,17 @@
    "reported_gpu_hours": 1082990,
    "reported_per_trillion_tokens": 2958989.1,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 2353726.0,
-   "predicted_graph_per_trillion_tokens": 2356911.7,
+   "predicted_graph_per_trillion_tokens": 2353726.0,
    "citations": {
     "params": [
      {
       "source": "BigScience 2022, BLOOM",
       "url": "https://arxiv.org/abs/2211.05100",
       "where": "PDF p21, hyperparameter table",
-      "quote": "Parameters 176,247M"
+      "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "BigScience 2022, BLOOM",
-      "url": "https://arxiv.org/abs/2211.05100",
-      "where": "PDF p21",
-      "quote": "Total tokens 366B"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "BigScience 2022, BLOOM",
       "url": "https://arxiv.org/abs/2211.05100",
@@ -862,12 +828,18 @@
       "quote": "Total training time 118 days, 5 hours, 41 min; GPU hours 1,082,990"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "BigScience 2022, BLOOM",
-      "url": "https://arxiv.org/abs/2211.05100",
-      "where": "PDF p18, s3.4.1",
-      "quote": "48 nodes, each having 8 NVIDIA A100 80GB GPUs (a total of 384 GPUs)"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -884,25 +856,17 @@
    "reported_gpu_hours": 8404992,
    "reported_per_trillion_tokens": 10775630.8,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 8187121.2,
-   "predicted_graph_per_trillion_tokens": 8198202.5,
+   "predicted_graph_per_trillion_tokens": 8187121.2,
    "citations": {
     "params": [
      {
       "source": "Chowdhery et al. 2022, PaLM",
       "url": "https://arxiv.org/abs/2204.02311",
       "where": "PDF p6, Table 1",
-      "quote": "PaLM 540B 540.35 (billions)"
+      "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Chowdhery et al. 2022, PaLM",
-      "url": "https://arxiv.org/abs/2204.02311",
-      "where": "PDF p3",
-      "quote": "780 billion tokens"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Chowdhery et al. 2022, PaLM",
       "url": "https://arxiv.org/abs/2204.02311",
@@ -910,12 +874,12 @@
       "quote": "6144 TPU v4 chips for 1200 hours and 3072 TPU v4 chips for 336 hours including some downtime and repeated steps"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
       "source": "Chowdhery et al. 2022, PaLM",
       "url": "https://arxiv.org/abs/2204.02311",
-      "where": "PDF p1",
-      "quote": "6144 TPU v4 chips"
+      "where": "PDF p66, App. B",
+      "quote": "(238.3 x 6 x 540)/(275 x 6144)"
      }
     ]
    }
@@ -932,25 +896,17 @@
    "reported_gpu_hours": 3768320,
    "reported_per_trillion_tokens": 12561066.7,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 9485094.9,
-   "predicted_graph_per_trillion_tokens": 9497932.9,
+   "predicted_graph_per_trillion_tokens": 9485094.9,
    "citations": {
     "params": [
      {
       "source": "Rae et al. 2021, Gopher",
       "url": "https://arxiv.org/abs/2112.11446",
       "where": "PDF p6, Table 1",
-      "quote": "Gopher 280B"
+      "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Rae et al. 2021, Gopher",
-      "url": "https://arxiv.org/abs/2112.11446",
-      "where": "PDF p6",
-      "quote": "We train all models for 300 billion tokens"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Rae et al. 2021, Gopher",
       "url": "https://arxiv.org/abs/2112.11446",
@@ -958,12 +914,12 @@
       "quote": "We trained Gopher for 920 hours"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Rae et al. 2021, Gopher",
-      "url": "https://arxiv.org/abs/2112.11446",
-      "where": "PDF p103, Table A27",
-      "quote": "280B ... 4096 TPUv3 chips"
+      "source": "Patterson et al. 2021, Carbon emissions and large neural network training",
+      "url": "https://arxiv.org/abs/2104.10350",
+      "where": "PDF p6, Table 4 and its footnote 12",
+      "quote": "TDP 450 W; peak TeraFLOPS/second is ... 123 for TPU v3"
      }
     ]
    }
@@ -980,25 +936,17 @@
    "reported_gpu_hours": 100320.0,
    "reported_per_trillion_tokens": 100320.0,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 89476.5,
-   "predicted_graph_per_trillion_tokens": 89597.6,
+   "predicted_graph_per_trillion_tokens": 89476.5,
    "citations": {
     "params": [
      {
       "source": "MosaicML/Databricks MPT-7B announcement, 2023-05-05",
       "url": "https://www.databricks.com/blog/mpt-7b",
       "where": "blog text",
-      "quote": "MPT-7B Base is a decoder-style transformer with 6.7B parameters"
+      "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "MosaicML/Databricks MPT-7B announcement, 2023-05-05",
-      "url": "https://www.databricks.com/blog/mpt-7b",
-      "where": "blog text",
-      "quote": "trained on 1T tokens"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "MosaicML/Databricks MPT-7B announcement, 2023-05-05",
       "url": "https://www.databricks.com/blog/mpt-7b",
@@ -1006,12 +954,12 @@
       "quote": "~9.5 days ... 440xA100-40GB; Time to Train is total runtime incl. restarts"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "MosaicML/Databricks MPT-7B announcement, 2023-05-05",
-      "url": "https://www.databricks.com/blog/mpt-7b",
-      "where": "blog text",
-      "quote": "~9.5 days to train on 440xA100-40GB GPUs"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (*with sparsity); Max TDP SXM 400W"
      }
     ]
    }
@@ -1028,7 +976,7 @@
    "reported_gpu_hours": 221184,
    "reported_per_trillion_tokens": 19748.6,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 12955.4,
-   "predicted_graph_per_trillion_tokens": 12973.0,
+   "predicted_graph_per_trillion_tokens": 12955.4,
    "citations": {
     "params": [
      {
@@ -1038,15 +986,7 @@
       "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Hugging Face SmolLM3 blog",
-      "url": "https://huggingface.co/blog/smollm3",
-      "where": "blog text",
-      "quote": "we train SmolLM3 on 11.2T tokens using a three-stage training strategy"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Hugging Face SmolLM3 blog",
       "url": "https://huggingface.co/blog/smollm3",
@@ -1054,12 +994,18 @@
       "quote": "384 H100 GPUs for 24 days"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Hugging Face SmolLM3 blog",
-      "url": "https://huggingface.co/blog/smollm3",
-      "where": "blog text",
-      "quote": "trained on 384 H100 GPUs for 24 days"
+      "source": "NVIDIA H100 product page, fetched via r.jina.ai on 2026-10-01 (Product Specifications table)",
+      "url": "https://www.nvidia.com/en-us/data-center/h100/",
+      "where": "Product Specifications table, H100 SXM column",
+      "quote": "BFLOAT16 Tensor Core* 1,979 teraFLOPS (*with sparsity); Max TDP up to 700W"
+     },
+     {
+      "source": "Llama Team 2024, The Llama 3 Herd of Models",
+      "url": "https://arxiv.org/abs/2407.21783",
+      "where": "PDF p9",
+      "quote": "each running at 700W TDP"
      }
     ]
    }
@@ -1076,25 +1022,17 @@
    "reported_gpu_hours": 651264,
    "reported_per_trillion_tokens": 1144576.4,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 675747.9,
-   "predicted_graph_per_trillion_tokens": 676662.5,
+   "predicted_graph_per_trillion_tokens": 675747.9,
    "citations": {
     "params": [
      {
       "source": "Wu et al. 2023, BloombergGPT",
       "url": "https://arxiv.org/abs/2303.17564",
       "where": "PDF p11, Table 4",
-      "quote": "Total Parameters 50.6B"
+      "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Wu et al. 2023, BloombergGPT",
-      "url": "https://arxiv.org/abs/2303.17564",
-      "where": "PDF p11, Table 4",
-      "quote": "Tokens 569B"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Wu et al. 2023, BloombergGPT",
       "url": "https://arxiv.org/abs/2303.17564",
@@ -1102,12 +1040,12 @@
       "quote": "139,200 steps (~53 days)"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Wu et al. 2023, BloombergGPT",
-      "url": "https://arxiv.org/abs/2303.17564",
-      "where": "PDF p11, Table 4",
-      "quote": "Hardware 64 x 8 A100 40GB"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "FP16 Tensor Core 312 TFLOPS | 624 TFLOPS* (*with sparsity); Max TDP SXM 400W"
      }
     ]
    }
@@ -1124,25 +1062,17 @@
    "reported_gpu_hours": 320256,
    "reported_per_trillion_tokens": 320256.0,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 206997.9,
-   "predicted_graph_per_trillion_tokens": 207278.0,
+   "predicted_graph_per_trillion_tokens": 206997.9,
    "citations": {
     "params": [
      {
       "source": "Li et al. 2023, StarCoder",
       "url": "https://arxiv.org/abs/2305.06161",
       "where": "PDF p17, Table 11",
-      "quote": "Num. of parameters ~15.5B"
+      "quote": null
      }
     ],
-    "tokens": [
-     {
-      "source": "Li et al. 2023, StarCoder",
-      "url": "https://arxiv.org/abs/2305.06161",
-      "where": "PDF p3 and p16",
-      "quote": "250k iterations, batch 4M tokens, one trillion tokens"
-     }
-    ],
-    "accel_hours": [
+    "reported": [
      {
       "source": "Li et al. 2023, StarCoder",
       "url": "https://arxiv.org/abs/2305.06161",
@@ -1150,12 +1080,18 @@
       "quote": "total number of GPU hours that training took (320,256)"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Li et al. 2023, StarCoder",
-      "url": "https://arxiv.org/abs/2305.06161",
-      "where": "PDF p17, s5.6",
-      "quote": "512 A100 80 GB GPUs distributed across 64 nodes"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -1172,25 +1108,23 @@
    "reported_gpu_hours": null,
    "reported_per_trillion_tokens": 9510181.6,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 7077991.5,
-   "predicted_graph_per_trillion_tokens": 7087571.5,
+   "predicted_graph_per_trillion_tokens": 7077991.5,
    "citations": {
     "params": [
      {
       "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
       "url": "https://arxiv.org/abs/2201.11990",
       "where": "PDF p10, s3.2",
-      "quote": "scaled it up to 530 billion parameters"
+      "quote": null
      }
     ],
-    "step_time_s": [
+    "reported": [
      {
       "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
       "url": "https://arxiv.org/abs/2201.11990",
       "where": "PDF p7, s2.4",
       "quote": "iteration times of 60.1, 50.2, and 44.4 seconds (280, 350, 420 servers, batch 1920)"
-     }
-    ],
-    "tokens_per_step": [
+     },
      {
       "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
       "url": "https://arxiv.org/abs/2201.11990",
@@ -1198,12 +1132,18 @@
       "quote": "sequence length 2048, global batch size 1920"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
-      "url": "https://arxiv.org/abs/2201.11990",
-      "where": "PDF p7, s2.3-2.4",
-      "quote": "280 DGX A100 servers x 8 A100 80GB"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -1220,25 +1160,23 @@
    "reported_gpu_hours": null,
    "reported_per_trillion_tokens": 9929515.7,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 7077991.5,
-   "predicted_graph_per_trillion_tokens": 7087571.5,
+   "predicted_graph_per_trillion_tokens": 7077991.5,
    "citations": {
     "params": [
      {
       "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
       "url": "https://arxiv.org/abs/2201.11990",
       "where": "PDF p10, s3.2",
-      "quote": "scaled it up to 530 billion parameters"
+      "quote": null
      }
     ],
-    "step_time_s": [
+    "reported": [
      {
       "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
       "url": "https://arxiv.org/abs/2201.11990",
       "where": "PDF p7, s2.4",
       "quote": "iteration times of 60.1, 50.2, and 44.4 seconds (280, 350, 420 servers, batch 1920)"
-     }
-    ],
-    "tokens_per_step": [
+     },
      {
       "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
       "url": "https://arxiv.org/abs/2201.11990",
@@ -1246,12 +1184,18 @@
       "quote": "sequence length 2048, global batch size 1920"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
-      "url": "https://arxiv.org/abs/2201.11990",
-      "where": "PDF p7, s2.3-2.4",
-      "quote": "350 DGX A100 servers x 8 A100 80GB"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
@@ -1268,25 +1212,23 @@
    "reported_gpu_hours": null,
    "reported_per_trillion_tokens": 10538737.0,
    "predicted_rule_40pct_mfu_per_trillion_tokens": 7077991.5,
-   "predicted_graph_per_trillion_tokens": 7087571.5,
+   "predicted_graph_per_trillion_tokens": 7077991.5,
    "citations": {
     "params": [
      {
       "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
       "url": "https://arxiv.org/abs/2201.11990",
       "where": "PDF p10, s3.2",
-      "quote": "scaled it up to 530 billion parameters"
+      "quote": null
      }
     ],
-    "step_time_s": [
+    "reported": [
      {
       "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
       "url": "https://arxiv.org/abs/2201.11990",
       "where": "PDF p7, s2.4",
       "quote": "iteration times of 60.1, 50.2, and 44.4 seconds (280, 350, 420 servers, batch 1920)"
-     }
-    ],
-    "tokens_per_step": [
+     },
      {
       "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
       "url": "https://arxiv.org/abs/2201.11990",
@@ -1294,12 +1236,18 @@
       "quote": "sequence length 2048, global batch size 1920"
      }
     ],
-    "accel_count": [
+    "accelerator": [
      {
-      "source": "Smith et al. 2022, Megatron-Turing NLG 530B",
-      "url": "https://arxiv.org/abs/2201.11990",
-      "where": "PDF p7, s2.3-2.4",
-      "quote": "420 DGX A100 servers x 8 A100 80GB"
+      "source": "NVIDIA A100 datasheet",
+      "url": "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf",
+      "where": "PDF p1, spec table",
+      "quote": "same 312 TFLOPS dense / 400W SXM column for 80GB"
+     },
+     {
+      "source": "Luccioni et al. 2022, Estimating the carbon footprint of BLOOM",
+      "url": "https://arxiv.org/abs/2211.02001",
+      "where": "PDF p4 s4.2",
+      "quote": "A100 SXM4 80GB TDP of 400W"
      }
     ]
    }
