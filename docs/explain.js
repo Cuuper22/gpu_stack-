@@ -388,6 +388,22 @@
     else if (side === "above" && !above) side = below ? "below" : side;
     if (!below && !above) side = vh - r.bottom >= r.top ? "below" : "above";
     current.side = side;
+    /* Neither above nor below has room (a short window): go beside the term
+       so the window never covers the words it explains. */
+    var beside = "";
+    if (!below && !above) {
+      if (vw - r.right - GAP - MARGIN >= w) beside = "right";
+      else if (r.left - GAP - MARGIN >= w) beside = "left";
+    }
+    pop.classList.toggle("is-beside", !!beside);
+    if (beside) {
+      var bt = Math.max(MARGIN, Math.min(r.top + r.height / 2 - h / 2, vh - h - MARGIN));
+      pop.style.left = Math.round(beside === "right" ? r.right + GAP : r.left - GAP - w) + "px";
+      pop.style.top = Math.round(bt) + "px";
+      pop.style.transformOrigin = beside === "right" ? "0 50%" : "100% 50%";
+      pop.classList.remove("is-above");
+      return;
+    }
     var top = side === "below" ? r.bottom + GAP : r.top - GAP - h;
     top = Math.max(MARGIN, Math.min(top, vh - h - MARGIN));
     var cx = r.left + r.width / 2;

@@ -115,7 +115,7 @@
         g.appendChild(s("line", { class: "ac-diag", x1: X(lo), y1: Y(lo), x2: X(hi), y2: Y(hi) }));
         svg.appendChild(g);
         svg.appendChild(s("rect", { x: lay.L, y: lay.T, width: lay.P, height: lay.P, fill: "none", stroke: "var(--f-ink)", "stroke-width": 1.5 }));
-        svg.appendChild(s("text", { class: "ac-axis-title", x: lay.W / 2, y: lay.H - 6, "text-anchor": "middle", style: "font-size:12px", text: "Reported GPU-hours / trillion tokens" }));
+        svg.appendChild(s("text", { class: "ac-axis-title", x: lay.W / 2, y: lay.H - 6, "text-anchor": "middle", style: "font-size:13px", text: "Reported GPU-hours / trillion tokens" }));
         svg.appendChild(s("text", { class: "ac-axis-title", transform: "translate(13 " + (lay.T + lay.P / 2) + ") rotate(-90)", "text-anchor": "middle", text: "Predicted" }));
         pts = data.map(function (r, i) {
           var c = s("circle", {
@@ -138,6 +138,19 @@
         mark();
         paintIntro();
       }
+      /* Dots are too small to tap one by one, so a touch anywhere on the plot picks the nearest dot. */
+      svg.addEventListener("pointerdown", function (e) {
+        if (e.pointerType !== "touch" || !lay) return;
+        var box = svg.getBoundingClientRect(), k = box.width / lay.W;
+        var px = (e.clientX - box.left) / k, py = (e.clientY - box.top) / k;
+        var best = -1, bestD = 22 / k;
+        data.forEach(function (r, i) {
+          var d = Math.hypot(X(r[1]) - px, Y(predicted(r)) - py);
+          if (d < bestD) { bestD = d; best = i; }
+        });
+        if (best >= 0) showTip(best);
+        else hideTip();
+      });
       function mark() {
         data.forEach(function (r, i) {
           var out = Math.abs(predicted(r) / r[1] - 1) > BAND;

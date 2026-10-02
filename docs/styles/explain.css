@@ -274,6 +274,10 @@ abbr[data-term][data-gsx="off"] {
   pointer-events: none;
 }
 
+.gsx-pop.is-beside .gsx-nub {
+  display: none;
+}
+
 .gsx-pop.is-above .gsx-nub {
   top: auto;
   bottom: -7px;

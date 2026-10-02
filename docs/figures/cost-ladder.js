@@ -99,12 +99,21 @@
       }
 
       var timed = false;
+      // The reader scrolls either the page (phones) or the Story window (desktop).
+      function scroller() {
+        var n = ctx.fig.closest ? ctx.fig.closest(".window-scroll") : null;
+        if (!n || n.scrollHeight <= n.clientHeight + 1) return null;
+        var ov = root.getComputedStyle(n).overflowY;
+        return ov === "auto" || ov === "scroll" ? n : null;
+      }
       function fromScroll() {
         if (timed || ctx.reduced) return;
+        var sc = scroller();
+        var box = sc ? sc.getBoundingClientRect() : { top: 0, height: root.innerHeight || 800 };
         var r = ctx.fig.getBoundingClientRect();
-        var vh = root.innerHeight || 800;
+        var vh = box.height;
         var travel = r.height + 0.4 * vh;
-        var p = u.clamp((0.95 * vh - r.top) / travel);
+        var p = u.clamp((0.95 * vh - (r.top - box.top)) / travel);
         reveal(p * RUNGS.length * 1.02);
       }
       var on = false;
@@ -114,8 +123,12 @@
         var fn = v ? "addEventListener" : "removeEventListener";
         root[fn]("scroll", fromScroll, { passive: true });
         root[fn]("resize", fromScroll);
+        var sc = scroller() || scrolled;
+        if (sc) sc[fn]("scroll", fromScroll, { passive: true });
+        scrolled = v ? sc : null;
         if (v) fromScroll();
       }
+      var scrolled = null;
       ctx.onVisible(listen);
 
       return {
