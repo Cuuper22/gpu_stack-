@@ -24,7 +24,7 @@ jobs:
           cache: pip
 
       - name: Install ruff
-        run: python -m pip install ruff
+        run: python -m pip install "ruff==0.15.20"
 
       # Rules and per-directory exceptions live in [tool.ruff] in pyproject.toml.
       - name: Lint
