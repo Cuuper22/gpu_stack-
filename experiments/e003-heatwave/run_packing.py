@@ -13,7 +13,10 @@ Stages (each stays well under 20 minutes on 2 cores; run them in this order)::
 ``t5m-fixed`` runs at q=0.9 for its reference ratio path).  Part files go to
 ``results/packing-v1-parts/`` (each with script hash, git commit and seeds);
 ``merge`` writes ``results/packing-v1.json`` through ``heatwave.provenance``.
-Existing part files are kept, so a stage can be resumed.
+Existing part files are kept, so a stage can be resumed.  Run heavy stages
+under ``nice -n 10``.  ETS and ARIMA refit once per hour of decisions (see
+``policies.forecast_refresh_bins`` in the scenario); the setting is recorded in
+every run's metrics.
 
 Every quantity is simulated.  The scenario is ``packing-scenario-v1.json``;
 power levels, cooling and thermal parameters are read from the simulator
@@ -151,10 +154,22 @@ def policy_id(forecaster: str, label: str) -> str:
     return f"{forecaster}/{label}"
 
 
-def fixed_levels(packing: dict, forecaster: str) -> list:
+def fixed_levels(packing: dict, forecaster: str, opts: argparse.Namespace) -> list:
     if forecaster in packing["policies"]["full_grid_forecasters"]:
-        return list(hp.QUANTILE_LEVELS)
+        return list(hp.QUANTILE_LEVELS)[:: max(1, opts.grid_stride)]
+    if opts.subset_q:
+        return [float(x) for x in opts.subset_q.split(",")]
     return list(packing["policies"]["subset_q"])
+
+
+def used_seeds(packing: dict, key: str, opts: argparse.Namespace) -> list:
+    n = {"train": opts.n_train, "test": opts.n_test}[key]
+    seeds = list(packing["seeds"][key])
+    return seeds[:n] if n > 0 else seeds
+
+
+def option_record(opts: argparse.Namespace) -> dict:
+    return {"n_train": opts.n_train, "n_test": opts.n_test, "grid_stride": opts.grid_stride, "subset_q": opts.subset_q}
 
 
 # ---------------------------------------------------------------------------
@@ -189,7 +204,7 @@ def run_one(packing, sim, settings, models, seed: int, controller_factory):
 def stage_collect(args) -> None:
     packing, sim, settings = setup()
     models = load_models()
-    seeds = shard_filter(list(packing["seeds"]["train"]), args.shard)
+    seeds = shard_filter(used_seeds(packing, "train", args), args.shard)
     fc = make_forecaster("timestral-5M", packing, args.threads)
     for seed in seeds:
         out = PARTS / f"collect-seed{seed}.json"
@@ -209,7 +224,7 @@ def stage_collect(args) -> None:
         p_min, b_min = ctrl.minute_records()
         np.savez_compressed(PARTS / f"collect-seed{seed}.npz", p_min=p_min, b_min=b_min, **sit)
         write_json(out, {"provenance": part_provenance(seed=seed, role="train-exploration", forecaster="timestral-5M",
-                                                         policy="random-q"),
+                                                         policy="random-q", options=option_record(args)),
                          "result": {"metrics": metrics, "wall_s": wall, "n_situations": int(sit["t"].shape[0]),
                                     "draws": ep.draws}})
         print(f"collect seed {seed}: {sit['t'].shape[0]} situations, wall {wall:.0f}s", flush=True)
@@ -220,8 +235,8 @@ def stage_train(args) -> None:
     models_d = load_models()
     models = list(models_d.values())
     penalties = list(packing["penalty"]["sweep_usd_per_kwh"])
-    train_seeds = list(packing["seeds"]["train"])
-    val_seeds = set(packing["seeds"]["validation"])
+    train_seeds = used_seeds(packing, "train", args)
+    val_seeds = set(train_seeds[-2:])
     parts = {"train": [], "val": []}
     for seed in train_seeds:
         z = np.load(PARTS / f"collect-seed{seed}.npz")
@@ -264,19 +279,19 @@ def stage_train(args) -> None:
         "refit_regret_per_value_on_all": final.regret(Xall, Call, Vall),
     }
     write_json(MODEL_PATH, {"provenance": part_provenance(train_seeds=train_seeds, validation_seeds=sorted(val_seeds),
-                                                            penalties=penalties),
+                                                            penalties=penalties, options=option_record(args)),
                             "result": {"selected": row, "grid": grid, "reference_regrets": ref,
                                        "n_rows_train": int(Xtr.shape[0]), "n_rows_validation": int(Xva.shape[0]),
                                        "feature_names": hp.FEATURE_NAMES, "model": final.to_dict()}})
     print(f"wrote {MODEL_PATH}: selected {row}")
 
 
-def eval_jobs(packing: dict, group: str) -> list:
+def eval_jobs(packing: dict, group: str, opts: argparse.Namespace) -> list:
     """List of (policy_id, kind, forecaster, level_or_penalty)."""
     jobs = []
     if group in GROUPS:
         fcn = GROUPS[group]
-        for q in fixed_levels(packing, fcn):
+        for q in fixed_levels(packing, fcn, opts):
             jobs.append((policy_id(fcn, f"q{q:g}"), "fixed", fcn, q))
     elif group == "reactive":
         jobs.append(("reactive", "reactive", None, None))
@@ -293,8 +308,8 @@ def eval_jobs(packing: dict, group: str) -> list:
 def stage_eval(args) -> None:
     packing, sim, settings = setup()
     models = load_models()
-    seeds = list(packing["seeds"]["test"])
-    jobs = [(j, s) for j in eval_jobs(packing, args.group) for s in seeds]
+    seeds = used_seeds(packing, "test", args)
+    jobs = [(j, s) for j in eval_jobs(packing, args.group, args) for s in seeds]
     jobs = shard_filter(jobs, args.shard)
     cache = {}
     learned = None
@@ -320,13 +335,15 @@ def stage_eval(args) -> None:
             return hp.PackingController(
                 ep.jobs, models, site_ids, settings, ep.hour0_local, mode="forecast", forecaster=cache[fcn], policy=policy,
                 penalty_usd_per_kwh=penalty, use_covariates=use_cov,
+                forecast_refresh_bins=int(packing["policies"]["forecast_refresh_bins"].get(fcn, 1)),
             )
 
         ep, ctrl, res, wall = run_one(packing, sim, settings, models, seed, factory)
         metrics = hp.episode_metrics(res, ctrl, ep, settings)
         if pid == "timestral-5M/q0.9":
             np.savez_compressed(PARTS / f"trace-seed{seed}.npz", ratio_bins=ctrl.ratio_bins())
-        write_json(out, {"provenance": part_provenance(seed=seed, policy=pid, forecaster=fcn, use_covariates=use_cov),
+        write_json(out, {"provenance": part_provenance(seed=seed, policy=pid, forecaster=fcn, use_covariates=use_cov,
+                                                         options=option_record(args)),
                          "result": {"policy": pid, "kind": kind, "seed": seed, "metrics": metrics, "wall_s": wall,
                                     "draws": ep.draws}})
         print(f"{pid} seed {seed}: gpu_h {metrics['gpu_hours']:.0f} viol {metrics['violation_rate']:.3f} "
@@ -350,7 +367,7 @@ def stage_merge(args) -> None:
     for f in files:
         rec = json.loads(f.read_text())["result"]
         runs.setdefault(rec["policy"], {})[rec["seed"]] = rec["metrics"]
-    seeds = list(packing["seeds"]["test"])
+    seeds = sorted({s for by in runs.values() for s in by})
     cal = json.loads(CAL_PATH.read_text())["result"]
     summary = {}
     for pid, by_seed in sorted(runs.items()):
@@ -415,6 +432,8 @@ def stage_merge(args) -> None:
         "scenario": {k: packing[k] for k in ("episode", "cap", "jobs", "heatwave_draw", "events", "penalty", "reward_window_s",
                                               "queue_order", "reactive", "policies", "learning", "bootstrap", "seeds")},
         "assumptions": packing["assumptions"],
+        "run_options": sorted({json.JSONEncoder(sort_keys=True).encode(json.loads(f.read_text())["provenance"].get("options")) for f in files}),
+        "test_seeds_run": seeds,
         "calibration": cal,
         "metric_definitions": {
             "window": "evaluation window = last (horizon_s - warmup_s) seconds of each episode; warm-up excluded",
@@ -433,7 +452,7 @@ def stage_merge(args) -> None:
         "paired_net_value_difference": paired,
         "best_fixed_by_penalty": selection_by_penalty,
         "learned_model": None if model_rec is None else {k: v for k, v in model_rec.items() if k != "model"},
-        "training_episodes": [{"seed": c["draws"]["sim_seed"], "n_situations": c["n_situations"]} for c in collect],
+        "training_episodes": [{"sim_seed": c["draws"]["sim_seed"], "n_situations": c["n_situations"]} for c in collect],
         "per_seed_metrics": {pid: {str(s): m for s, m in by.items()} for pid, by in sorted(runs.items())},
     }
     from heatwave.provenance import write_result
@@ -454,6 +473,10 @@ def main() -> None:
     ap.add_argument("--group", default="")
     ap.add_argument("--shard", default="0/1")
     ap.add_argument("--threads", type=int, default=1)
+    ap.add_argument("--n-train", type=int, default=0, help="use only the first N training seeds (0 = all)")
+    ap.add_argument("--n-test", type=int, default=0, help="use only the first N test seeds (0 = all)")
+    ap.add_argument("--grid-stride", type=int, default=1, help="use every S-th of the 21 levels for full-grid forecasters")
+    ap.add_argument("--subset-q", default="", help="comma list replacing policies.subset_q")
     args = ap.parse_args()
     if args.stage == "calibrate":
         stage_calibrate()

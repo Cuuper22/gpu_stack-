@@ -191,7 +191,11 @@
     "use_covariates": [
       "timestral-5M",
       "timestral-28M"
-    ]
+    ],
+    "forecast_refresh_bins": {
+      "ets": 12,
+      "arima": 12
+    }
   },
   "learning": {
     "bandwidths": [
@@ -219,6 +223,7 @@
     "Heat wave: each episode draws a heat wave (centre, width, size) added to the sim scenario's diurnal outdoor temperature; episode time 0 is 06:00 local at the first site (start_hour_utc). The event draw rates, precursor probability and ranges are assumptions of the simulation.",
     "Over-cap penalty (USD per kWh above the site cap) is a scenario parameter; the default and the sweep are assumptions.",
     "Planning horizon (3 h in 5-minute steps) and the learned policy's surrogate reward window (3 h) are scenario choices.",
-    "Warm-up (first 25 h of each 41 h episode) uses one shared rule for all forecast policies and is excluded from every reported metric; the evaluation window is the last 16 h."
+    "Warm-up (first 25 h of each 41 h episode) uses one shared rule for all forecast policies and is excluded from every reported metric; the evaluation window is the last 16 h.",
+    "ETS and ARIMA refit once per hour of decisions (forecast_refresh_bins = 12) and serve the 11 decisions in between from the same paths shifted by the elapsed steps, to keep their run time down; every other forecaster is called at every decision."
   ]
 }

@@ -264,3 +264,30 @@ def test_bootstrap_ci():
     assert one["lo"] == one["hi"] == 3.0
     with pytest.raises(ValueError):
         hp.bootstrap_ci([])
+
+
+def test_forecast_refresh_reuses_paths(tiny):
+    packing, sim, cal = tiny
+    ep = hp.build_episode(packing, sim, cal["models"], 11)
+
+    class Counting(StubForecaster):
+        calls = 0
+        horizons = []
+
+        def forecast(self, context, horizon, known_covariates=None, past_covariates=None):
+            Counting.calls += 1
+            Counting.horizons.append(horizon)
+            return super().forecast(context, horizon)
+
+    runs = {}
+    for k in (1, 4):
+        Counting.calls, Counting.horizons = 0, []
+        ctrl, st = make_controller(tiny, ep, q=0.9, forecaster=Counting(), forecast_refresh_bins=k)
+        res = hp.run_episode(ep, ctrl)
+        m = hp.episode_metrics(res, ctrl, ep, st)
+        runs[k] = (Counting.calls, list(Counting.horizons), m)
+    assert runs[4][0] < runs[1][0]
+    assert set(runs[1][1]) == {st.horizon_bins} and set(runs[4][1]) == {st.horizon_bins + 3}
+    assert runs[4][2]["forecast_refresh_bins"] == 4 and runs[1][2]["forecast_refresh_bins"] == 1
+    with pytest.raises(ValueError):
+        make_controller(tiny, ep, q=0.9, forecast_refresh_bins=0)

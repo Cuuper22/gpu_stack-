@@ -425,7 +425,10 @@ class PackingController:
 
     ``mode`` is ``'forecast'`` (a forecaster plus a q policy), ``'oracle'``
     (``oracle_ratio`` supplies the realized ratio path, shape ``(S, n_bins)``),
-    or ``'reactive'`` (measured power, throttling).  All jobs are held back
+    or ``'reactive'`` (measured power, throttling).  ``forecast_refresh_bins = k > 1``
+    calls the forecaster only every ``k``-th decision (with horizon ``H + k - 1``)
+    and serves the decisions in between from the same paths, shifted by the
+    elapsed bins (used for the slow classical baselines).  All jobs are held back
     with ``DeferJob`` the first time they are seen and released with
     ``AdmitJob``.  Every candidate evaluation before ``warmup_s`` uses the same
     warm-up rule in every forecast mode: a flat ratio equal to the largest of
@@ -446,6 +449,7 @@ class PackingController:
         use_covariates: bool = False,
         oracle_ratio: Optional[np.ndarray] = None,
         log_situations: bool = False,
+        forecast_refresh_bins: int = 1,
     ) -> None:
         if mode not in ("forecast", "oracle", "reactive"):
             raise ValueError("mode must be 'forecast', 'oracle' or 'reactive'")
@@ -461,6 +465,10 @@ class PackingController:
         self.use_covariates = bool(use_covariates)
         self.oracle_ratio = None if oracle_ratio is None else np.asarray(oracle_ratio, dtype=float)
         self.log_situations = bool(log_situations)
+        if int(forecast_refresh_bins) < 1:
+            raise ValueError("forecast_refresh_bins must be >= 1")
+        self.refresh = int(forecast_refresh_bins)
+        self._cache: Optional[tuple[float, np.ndarray]] = None
         self.site_ids = tuple(site_ids)
         self.S = len(self.site_ids)
         self.models = [models[s] for s in self.site_ids]
@@ -561,23 +569,30 @@ class PackingController:
             return np.repeat(tr[:, idx][:, :, None], N_LEVELS, axis=2)
         if in_warmup or bins.shape[1] < self.cfg.min_context_bins or self.mode == "oracle":
             return np.broadcast_to(self._warm_ratio(bins)[:, None, None], (self.S, H, N_LEVELS)).copy()
+        if self.refresh > 1 and self._cache is not None:
+            off = int(round((t - self._cache[0]) / self.cfg.bin_s))
+            if 0 <= off < self.refresh:
+                return self._cache[1][:, off:off + H]
         ctx = bins[:, -self.cfg.context_bins:]
+        h_call = H + self.refresh - 1
         kwargs: dict[str, Any] = {}
         if self.use_covariates:
-            kwargs["known_covariates"] = self._covariates(t, vs, ctx.shape[1])
-        fc = self.forecaster.forecast(ctx[:, None, :], H, **kwargs)
+            kwargs["known_covariates"] = self._covariates(t, vs, ctx.shape[1], h_call)
+        fc = self.forecaster.forecast(ctx[:, None, :], h_call, **kwargs)
         self.forecast_calls += 1
-        vals = np.asarray(fc.values, dtype=float)[:, 0, :, :]
-        return np.maximum(vals, 0.05)
+        vals = np.maximum(np.asarray(fc.values, dtype=float)[:, 0, :, :], 0.05)
+        if self.refresh > 1:
+            self._cache = (t, vals)
+        return vals[:, :H]
 
-    def _covariates(self, t: float, vs: VisibleState, n_ctx: int) -> np.ndarray:
+    def _covariates(self, t: float, vs: VisibleState, n_ctx: int, horizon: int) -> np.ndarray:
         k = int(round(self.cfg.bin_s / self.cfg.call_s))
         o = np.asarray(self._o_min)
         m = o.shape[0] // k
         past = o[: m * k].reshape(m, k, self.S).mean(axis=1).T[:, -n_ctx:]
         hs = vs.known_future["hour_start_s"]
         fc = vs.known_future["outdoor_forecast_c"]
-        mids = t + (np.arange(self.cfg.horizon_bins) + 0.5) * self.cfg.bin_s
+        mids = t + (np.arange(horizon) + 0.5) * self.cfg.bin_s
         future = np.stack([np.interp(mids, hs, fc[:, s]) for s in range(self.S)])
         return np.concatenate([past, future], axis=1)[:, None, :]
 
@@ -814,6 +829,7 @@ def episode_metrics(result: Any, controller: PackingController, episode: Episode
         "mean_power_over_cap": float((w / cap[None, :]).mean()),
         "energy_kwh": float(w.sum() * dt / 3.6e6),
         "forecast_calls": int(controller.forecast_calls),
+        "forecast_refresh_bins": int(controller.refresh),
         "job_faults": int(sum(r["faults"] for r in rows)),
     }
     return out
