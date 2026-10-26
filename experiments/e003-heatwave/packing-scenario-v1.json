@@ -1,0 +1,224 @@
+{
+  "schema": "gpu-stack.e003-heatwave-packing-scenario.v1",
+  "data_kind": "simulated",
+  "scenario_id": "e003-heatwave-packing-v1",
+  "description": "Power-cap packing episodes on the two-site e003 simulator. Every quantity is simulated; every number below is a scenario assumption (nothing is measured data). Power levels, cooling and thermal parameters are read from sim-scenario-v1.json and the measured e002 ratios it points to; the site caps are computed at run time from a commissioning calibration run.",
+  "base_scenario": "sim-scenario-v1.json",
+  "episode": {
+    "horizon_s": 147600,
+    "warmup_s": 90000,
+    "base_dt_s": 10.0,
+    "control_dt_s": 10.0,
+    "controller_interval_s": 100.0,
+    "decision_interval_s": 300.0,
+    "forecast_bin_s": 300.0,
+    "forecast_horizon_bins": 36,
+    "context_bins": 576,
+    "min_context_bins": 24,
+    "warm_ratio_bins": 24,
+    "start_hour_utc": 13.0
+  },
+  "cap": {
+    "load_fraction": 0.8,
+    "design_outdoor_c": 35.0,
+    "calibration": {
+      "idle_hours": 1,
+      "full_hours": 2
+    }
+  },
+  "jobs": {
+    "generate": {
+      "utilization_goal": 1.5,
+      "gpu_choices": [
+        8,
+        16,
+        32,
+        64
+      ],
+      "gpu_weights": [
+        3,
+        3,
+        2,
+        1
+      ],
+      "duration_range_s": [
+        5400,
+        36000
+      ],
+      "step_time_choices_s": [
+        2.0,
+        4.0,
+        8.0
+      ],
+      "checkpoint_every_range_s": [
+        1200,
+        3600
+      ],
+      "checkpoint_duration_range_s": [
+        20,
+        120
+      ],
+      "value_range": [
+        1.0,
+        4.0
+      ],
+      "flexible_fraction": 1.0,
+      "multisite_fraction": 0.1,
+      "max_start_delay_s": 0,
+      "initial_fraction": 0.5
+    }
+  },
+  "heatwave_draw": {
+    "center_h_range": [
+      28.0,
+      36.0
+    ],
+    "site_offset_h": 2.0,
+    "width_h_range": [
+      6.0,
+      10.0
+    ],
+    "add_c_range": [
+      6.0,
+      12.0
+    ]
+  },
+  "events": {
+    "rates_per_day": {
+      "cooling_failure": 0.3,
+      "breaker_trip": 0.3,
+      "grid_curtailment": 0.3,
+      "hardware_fault": 1.0
+    },
+    "precursor_probability": 0.5,
+    "lead_range_s": [
+      1800,
+      7200
+    ],
+    "strength_ranges": {
+      "supply_temp_c": [
+        2.0,
+        5.0
+      ],
+      "gpu_temp_c": [
+        3.0,
+        8.0
+      ]
+    },
+    "duration_range_s": [
+      1800,
+      7200
+    ],
+    "remaining_capacity_range": [
+      0.3,
+      0.7
+    ],
+    "derate_range": [
+      0.6,
+      0.9
+    ],
+    "limit_fraction_range": [
+      0.5,
+      0.8
+    ],
+    "repair_range_s": [
+      7200,
+      21600
+    ]
+  },
+  "penalty": {
+    "default_usd_per_kwh": 10.0,
+    "sweep_usd_per_kwh": [
+      2.5,
+      10.0,
+      40.0,
+      160.0
+    ]
+  },
+  "reward_window_s": 10800,
+  "queue_order": "value_density",
+  "reactive": {
+    "margin": 0.97
+  },
+  "seeds": {
+    "calibration": 9000,
+    "dev": [
+      9101,
+      9102,
+      9103
+    ],
+    "train": [
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108
+    ],
+    "validation": [
+      107,
+      108
+    ],
+    "test": [
+      500,
+      501,
+      502,
+      503,
+      504,
+      505
+    ]
+  },
+  "policies": {
+    "full_grid_forecasters": [
+      "timestral-5M"
+    ],
+    "subset_forecasters": [
+      "timestral-28M",
+      "seasonal-naive",
+      "ets",
+      "arima"
+    ],
+    "subset_q": [
+      0.5,
+      0.8,
+      0.9,
+      0.95,
+      0.99
+    ],
+    "use_covariates": [
+      "timestral-5M",
+      "timestral-28M"
+    ]
+  },
+  "learning": {
+    "bandwidths": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "ridges": [
+      1.0,
+      10.0,
+      100.0
+    ],
+    "n_rff": 256,
+    "model_seed": 0
+  },
+  "bootstrap": {
+    "n_boot": 2000,
+    "level": 0.95,
+    "seed": 0
+  },
+  "assumptions": [
+    "Everything here is simulated; no number is a measurement of a real cluster.",
+    "Cap: each site cap is its calibrated idle power plus cap.load_fraction of the calibrated idle-to-full-load power span, both measured in the simulator at a constant design outdoor temperature (cap.design_outdoor_c). The design temperature and load fraction are assumptions chosen on calibration and dev seeds, not on test seeds.",
+    "Jobs: synthetic queue with a backlog (utilization goal above 1), GPU counts, durations (1.5 to 10 h, log-uniform), checkpoint cadence and value per GPU-hour (USD, no source) are assumptions. All jobs are marked flexible so the packer may hold them; a job is available at its submit time.",
+    "Heat wave: each episode draws a heat wave (centre, width, size) added to the sim scenario's diurnal outdoor temperature; episode time 0 is 06:00 local at the first site (start_hour_utc). The event draw rates, precursor probability and ranges are assumptions of the simulation.",
+    "Over-cap penalty (USD per kWh above the site cap) is a scenario parameter; the default and the sweep are assumptions.",
+    "Planning horizon (3 h in 5-minute steps) and the learned policy's surrogate reward window (3 h) are scenario choices.",
+    "Warm-up (first 25 h of each 41 h episode) uses one shared rule for all forecast policies and is excluded from every reported metric; the evaluation window is the last 16 h."
+  ]
+}
