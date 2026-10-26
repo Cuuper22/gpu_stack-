@@ -1,7 +1,7 @@
 """Pins the registry's published size and proves it can rebuild from empty.
 
-PUBLISHED_SNAPSHOT records the exact counts the project advertises — 1267
-variables, 701 equations, 583 root inputs, and the rest. Any scope change
+PUBLISHED_SNAPSHOT records the exact counts the project advertises — 1316
+variables, 733 equations, 603 root inputs, and the rest. Any scope change
 that adds or removes a variable moves these numbers, and that is the
 point: the change must be seen and the snapshot updated deliberately. If a
 change legitimately moves the numbers, update the expectations here — never
@@ -16,19 +16,19 @@ from gpu_stack.core import VariableKind
 
 
 PUBLISHED_SNAPSHOT = {
-    "systems": 16,
-    "variables": 1267,
+    "systems": 17,
+    "variables": 1316,
     "constants": 18,
-    "equations": 701,
-    "root_inputs": 583,
-    "leaves": 241,
-    "topological_order_length": 1267,
-    "with_sp_units": 1249,
-    "with_references": 1249,
-    "equations_with_references": 701,
-    "equations_with_unit_check": 642,
-    "root_kind": 583,
-    "derived_kind": 666,
+    "equations": 733,
+    "root_inputs": 603,
+    "leaves": 251,
+    "topological_order_length": 1316,
+    "with_sp_units": 1298,
+    "with_references": 1298,
+    "equations_with_references": 733,
+    "equations_with_unit_check": 670,
+    "root_kind": 603,
+    "derived_kind": 695,
     "measured_kind": 0,
     "definitional_kind": 18,
 }

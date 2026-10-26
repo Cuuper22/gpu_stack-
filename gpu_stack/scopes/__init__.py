@@ -42,6 +42,9 @@ SCOPE_MODULES = [
     "cluster",           # -> gpu, memory_subsystem, interconnect
     "thermal",           # -> gpu, cluster
     "economics",         # -> gpu, thermal, cluster, training, parallelism
+
+    # Forecast-aware operation (Heatwave): sits on top of economics
+    "power_forecast",    # -> thermal, cluster, training, economics
 ]
 
 
@@ -62,6 +65,7 @@ SCOPE_DESCRIPTIONS = {
     "cluster":          "node NIC topology -> rack -> cluster -> hyperscaler aggregation",
     "thermal":          "junction-to-ambient resistance, coolant flow, PUE",
     "economics":        "GPU amortization, $/kWh, $/token, run cost",
+    "power_forecast":   "quantile power planning, stranded power, lumped RC thermal, early checkpoints, time-shifted $/token and CO2/token",
 }
 
 
