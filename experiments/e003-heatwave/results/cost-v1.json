@@ -3,7 +3,7 @@
   "script": "/home/claude/wt/hw-cost/experiments/e003-heatwave/run_cost.py",
   "script_sha256": "9eafa5e1240eb00360309f7de6ac7d04ec9d0b70ba3228de29e85d7d89604918",
   "git": {
-   "commit": "47a752f3e18908a1f68460b8e7ba85f643acfe7d",
+   "commit": "1048057362084ef5015e16176e52d7391c89cb35",
    "dirty": "false"
   },
   "inputs": {
@@ -19,7 +19,7 @@
    "/home/claude/heatwave/data/processed/public_de_generation.meta.json": "9df3fa3ef551ecd02a7926e92dfa9e83a929822eefdaaeafc157520b365e77d8"
   },
   "data_kind": "public",
-  "created_utc": "2026-10-26T22:42:42+00:00",
+  "created_utc": "2026-10-26T22:59:50+00:00",
   "notes": "Public price and carbon series; modeled workload. The git field is the heatwave repository; the gpu_stack repository state is in result.gpu_stack_git."
  },
  "result": {
@@ -216686,7 +216686,7 @@
   },
   "gpu_stack_git": {
    "repo": "gpu_stack",
-   "commit": "dc7061b2dac5fe28d9126f8035b9961f5e82c82a",
+   "commit": "514948a752d357885f6727fe47fb7bce1eed6917",
    "branch": "hw-cost",
    "dirty": "false"
   },
