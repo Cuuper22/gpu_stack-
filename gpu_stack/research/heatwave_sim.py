@@ -225,6 +225,7 @@ class PowerLevels:
         host_fraction_of_compute: float = 0.0,
         idle_ratio_override: Optional[float] = None,
         noise_scale: float = 1.0,
+        calibration_notes: Optional[Mapping[str, str]] = None,
     ) -> "PowerLevels":
         """Scale measured laptop ratios to a datacenter GPU.
 
@@ -232,7 +233,9 @@ class PowerLevels:
         measured checkpoint ratio; not available for communication),
         ``'idle_ratio'`` (use the measured idle ratio), or a number.
         ``idle_ratio_override`` replaces the measured idle ratio when set (the
-        caller then owns the citation).
+        caller then owns the citation). ``calibration_notes`` replaces the
+        provenance label of any level (keys as in ``provenance``) when a
+        scenario calibrates it from data instead of assuming it.
         """
         ratios = measured["ratio_to_compute"]
         compute = float(tdp_w) * float(compute_fraction_of_tdp)
@@ -263,6 +266,10 @@ class PowerLevels:
         ckpt = resolve(checkpoint_ratio, "checkpoint_w")
         prov["host_w_per_gpu"] = f"assumed: {host_fraction_of_compute} x compute_w"
         prov["noise_rel_sigma"] = f"measured laptop relative std of compute-phase board power x scale {noise_scale}"
+        for key, note in (calibration_notes or {}).items():
+            if key not in prov:
+                raise ValueError(f"calibration_notes key {key!r} is not a power level")
+            prov[key] = str(note)
         return cls(
             compute_w=compute,
             comm_w=compute * comm,
@@ -808,6 +815,7 @@ def build_config(scenario: Mapping[str, Any], seed: int = 0, environment: Option
         host_fraction_of_compute=gcfg["host_fraction_of_compute"],
         idle_ratio_override=pl.get("idle_ratio_override"),
         noise_scale=pl.get("noise_scale", 1.0),
+        calibration_notes=pl.get("calibration_notes"),
     )
     th = ThermalAssumptions(**scenario["thermal"])
     throttle = GPUThrottleModel(**scenario["throttle"])
@@ -2039,7 +2047,11 @@ class SimResult:
                 "site_carbon_kg_1h": "kg CO2 per hour",
             },
             "quantity_provenance": {
-                "gpu_power_levels": "simulated; idle/compute and checkpoint/compute ratios derived from measured e002 laptop telemetry, scaled to cited H100 SXM TDP; other levels assumed",
+                "gpu_power_levels": (
+                    "simulated; levels set per power_levels.provenance (scenario calibration notes applied)"
+                    if any(str(v).startswith(("public data:", "measured laptop data:")) for v in cfg.levels.provenance.values())
+                    else "simulated; idle/compute and checkpoint/compute ratios derived from measured e002 laptop telemetry, scaled to cited H100 SXM TDP; other levels assumed"
+                ),
                 "thermal": "simulated; RC parameters are scenario assumptions (DGX H100 mass cited)",
                 "cooling_power": "simulated; PUE baseline from the gpu_stack calculator assumption, Carnot COP shape",
                 "events": "simulated; precursors are assumptions of the simulation, not measured facts",
