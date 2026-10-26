@@ -39,7 +39,7 @@ def tiny():
     packing["episode"].update({"horizon_s": 10800, "warmup_s": 3600, "min_context_bins": 6, "warm_ratio_bins": 6})
     packing["cap"]["calibration"] = {"idle_hours": 1, "full_hours": 1}
     packing["jobs"]["generate"].update({"duration_range_s": [1800, 7200], "utilization_goal": 1.5})
-    sim = load_scenario(E003 / "sim-scenario-v1.json")
+    sim = load_scenario(E003 / "sim-scenario-v2.json")
     cal = hp.calibrate_sites(sim, packing)
     return packing, sim, cal
 
@@ -206,8 +206,8 @@ def test_ratio_bins_match_the_definition(tiny):
     i = 3
     expect = p[i * k:(i + 1) * k, 0].sum() / (ctrl.idle[0] + ctrl.beta[0] * b[i * k:(i + 1) * k, 0]).sum()
     assert bins[0, i] == pytest.approx(expect)
-    # the recorded minute means equal the simulator's 10 s samples averaged over the minute
-    m0 = res.site_power_w[:6, 0].mean()
+    # the recorded call-interval means equal the simulator's control-step samples averaged over the interval
+    m0 = res.site_power_w[: int(st.call_s / res.dt), 0].mean()
     assert p[0, 0] == pytest.approx(m0)
 
 

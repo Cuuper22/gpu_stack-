@@ -2,8 +2,8 @@
   "schema": "gpu-stack.e003-heatwave-packing-scenario.v1",
   "data_kind": "simulated",
   "scenario_id": "e003-heatwave-packing-v1",
-  "description": "Power-cap packing episodes on the two-site e003 simulator. Every quantity is simulated; every number below is a scenario assumption (nothing is measured data). Power levels, cooling and thermal parameters are read from sim-scenario-v1.json and the measured e002 ratios it points to; the site caps are computed at run time from a commissioning calibration run.",
-  "base_scenario": "sim-scenario-v1.json",
+  "description": "Power-cap packing episodes on the two-site e003 simulator. Every quantity is simulated; every number below is a scenario assumption (nothing is measured data). Power levels, cooling and thermal parameters are read from sim-scenario-v2.json and the measured e002 ratios it points to; the site caps are computed at run time from a commissioning calibration run.",
+  "base_scenario": "sim-scenario-v2.json",
   "episode": {
     "horizon_s": 147600,
     "warmup_s": 90000,
@@ -19,7 +19,7 @@
     "start_hour_utc": 13.0
   },
   "cap": {
-    "load_fraction": 0.8,
+    "load_fraction": 0.55,
     "design_outdoor_c": 35.0,
     "calibration": {
       "idle_hours": 1,
@@ -30,10 +30,10 @@
     "generate": {
       "utilization_goal": 1.5,
       "gpu_choices": [
+        4,
         8,
         16,
-        32,
-        64
+        32
       ],
       "gpu_weights": [
         3,

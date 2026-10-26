@@ -40,7 +40,7 @@ from gpu_stack.research import heatwave_packing as hp  # noqa: E402
 from gpu_stack.research.heatwave_sim import load_scenario  # noqa: E402
 
 SCENARIO = HERE / "packing-scenario-v1.json"
-SIM_SCENARIO = HERE / "sim-scenario-v1.json"
+SIM_SCENARIO = HERE / json.loads(SCENARIO.read_text())["base_scenario"]
 E002_RAW = ROOT / "docs" / "data" / "e002-checkpoint-power-raw-v1.json"
 PARTS = HERE / "results" / "packing-v1-parts"
 OUT = HERE / "results" / "packing-v1.json"
