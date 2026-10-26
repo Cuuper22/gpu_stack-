@@ -291,3 +291,25 @@ def test_forecast_refresh_reuses_paths(tiny):
     assert runs[4][2]["forecast_refresh_bins"] == 4 and runs[1][2]["forecast_refresh_bins"] == 1
     with pytest.raises(ValueError):
         make_controller(tiny, ep, q=0.9, forecast_refresh_bins=0)
+
+
+def test_planned_busy_counts_overlapping_bins_and_stretches_walltime(tiny):
+    from dataclasses import replace
+
+    packing, sim, cal = tiny
+    ep = hp.build_episode(packing, sim, cal["models"], 12)
+    ctrl, st = make_controller(tiny, ep)
+    job = ep.jobs[0]
+    jv = SimpleNamespace(job_id=job.job_id, status="running", site_ids=("site-a",), progress_steps=0.0, total_steps=1.0)
+    vs = SimpleNamespace(jobs=(jv,))
+    # remaining walltime of 1.2 bins: the job overlaps bins 0 and 1 under 'overlap', and bin 0 and 1 are
+    # active under the midpoint rule only when the bin midpoint is before the end
+    short = replace(job, duration_s=1.2 * st.bin_s / (1.0 + st.walltime_overhead))
+    ctrl.job_by_id[job.job_id] = short
+    n = short.n_gpus
+    busy = ctrl._planned_busy(0.0, vs)
+    assert busy[0, 0] == n and busy[0, 1] == n and busy[0, 2] == 0.0
+    ctrl.cfg = replace(st, end_rule="midpoint")
+    busy_mid = ctrl._planned_busy(0.0, vs)
+    assert busy_mid[0, 0] == n and busy_mid[0, 1] == 0.0
+    assert st.walltime_overhead == pytest.approx(hp.declared_checkpoint_overhead(packing))

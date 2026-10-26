@@ -1,0 +1,77 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "775824294538dd7090bef77219f8ffc4235574ac1dc67d03c379609abd423248",
+  "module_sha256": "d4e21491b179416e52d04f620cfaffdd931c658ad702b0e348eb05747de48a79",
+  "scenario_sha256": "986fc48d4c2680ba03b4ee9c1baa7eb9f6bc15f397f7ed2f5b305e9989d07ee4",
+  "git": {
+   "commit": "3ea9085a46bc4265a3056fa69271ad8735245992",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 501,
+  "policy": "timestral-5M/q0.99",
+  "forecaster": "timestral-5M",
+  "use_covariates": true,
+  "options": {
+   "n_train": 6,
+   "n_test": 3,
+   "grid_stride": 2,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "policy": "timestral-5M/q0.99",
+  "kind": "fixed",
+  "seed": 501,
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1510.8677342190035,
+   "gpu_hours_multisite_jobs": 101.55946666666702,
+   "value_usd": 3538.291473000437,
+   "jobs_admitted": 49,
+   "jobs_completed": 48,
+   "violation_rate": 0.140625,
+   "violation_rate_by_site": [
+    0.08854166666666667,
+    0.06770833333333333
+   ],
+   "energy_above_cap_kwh": 0.43695152006116217,
+   "energy_above_cap_kwh_by_site": [
+    0.26796387517344994,
+    0.1689876448877123
+   ],
+   "seconds_above_cap": 1520.0,
+   "max_excess_w": 5484.683502383326,
+   "stranded_kwh": 108.84599774455992,
+   "stranded_intervals": 192,
+   "mean_power_over_cap": 0.945716031315456,
+   "energy_kwh": 1916.7844025193149,
+   "forecast_calls": 192,
+   "forecast_refresh_bins": 1,
+   "job_faults": 1
+  },
+  "wall_s": 209.19022417068481,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 30.549762670133095,
+     "width_h": 7.375543052987341,
+     "add_c": 7.293306072819712
+    },
+    "site-b": {
+     "center_h": 32.54976267013309,
+     "width_h": 6.348024512926546,
+     "add_c": 6.894294797221747
+    }
+   },
+   "n_events": 2,
+   "sim_seed": 1897289818
+  }
+ }
+}

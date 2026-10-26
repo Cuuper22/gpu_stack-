@@ -3,9 +3,9 @@
   "script": "experiments/e003-heatwave/run_packing.py",
   "script_sha256": "775824294538dd7090bef77219f8ffc4235574ac1dc67d03c379609abd423248",
   "module_sha256": "d4e21491b179416e52d04f620cfaffdd931c658ad702b0e348eb05747de48a79",
-  "scenario_sha256": "5b7f96ac79b8caa7eb84b4d93849c9046c8b8737f9ac871ecc3ccd1c9b0cee73",
+  "scenario_sha256": "986fc48d4c2680ba03b4ee9c1baa7eb9f6bc15f397f7ed2f5b305e9989d07ee4",
   "git": {
-   "commit": "a439caf29bad9bf8310c61024c21405d9005b8b8",
+   "commit": "3ea9085a46bc4265a3056fa69271ad8735245992",
    "branch": "hw-pack",
    "dirty": "false"
   },
@@ -44,30 +44,6 @@
   },
   "grid": [
    {
-    "bandwidth": 0.5,
-    "ridge": 1.0,
-    "val_regret_per_value": 0.39668780697460926,
-    "train_regret_per_value": 0.09545691667496284
-   },
-   {
-    "bandwidth": 0.5,
-    "ridge": 10.0,
-    "val_regret_per_value": 0.1584195381474038,
-    "train_regret_per_value": 0.06577229015320323
-   },
-   {
-    "bandwidth": 0.5,
-    "ridge": 100.0,
-    "val_regret_per_value": 0.0846398527088084,
-    "train_regret_per_value": 0.047992975288496734
-   },
-   {
-    "bandwidth": 1.0,
-    "ridge": 1.0,
-    "val_regret_per_value": 0.2754476458218725,
-    "train_regret_per_value": 0.1215702419187854
-   },
-   {
     "bandwidth": 1.0,
     "ridge": 10.0,
     "val_regret_per_value": 0.23987182782351418,
@@ -80,10 +56,16 @@
     "train_regret_per_value": 0.05135308256352754
    },
    {
-    "bandwidth": 2.0,
-    "ridge": 1.0,
-    "val_regret_per_value": 0.16306889838483968,
-    "train_regret_per_value": 0.10657698476933092
+    "bandwidth": 1.0,
+    "ridge": 1000.0,
+    "val_regret_per_value": 0.05735674420561775,
+    "train_regret_per_value": 0.052845913306629855
+   },
+   {
+    "bandwidth": 1.0,
+    "ridge": 10000.0,
+    "val_regret_per_value": 0.08163188814336428,
+    "train_regret_per_value": 0.05940566447096177
    },
    {
     "bandwidth": 2.0,
@@ -96,6 +78,66 @@
     "ridge": 100.0,
     "val_regret_per_value": 0.049005610695333296,
     "train_regret_per_value": 0.04779430277948694
+   },
+   {
+    "bandwidth": 2.0,
+    "ridge": 1000.0,
+    "val_regret_per_value": 0.052249184817393275,
+    "train_regret_per_value": 0.05503205188624915
+   },
+   {
+    "bandwidth": 2.0,
+    "ridge": 10000.0,
+    "val_regret_per_value": 0.0807457018497049,
+    "train_regret_per_value": 0.06040560854936371
+   },
+   {
+    "bandwidth": 4.0,
+    "ridge": 10.0,
+    "val_regret_per_value": 0.08010088963923928,
+    "train_regret_per_value": 0.040516735469631124
+   },
+   {
+    "bandwidth": 4.0,
+    "ridge": 100.0,
+    "val_regret_per_value": 0.056407353407941466,
+    "train_regret_per_value": 0.045734310760310204
+   },
+   {
+    "bandwidth": 4.0,
+    "ridge": 1000.0,
+    "val_regret_per_value": 0.05444287854182195,
+    "train_regret_per_value": 0.05579336235837708
+   },
+   {
+    "bandwidth": 4.0,
+    "ridge": 10000.0,
+    "val_regret_per_value": 0.08483752180697575,
+    "train_regret_per_value": 0.06592759306746569
+   },
+   {
+    "bandwidth": 8.0,
+    "ridge": 10.0,
+    "val_regret_per_value": 0.07084702236949605,
+    "train_regret_per_value": 0.046254218012980054
+   },
+   {
+    "bandwidth": 8.0,
+    "ridge": 100.0,
+    "val_regret_per_value": 0.08103021951581241,
+    "train_regret_per_value": 0.048139800391162814
+   },
+   {
+    "bandwidth": 8.0,
+    "ridge": 1000.0,
+    "val_regret_per_value": 0.05348368671300189,
+    "train_regret_per_value": 0.05373356842626524
+   },
+   {
+    "bandwidth": 8.0,
+    "ridge": 10000.0,
+    "val_regret_per_value": 0.08980771447226818,
+    "train_regret_per_value": 0.06836602375734782
    }
   ],
   "reference_regrets": {

@@ -16,7 +16,8 @@
     "context_bins": 576,
     "min_context_bins": 24,
     "warm_ratio_bins": 24,
-    "start_hour_utc": 13.0
+    "start_hour_utc": 13.0,
+    "end_rule": "overlap"
   },
   "cap": {
     "load_fraction": 0.55,
@@ -222,6 +223,7 @@
     "Over-cap penalty (USD per kWh above the site cap) is a scenario parameter; the default and the sweep are assumptions.",
     "Planning horizon (3 h in 5-minute steps) and the learned policy's surrogate reward window (3 h) are scenario choices.",
     "Warm-up (first 25 h of each 41 h episode) uses one shared rule for all forecast policies and is excluded from every reported metric; the evaluation window is the last 16 h.",
-    "ETS and ARIMA refit once per hour of decisions (forecast_refresh_bins = 12) and serve the 11 decisions in between from the same paths shifted by the elapsed steps, to keep their run time down; every other forecaster is called at every decision."
+    "ETS and ARIMA refit once per hour of decisions (forecast_refresh_bins = 12) and serve the 11 decisions in between from the same paths shifted by the elapsed steps, to keep their run time down; every other forecaster is called at every decision.",
+    "Running jobs are planned to end at their declared walltime stretched by the checkpoint overhead implied by the job generator's checkpoint ranges, and count in every 5-minute bin they overlap (end_rule 'overlap')."
   ]
 }

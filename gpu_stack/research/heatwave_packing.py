@@ -30,9 +30,11 @@ produces 21 quantile paths of ``s``; the planned power for a set of jobs is::
 
     planned_q(h) = (idle_w + beta * busy_plan(h)) * s_q(h)
 
-``busy_plan(h)`` drops a running job from the bin in which its declared
-walltime ends (users declare GPU count and walltime at submission, as in a batch
-scheduler).  Every forecaster goes through this same rule, so differences
+``busy_plan(h)`` drops a running job after the last bin it overlaps (users
+declare GPU count and walltime at submission, as in a batch scheduler; the
+remaining walltime is stretched by the checkpoint overhead implied by the job
+generator's ranges, :func:`declared_checkpoint_overhead`, and a job counts in
+every bin it overlaps because the cap applies to peak power, not bin means).  Every forecaster goes through this same rule, so differences
 between policies come from the forecast of ``s`` and from the choice of ``q``.
 The model treats a candidate as adding the fleet-average increment per GPU, so
 the candidate's own power is not forecast separately.
@@ -392,6 +394,17 @@ class LearnedQ:
 # ---------------------------------------------------------------------------
 
 
+def declared_checkpoint_overhead(packing: Mapping[str, Any]) -> float:
+    """Expected fraction of extra wall time from checkpoint stalls, from the job generator's ranges.
+
+    A cluster operator knows the checkpoint cadence policy of its users; the
+    controller uses this single number to stretch a job's declared walltime
+    (mean checkpoint duration over mean checkpoint interval).
+    """
+    g = packing["jobs"]["generate"]
+    return float(np.mean(g["checkpoint_duration_range_s"]) / np.mean(g["checkpoint_every_range_s"]))
+
+
 @dataclass(frozen=True)
 class PackingSettings:
     decision_interval_s: float
@@ -406,6 +419,8 @@ class PackingSettings:
     horizon_s: float
     reactive_margin: float
     warm_ratio_bins: int
+    walltime_overhead: float = 0.0
+    end_rule: str = "overlap"
 
     @classmethod
     def from_scenario(cls, packing: Mapping[str, Any]) -> "PackingSettings":
@@ -417,6 +432,7 @@ class PackingSettings:
             call_s=float(ep["controller_interval_s"]), reward_window_s=float(packing["reward_window_s"]),
             queue_order=str(packing["queue_order"]), horizon_s=float(ep["horizon_s"]),
             reactive_margin=float(packing["reactive"]["margin"]), warm_ratio_bins=int(ep["warm_ratio_bins"]),
+            walltime_overhead=declared_checkpoint_overhead(packing), end_rule=str(ep.get("end_rule", "overlap")),
         )
 
 
@@ -517,7 +533,11 @@ class PackingController:
                 continue
             job = self.job_by_id[jv.job_id]
             remaining = max(job.duration_s * (1.0 - jv.progress_steps / jv.total_steps), 0.0)
-            active = (mids < t + remaining).astype(float)
+            remaining *= 1.0 + self.cfg.walltime_overhead
+            if self.cfg.end_rule == "overlap":  # count the job in every bin it overlaps (peak power, not bin mean)
+                active = (mids - 0.5 * bs < t + remaining).astype(float)
+            else:
+                active = (mids < t + remaining).astype(float)
             share = job.n_gpus / 2.0 if job.multisite else float(job.n_gpus)
             for sid in jv.site_ids:
                 out[self.site_ids.index(sid)] += share * active
@@ -985,7 +1005,7 @@ def sha256_bytes(data: bytes) -> str:
 
 __all__ = [
     "CostSensitiveModel", "Episode", "FEATURE_NAMES", "FixedQ", "LearnedQ", "MEDIAN_INDEX", "N_FEATURES", "N_LEVELS",
-    "PackingController", "PackingSettings", "QUANTILE_LEVELS", "RandomQ", "SiteModel", "Situation",
+    "PackingController", "PackingSettings", "declared_checkpoint_overhead", "QUANTILE_LEVELS", "RandomQ", "SiteModel", "Situation",
     "bootstrap_ci", "build_episode", "calibrate_sites", "episode_metrics", "hindsight_costs", "level_index",
     "load_packing_scenario", "net_value", "run_episode",
 ]
