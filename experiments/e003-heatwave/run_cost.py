@@ -329,6 +329,10 @@ def forecast_scores(ctx: PairContext, scenario: dict) -> dict:
                     fc = QuantileForecast(values=vals[:, None, sl, :])
                     y = fut[:, None, sl]
                     rec[tag] = {"wql": M.wql(fc, y), "mae_median": M.mae_median(fc, y), "coverage_80": M.coverage(fc, y, 0.8)}
+                    if tag == "h1_24":
+                        # how much the median forecast varies across the 24 hours (a flat median gives the planner nothing to shift on)
+                        rec["median_within_day_std"] = float(np.mean(np.std(vals[:, sl, hc.quantile_index(0.5)], axis=1)))
+                        rec["actual_within_day_std"] = float(np.nanmean(np.nanstd(fut[:, sl], axis=1)))
                 out.setdefault(what, {}).setdefault(fk, {})[name] = rec
     return out
 
@@ -432,7 +436,10 @@ def evaluate_stage(scenario: dict) -> None:
             "Hardware cost per token is the calculator's and does not depend on timing; total = electricity + hardware. DE electricity is converted at the mean ECB rate.",
             "CAISO carbon is the in-state intensity computed from CAISO's published CO2 and fuel mix (imports excluded). DE carbon is a production-based lifecycle proxy from IPCC AR5 medians, not an official figure.",
             "Workload (utilization, flexible share, windows, no idle power, constant energy per token) is a scenario assumption; nothing is measured on a real cluster.",
-            "Forecasts are made at 00:00 UTC from history only; no day-ahead publications are used as inputs.",
+            "Forecasts are made at 00:00 UTC from history only; no day-ahead publications are used as inputs, except the policy timestral_28M_cov, which also reads the archived day-ahead demand (CAISO) or load, solar and wind (DE) forecasts as known covariates; the issue time of those archived values relative to 00:00 UTC is not verified for hours 25-48. Open-Meteo weather forecasts were not available (quota), so no weather covariate was used.",
+            "Classical forecasts (seasonal naive, ETS, ARIMA) are computed once for every decision day of the 26 test weeks (no subsampling), cached, and reused by every policy configuration. Timestral 209M is run on 7 of the 26 weeks only (weeks 0, 4, 8, 12, 16, 20, 24); curves_subsample holds every policy re-run on those same weeks with an empty backlog at the start of each week.",
+            "perfect is the same daily scheduler fed the realised values for 48 hours; offline_optimum is one linear program over the whole test period with every value known. Shares of the perfect-foresight saving can exceed 1 because perfect plans 48 hours at a time and its goal is the mixed cost, not either axis alone.",
+            "Great Britain carbon (forecast vintage undocumented) was not used: no GB price series was collected, so there is no same-region pair for it.",
         ],
     }
     write_result(OUT, result, script=__file__, data_kind="public", inputs=inputs,
