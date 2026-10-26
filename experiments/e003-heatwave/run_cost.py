@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 import time
@@ -82,12 +83,12 @@ def forecast_tasks(scenario: dict) -> list:
     return tasks
 
 
-def forecast_stage(scenario: dict, worker: int, of: int) -> None:
+def forecast_stage(scenario: dict, worker: int, of: int, only: list) -> None:
     CACHE.mkdir(exist_ok=True)
     (CACHE / ".gitignore").write_text("*\n")
     data: dict = {}
     fc_cache: dict = {}
-    todo = forecast_tasks(scenario)[worker::of]
+    todo = [t for t in forecast_tasks(scenario) if not only or t[1] in only][worker::of]
     ctx_cfg = scenario["context_hours"]
     horizon = scenario["decision"]["horizon_hours"]
     for series_key, fk, week in todo:
@@ -108,7 +109,7 @@ def forecast_stage(scenario: dict, worker: int, of: int) -> None:
                 data[pair]["known"] = hc.known_covariate_matrix(pair, data[pair]["index"])
             known = data[pair]["known"]["matrix"]
         vals = hc.compute_week(data[pair][what], data[pair]["test_start"], week, fc_cache[fk], ctx, horizon, known=known)
-        tmp = path.with_suffix(".tmp.npz")
+        tmp = path.with_suffix(f".{os.getpid()}.tmp.npz")
         np.savez_compressed(tmp, values=vals, levels=np.array(hc.QUANTILE_LEVELS))
         tmp.rename(path)
         print(f"{series_key} {fk} week {week}: {time.time() - t0:.1f}s", flush=True)
@@ -232,7 +233,7 @@ def schedule_stage(scenario: dict, worker: int, of: int) -> None:
         except FileNotFoundError:
             print(f"{task_key(t)}: forecasts not cached yet, skipped", flush=True)
             continue
-        tmp = path.with_suffix(".tmp.npz")
+        tmp = path.with_suffix(f".{os.getpid()}.tmp.npz")
         np.savez_compressed(tmp, **res)
         tmp.rename(path)
         print(f"{task_key(t)}: {time.time() - t0:.1f}s fallbacks={res['fallbacks']}", flush=True)
@@ -444,6 +445,7 @@ def main() -> None:
     ap.add_argument("stage", choices=["forecast", "schedule", "evaluate"])
     ap.add_argument("--worker", type=int, default=0)
     ap.add_argument("--of", type=int, default=1)
+    ap.add_argument("--only", default="", help="comma-separated forecaster keys (forecast stage)")
     ap.add_argument("--scenario", default=str(SCENARIO))
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--sched-dir", default=str(SCHED))
@@ -451,7 +453,7 @@ def main() -> None:
     OUT, SCHED, SCENARIO = Path(a.out), Path(a.sched_dir), Path(a.scenario)
     scenario = hc.load_scenario(SCENARIO)
     if a.stage == "forecast":
-        forecast_stage(scenario, a.worker, a.of)
+        forecast_stage(scenario, a.worker, a.of, [x for x in a.only.split(',') if x])
     elif a.stage == "schedule":
         schedule_stage(scenario, a.worker, a.of)
     else:
