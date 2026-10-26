@@ -247,9 +247,10 @@ def stage_train(args) -> None:
         for pi, lam in enumerate(penalties):
             X = sit["x"].copy()
             X[:, hp.FEATURE_NAMES.index("log_penalty")] = np.log(lam)
-            X_all.append(X[usable])
-            C_all.append(costs[pi][usable])
-            V_all.append(value[usable])
+            keep = usable & (costs[pi].max(axis=1) > 0.0)  # rows where every level has equal reward carry no signal
+            X_all.append(X[keep])
+            C_all.append(costs[pi][keep])
+            V_all.append(value[keep])
         parts["val" if seed in val_seeds else "train"].append((np.concatenate(X_all), np.concatenate(C_all), np.concatenate(V_all)))
 
     def stack(items):
