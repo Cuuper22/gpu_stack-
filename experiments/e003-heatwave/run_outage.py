@@ -126,7 +126,7 @@ def make_forecaster(name: str, outage: dict, args: argparse.Namespace):
         return ETSForecaster(int(cl["ets_season_length"]))
     if name == "arima":
         return ARIMAForecaster(tuple(cl["arima_order"]))
-    from heatwave.forecast import TimestralForecaster
+    from heatwave.forecast.timestral_fc import TimestralForecaster
 
     if name == "ts5m":
         return TimestralForecaster("5M", threads=args.threads)
@@ -214,7 +214,8 @@ def stage_openloop(outage, S, args, work) -> None:
         names = [n for n in FORECASTERS if n != "finetuned" or finetuned_available(args)] + ["perfect"]
     for name in names:
         fc = None
-        for seed in seeds_for(outage, "all", args):
+        order = seeds_for(outage, "all", args)
+        for seed in (order[::-1] if args.reverse else order):
             path = work / f"pmax_{name}_{seed}.npy"
             if path.exists():
                 continue
@@ -464,6 +465,8 @@ def stage_report(outage, S, args, work) -> None:
             "The sweep is open loop on the recorded reactive traces; closed-loop numbers are in policies.",
             "The perfect-foresight policy reads event times of the reactive run and is an upper bound, not a deployable policy.",
             "deficit_gpu_h is the useful GPU-hours of the event-free run minus the policy run on the same seed.",
+            "Forecast compute: every forecaster's open-loop probabilities are computed once per seed on all decision points (no subsampling) and cached; tuning and the threshold sweep reuse that cache.",
+            "Each forecast-driven policy then runs closed loop once per held-out seed at its tuned threshold; those runs forecast at every decision point because the response changes the trajectory the forecaster sees.",
         ],
         "assumptions": outage["assumptions"],
     }
@@ -490,6 +493,7 @@ def main() -> None:
     ap.add_argument("--policies", nargs="*", default=None, choices=POLICIES)
     ap.add_argument("--forecasters", nargs="*", default=None, choices=FORECASTERS + ("perfect",))
     ap.add_argument("--n-test", type=int, default=0, help="use only the first N held-out seeds (0 = all)")
+    ap.add_argument("--reverse", action="store_true", help="open-loop pass visits seeds last to first (a second process can share the work)")
     ap.add_argument("--threads", type=int, default=None)
     ap.add_argument("--batch-size", type=int, default=512)
     ap.add_argument("--finetuned-weights", default=None)
