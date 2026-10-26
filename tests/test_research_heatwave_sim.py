@@ -688,7 +688,7 @@ def test_per_gpu_temperature_history_shows_single_gpu_precursor():
            "onset_s": 3000.0, "repair_s": 600.0,
            "precursors": [{"channel": "gpu_temp_c", "lead_s": 1200.0, "strength": 6.0}]}
     ra, rb = Recorder(), Recorder()
-    res_a = run_scenario(base_scenario(3600, jobs=jobs, events=[]), controller=ra, seed=3)
+    run_scenario(base_scenario(3600, jobs=jobs, events=[]), controller=ra, seed=3)
     res_b = run_scenario(base_scenario(3600, jobs=jobs, events=[pre]), controller=rb, seed=3)
     t_late = max(t for t in ra.states if t <= 2900.0)
     _, ha = ra.states[t_late].history("gpu_temp_c", 300.0)
