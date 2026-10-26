@@ -627,3 +627,31 @@ def test_default_scenario_runs_for_a_few_hours():
     assert s["data_kind"] == "simulated"
     assert s["jobs"] > 0 and s["useful_gpu_hours"] > 0
     assert res.to_arrays()["meta"]["data_kind"] == "simulated"
+
+
+def test_scenario_v2_calibration_notes_label_levels():
+    """v2 levels carry their data labels, and the run metadata says so."""
+    import copy
+    import json as _json
+    from pathlib import Path as _Path
+
+    from gpu_stack.research import heatwave_sim as _hs
+
+    path = _Path(__file__).resolve().parents[1] / "experiments/e003-heatwave/sim-scenario-v2.json"
+    sc = _hs.load_scenario(path)
+    assert sc["calibration"]["sha256"]
+    small = copy.deepcopy(sc)
+    small["horizon_s"] = 3 * 3600
+    small["outputs"] = {"gpu_windows": [[0, 60]]}
+    meta = _hs.run_scenario(small, seed=0).to_arrays()["meta"]
+    prov = meta["power_levels"]["provenance"]
+    assert prov["idle_w"].startswith("public data")
+    assert prov["checkpoint_w"].startswith("measured laptop data")
+    assert "calibration notes applied" in meta["quantity_provenance"]["gpu_power_levels"]
+    bad = copy.deepcopy(small)
+    bad["power_levels"]["calibration_notes"] = {"not_a_level": "x"}
+    import pytest as _pytest
+
+    with _pytest.raises(ValueError):
+        _hs.run_scenario(bad, seed=0)
+    _json.dumps(meta, default=str)
