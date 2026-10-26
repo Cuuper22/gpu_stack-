@@ -701,3 +701,15 @@ def test_per_gpu_temperature_history_shows_single_gpu_precursor():
     assert np.allclose(np.nan_to_num(hb[-1, others]), np.nan_to_num(ha[-1, others]))
     arr = res_b.to_arrays()
     assert arr["gpu_temp_c_1min"].shape[1] == gidx.size
+
+
+def test_scenario_v3_schedule_follows_run_seed():
+    from pathlib import Path as _Path
+
+    from gpu_stack.research import heatwave_sim as _hs
+
+    sc = _hs.load_scenario(_Path(__file__).resolve().parents[1] / "experiments/e003-heatwave/sim-scenario-v3.json")
+    a, b = _hs.build_config(sc, seed=100), _hs.build_config(sc, seed=101)
+    assert [j.job_id for j in a.jobs] != [j.job_id for j in b.jobs] or \
+        [j.duration_s for j in a.jobs] != [j.duration_s for j in b.jobs]
+    assert [j.duration_s for j in _hs.build_config(sc, seed=100).jobs] == [j.duration_s for j in a.jobs]
