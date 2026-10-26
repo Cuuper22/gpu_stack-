@@ -70,7 +70,7 @@ def series_for(pair: str, scenario: dict) -> dict:
 
 
 def forecast_tasks(scenario: dict) -> list:
-    order = ["seasonal_naive_24", "timestral_5M", "timestral_28M", "ets_24", "arima_seasonal", "timestral_209M"]
+    order = ["seasonal_naive_24", "timestral_5M", "timestral_28M", "timestral_28M_cov", "ets_24", "arima_seasonal", "timestral_209M"]
     tasks = []
     for fk in order:
         spec = scenario["forecasters"][fk]
@@ -102,7 +102,12 @@ def forecast_stage(scenario: dict, worker: int, of: int) -> None:
             fc_cache = {fk: hc.make_forecaster(spec)}
         ctx = ctx_cfg["timestral"] if spec["kind"] == "timestral" else ctx_cfg["classical"]
         t0 = time.time()
-        vals = hc.compute_week(data[pair][what], data[pair]["test_start"], week, fc_cache[fk], ctx, horizon)
+        known = None
+        if spec.get("known_covariates"):
+            if "known" not in data[pair]:
+                data[pair]["known"] = hc.known_covariate_matrix(pair, data[pair]["index"])
+            known = data[pair]["known"]["matrix"]
+        vals = hc.compute_week(data[pair][what], data[pair]["test_start"], week, fc_cache[fk], ctx, horizon, known=known)
         tmp = path.with_suffix(".tmp.npz")
         np.savez_compressed(tmp, values=vals, levels=np.array(hc.QUANTILE_LEVELS))
         tmp.rename(path)
@@ -113,7 +118,9 @@ def forecast_stage(scenario: dict, worker: int, of: int) -> None:
 # Schedule stage: one cached task = one policy configuration swept over all lambdas
 # ---------------------------------------------------------------------------------------------
 
-LP_POLICIES = ["seasonal_naive_24", "ets_24", "arima_seasonal", "timestral_5M", "timestral_28M", "perfect"]
+def planned_policies(scenario: dict) -> list:
+    """Policies that solve the planning problem; the perfect-foresight upper bound is last."""
+    return list(scenario["policies"]["planned"]) + [scenario["policies"]["upper_bound"]]
 
 
 def day_blocks_for(scenario: dict, which: str) -> list:
@@ -130,19 +137,22 @@ def schedule_task_list(scenario: dict) -> list:
     tasks = []
     for pair in scenario["pairs"]:
         for which in ("full", "sub"):
-            pols = LP_POLICIES + (["timestral_209M"] if which == "sub" else [])
+            pols = planned_policies(scenario) + (list(scenario["policies"]["subsample_extra"]) if which == "sub" else [])
             for pol in pols:
                 for f in wl["flexible_fractions"]:
                     for w in wl["windows_hours"]:
                         tasks.append(dict(pair=pair, which=which, policy=pol, f=f, W=w, rho=rho0, q=q_default))
+        for f in wl["flexible_fractions"]:
+            for w in wl["windows_hours"]:
+                tasks.append(dict(pair=pair, which="full", policy="offline_optimum", f=f, W=w, rho=rho0, q=q_default))
         for q in scenario["planning_quantiles"]["risk_sweep"]:
             if q == q_default:
                 continue
-            for pol in LP_POLICIES[:-1]:
+            for pol in scenario["policies"]["planned"]:
                 for w in wl["windows_hours"]:
                     tasks.append(dict(pair=pair, which="full", policy=pol, f=f_risk, W=w, rho=rho0, q=q))
         for rho in wl["utilization_sensitivity"]:
-            for pol in ("perfect", "timestral_28M", "seasonal_naive_24"):
+            for pol in wl["utilization_sensitivity_policies"]:
                 hf = wl["headline"]
                 tasks.append(dict(pair=pair, which="full", policy=pol, f=hf["flexible_fraction"], W=hf["window_hours"], rho=rho, q=q_default))
     return tasks
@@ -193,6 +203,9 @@ def run_schedule_task(ctx: PairContext, scenario: dict, t: dict) -> dict:
     price_real, carbon_real = ctx.realised(real_blocks)
     model = hc.FlexModel(t["rho"], t["f"], t["W"], scenario["workload"]["power_cap"])
     lambdas = scenario["lambdas"]
+    if t["policy"] == "offline_optimum":
+        sums, flex = hc.sweep_offline(price_real, carbon_real, lambdas, model, ctx.norm)
+        return {"sums": sums, "flex": flex, "fallbacks": 0}
     if t["policy"] == "perfect":
         pq, cq = ctx.perfect("price", days), ctx.perfect("carbon", days)
     else:
@@ -229,7 +242,7 @@ def schedule_stage(scenario: dict, worker: int, of: int) -> None:
 # Evaluate stage: bootstrap, per-token numbers, result JSON
 # ---------------------------------------------------------------------------------------------
 
-POLICY_ORDER = ["no_shift", "reactive", "seasonal_naive_24", "ets_24", "arima_seasonal", "timestral_5M", "timestral_28M", "timestral_209M", "perfect"]
+POLICY_ORDER = ["no_shift", "reactive", "seasonal_naive_24", "ets_24", "arima_seasonal", "timestral_5M", "timestral_28M", "timestral_28M_cov", "timestral_209M", "perfect", "offline_optimum"]
 
 
 def load_fx() -> tuple:
@@ -426,11 +439,16 @@ def evaluate_stage(scenario: dict) -> None:
 
 
 def main() -> None:
+    global OUT, SCHED, SCENARIO
     ap = argparse.ArgumentParser()
     ap.add_argument("stage", choices=["forecast", "schedule", "evaluate"])
     ap.add_argument("--worker", type=int, default=0)
     ap.add_argument("--of", type=int, default=1)
+    ap.add_argument("--scenario", default=str(SCENARIO))
+    ap.add_argument("--out", default=str(OUT))
+    ap.add_argument("--sched-dir", default=str(SCHED))
     a = ap.parse_args()
+    OUT, SCHED, SCENARIO = Path(a.out), Path(a.sched_dir), Path(a.scenario)
     scenario = hc.load_scenario(SCENARIO)
     if a.stage == "forecast":
         forecast_stage(scenario, a.worker, a.of)

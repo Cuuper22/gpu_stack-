@@ -232,6 +232,35 @@ def schedule_forecast(
     return y_all, {"plan_fallbacks": float(fallbacks)}
 
 
+def offline_optimum(cost: np.ndarray, model: FlexModel) -> np.ndarray:
+    """Whole-period optimum with every cost known: one linear program over all hours.
+
+    Minimises ``sum_t (cost[t] - mean(cost)) * y[t]`` with the same constraints as the daily plan,
+    using the cumulative flexible work ``Y[t]`` as the variable (sparse bidiagonal rows).  This is
+    the tightest bound for the mixed cost; the perfect-foresight policy (the daily scheduler fed
+    realised values) can differ from it because it plans 48 hours at a time.
+    """
+    import scipy.sparse as sp
+    from scipy.optimize import linprog
+
+    cost = np.asarray(cost, dtype=np.float64)
+    n = cost.size
+    t = np.arange(n)
+    c_adj = cost - cost.mean()
+    nxt = np.append(c_adj[1:], 0.0)
+    obj = c_adj - nxt  # coefficient of Y[t] in sum_t c_adj[t] * (Y[t] - Y[t-1]) with Y[-1] = 0
+    diff = sp.diags([np.ones(n), -np.ones(n - 1)], [0, -1], format="csr")  # (Y[t] - Y[t-1])
+    a_ub = sp.vstack([diff, -diff], format="csr")
+    b_ub = np.concatenate([np.full(n, model.flexible_cap), np.zeros(n)])
+    lo = model.due(t) - _TOL
+    hi = model.arrived(t) + _TOL
+    res = linprog(obj, A_ub=a_ub, b_ub=b_ub, bounds=list(zip(lo, hi)), method="highs")
+    if res.status != 0:
+        raise RuntimeError(f"offline optimum not solved: {res.message}")
+    y = np.diff(res.x, prepend=0.0)
+    return np.clip(y, 0.0, model.flexible_cap)
+
+
 def schedule_none(model: FlexModel, n_hours: int) -> np.ndarray:
     """No shifting: flexible work runs in its arrival hour."""
     return np.full(n_hours, model.flexible_rate)
@@ -479,15 +508,59 @@ def forecast_windows(values: np.ndarray, t0: Sequence[int], context_len: int, ho
     return ctx, fut
 
 
-def rolling_forecast(values: np.ndarray, t0: Sequence[int], forecaster: Any, context_len: int, horizon: int, batch: int = 4) -> np.ndarray:
+def known_covariate_matrix(pair: str, index: Any, include_weather: bool = True) -> Dict[str, Any]:
+    """Day-ahead covariates that are known over the forecast horizon, on the hourly ``index``.
+
+    CAISO: the day-ahead demand forecast.  DE-LU: day-ahead load, solar and wind forecasts.  Weather
+    forecasts (Open-Meteo, day-ahead vintage) are added when they have been collected; if the file
+    is absent the status says so and the matrix is built without them.  The archived forecasts hold
+    one value per hour; their issue time relative to a 00:00 UTC decision is not verified for the
+    hours beyond the first day.
+    """
+    from heatwave.data import public as P
+
+    region = PAIR_SOURCES[pair]["price"][0]
+    cov = P.load_forecast_covariates(region).resample("1h").mean().reindex(index)
+    names = list(cov.columns)
+    cols = [cov[c].to_numpy() for c in names]
+    status = {"weather_forecast": "not requested"}
+    if include_weather:
+        wregion = {"caiso": "bayarea", "de": "frankfurt"}[region]
+        try:
+            w = P.load_weather(wregion, kind="forecast", vintage="dayahead").resample("1h").mean().reindex(index)
+            for c in w.columns:
+                names.append("weather_" + c)
+                cols.append(w[c].to_numpy())
+            status = {"weather_forecast": "included", "weather_columns": list(w.columns)}
+        except FileNotFoundError:
+            status = {"weather_forecast": "not collected (Open-Meteo quota); the path is built and skipped"}
+    return {"matrix": np.stack(cols).astype(np.float64), "names": names, "status": status}
+
+
+def covariate_windows(known: np.ndarray, t0: Sequence[int], context_len: int, horizon: int) -> np.ndarray:
+    """Known-covariate windows (n, C, context_len + horizon); hours past the end of the series are NaN."""
+    out = np.full((len(t0), known.shape[0], context_len + horizon), np.nan)
+    for k, t in enumerate(t0):
+        seg = known[:, t - context_len:t + horizon]
+        out[k, :, :seg.shape[1]] = seg
+    return out
+
+
+def rolling_forecast(values: np.ndarray, t0: Sequence[int], forecaster: Any, context_len: int, horizon: int, batch: int = 4,
+                     known: Optional[np.ndarray] = None) -> np.ndarray:
     """Forecast ``horizon`` hours at every ``t0`` from the ``context_len`` hours before it.  Returns (n, horizon, 21).
 
-    Only values before ``t0`` enter a forecast.
+    Only values before ``t0`` enter a forecast.  ``known`` is an optional (C, N) matrix of
+    covariates known in advance, aligned with ``values``; their values over the horizon are passed to the forecaster.
     """
     out = []
     for k in range(0, len(t0), batch):
-        ctx, _ = forecast_windows(values, t0[k:k + batch], context_len, horizon)
-        q = forecaster.forecast(ctx, horizon)
+        chunk = list(t0[k:k + batch])
+        ctx, _ = forecast_windows(values, chunk, context_len, horizon)
+        if known is None:
+            q = forecaster.forecast(ctx, horizon)
+        else:
+            q = forecaster.forecast(ctx, horizon, known_covariates=covariate_windows(known, chunk, context_len, horizon))
         out.append(q.values[:, 0])
     return np.concatenate(out, axis=0)
 
@@ -496,10 +569,11 @@ def week_cache_path(cache_dir: "str | Path", series_key: str, forecaster_key: st
     return Path(cache_dir) / f"{series_key}__{forecaster_key}__w{week:02d}.npz"
 
 
-def compute_week(values: np.ndarray, test_start: int, week: int, forecaster: Any, context_len: int, horizon: int, batch: int = 4) -> np.ndarray:
+def compute_week(values: np.ndarray, test_start: int, week: int, forecaster: Any, context_len: int, horizon: int, batch: int = 4,
+                 known: Optional[np.ndarray] = None) -> np.ndarray:
     """Forecasts for the 7 daily decision times (00:00 UTC) of one test week.  Returns (7, horizon, 21), float32."""
     t0 = [test_start + (7 * week + d) * HOURS_PER_DAY for d in range(7)]
-    return rolling_forecast(values, t0, forecaster, context_len, horizon, batch).astype(np.float32)
+    return rolling_forecast(values, t0, forecaster, context_len, horizon, batch, known).astype(np.float32)
 
 
 def quantile_index(q: float) -> int:
@@ -653,3 +727,14 @@ def estimate_with_timing(ref: Mapping[str, Any], curve: Mapping[str, Any], lam: 
                    electricity_price=ti["electricity_price"], **dict(ref.get("overrides", {})))
     carbon_kg = est.energy_mwh * ti["carbon_intensity_paid"] * 1000.0
     return est, carbon_kg, ti
+
+
+def sweep_offline(price_real: np.ndarray, carbon_real: np.ndarray, lambdas: Sequence[float], model: FlexModel,
+                  norm: Mapping[str, float]) -> Tuple[np.ndarray, np.ndarray]:
+    """Whole-period optimum for every ``lam`` (one block); daily sums as in :func:`sweep_forecast_policy`."""
+    sums, flex = [], []
+    for lam in lambdas:
+        y = offline_optimum(mixed_cost(price_real, carbon_real, lam, norm), model)
+        sums.append(daily_sums(y, model, price_real, carbon_real))
+        flex.append(flexible_daily_sums(y, price_real, carbon_real))
+    return np.stack(sums), np.stack(flex)

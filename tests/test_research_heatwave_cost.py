@@ -399,3 +399,32 @@ def test_committed_result_has_provenance_and_consistent_curves():
         none = block["curves"][hc.curve_key("no_shift", 0.3, 24, 0.7, None)]
         assert np.allclose(none["saving_pct_electricity"], 0.0)
         assert np.allclose(none["price_paid"], block["mean_price_test"])
+
+
+def test_offline_optimum_is_feasible_and_no_worse_than_rolling_perfect_foresight():
+    n_days = 10
+    n = n_days * 24
+    price, carbon = synthetic_series(n + 48, seed=9)
+    m = hc.FlexModel(0.7, 0.5, 24)
+    cost = hc.mixed_cost(price[:n], carbon[:n], 0.5, NORM)
+    y_off = hc.offline_optimum(cost, m)
+    t = np.arange(n)
+    cum = np.cumsum(y_off)
+    assert np.all(cum >= m.due(t) - 1e-6) and np.all(cum <= m.arrived(t) + 1e-6)
+    assert np.all(y_off <= m.flexible_cap + 1e-9) and np.all(y_off >= -1e-9)
+    pf = hc.padded_future(price, [24 * d for d in range(n_days)], 48)
+    pc = hc.padded_future(carbon, [24 * d for d in range(n_days)], 48)
+    cost_rows = np.stack([hc.mixed_cost(pf[d], pc[d], 0.5, NORM) for d in range(n_days)])
+    y_roll, _ = hc.schedule_forecast(cost_rows, m, [(0, n_days)])
+    ref = cost.mean()
+    obj_off = float(np.dot(cost - ref, y_off))
+    obj_roll = float(np.dot(cost - ref, y_roll))
+    assert obj_off <= obj_roll + 1e-7
+
+
+def test_covariate_windows_pad_past_the_end_with_nan():
+    known = np.arange(2 * 100, dtype=float).reshape(2, 100)
+    w = hc.covariate_windows(known, [90], 20, 24)
+    assert w.shape == (1, 2, 44)
+    assert w[0, 0, 0] == known[0, 70] and w[0, 0, 29] == known[0, 99]
+    assert np.isnan(w[0, :, 30:]).all()
