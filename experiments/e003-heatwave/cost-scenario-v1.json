@@ -1,0 +1,175 @@
+{
+  "schema": "gpu-stack.e003-heatwave-cost-scenario.v1",
+  "scenario_id": "e003-heatwave-cost-v1",
+  "data_kind": "public",
+  "description": "Cost timing: a cluster running a reference training job against real public hourly price and carbon-intensity series (CAISO NP15 day-ahead price with CAISO in-state intensity, and DE-LU day-ahead price with a DE lifecycle-intensity proxy; each pair is from one region). A share f of the work may be delayed by up to a window W; each day the scheduler plans the flexible work from a 48-hour quantile forecast. The series are public data; the workload (utilization, flexible share, windows) is a scenario assumption and nothing here is measured on a real cluster.",
+  "reference_run": {
+    "params": 7000000000.0,
+    "tokens": 2000000000000.0,
+    "gpu": "H100-SXM",
+    "n_gpus": 1024,
+    "overrides": {},
+    "note": "The README example of the calculator; every other calculator input is its default."
+  },
+  "test": {
+    "first_day_utc": "2026-04-27",
+    "weeks": 26,
+    "normalization_days": 90,
+    "note": "26 whole weeks ending 2026-10-25. The 90 days before the first test day fix the z-score constants only. Nothing is tuned on the test period."
+  },
+  "decision": {
+    "hour_utc": 0,
+    "horizon_hours": 48,
+    "run_hours": 24
+  },
+  "workload": {
+    "utilization": 0.7,
+    "power_cap": 1.0,
+    "flexible_fractions": [
+      0.1,
+      0.3,
+      0.5
+    ],
+    "windows_hours": [
+      24,
+      72
+    ],
+    "headline": {
+      "flexible_fraction": 0.3,
+      "window_hours": 24
+    },
+    "utilization_sensitivity": [
+      0.5,
+      0.9
+    ],
+    "note": "utilization is the mean offered load as a fraction of the cluster's full-load power (an assumption, not a measurement); power_cap is the most total load allowed in any hour, as a fraction of full-load power.",
+    "utilization_sensitivity_policies": [
+      "perfect",
+      "timestral_28M",
+      "seasonal_naive_24"
+    ]
+  },
+  "lambdas": [
+    0.0,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9,
+    1.0
+  ],
+  "planning_quantiles": {
+    "default": 0.5,
+    "risk_sweep": [
+      0.1,
+      0.5,
+      0.75,
+      0.9
+    ],
+    "risk_sweep_flexible_fraction": 0.3
+  },
+  "pairs": [
+    "caiso",
+    "de"
+  ],
+  "context_hours": {
+    "timestral": 2048,
+    "classical": 672
+  },
+  "forecasters": {
+    "seasonal_naive_24": {
+      "kind": "seasonal_naive",
+      "season_length": 24,
+      "max_context": 672,
+      "kind_label": "classical"
+    },
+    "ets_24": {
+      "kind": "ets",
+      "season_length": 24,
+      "max_context": 672,
+      "kind_label": "classical"
+    },
+    "arima_seasonal": {
+      "kind": "arima",
+      "order": [
+        2,
+        0,
+        1
+      ],
+      "season_length": 24,
+      "seasonal_order": [
+        1,
+        1,
+        0
+      ],
+      "max_context": 672,
+      "kind_label": "classical"
+    },
+    "timestral_5M": {
+      "kind": "timestral",
+      "size": "5M",
+      "threads": 1,
+      "kind_label": "timestral zero-shot"
+    },
+    "timestral_28M": {
+      "kind": "timestral",
+      "size": "28M",
+      "threads": 1,
+      "kind_label": "timestral zero-shot"
+    },
+    "timestral_28M_cov": {
+      "kind": "timestral",
+      "size": "28M",
+      "threads": 1,
+      "known_covariates": true,
+      "kind_label": "timestral zero-shot with day-ahead covariates"
+    },
+    "timestral_209M": {
+      "kind": "timestral",
+      "size": "209M",
+      "threads": 1,
+      "kind_label": "timestral zero-shot",
+      "subsample_only": true
+    }
+  },
+  "subsample_weeks": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24
+  ],
+  "reactive": {
+    "lookback_hours": 168
+  },
+  "bootstrap": {
+    "n": 2000,
+    "block_days": 7,
+    "seed": 0,
+    "level": 0.95
+  },
+  "policies": {
+    "planned": [
+      "seasonal_naive_24",
+      "ets_24",
+      "arima_seasonal",
+      "timestral_5M",
+      "timestral_28M",
+      "timestral_28M_cov"
+    ],
+    "subsample_extra": [
+      "timestral_209M"
+    ],
+    "unplanned": [
+      "no_shift",
+      "reactive"
+    ],
+    "upper_bound": "perfect"
+  }
+}
