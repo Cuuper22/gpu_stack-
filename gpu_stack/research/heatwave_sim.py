@@ -546,6 +546,7 @@ class JobView:
     submit_s: float
     planned_start_s: float
     paused: bool
+    rack_ids: Tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1417,10 +1418,11 @@ class _Run:
     def _visible_state(self, t: float, b: int) -> VisibleState:
         cfg = self.cfg
         free_mask = self._free_mask()
-        gpu_temp = np.where(
-            self.gpu_alive & self.rack_on[self.gpu_rack],
-            self.rack_air_now[self.gpu_rack] + self.k_gpu * self.gpu_mean_prev, np.nan,
-        )
+        raw_temp = self.rack_air_now[self.gpu_rack] + self.k_gpu * self.gpu_mean_prev
+        # Precursor offsets are part of what the GPU's own sensor reports, so they are visible.
+        for r, slot, off in self.signals.gpu_temp_offsets(t):
+            raw_temp[self.rack_start[r] + slot] += off
+        gpu_temp = np.where(self.gpu_alive & self.rack_on[self.gpu_rack], raw_temp, np.nan)
         eff_import = self.site_import * self.signals.import_limit_factor[b]
         site_power = self.site_power_prev.copy()
         now = {
@@ -1455,6 +1457,8 @@ class _Run:
                     steps_since_durable=max(prog - dur, 0.0), flexible=job.flexible,
                     value_per_gpu_hour=job.value_per_gpu_hour, submit_s=job.submit_s,
                     planned_start_s=job.start_s, paused=any(s.paused for s in group),
+                    rack_ids=tuple(sorted({self.rack_ids[int(r)] for s in group if s.gpus.size
+                                           for r in np.unique(self.gpu_rack[s.gpus])})),
                 )
             )
         horizon = cfg.known_future_horizon_s
@@ -1907,6 +1911,8 @@ class _Run:
             self.rack_air_b[b] = T1
             self.rack_supply_b[b] = Ts1
             gtemp_now = self.rack_air_now[self.gpu_rack] + self.k_gpu * self.gpu_mean_prev
+            for r, slot, off in sig.gpu_temp_offsets(t + self.cdt):
+                gtemp_now[self.rack_start[r] + slot] += off
             self.rack_maxgpu_b[b] = np.maximum.reduceat(np.where(up > 0, gtemp_now, -np.inf), self.rack_start)
             self.rack_throttled_b[b] = throttled_now / self.rack_n
             self.rack_ratio_b[b] = ratio
