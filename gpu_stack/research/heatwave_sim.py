@@ -76,6 +76,7 @@ import hashlib
 import heapq
 import json
 import math
+import warnings
 from dataclasses import asdict, dataclass, field, is_dataclass, replace
 from pathlib import Path
 from typing import Any, Mapping, Optional, Protocol, Sequence, Tuple, Union, runtime_checkable
@@ -1272,6 +1273,8 @@ class _Run:
         self.rack_air_b = np.zeros((Nb, R))
         self.rack_supply_b = np.zeros((Nb, R))
         self.rack_maxgpu_b = np.zeros((Nb, R))
+        # Per-GPU sensor temperature (float32 to bound memory; NaN when the GPU is down or its rack is off).
+        self.gpu_temp_b = np.full((Nb, self.G), np.nan, dtype=np.float32)
         self.rack_throttled_b = np.zeros((Nb, R))
         self.rack_ratio_b = np.zeros((Nb, R))
         self.rack_removed_b = np.zeros((Nb, R))
@@ -1438,6 +1441,7 @@ class _Run:
             "site_import_limit_w": eff_import,
             "free_gpus": np.array([int(free_mask[self.place.site_gpus[s]].sum()) for s in range(self.S)]),
             "gpu_temp_c": gpu_temp,
+            "gpu_rack_index": self.gpu_rack.copy(),
         }
         jobs = []
         for ji, job in enumerate(self.jobs):
@@ -1484,6 +1488,7 @@ class _Run:
             arrays = {
                 "rack_air_c": self.rack_air_b, "supply_c": self.rack_supply_b, "rack_it_power_w": self.rack_it_b,
                 "max_gpu_temp_c": self.rack_maxgpu_b, "breaker_load_ratio": self.rack_ratio_b,
+                "gpu_temp_c": self.gpu_temp_b,
                 "site_power_w": self.site_power_b, "rack_cooling_power_w": self.rack_cool_b,
             }
             if channel not in arrays:
@@ -1914,6 +1919,7 @@ class _Run:
             for r, slot, off in sig.gpu_temp_offsets(t + self.cdt):
                 gtemp_now[self.rack_start[r] + slot] += off
             self.rack_maxgpu_b[b] = np.maximum.reduceat(np.where(up > 0, gtemp_now, -np.inf), self.rack_start)
+            self.gpu_temp_b[b] = np.where(self.gpu_alive & self.rack_on[self.gpu_rack], gtemp_now, np.nan)
             self.rack_throttled_b[b] = throttled_now / self.rack_n
             self.rack_ratio_b[b] = ratio
             self.rack_removed_b[b] = q_mean
@@ -1978,6 +1984,10 @@ class SimResult:
         self.rack_temp_c_1min = run.rack_air_b[: nm * per_min].reshape(nm, per_min, run.R).mean(axis=1)
         self.rack_supply_c_1min = run.rack_supply_b[: nm * per_min].reshape(nm, per_min, run.R).mean(axis=1)
         self.rack_max_gpu_temp_c_1min = run.rack_maxgpu_b[: nm * per_min].reshape(nm, per_min, run.R).max(axis=1)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)  # all-NaN minutes of a down GPU
+            self.gpu_temp_c_1min = np.nanmean(run.gpu_temp_b[: nm * per_min].reshape(nm, per_min, run.G), axis=1)
+        self.gpu_rack_index = run.gpu_rack.copy()
         H = int(round(cfg.horizon_s / 3600.0))
         per_h = int(round(3600.0 / self.dt))
         e = self.site_power_w.reshape(H, per_h, run.S).sum(axis=1) * self.dt / 3.6e6
@@ -2093,6 +2103,8 @@ class SimResult:
             "rack_temp_c_1min": self.rack_temp_c_1min,
             "rack_supply_c_1min": self.rack_supply_c_1min,
             "rack_max_gpu_temp_c_1min": self.rack_max_gpu_temp_c_1min,
+            "gpu_temp_c_1min": self.gpu_temp_c_1min,
+            "gpu_rack_index": self.gpu_rack_index,
             "site_energy_kwh_1h": self.site_energy_kwh_1h,
             "site_mean_power_w_1h": self.site_mean_power_w_1h,
             "site_cost_usd_1h": self.site_cost_usd_1h,
