@@ -1,0 +1,77 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "775824294538dd7090bef77219f8ffc4235574ac1dc67d03c379609abd423248",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "79366ffb4eb6b6495c381a673ec08115a7ca565f",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 502,
+  "policy": "timestral-5M/q0.99",
+  "forecaster": "timestral-5M",
+  "use_covariates": true,
+  "options": {
+   "n_train": 6,
+   "n_test": 3,
+   "grid_stride": 2,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "policy": "timestral-5M/q0.99",
+  "kind": "fixed",
+  "seed": 502,
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1440.5295880791123,
+   "gpu_hours_multisite_jobs": 273.08742222222196,
+   "value_usd": 3689.888517251201,
+   "jobs_admitted": 45,
+   "jobs_completed": 51,
+   "violation_rate": 0.057291666666666664,
+   "violation_rate_by_site": [
+    0.015625,
+    0.041666666666666664
+   ],
+   "energy_above_cap_kwh": 0.04786507691635595,
+   "energy_above_cap_kwh_by_site": [
+    0.03856136566808022,
+    0.009303711248275734
+   ],
+   "seconds_above_cap": 380.0,
+   "max_excess_w": 1371.0105336450943,
+   "stranded_kwh": 133.80212915413568,
+   "stranded_intervals": 192,
+   "mean_power_over_cap": 0.9338566185844296,
+   "energy_kwh": 1891.4391846665944,
+   "forecast_calls": 192,
+   "forecast_refresh_bins": 1,
+   "job_faults": 12
+  },
+  "wall_s": 51.40697169303894,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 31.103693584341134,
+     "width_h": 9.22436002559779,
+     "add_c": 6.146835029551676
+    },
+    "site-b": {
+     "center_h": 33.10369358434113,
+     "width_h": 6.220294705000173,
+     "add_c": 9.098821741363022
+    }
+   },
+   "n_events": 7,
+   "sim_seed": 1294216915
+  }
+ }
+}

@@ -49,6 +49,7 @@ PARTS = HERE / "results" / "packing-v1-parts"
 OUT = HERE / "results" / "packing-v1.json"
 CAL_PATH = PARTS / "calibration.json"
 MODEL_PATH = PARTS / "model.json"
+COLAB_PATH = PARTS / "colab-run.json"
 
 
 # ---------------------------------------------------------------------------
@@ -436,6 +437,7 @@ def stage_merge(args) -> None:
         "run_options": sorted({json.JSONEncoder(sort_keys=True).encode(json.loads(f.read_text())["provenance"].get("options")) for f in files}),
         "test_seeds_run": seeds,
         "calibration": cal,
+        "compute": json.loads(COLAB_PATH.read_text()) if COLAB_PATH.exists() else None,
         "metric_definitions": {
             "window": "evaluation window = last (horizon_s - warmup_s) seconds of each episode; warm-up excluded",
             "gpu_hours": "useful GPU-hours delivered in the window (net of work lost to faults), summed over jobs",
@@ -458,9 +460,10 @@ def stage_merge(args) -> None:
     }
     from heatwave.provenance import write_result
 
-    inputs = [SCENARIO, SIM_SCENARIO, E002_RAW, CAL_PATH, MODEL_PATH] + files
+    inputs = [SCENARIO, SIM_SCENARIO, E002_RAW, CAL_PATH, MODEL_PATH, COLAB_PATH] + files
     record = write_result(OUT, result, script=__file__, data_kind="simulated", inputs=inputs,
-                          notes="All outputs simulated. Held-out episodes only; training episodes are listed separately.")
+                          notes="All outputs simulated. Held-out episodes only; training episodes are listed separately. "
+                                 "Most eval parts ran on a Colab CPU runtime (8 cores, high-RAM); see the compute field and packing-v1-parts/colab-run.json.")
     record["provenance"]["git"] = git_state()
     record["provenance"]["script"] = str(Path(__file__).resolve().relative_to(ROOT))
     record["provenance"]["inputs"] = {str(Path(p).resolve().relative_to(ROOT)): sha_file(Path(p)) for p in inputs if Path(p).exists()}

@@ -1,0 +1,9 @@
+{
+ "data_kind": "simulated",
+ "note": "Eval parts other than the first 10 timestral-5M parts (run on the 2-core VM at commit dab1fd2) were produced on a Google Colab CPU runtime (session hw-pack-cpu, high-RAM shape, 8 cores reported by nproc, 50 GB RAM reported by free). 8 single-thread processes ran in parallel (OMP_NUM_THREADS=1, --threads 1).",
+ "hardware": "Colab CPU runtime, High-RAM shape, 8 cores (nproc), about 50 GB RAM (free -g), no GPU",
+ "software": {"python": "3.13.16", "torch": "2.11.0+cpu", "statsforecast": "2.1.1", "timestral": "pip install git+https://github.com/mistralai/timestral.git (weights 5M and 28M from the Hugging Face hub)"},
+ "vm_software_for_first_parts": {"torch": "2.14 CPU (2-core VM)"},
+ "code": {"hw_pack_commit": "79366ffb4eb6b6495c381a673ec08115a7ca565f", "hw_pack_module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511", "heatwave_repo_commit": "2269683bc930e0cff9e49a3079c642b0bfbcc396"},
+ "commands": "run_packing.py eval --group {t5m-fixed | learned t28m-fixed oracle reactive seasonal-naive ets arima} --shard i/8 --n-train 6 --n-test 3 --grid-stride 2 --subset-q 0.5,0.9,0.99 --threads 1 (i = 0..7; t5m-fixed first, then the other groups)"
+}
