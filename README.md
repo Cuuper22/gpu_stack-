@@ -16,7 +16,7 @@ The easiest way in is the site, which tells the story with pictures you can play
 
 **The share of speed you actually get is the one people underestimate.** The spec sheet number is a ceiling. Meta reports about 40 percent for Llama 3, and that counts as good.
 
-**Electricity is a small slice.** For a 7 billion parameter model trained on 2 trillion tokens on 1,024 H100s, power and cooling come to about 6 percent of the cost. The rest is expensive hardware gradually becoming old hardware.
+**Electricity is a small slice, though not as small as I first wrote.** For a 7 billion parameter model trained on 2 trillion tokens on 1,024 H100s, power and cooling come to about 7.4 percent of the cost. Earlier versions of this page said about 6 percent; an audit against 2026 prices, measured server power and a separate term for the building moved it ([what changed and why](experiments/e003-heatwave/cost_audit/CORRECTION.md)). At the industrial electricity prices of different places the same run ranges from about 5 percent (New Mexico) to about 16 percent (California). The rest is expensive hardware gradually becoming old hardware.
 
 **How the chip is made doesn't change the bill.** The map once went down to lithography, atoms and even quarks. All of it reaches the cost through one number, how fast the GPU is, and that number is already on the spec sheet. I removed the quarks and kept a short layer on how chips are printed.
 
@@ -33,14 +33,14 @@ gpu-stack estimate --params 7e9 --tokens 2e12 --gpu H100-SXM --gpus 1024
 
 ```text
 7 billion parameters, 2 trillion tokens, 1,024 x H100-SXM
-(MFU 40%, PUE 1.2, electricity $0.0813/kWh)
+(MFU 40%, PUE 1.2, electricity $0.0851/kWh)
   Training time              2.4 days
   GPU-hours                  58,958
-  Energy                     49.5 MWh
-  Electricity cost           $4,026
-  Hardware cost (amortized)  $67,090
-  Total cost                 $71,116
-  Cost per million tokens    $0.0356
+  Energy                     67.8 MWh
+  Electricity cost           $5,766
+  Hardware cost (amortized)  $71,910
+  Total cost                 $77,675
+  Cost per million tokens    $0.0388
 ```
 
 Add `--explain` to see what each number is made of, down to the equation, and whether each input was something you entered, a cited hardware spec, or an assumption. The same from Python:

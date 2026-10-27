@@ -147,7 +147,7 @@
       "id": "electricity",
       "term": "electricity",
       "title": "Electricity",
-      "body": "Power drawn times hours times the price per kilowatt-hour, multiplied by the building's PUE because the cooling is on the same bill. In the 7 billion parameter example on this page it comes to about 6 percent of the cost. The hardware is the expensive part.",
+      "body": "Power drawn times hours times the price per kilowatt-hour, multiplied by the building's PUE because the cooling is on the same bill. In the 7 billion parameter example on this page it comes to about 7.4 percent of the cost. The hardware is the expensive part.",
       "visual": "pue",
       "review": "edited"
     },
