@@ -1,7 +1,9 @@
 """Outage-response experiment on the e003 Heatwave simulator (all data simulated).
 
 Compares warning-and-response policies on the simulated two-site cluster of
-``sim-scenario-v2.json`` with the settings in ``outage-scenario-v1.json``:
+``sim-scenario-v3.json`` with the settings in ``outage-scenario-v2.json`` (v2 adds
+one per-GPU temperature-residual series; ``--scenario outage-scenario-v1.json
+--out results/outage-v1.json`` runs the v1 channel set):
 
 * reactive (no forecast; the simulator rolls work back to the last checkpoint),
 * the e001 averaging rule alone (every splittable job runs as two shards),
@@ -18,13 +20,16 @@ Stages, each cached in ``--work-dir`` so an interrupted run resumes:
 ``tune``     warning threshold per forecaster on training seeds only (replay objective)
 ``closed``   closed-loop runs on held-out seeds (the response actually runs in the simulator)
 ``report``   aggregation with seed-bootstrap intervals, written with provenance
+            (and, for v2, the side-by-side comparison with ``results/outage-v1.json``)
 
     python experiments/e003-heatwave/run_outage.py --work-dir DIR --stage all
 
 ``--policies`` and ``--forecasters`` restrict a stage so several processes can
 share the work.  Needs numpy, scipy, statsforecast and (for Timestral) torch
 plus the ``timestral`` package.  Provenance is written with
-``heatwave.provenance`` and then pointed at this repository's git state.
+``heatwave.provenance`` and then pointed at this repository's git state.  In a
+``git archive`` copy (no .git, as on Colab) set ``GPU_STACK_GIT_COMMIT`` to the
+archived commit, or run the ``report`` stage on a machine with the repository.
 """
 
 from __future__ import annotations
@@ -32,7 +37,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import pickle
+import os
 import subprocess
 import sys
 import time
@@ -78,9 +83,9 @@ from gpu_stack.research.heatwave_outage import (  # noqa: E402
 )
 from gpu_stack.research.heatwave_sim import build_config  # noqa: E402
 
-SCENARIO = HERE / "outage-scenario-v1.json"
-BASE_SCENARIO = HERE / "sim-scenario-v2.json"
-OUT = HERE / "results" / "outage-v1.json"
+SCENARIO = HERE / "outage-scenario-v2.json"
+OUT = HERE / "results" / "outage-v2.json"
+V1_RESULT = HERE / "results" / "outage-v1.json"
 
 FORECASTERS = ("naive", "ets", "arima", "ts5m", "ts28m", "finetuned")
 CLASSICAL = ("naive", "ets", "arima")
@@ -105,14 +110,17 @@ def log(msg: str) -> None:
 
 
 def load_pickle(path: Path):
-    with open(path, "rb") as f:
-        return pickle.load(f)
+    """Read a cached stage object (stored as a one-element object array by ``save_pickle``)."""
+    return np.load(path, allow_pickle=True)[0]
 
 
 def save_pickle(path: Path, obj) -> None:
-    tmp = path.with_suffix(path.suffix + ".tmp")
+    """Cache a stage object atomically (a one-element object array in an .npy file)."""
+    tmp = path.with_name(path.name + f".{os.getpid()}.tmp")
+    holder = np.empty(1, dtype=object)
+    holder[0] = obj
     with open(tmp, "wb") as f:
-        pickle.dump(obj, f)
+        np.save(f, holder, allow_pickle=True)
     tmp.replace(path)
 
 
@@ -146,6 +154,8 @@ def seeds_for(outage: dict, which: str, args: argparse.Namespace) -> list[int]:
     test = [int(s) for s in outage["seeds"]["test"]]
     if args.n_test:
         test = test[: args.n_test]
+    if getattr(args, "only_seeds", None) and which != "train":
+        test = [x for x in test if x in set(args.only_seeds)]
     return {"train": train, "test": test, "all": train + test}[which]
 
 
@@ -197,7 +207,7 @@ def load_calibration(outage, S, args, work):
     train = seeds_for(outage, "train", args)
     preps = [prepare_seed(outage, S, s, True, work) for s in train]
     cfg = build_config(seed_scenario(outage, train[0], with_events=False), seed=train[0])
-    index = SeriesIndex.from_config(cfg)
+    index = SeriesIndex.from_config(cfg, S.per_gpu_channel)
     return calibrate([p["ef_samples"] for p in preps], index, S, [p["ef_times"] for p in preps], "event-free runs on training seeds"), index
 
 
@@ -376,8 +386,74 @@ def git_state() -> dict:
     def git(*a: str) -> str:
         return subprocess.run(["git", *a], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
 
-    dirty = bool(git("status", "--porcelain", "--", ".", ":(exclude)experiments/e003-heatwave/results"))
-    return {"commit": git("rev-parse", "HEAD"), "branch": git("rev-parse", "--abbrev-ref", "HEAD"), "dirty": str(dirty).lower()}
+    try:
+        dirty = bool(git("status", "--porcelain", "--", ".", ":(exclude)experiments/e003-heatwave/results"))
+        return {"commit": git("rev-parse", "HEAD"), "branch": git("rev-parse", "--abbrev-ref", "HEAD"), "dirty": str(dirty).lower()}
+    except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+        commit = os.environ.get("GPU_STACK_GIT_COMMIT")
+        if not commit:
+            raise RuntimeError("not a git checkout: set GPU_STACK_GIT_COMMIT to the archived commit, or run the report stage on the VM")
+        return {"commit": commit, "branch": "archive", "dirty": "false", "source": "archive"}
+
+
+def paired_by_seed(new: dict, old: dict, key: str, seeds: list, B: int, seed: int) -> dict:
+    """Mean over seeds of (new - old) for a per-seed field, with a bootstrap interval."""
+    a = [new[str(s)][key] for s in seeds]
+    b = [old[str(s)][key] for s in seeds]
+    return paired_difference(a, b, B, seed)
+
+
+def compare_with_v1(policies: dict, v1: dict, test: list, B: int) -> dict:
+    """Side-by-side v1 (rack-level channels only) and v2 numbers from the two result files."""
+    v1r = v1["result"]
+    out: dict = {"v1_scenario_id": v1r["scenario_id"], "v1_seeds": v1r["seeds"], "same_test_seeds": v1r["seeds"]["test"] == test, "policies": {}}
+    for name, p2 in policies.items():
+        p1 = v1r["policies"].get(name)
+        if p1 is None:
+            continue
+        o1, o2 = p1["overall"], p2["overall"]
+
+        def val(o, k):
+            x = o.get(k)
+            return x
+
+        def hw(p):
+            e = p["by_event_type"].get("hardware_fault")
+            if e is None:
+                return None
+            return {"n_events": e["n_events"], "n_with_precursor": e["n_with_precursor"], "recall": e["recall"],
+                    "recall_in_time": e["recall_in_time"], "lead_minutes_median": e["lead_minutes_median"], "lost_gpu_h": e["lost_gpu_h"]}
+
+        row = {
+            "threshold_v1": p1.get("threshold"), "threshold_v2": p2.get("threshold"),
+            "useful_gpu_h": {"v1": o1["useful_gpu_h"], "v2": o2["useful_gpu_h"]},
+            "deficit_gpu_h": {"v1": o1["deficit_gpu_h"], "v2": o2["deficit_gpu_h"]},
+            "lost_gpu_h": {"v1": o1["lost_gpu_h"], "v2": o2["lost_gpu_h"]},
+            "response_gpu_h": {"v1": o1["response_gpu_h"], "v2": o2["response_gpu_h"]},
+            "recall": {"v1": val(o1, "recall"), "v2": val(o2, "recall")},
+            "recall_in_time": {"v1": val(o1, "recall_in_time"), "v2": val(o2, "recall_in_time")},
+            "lead_minutes_median": {"v1": None if o1.get("lead_minutes") is None else o1["lead_minutes"]["median"],
+                                    "v2": None if o2.get("lead_minutes") is None else o2["lead_minutes"]["median"]},
+            "false_alarms_per_day": {"v1": val(o1, "false_alarms_per_day"), "v2": val(o2, "false_alarms_per_day")},
+            "hardware_fault": {"v1": hw(p1), "v2": hw(p2)},
+            "recall_by_event_type": {
+                k: {"v1": None if p1["by_event_type"].get(k, {}).get("recall") is None else p1["by_event_type"][k]["recall"],
+                    "v2": None if p2["by_event_type"].get(k, {}).get("recall") is None else p2["by_event_type"][k]["recall"]}
+                for k in sorted(set(p1["by_event_type"]) | set(p2["by_event_type"]))
+            },
+        }
+        if all(str(sd) in p1["per_seed"] and str(sd) in p2["per_seed"] for sd in test):
+            row["paired_v2_minus_v1"] = {
+                "deficit_gpu_h": paired_by_seed(p2["per_seed"], p1["per_seed"], "deficit_gpu_h", test, B, 81),
+                "lost_gpu_h": paired_by_seed(p2["per_seed"], p1["per_seed"], "lost_gpu_h", test, B, 82),
+                "response_gpu_h": paired_by_seed(p2["per_seed"], p1["per_seed"], "response_gpu_h", test, B, 83),
+            }
+            row["max_abs_per_seed_difference"] = {
+                k: float(max(abs(p2["per_seed"][str(sd)][k] - p1["per_seed"][str(sd)][k]) for sd in test))
+                for k in ("deficit_gpu_h", "lost_gpu_h", "lost_steps", "response_gpu_h", "n_alarms")
+            }
+        out["policies"][name] = row
+    return out
 
 
 def stage_report(outage, S, args, work) -> None:
@@ -412,6 +488,7 @@ def stage_report(outage, S, args, work) -> None:
         agg["per_seed"] = {
             str(r["seed"]): {
                 "lost_gpu_h": r["score"]["summary"]["lost_gpu_hours"], "lost_steps": r["score"]["summary"]["lost_steps"],
+                "useful_gpu_h": r["score"]["summary"]["useful_gpu_hours"],
                 "deficit_gpu_h": r["score"]["deficit_gpu_h"], "response_gpu_h": r["score"]["response"]["total_gpu_h"],
                 "n_alarms": r["score"]["response"]["n_alarms"], "n_false_alarms": r["score"]["response"]["n_false_alarms"],
             }
@@ -428,6 +505,8 @@ def stage_report(outage, S, args, work) -> None:
                 "lost_gpu_h_minus_reactive": paired_difference([r["summary"]["lost_gpu_hours"] for r in runs], [r["summary"]["lost_gpu_hours"] for r in base], B, 70),
                 "lost_steps_minus_reactive": paired_difference([r["summary"]["lost_steps"] for r in runs], [r["summary"]["lost_steps"] for r in base], B, 71),
                 "deficit_gpu_h_minus_reactive": paired_difference([r["deficit_gpu_h"] for r in runs], [r["deficit_gpu_h"] for r in base], B, 72),
+                "useful_gpu_h_minus_reactive": paired_difference(
+                    [r["summary"]["useful_gpu_hours"] for r in runs], [r["summary"]["useful_gpu_hours"] for r in base], B, 74),
                 "import_energy_above_kwh_minus_reactive": paired_difference(
                     [r["summary"]["import_energy_above_kwh"] for r in runs], [r["summary"]["import_energy_above_kwh"] for r in base], B, 73),
             }
@@ -444,6 +523,25 @@ def stage_report(outage, S, args, work) -> None:
             c["scheduled"] += int(ev["source"] == "scheduled")
     first = preps[test[0]]
     cfg0 = build_config(seed_scenario(outage, test[0]), seed=test[0])
+    ref_useful = {str(s): float(preps[s]["ref_useful"]) for s in test}
+    reference = {
+        "useful_gpu_h_event_free_per_seed": ref_useful,
+        "useful_gpu_h_event_free": bootstrap_ci(list(ref_useful.values()), B, 61),
+        "note": "useful GPU-hours of the event-free run of the same seed; deficit_gpu_h = this minus the policy's useful GPU-hours",
+    }
+    headline = {}
+    for name, agg in policies.items():
+        o = agg["overall"]
+        headline[name] = {
+            "label": agg["label"], "threshold": agg["threshold"],
+            "useful_gpu_h": o["useful_gpu_h"], "deficit_gpu_h": o["deficit_gpu_h"], "lost_gpu_h": o["lost_gpu_h"],
+            "response_gpu_h": o["response_gpu_h"],
+            "deficit_vs_reactive_paired": paired.get(name, {}).get("deficit_gpu_h_minus_reactive"),
+            "useful_vs_reactive_paired": paired.get(name, {}).get("useful_gpu_h_minus_reactive"),
+        }
+    v1_cmp = None
+    if V1_RESULT.exists() and args.compare_v1:
+        v1_cmp = compare_with_v1(policies, json.loads(V1_RESULT.read_text()), test, B)
     result = {
         "data_kind": "simulated",
         "scenario_id": outage["scenario_id"],
@@ -455,8 +553,11 @@ def stage_report(outage, S, args, work) -> None:
         "event_counts_test_seeds": event_counts,
         "tuning": tuning,
         "threshold_sweep_open_loop_test_seeds": sweep,
+        "event_free_reference": reference,
+        "headline_useful_and_deficit": headline,
         "policies": policies,
         "paired_vs_reactive": paired,
+        "comparison_with_v1": v1_cmp,
         "not_run": not_run,
         "finetuned_weights": args.finetuned_weights if finetuned_available(args) else None,
         "notes": [
@@ -472,9 +573,11 @@ def stage_report(outage, S, args, work) -> None:
     }
     from heatwave.provenance import write_result
 
-    inputs = [SCENARIO, BASE_SCENARIO]
+    base_scenario = SCENARIO.parent / outage["base_scenario"]
+    inputs = [SCENARIO, base_scenario] + ([V1_RESULT] if v1_cmp is not None else [])
     record = write_result(OUT, result, script=__file__, data_kind="simulated", inputs=inputs,
-                          notes="Held-out seeds; thresholds tuned on training seeds; all outputs simulated.")
+                          notes="Held-out seeds; thresholds tuned on training seeds; all outputs simulated."
+                                + (f" Open-loop, tuning and closed-loop stages ran on: {args.ran_on}." if args.ran_on else ""))
     record["provenance"]["git"] = git_state()
     record["provenance"]["script"] = str(Path(__file__).resolve().relative_to(ROOT))
     record["provenance"]["script_sha256"] = file_sha256(__file__)
@@ -485,6 +588,11 @@ def stage_report(outage, S, args, work) -> None:
     log(f"wrote {OUT} ({OUT.stat().st_size / 1024:.0f} KiB)")
 
 
+def set_paths(scenario: Path, out: Path) -> None:
+    global SCENARIO, OUT
+    SCENARIO, OUT = Path(scenario).resolve(), Path(out).resolve()
+
+
 def main() -> None:
     warnings.filterwarnings("ignore")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -493,13 +601,20 @@ def main() -> None:
     ap.add_argument("--policies", nargs="*", default=None, choices=POLICIES)
     ap.add_argument("--forecasters", nargs="*", default=None, choices=FORECASTERS + ("perfect",))
     ap.add_argument("--n-test", type=int, default=0, help="use only the first N held-out seeds (0 = all)")
+    ap.add_argument("--only-seeds", type=int, nargs="*", default=None,
+                    help="restrict the openloop/closed stages to these held-out seeds (several processes can share the work; report needs all)")
     ap.add_argument("--reverse", action="store_true", help="open-loop pass visits seeds last to first (a second process can share the work)")
     ap.add_argument("--threads", type=int, default=None)
     ap.add_argument("--batch-size", type=int, default=512)
+    ap.add_argument("--scenario", type=Path, default=SCENARIO, help="outage scenario file (default outage-scenario-v2.json)")
+    ap.add_argument("--out", type=Path, default=OUT, help="result file written by the report stage")
+    ap.add_argument("--no-compare-v1", dest="compare_v1", action="store_false", help="skip the side-by-side with results/outage-v1.json")
+    ap.add_argument("--ran-on", default=None, help="hardware description recorded in the result notes (stages other than report)")
     ap.add_argument("--finetuned-weights", default=None)
     ap.add_argument("--finetuned-size", default="28M")
     args = ap.parse_args()
     args.work_dir.mkdir(parents=True, exist_ok=True)
+    set_paths(args.scenario, args.out)
     outage = load_outage_scenario(SCENARIO)
     S = OutageSettings.from_scenario(outage)
     work = args.work_dir

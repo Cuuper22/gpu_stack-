@@ -42,6 +42,13 @@ Monitored series (``Channels``)
 ``site_power`` (site, class ``curtail``)
     Site power against the grid import limit, including curtailments announced
     in the known-future schedule.
+``gpu_resid`` (one series per GPU, class ``hardware``; only when ``per_gpu_channel`` is on)
+    Temperature of one GPU above the level its rack peers predict (K).  The
+    GPU's temperature above rack air is compared with the median of the GPUs of
+    the same job in the same rack, scaled by the GPU's own gain against those
+    peers (a median over its older samples).  Job power changes cancel because
+    peers share them, and a creep of one GPU shows at full size even when the
+    rack maximum stays unchanged.  Level: calibrated like ``supply_anom``.
 
 Information boundary
 --------------------
@@ -53,12 +60,13 @@ times, and it says so in its name.
 
 Simulator note
 --------------
-At simulator commit b6adcfa the per-GPU temperature offsets of the hardware
-fault precursor are applied inside the simulator's thermal step but not to the
-visible per-GPU temperature, so that precursor is invisible to every
-controller.  :class:`OutageRun` adds the offsets to the visible state (and
-skips the addition if the simulator already exposes them).  The request to fix
-this upstream is in the experiment report.
+From simulator commit cbf6d7e the per-GPU temperature offsets of the hardware
+fault precursor are part of the visible per-GPU temperature
+(``VisibleState.now["gpu_temp_c"]``), of the history channel
+``history("gpu_temp_c", window_s)`` and of the rack maximum.  Before that
+commit they were applied inside the thermal step only, and :class:`OutageRun`
+added them to the visible state; the simulator now does this itself, so
+:class:`OutageRun` is the plain simulator run.
 
 Scoring
 -------
@@ -121,14 +129,17 @@ CH_SUPPLY = "supply_anom"
 CH_BREAKER = "breaker_ratio"
 CH_GPU_ANOM = "gpu_anom"
 CH_SITE_POWER = "site_power"
+CH_GPU_RESID = "gpu_resid"
 RACK_CHANNELS = (CH_GPU_TEMP, CH_SUPPLY, CH_BREAKER, CH_GPU_ANOM)
 SITE_CHANNELS = (CH_SITE_POWER,)
+GPU_CHANNELS = (CH_GPU_RESID,)
 CHANNEL_CLASS = {
     CH_GPU_TEMP: CLASS_THERMAL,
     CH_SUPPLY: CLASS_COOLING,
     CH_BREAKER: CLASS_POWER,
     CH_GPU_ANOM: CLASS_HARDWARE,
     CH_SITE_POWER: CLASS_CURTAIL,
+    CH_GPU_RESID: CLASS_HARDWARE,
 }
 
 # Which warning classes may explain which kind of event.
@@ -194,6 +205,12 @@ class OutageSettings:
     threshold_grid: tuple[float, ...]
     observed_threshold: float
     bootstrap_resamples: int
+    # per-GPU residual channel (off by default: the v1 channel set)
+    per_gpu_channel: bool = False
+    gpu_min_peers: int = 3
+    gpu_peer_excess_floor_frac: float = 0.5
+    gpu_baseline_min_samples: int = 6
+    gpu_smooth_steps: int = 1
 
     def __post_init__(self) -> None:
         _num(self.decision_interval_s, "decision_interval_s", strict=True)
@@ -212,6 +229,10 @@ class OutageSettings:
         _num(self.episode_merge_gap_s, "episode_merge_gap_s")
         _num(self.observed_threshold, "observed_threshold", strict=True, maximum=1.0)
         _int(self.bootstrap_resamples, "bootstrap_resamples", 10)
+        _int(self.gpu_min_peers, "gpu_min_peers", 2)
+        _num(self.gpu_peer_excess_floor_frac, "gpu_peer_excess_floor_frac", strict=True, maximum=1.0)
+        _int(self.gpu_baseline_min_samples, "gpu_baseline_min_samples", 2)
+        _int(self.gpu_smooth_steps, "gpu_smooth_steps", 1)
         if not self.threshold_grid or any(not 0.0 < g < 1.0 for g in self.threshold_grid):
             raise ValueError("threshold_grid needs values strictly between 0 and 1")
 
@@ -223,6 +244,16 @@ class OutageSettings:
     def from_scenario(cls, outage: Mapping[str, Any]) -> "OutageSettings":
         block = outage["outage"]
         gen = outage["event_generation"]
+        pg = block.get("per_gpu_channel")
+        extra: dict[str, Any] = {}
+        if pg:
+            extra = {
+                "per_gpu_channel": True,
+                "gpu_min_peers": int(pg["min_peers"]),
+                "gpu_peer_excess_floor_frac": float(pg["peer_excess_floor_fraction_of_idle"]),
+                "gpu_baseline_min_samples": int(pg["baseline_min_samples"]),
+                "gpu_smooth_steps": int(pg["smooth_steps"]),
+            }
         return cls(
             decision_interval_s=float(block["decision_interval_s"]),
             warmup_s=float(gen["warmup_s"]),
@@ -241,6 +272,7 @@ class OutageSettings:
             threshold_grid=tuple(float(x) for x in block["threshold_grid"]),
             observed_threshold=float(block["observed_threshold"]),
             bootstrap_resamples=int(block["bootstrap_resamples"]),
+            **extra,
         )
 
 
@@ -330,27 +362,11 @@ def seed_scenario(outage: Mapping[str, Any], seed: int, *, with_events: bool = T
 
 
 class OutageRun(_Run):
-    """Simulator run that also exposes the hardware precursor in the visible per-GPU temperature."""
+    """The simulator run used by every outage policy.
 
-    def _visible_state(self, t: float, b: int) -> VisibleState:
-        vs = super()._visible_state(t, b)
-        offsets = self.signals.gpu_temp_offsets(t)
-        if not offsets:
-            return vs
-        gpu_temp = vs.now["gpu_temp_c"]
-        changed = False
-        for rack, slot, off in offsets:
-            idx = int(self.rack_start[rack] + slot)
-            if not np.isfinite(gpu_temp[idx]):
-                continue
-            base_value = self.rack_air_now[rack] + self.k_gpu[idx] * self.gpu_mean_prev[idx]
-            if abs(gpu_temp[idx] - base_value) > 0.5 * abs(off) and abs(off) > 1e-9:
-                continue  # the simulator already includes the offset
-            gpu_temp[idx] += off
-            changed = True
-        if changed:
-            vs.now["max_gpu_temp_c"][:] = self._rack_max(gpu_temp)
-        return vs
+    The hardware precursor's per-GPU temperature offsets are part of the
+    simulator's visible state since commit cbf6d7e, so nothing is added here.
+    """
 
 
 class PlacementView:
@@ -377,6 +393,12 @@ class PlacementView:
         g = np.asarray(self._run.gpu_shard).astype(int)
         g[g == self._run.n_shards] = -1
         return g
+
+    def gpu_job_ids(self) -> list[Optional[str]]:
+        """Job id per GPU (``None`` for GPUs without a job)."""
+        run = self._run
+        sid = np.asarray(run.gpu_shard).astype(int)
+        return [None if int(x) == run.n_shards else run.shards[int(x)].job.job_id for x in sid]
 
     def job_rack_counts(self) -> dict[str, dict[str, int]]:
         out: dict[str, dict[str, int]] = {}
@@ -438,22 +460,32 @@ def periodic_local_jobs(jobs: Iterable[Any]) -> list[Any]:
 # ---------------------------------------------------------------------------
 
 
+def gpu_unit_id(rack_id: str, slot: int) -> str:
+    """Unit id of one GPU: ``<rack>/<slot>`` (the simulator's own spelling in fault reasons)."""
+    return f"{rack_id}/{int(slot)}"
+
+
 @dataclass(frozen=True)
 class SeriesIndex:
-    """Fixed order of the monitored series: rack channels first, then site channels."""
+    """Fixed order of the monitored series: rack channels, site channels, then per-GPU channels."""
 
     keys: tuple[tuple[str, str], ...]  # (unit_id, channel)
     rack_ids: tuple[str, ...]
     site_ids: tuple[str, ...]
     rack_site: tuple[str, ...]
+    gpu_units: tuple[str, ...] = ()  # unit ids of the per-GPU series (empty without the per-GPU channel)
 
     @classmethod
-    def from_config(cls, cfg: SimConfig) -> "SeriesIndex":
+    def from_config(cls, cfg: SimConfig, per_gpu: bool = False) -> "SeriesIndex":
         rack_ids = tuple(r.rack_id for lay in cfg.layouts for r in lay.racks)
         rack_site = tuple(lay.site.site_id for lay in cfg.layouts for _ in lay.racks)
         site_ids = tuple(lay.site.site_id for lay in cfg.layouts)
         keys = [(r, ch) for ch in RACK_CHANNELS for r in rack_ids] + [(s, ch) for ch in SITE_CHANNELS for s in site_ids]
-        return cls(tuple(keys), rack_ids, site_ids, rack_site)
+        gpu_units: tuple[str, ...] = ()
+        if per_gpu:
+            gpu_units = tuple(gpu_unit_id(r.rack_id, slot) for lay in cfg.layouts for r in lay.racks for slot in range(r.n_gpus))
+            keys += [(u, ch) for ch in GPU_CHANNELS for u in gpu_units]
+        return cls(tuple(keys), rack_ids, site_ids, rack_site, gpu_units)
 
     def __len__(self) -> int:
         return len(self.keys)
@@ -466,6 +498,11 @@ class SeriesIndex:
 
     def units(self) -> list[str]:
         return [u for u, _ in self.keys]
+
+    def gpu_parts(self, unit: str) -> tuple[str, int]:
+        """``(rack_id, slot)`` of a per-GPU unit id."""
+        rack, slot = unit.rsplit("/", 1)
+        return rack, int(slot)
 
 
 # ---------------------------------------------------------------------------
@@ -675,6 +712,78 @@ def _peer_median(values: np.ndarray, group: np.ndarray, rack: np.ndarray) -> np.
     return out
 
 
+def _peer_stats(values: np.ndarray, key: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Median and count of the finite ``values`` that share a ``key`` (per element; NaN/0 if none)."""
+    med = np.full(values.shape, np.nan)
+    cnt = np.zeros(values.shape)
+    for k in np.unique(key):
+        idx = np.flatnonzero(key == k)
+        v = values[idx]
+        f = np.isfinite(v)
+        if f.any():
+            med[idx] = np.median(v[f])
+            cnt[idx] = float(f.sum())
+    return med, cnt
+
+
+class GpuResidualChannel:
+    """Per-GPU temperature residual against the GPU's rack peers (K).  Causal.
+
+    Input per decision: ``excess`` (GPU temperature above its rack air, averaged
+    over the decision interval, NaN where the GPU is dead or its rack is off) and
+    ``key`` (job group and rack of each GPU; GPUs with the same key are peers).
+
+    All GPUs of a job in a rack run at the same power, so ``excess`` of a GPU is
+    its own gain times the peer median, whatever the power level.  The gain is
+    estimated as the median ratio ``excess / peer median`` over the GPU's
+    samples that are at least ``anomaly_baseline_gap_s`` old and at most
+    ``anomaly_baseline_window_s`` old.  The residual is ``excess`` minus gain
+    times the current peer median.  A sample is valid only if the GPU had at
+    least ``gpu_min_peers`` finite peers, the peer median is above a floor
+    (a fraction of the idle-level excess), and the GPU kept its key since the
+    previous decision (a job start, end or move inside the interval gives NaN).
+    The residual is then averaged over the last ``gpu_smooth_steps`` valid
+    decisions.  Only past samples enter any step.
+    """
+
+    def __init__(self, n_gpus: int, settings: OutageSettings, floor_k: float) -> None:
+        self.n = int(n_gpus)
+        self.settings = settings
+        self.floor_k = float(floor_k)
+        self._ratio: list[np.ndarray] = []
+        self._raw: list[np.ndarray] = []
+        self._prev_key: Optional[np.ndarray] = None
+
+    def update(self, excess: np.ndarray, key: np.ndarray) -> np.ndarray:
+        st = self.settings
+        excess = np.asarray(excess, dtype=float)
+        key = np.asarray(key)
+        med, cnt = _peer_stats(excess, key)
+        stable = np.zeros(self.n, dtype=bool) if self._prev_key is None else (key == self._prev_key)
+        ok = np.isfinite(excess) & (cnt >= st.gpu_min_peers) & (med > self.floor_k) & stable
+        safe = np.where(ok, med, 1.0)
+        self._ratio.append(np.where(ok, excess / safe, np.nan))
+        n = len(self._ratio)
+        dt = st.decision_interval_s
+        gap = int(math.ceil(st.anomaly_baseline_gap_s / dt))
+        win = int(math.ceil(st.anomaly_baseline_window_s / dt))
+        base = np.full(self.n, np.nan)
+        lo, hi = max(0, n - 1 - win), max(0, n - gap)
+        if hi - lo >= st.gpu_baseline_min_samples:
+            old = np.stack(self._ratio[lo:hi])
+            enough = np.isfinite(old).sum(axis=0) >= st.gpu_baseline_min_samples
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                base = np.where(enough, np.nanmedian(old, axis=0), np.nan)
+        raw = np.where(ok & np.isfinite(base), excess - base * med, np.nan)
+        self._raw.append(raw)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            out = np.where(np.isfinite(raw), np.nanmean(np.stack(self._raw[-st.gpu_smooth_steps:]), axis=0), np.nan)
+        self._prev_key = key.copy()
+        return out
+
+
 class ChannelBank:
     """Turns visible state into one sample vector per decision and keeps the history."""
 
@@ -682,7 +791,7 @@ class ChannelBank:
         self.cfg = cfg
         self.settings = settings
         self.placement = placement
-        self.index = SeriesIndex.from_config(cfg)
+        self.index = SeriesIndex.from_config(cfg, settings.per_gpu_channel)
         self.times: list[float] = []
         self.rows: list[np.ndarray] = []
         self.site_limits: list[np.ndarray] = []  # (S, H) per decision
@@ -691,6 +800,14 @@ class ChannelBank:
         self._site_nominal_import = np.array([float(lay.site.grid_import_limit_w) for lay in cfg.layouts])
         self._site_cap = np.array([float(lay.site.power_cap_w) for lay in cfg.layouts])
         self._rack_start = None
+        self.gpu_channel: Optional[GpuResidualChannel] = None
+        if settings.per_gpu_channel:
+            if placement is None:
+                raise ValueError("the per-GPU channel needs the placement view")
+            idle_excess_k = float(cfg.levels.idle_w) * float(cfg.thermal.gpu_to_air_k_per_w)
+            self.gpu_channel = GpuResidualChannel(
+                len(self.index.gpu_units), settings, settings.gpu_peer_excess_floor_frac * idle_excess_k
+            )
 
     # -- helpers -----------------------------------------------------------------
 
@@ -734,12 +851,35 @@ class ChannelBank:
         ratio = np.where(on, np.asarray(now["breaker_load_ratio"], dtype=float), np.nan)
         gpu_anom = self._gpu_anomaly(vs)
         site_power = np.asarray(now["site_power_w"], dtype=float)
-        row = np.concatenate([gpu_temp_max, supply, ratio, gpu_anom, site_power])
+        parts = [gpu_temp_max, supply, ratio, gpu_anom, site_power]
+        if self.gpu_channel is not None:
+            parts.append(self._gpu_resid(vs))
+        row = np.concatenate(parts)
         row[~np.isfinite(row)] = np.nan
         self.times.append(float(t_s))
         self.rows.append(row)
         self.site_limits.append(self.site_limit_path(vs, t_s))
         return row
+
+    def _gpu_resid(self, vs: VisibleState) -> np.ndarray:
+        """Per-GPU residual against rack peers (see :class:`GpuResidualChannel`).
+
+        The GPU's excess over rack air is the mean of the simulator's per-GPU
+        temperature history over the last decision interval (past samples only).
+        """
+        assert self.gpu_channel is not None and self.placement is not None
+        dt = self.settings.decision_interval_s
+        gpu_rack = self.placement.gpu_rack()
+        _, temp = vs.history("gpu_temp_c", dt)
+        _, air = vs.history("rack_air_c", dt)
+        if temp.shape[0] == 0:
+            excess = np.full(gpu_rack.shape, np.nan)
+        else:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                excess = np.nanmean(np.asarray(temp, dtype=float) - np.asarray(air, dtype=float)[:, gpu_rack], axis=0)
+        key = (self.placement.gpu_group().astype(np.int64) + 1) * 1000 + gpu_rack.astype(np.int64)
+        return self.gpu_channel.update(excess, key)
 
     def _gpu_anomaly(self, vs: VisibleState) -> np.ndarray:
         """Per-rack largest per-GPU temperature rise against the GPU's own baseline (K).
@@ -816,7 +956,7 @@ def series_limits(
             out[k] = float(cfg.throttle.throttle_threshold_c)
         elif ch == CH_BREAKER:
             out[k] = 1.0
-        elif ch in (CH_SUPPLY, CH_GPU_ANOM):
+        elif ch in (CH_SUPPLY, CH_GPU_ANOM, CH_GPU_RESID):
             if calibration is not None and ch in calibration.limits:
                 out[k] = float(calibration.limits[ch])
         elif ch == CH_SITE_POWER:
@@ -831,14 +971,15 @@ def calibrate(
     times: Sequence[np.ndarray],
     source: str = "",
 ) -> Calibration:
-    """Trouble levels for ``supply_anom`` and ``gpu_anom``: a high quantile of event-free samples.
+    """Trouble levels for ``supply_anom``, ``gpu_anom`` and (if present) ``gpu_resid``: a high quantile of event-free samples.
 
     ``traces`` are ``(n_series, n_decisions)`` sample matrices from event-free
     runs on training seeds; samples before the warm-up are ignored.
     """
     limits: dict[str, float] = {}
     counts: dict[str, int] = {}
-    for ch in (CH_SUPPLY, CH_GPU_ANOM):
+    channels = (CH_SUPPLY, CH_GPU_ANOM) + tuple(ch for ch in GPU_CHANNELS if any(c == ch for _, c in index.keys))
+    for ch in channels:
         ks = [k for k, (_, c) in enumerate(index.keys) if c == ch]
         pool = []
         for tr, t in zip(traces, times):
@@ -931,8 +1072,15 @@ class ResponsePlanner:
         rack_alarms: Mapping[str, Alarm],
         site_alarms: Mapping[str, Alarm],
         job_at: Optional[Callable[[str, int], Optional[str]]] = None,
+        gpu_alarms: Optional[Mapping[str, Mapping[int, Alarm]]] = None,
     ) -> list[Any]:
-        """Actions for this decision.  Site alarms carry ``limit_w``; rack alarms may name one GPU slot."""
+        """Actions for this decision.
+
+        Site alarms carry ``limit_w``; rack alarms may name one GPU slot (oracle).
+        ``gpu_alarms`` maps rack id to ``{slot: alarm}`` for per-GPU warnings: only
+        the job that holds the GPU is protected, and actions are tagged with the
+        GPU unit id (``<rack>/<slot>``) unless a rack-wide alarm already covers it.
+        """
         st = self.settings
         views = {jv.job_id: jv for jv in vs.jobs}
         free = {s: int(vs.now["free_gpus"][i]) for i, s in enumerate(vs.site_ids)}
@@ -1009,6 +1157,32 @@ class ResponsePlanner:
                     self.last_checkpoint[job_id] = t_s
                     continue
                 self._checkpoint_or_pause(t_s, job_id, jv, rack, "rack", actions)
+
+        # -- per-GPU alarms: protect the job that holds the warned GPU (unless a rack-wide alarm covers it)
+        for rack, slots in sorted((gpu_alarms or {}).items()):
+            if rack in rack_alarms or job_at is None:
+                continue
+            site = self.rack_site[rack]
+            for slot, alarm in sorted(slots.items()):
+                job_id = job_at(rack, slot)
+                if job_id is None or job_id in handled:
+                    continue
+                job = self.jobs[job_id]
+                jv = views.get(job_id)
+                if jv is None or job.multisite or jv.paused:
+                    continue
+                handled.add(job_id)
+                unit = gpu_unit_id(rack, slot)
+                n = int(job.n_gpus)
+                dest = self._dest(site, n, free, blocked_dest) if (jv.flexible and jv.status == "running") else None
+                if dest is not None:
+                    actions.append(MigrateJob(job_id, dest))
+                    self._note(t_s, "MigrateJob", job_id, unit, "gpu")
+                    free[dest] -= n
+                    free[site] += n
+                    self.last_checkpoint[job_id] = t_s
+                    continue
+                self._checkpoint_or_pause(t_s, job_id, jv, unit, "gpu", actions)
         return actions
 
     def _dest_has_power(self, dest: str, n: int, site_power: Mapping[str, float], site_limit: Mapping[str, float]) -> bool:
@@ -1116,6 +1290,8 @@ class TraceRecorder(_BankController):
         self.rack_nonflex_checkpoint_gpu_h: list[np.ndarray] = []
         self.site_flex_move_gpu_h: list[np.ndarray] = []
         self.rack_on_rows: list[np.ndarray] = []
+        self.gpu_flex_move_gpu_h: list[np.ndarray] = []
+        self.gpu_nonflex_checkpoint_gpu_h: list[np.ndarray] = []
 
     def decide(self, t_s, visible_state):
         assert self.bank is not None and self.placement is not None and self.cfg is not None and self.index is not None
@@ -1143,12 +1319,26 @@ class TraceRecorder(_BankController):
         self.rack_flex_move_gpu_h.append(flex_move)
         self.rack_nonflex_checkpoint_gpu_h.append(nonflex)
         self.site_flex_move_gpu_h.append(site_flex)
+        if self.settings.per_gpu_channel:
+            # cost of protecting the job that holds each GPU (single-site jobs only, as the planner acts)
+            g_flex = np.zeros(self.placement.n_gpus())
+            g_non = np.zeros(self.placement.n_gpus())
+            for g, job_id in enumerate(self.placement.gpu_job_ids()):
+                if job_id is None or jobs[job_id].multisite:
+                    continue
+                c = job_costs(jobs[job_id], self.cfg.transfer)
+                if jobs[job_id].flexible:
+                    g_flex[g] = c["move"]
+                else:
+                    g_non[g] = c["checkpoint"]
+            self.gpu_flex_move_gpu_h.append(g_flex)
+            self.gpu_nonflex_checkpoint_gpu_h.append(g_non)
         self.rack_on_rows.append(np.asarray(visible_state.now["rack_on"], dtype=bool))
         return ()
 
     def trace(self) -> dict[str, Any]:
         assert self.bank is not None
-        return {
+        out = {
             "times_s": np.array(self.decision_times),
             "samples": self.bank.matrix(),
             "site_limits": np.stack(self.bank.site_limits) if self.bank.site_limits else np.zeros((0, 0, 0)),
@@ -1156,6 +1346,10 @@ class TraceRecorder(_BankController):
             "rack_nonflex_checkpoint_gpu_h": np.stack(self.rack_nonflex_checkpoint_gpu_h),
             "site_flex_move_gpu_h": np.stack(self.site_flex_move_gpu_h),
         }
+        if self.gpu_flex_move_gpu_h:
+            out["gpu_flex_move_gpu_h"] = np.stack(self.gpu_flex_move_gpu_h)
+            out["gpu_nonflex_checkpoint_gpu_h"] = np.stack(self.gpu_nonflex_checkpoint_gpu_h)
+        return out
 
 
 class ForecastWarningController(_BankController):
@@ -1206,9 +1400,14 @@ class ForecastWarningController(_BankController):
         assert self.index is not None and self.tracker is not None and self.planner is not None and self.placement is not None
         rack_alarms: dict[str, Alarm] = {}
         site_alarms: dict[str, Alarm] = {}
+        gpu_alarms: dict[str, dict[int, Alarm]] = {}
         for k in np.flatnonzero(active):
             unit, ch = self.index.keys[k]
             cls = CHANNEL_CLASS[ch]
+            if ch == CH_GPU_RESID:
+                rack, slot = self.index.gpu_parts(unit)
+                gpu_alarms.setdefault(rack, {})[slot] = Alarm(rack, (cls,), self.tracker.since(int(k)), slot=slot)
+                continue
             by_unit = site_alarms if ch in SITE_CHANNELS else rack_alarms
             a = by_unit.get(unit)
             if a is None:
@@ -1219,8 +1418,11 @@ class ForecastWarningController(_BankController):
             else:
                 a.classes = tuple(sorted(set(a.classes) | {cls}))
                 a.since_s = min(a.since_s, self.tracker.since(int(k)))
-        actions = list(self.planner.resumes(t_s, vs, set(rack_alarms), set(site_alarms)))
-        actions += self.planner.plan(t_s, vs, self.placement.job_rack_counts(), rack_alarms, site_alarms, self.placement.job_at)
+        gpu_tags = {gpu_unit_id(rack, slot) for rack, slots in gpu_alarms.items() for slot in slots}
+        actions = list(self.planner.resumes(t_s, vs, set(rack_alarms) | gpu_tags, set(site_alarms)))
+        actions += self.planner.plan(
+            t_s, vs, self.placement.job_rack_counts(), rack_alarms, site_alarms, self.placement.job_at, gpu_alarms
+        )
         return actions
 
     def export(self) -> dict[str, Any]:
@@ -1416,7 +1618,7 @@ def openloop_pmax(
     realized future of the same trace is used as a zero-spread forecast (an upper
     bound for any forecaster on that trace).
     """
-    index = SeriesIndex.from_config(cfg)
+    index = SeriesIndex.from_config(cfg, settings.per_gpu_channel)
     samples = np.asarray(trace["samples"], dtype=float)
     n_series, n_dec = samples.shape
     T, H = settings.context_steps, settings.horizon_steps
@@ -1513,6 +1715,8 @@ def build_event_table(
         for ev in cfg.events.events:
             if ev.event_id == gt["event_id"]:
                 slot = getattr(ev, "gpu_slot", None)
+        if kind == KIND_HARDWARE_FAULT and slot is not None and rack is not None:
+            units = units + [gpu_unit_id(rack, int(slot))]  # a per-GPU warning must name the faulty GPU
         window_end = gt["end_s"] if kind != KIND_HARDWARE_FAULT else gt["onset_s"]
         rows.append(
             {
@@ -1759,8 +1963,11 @@ def match_events(
         cand = [e for e in episodes if e["unit"] in ev["units"] and e["class"] in classes]
         covering = [e for e in cand if e["start_s"] <= ev["onset_s"] + 1e-9 and ev["onset_s"] <= e["end_s"] + L + 1e-9]
         lead = None
+        first_channel = None
         if covering:
-            lead = ev["onset_s"] - min(e["start_s"] for e in covering)
+            first = min(covering, key=lambda e: (e["start_s"], str(e.get("channel", ""))))
+            lead = ev["onset_s"] - first["start_s"]
+            first_channel = first.get("channel")
         late = None
         if lead is None:
             after = [e["start_s"] - ev["onset_s"] for e in cand if ev["onset_s"] < e["start_s"] <= ev["onset_s"] + L + 1e-9]
@@ -1771,6 +1978,7 @@ def match_events(
             "caught_in_time": lead is not None and lead >= min_lead_s,
             "lead_s": None if lead is None else float(lead),
             "late_s": late,
+            "first_channel": first_channel,
         }
     return out
 
@@ -1795,6 +2003,7 @@ def classify_alarms(
                 explained = ev["event_id"]
                 break
         out.append({"unit": a["unit"], "start_s": a["start_s"], "end_s": a["end_s"], "classes": sorted(a["classes"]), "peak_p": a["peak_p"],
+                    "channels": sorted({str(e.get("channel", "")) for e in a["episodes"]}),
                     "true": explained is not None, "event_id": explained})
     return out
 
@@ -1901,7 +2110,11 @@ def replay_objective(
     for a in merge_alarms(episodes, settings.episode_merge_gap_s):
         d0 = int(np.argmin(np.abs(times - a["start_s"])))
         dur = a["end_s"] - a["start_s"]
-        if a["unit"] in index.rack_ids:
+        if a["unit"] in index.gpu_units:
+            g = index.gpu_units.index(a["unit"])
+            alarm_cost += float(trace["gpu_flex_move_gpu_h"][d0, g])
+            alarm_cost += float(trace["gpu_nonflex_checkpoint_gpu_h"][d0, g]) * (1 + math.floor(dur / settings.recheckpoint_s))
+        elif a["unit"] in index.rack_ids:
             r = index.rack_ids.index(a["unit"])
             alarm_cost += float(trace["rack_flex_move_gpu_h"][d0, r])
             alarm_cost += float(trace["rack_nonflex_checkpoint_gpu_h"][d0, r]) * (1 + math.floor(dur / settings.recheckpoint_s))
@@ -2025,6 +2238,26 @@ def aggregate_runs(runs: Sequence[Mapping[str, Any]], settings: OutageSettings, 
     alarms_true = [sum(1 for a in r["alarms"] if a["true"]) for r in runs]
     alarms_all = [len(r["alarms"]) for r in runs]
     out["overall"]["alarm_precision"] = ratio_ci(alarms_true, alarms_all, B, 17)
+    # false alarms per day by alarm class (an alarm that carries several classes counts once for each)
+    by_class: dict[str, Any] = {}
+    for cls_i, cls in enumerate(CLASSES):
+        by_class[cls] = {
+            "false_alarms_per_day": bootstrap_ci(
+                [sum(1 for a in r["alarms"] if not a["true"] and cls in a["classes"]) / r["response"]["evaluated_days"] for r in runs], B, 80 + cls_i),
+            "alarms_per_day": bootstrap_ci(
+                [sum(1 for a in r["alarms"] if cls in a["classes"]) / r["response"]["evaluated_days"] for r in runs], B, 90 + cls_i),
+        }
+    out["by_alarm_class"] = by_class
+    by_channel: dict[str, Any] = {}
+    channels = sorted({c for r in runs for a in r["alarms"] for c in a.get("channels", ())})
+    for ch_i, ch in enumerate(channels):
+        by_channel[ch] = {
+            "false_alarms_per_day": bootstrap_ci(
+                [sum(1 for a in r["alarms"] if not a["true"] and ch in a.get("channels", ())) / r["response"]["evaluated_days"] for r in runs], B, 100 + ch_i),
+            "alarms_per_day": bootstrap_ci(
+                [sum(1 for a in r["alarms"] if ch in a.get("channels", ())) / r["response"]["evaluated_days"] for r in runs], B, 120 + ch_i),
+        }
+    out["by_alarm_channel"] = by_channel
     by_type: dict[str, Any] = {}
     for kind in EVENT_TYPES:
         sel = [[e for e in r["by_event"] if e["kind"] == kind] for r in runs]
@@ -2040,6 +2273,19 @@ def aggregate_runs(runs: Sequence[Mapping[str, Any]], settings: OutageSettings, 
             "lost_gpu_h": bootstrap_ci([sum(e["lost_gpu_h"] for e in s) for s in sel], B, 23),
             "lost_steps": bootstrap_ci([sum(e["lost_steps"] for e in s) for s in sel], B, 24),
         }
+        with_pre = [[e for e in s_ if e["has_precursor"]] for s_ in sel]
+        if sum(len(x) for x in with_pre):
+            entry["recall_with_precursor"] = ratio_ci([sum(1 for e in x if e["caught"]) for x in with_pre], [len(x) for x in with_pre], B, 28)
+            entry["recall_in_time_with_precursor"] = ratio_ci([sum(1 for e in x if e["caught_in_time"]) for x in with_pre], [len(x) for x in with_pre], B, 29)
+        else:
+            entry["recall_with_precursor"] = None
+            entry["recall_in_time_with_precursor"] = None
+        first_ch: dict[str, int] = {}
+        for s_ in sel:
+            for e in s_:
+                if e.get("first_channel"):
+                    first_ch[e["first_channel"]] = first_ch.get(e["first_channel"], 0) + 1
+        entry["first_warning_channel_counts"] = first_ch
         if kind == KIND_GRID_CURTAILMENT:
             entry["violation_kwh"] = bootstrap_ci([sum(e["violation_kwh"] for e in s) for s in sel], B, 25)
             entry["violation_s"] = bootstrap_ci([sum(e["violation_s"] for e in s) for s in sel], B, 26)
@@ -2069,9 +2315,14 @@ def aggregate_runs(runs: Sequence[Mapping[str, Any]], settings: OutageSettings, 
     if not has_warnings:
         for key in ("recall", "recall_in_time", "lead_minutes", "alarm_precision", "false_alarms_per_day", "false_alarm_gpu_h", "n_alarms"):
             out["overall"][key] = None
+        out["by_alarm_class"] = None
+        out["by_alarm_channel"] = None
         for entry in by_type.values():
             for key in ("recall", "recall_in_time", "lead_minutes_median"):
                 entry[key] = None
+            entry["first_warning_channel_counts"] = None
+            entry["recall_with_precursor"] = None
+            entry["recall_in_time_with_precursor"] = None
         out["no_precursor"]["recall"] = None
         out["with_precursor"]["recall"] = None
     return out
@@ -2094,7 +2345,7 @@ def file_sha256(path: Path | str) -> str:
 __all__ = [
     "Alarm", "Calibration", "ChannelBank", "EpisodeTracker", "ForecastWarningController", "OracleAlarm", "OracleController",
     "OutageRun", "OutageSettings", "PersistenceForecaster", "PlacementView", "ResponsePlanner", "SeriesIndex", "TraceRecorder",
-    "aggregate_runs", "attribute_faults", "bootstrap_ci", "build_event_table", "calibrate", "classify_alarms",
+    "CH_GPU_RESID", "GpuResidualChannel", "aggregate_runs", "attribute_faults", "gpu_unit_id", "bootstrap_ci", "build_event_table", "calibrate", "classify_alarms",
     "curtailment_violation", "deep_merge", "detection_stats", "episodes_from_pmax", "exceedance_probability", "job_costs",
     "load_outage_scenario", "match_events", "oracle_scenario", "oracle_settings", "merge_alarms", "openloop_pmax", "oracle_alarms_from_reference",
     "paired_difference", "periodic_local_jobs", "replay_objective", "response_costs", "run_policy", "score_run",
