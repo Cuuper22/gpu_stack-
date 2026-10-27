@@ -1,0 +1,202 @@
+{
+ "provenance": {
+  "script": "/home/claude/wt/hw-costaudit/experiments/e003-heatwave/cost_audit/run_before_after.py",
+  "script_sha256": "b6df64c054078e0e16fb95128b8a5df20f566d6e821952288a073635569b9ca7",
+  "git": {
+   "commit": "2269683bc930e0cff9e49a3079c642b0bfbcc396",
+   "dirty": "false"
+  },
+  "inputs": {
+   "/home/claude/wt/hw-costaudit/experiments/e003-heatwave/cost_audit/sources.json": "5777743e88a8c094e9369c652386e174b9350cfea52084d284d06e6d5e7a8e9f"
+  },
+  "data_kind": "public",
+  "created_utc": "2026-10-27T00:58:09+00:00",
+  "notes": "Base-commit numbers come from the code of that commit run in a separate process; the working-tree numbers from this tree. Published list prices; nothing measured on a cluster."
+ },
+ "result": {
+  "description": "README example (7e9 parameters, 2e12 tokens, 1,024 H100-SXM) and the DGX H100 full-TCO pack, before and after the T10 correction.",
+  "base_commit": "8b8a654651fa10cddd65dc6d7f69a21957e17646",
+  "readme_example": {
+   "before": {
+    "electricity_cost": 4026.3796240145543,
+    "hardware_cost": 67089.77354804653,
+    "total_cost": 71116.15317206085,
+    "cost_per_million_tokens": 0.035558076586030496,
+    "energy_mwh": 49.52496462502528
+   },
+   "after": {
+    "electricity_cost": 5765.53790175864,
+    "hardware_cost": 71909.51360337812,
+    "total_cost": 77675.05150513674,
+    "cost_per_million_tokens": 0.03883752575256845,
+    "energy_mwh": 67.75015160703458
+   },
+   "before_electricity_share": 0.05661694909555912,
+   "after_electricity_share": 0.07422638015730647,
+   "before_inputs": {
+    "params": 7000000000.0,
+    "tokens": 2000000000000.0,
+    "n_gpus": 1024.0,
+    "peak_flops": 989400000000000.0,
+    "tdp_w": 700.0,
+    "mfu": 0.4,
+    "pue": 1.2,
+    "electricity_price": 0.0813,
+    "gpu_price": 30000.0,
+    "useful_life_years": 4.0,
+    "residual_fraction": 0.05,
+    "other_hardware_fraction": 0.4,
+    "gpu_power_fraction": 0.8,
+    "server_power_fraction": 0.25
+   }
+  },
+  "step_ladder": [
+   {
+    "electricity_cost": 4026.3796240145543,
+    "hardware_cost": 67089.77354804653,
+    "total_cost": 71116.15317206085,
+    "cost_per_million_tokens": 0.035558076586030496,
+    "energy_mwh": 49.52496462502528,
+    "step": "base-commit inputs (facility term off, as before)",
+    "electricity_share": 0.05661694909555912,
+    "inputs": {
+     "electricity_price": 0.0813,
+     "useful_life_years": 4.0,
+     "other_hardware_fraction": 0.4,
+     "server_power_fraction": 0.25,
+     "gpu_price": 30000.0
+    },
+    "facility_usd_per_w": 0.0
+   },
+   {
+    "electricity_cost": 4214.57448958965,
+    "hardware_cost": 67089.77354804653,
+    "total_cost": 71304.34803763594,
+    "cost_per_million_tokens": 0.035652174018818046,
+    "energy_mwh": 49.52496462502528,
+    "step": "electricity 0.0813 -> 0.0851 USD/kWh (EIA 2025 industrial)",
+    "electricity_share": 0.059106837178640334,
+    "inputs": {
+     "electricity_price": 0.0851,
+     "useful_life_years": 4.0,
+     "other_hardware_fraction": 0.4,
+     "server_power_fraction": 0.25,
+     "gpu_price": 30000.0
+    },
+    "facility_usd_per_w": 0.0
+   },
+   {
+    "electricity_cost": 4214.57448958965,
+    "hardware_cost": 83862.21693505815,
+    "total_cost": 88076.79142464751,
+    "cost_per_million_tokens": 0.044038395712323854,
+    "energy_mwh": 49.52496462502528,
+    "step": "H100 price 30,000 -> 37,500 USD",
+    "electricity_share": 0.04785113559904543,
+    "inputs": {
+     "electricity_price": 0.0851,
+     "useful_life_years": 4.0,
+     "other_hardware_fraction": 0.4,
+     "server_power_fraction": 0.25,
+     "gpu_price": 37500.0
+    },
+    "facility_usd_per_w": 0.0
+   },
+   {
+    "electricity_cost": 4214.57448958965,
+    "hardware_cost": 60990.703225496836,
+    "total_cost": 65205.27771508628,
+    "cost_per_million_tokens": 0.03260263885754321,
+    "energy_mwh": 49.52496462502528,
+    "step": "server life 4 -> 5.5 years",
+    "electricity_share": 0.06463548101129458,
+    "inputs": {
+     "electricity_price": 0.0851,
+     "useful_life_years": 5.5,
+     "other_hardware_fraction": 0.4,
+     "server_power_fraction": 0.25,
+     "gpu_price": 37500.0
+    },
+    "facility_usd_per_w": 0.0
+   },
+   {
+    "electricity_cost": 4214.57448958965,
+    "hardware_cost": 64911.53414713592,
+    "total_cost": 69126.10863672536,
+    "cost_per_million_tokens": 0.03456305431836275,
+    "energy_mwh": 49.52496462502528,
+    "step": "servers, network, storage 0.40 -> 0.49 of card price (building moved out)",
+    "electricity_share": 0.060969358361227466,
+    "inputs": {
+     "electricity_price": 0.0851,
+     "useful_life_years": 5.5,
+     "other_hardware_fraction": 0.49,
+     "server_power_fraction": 0.25,
+     "gpu_price": 37500.0
+    },
+    "facility_usd_per_w": 0.0
+   },
+   {
+    "electricity_cost": 5765.53790175864,
+    "hardware_cost": 64911.53414713592,
+    "total_cost": 70677.07204889435,
+    "cost_per_million_tokens": 0.035338536024447254,
+    "energy_mwh": 67.75015160703458,
+    "step": "extra server power 0.25 -> 0.71 (measured node power)",
+    "electricity_share": 0.08157578879003427,
+    "inputs": {
+     "electricity_price": 0.0851,
+     "useful_life_years": 5.5,
+     "other_hardware_fraction": 0.49,
+     "server_power_fraction": 0.71,
+     "gpu_price": 37500.0
+    },
+    "facility_usd_per_w": 0.0
+   },
+   {
+    "electricity_cost": 5765.53790175864,
+    "hardware_cost": 71909.51360337812,
+    "total_cost": 77675.05150513674,
+    "cost_per_million_tokens": 0.03883752575256845,
+    "energy_mwh": 67.75015160703458,
+    "step": "facility 11.3 USD/W over 13 years added (= new defaults)",
+    "electricity_share": 0.07422638015730647,
+    "inputs": {
+     "electricity_price": 0.0851,
+     "useful_life_years": 5.5,
+     "other_hardware_fraction": 0.49,
+     "server_power_fraction": 0.71,
+     "gpu_price": 37500.0
+    },
+    "facility_usd_per_w": 11.3
+   }
+  ],
+  "ladder_check": {
+   "first_row_vs_base_commit_rel_err": 0.0,
+   "last_row_vs_new_default_rel_err": 0.0
+  },
+  "dgx_h100_full_tco_pack": {
+   "pack": "pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption",
+   "before": {
+    "econ.cost.per_token": 6.328731395033362e-10,
+    "econ.run.power_cost": 9.216023085751896,
+    "econ.run.capacity_charge_cost": 1.2595357504102633,
+    "econ.run.hw_cost": 122.74962854596676,
+    "econ.run.total_cost": 189.79405734656515,
+    "econ.job.dc_power": 10200.0,
+    "econ.cluster.capex_rate": 0.002761260362004715
+   },
+   "after": {
+    "econ.cost.per_token": 6.005001755667493e-10,
+    "econ.run.power_cost": 11.059227702902275,
+    "econ.run.capacity_charge_cost": 0.0,
+    "econ.run.hw_cost": 112.45754295185426,
+    "econ.run.total_cost": 180.0856406191928,
+    "econ.job.dc_power": 12240.0,
+    "econ.cluster.capex_rate": 0.002529739270413466
+   },
+   "before_power_share_of_run_total": 0.05519434582208084,
+   "after_power_share_of_run_total": 0.06141093573522612
+  }
+ }
+}
