@@ -123,7 +123,7 @@ test("claims the prose makes about intervals and counts hold in the data", async
   assert.ok(lv["10"].vs_reactive.lo < 0 && lv["10"].vs_reactive.hi > 0, "the $10 difference spans zero");
   assert.ok(lv["40"].vs_reactive.lo > 0 && lv["160"].vs_reactive.lo > 0 && lv["2.5"].vs_reactive.hi < 0);
   const cfg = (ds, c) => d.ablation.datasets[ds].methods["timestral-209M"][c].vs_none;
-  assert.equal(cfg("caiso_rt_lmp_5min", "DA"), "overlap");
+  assert.equal(cfg("caiso_rt_lmp_5min", "DA"), "lower");
   assert.equal(cfg("caiso_rt_lmp_5min", "WX"), "overlap");
   assert.equal(cfg("laptop_power_1s_run2", "S"), "lower");
   assert.equal(cfg("laptop_power_10hz_run2", "S"), "higher");

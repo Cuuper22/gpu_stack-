@@ -288,9 +288,14 @@ def ablation_block(path: Path, only_test: bool) -> dict:
                     b = c["buckets"]["all"]
                     cfgs[cname] = {"groups": c["groups"], "wql": r3(b["wql"], 6), "lo": r3(b["wql_ci95"][0], 6), "hi": r3(b["wql_ci95"][1], 6),
                                    "cov80": r3(b["cov80"], 3), "n_windows": b["n_windows"]}
+                    if b.get("delta_wql") is not None:
+                        # paired over the same windows: config minus no inputs, bootstrap interval
+                        cfgs[cname]["d"] = r3(b["delta_wql"], 6)
+                        cfgs[cname]["d_lo"], cfgs[cname]["d_hi"] = r3(b["delta_wql_ci95"][0], 6), r3(b["delta_wql_ci95"][1], 6)
                 base = cfgs["none"]
                 for cname, c in cfgs.items():
-                    c["vs_none"] = "baseline" if cname == "none" else ("lower" if c["hi"] < base["lo"] else "higher" if c["lo"] > base["hi"] else "overlap")
+                    # reading from the paired difference: its interval is clear of zero, or it is not
+                    c["vs_none"] = "baseline" if cname == "none" else ("lower" if c["d_hi"] < 0 else "higher" if c["d_lo"] > 0 else "overlap")
                     c["change_pct"] = None if cname == "none" else r3(100.0 * (c["wql"] - base["wql"]) / base["wql"], 2)
                 methods[m] = cfgs
             else:
@@ -464,6 +469,9 @@ def story_numbers(doc: dict) -> list[dict]:
         a("ablation.caiso.none", "caiso_rt_lmp_5min", "none")
         a("ablation.caiso.da", "caiso_rt_lmp_5min", "DA")
         a("ablation.caiso.wx", "caiso_rt_lmp_5min", "WX")
+        x = w("caiso_rt_lmp_5min", "DA")
+        add("ablation.caiso.da_diff", f"{x['d']:.3f}, with a 95 percent interval from {x['d_lo']:.3f} to {x['d_hi']:.3f}", x["d"],
+            s + "caiso_rt_lmp_5min.methods.timestral-209M.configs.DA.buckets.all.delta_wql (paired, moving-block bootstrap)")
         a("ablation.gb.none", "gb_carbon_30min", "none")
         a("ablation.gb.f", "gb_carbon_30min", "F")
         a("ablation.laptop.none", "laptop_power_1s_run2", "none")

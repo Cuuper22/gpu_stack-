@@ -1,8 +1,9 @@
 /* known-future: what a forecaster gains from inputs that are known ahead of
    time. One row per series, one marker per input, placed by the change in
    forecast loss against the same Timestral model with no inputs. Lower is
-   better. A filled marker means the 95% intervals of the two losses do not
-   overlap; a hollow one means they do. Data: data/e003-heatwave-story-v1.json,
+   better. A filled marker means the 95% interval of the paired difference
+   (same windows, with and without the input) is clear of zero; a hollow one
+   means it includes zero. Data: data/e003-heatwave-story-v1.json,
    blocks "ablation" (measured and public series) and "ablation_sim" (simulated
    cluster) when that result is in. */
 (function (root) {
@@ -18,7 +19,7 @@
     label: "Chart: change in Timestral forecast loss when inputs known ahead of time are added, for each series, with one marker per input",
     summary:
       "Each row is one series. Each marker is one input known ahead of time, such as a job schedule, a weather forecast or a day-ahead price, " +
-      "placed by how much it changed forecast loss against the same model with no inputs. Left of the line is better. Hollow markers have overlapping intervals.",
+      "placed by how much it changed forecast loss against the same model with no inputs. Left of the line is better. Hollow markers are differences whose interval includes zero.",
     build: function (ctx) {
       var h = ctx.h, s = ctx.s, u = ctx.util;
       var model = "timestral-209M", D = null, rows = [];
@@ -33,7 +34,7 @@
       var legend = h("p", { class: "kf-legend" });
       var list = h("div", { class: "kf-list" });
       var msg = h("p", { class: "gsf-note", text: "Loading the results." });
-      ctx.el.appendChild(h("div", null, [seg, list, legend, h("p", { class: "gsf-note", text: "Marker position is the change in loss against no inputs. Filled: the 95% intervals do not overlap. Hollow: they overlap. Combinations of inputs are in the Heatwave window." }), msg]));
+      ctx.el.appendChild(h("div", null, [seg, list, legend, h("p", { class: "gsf-note", text: "Marker position is the change in loss against no inputs. Filled: the 95% interval of the paired difference is clear of zero. Hollow: it includes zero. Combinations of inputs are in the Heatwave window." }), msg]));
 
       function shape(i, cx, cy, filled) {
         i = i % 6;

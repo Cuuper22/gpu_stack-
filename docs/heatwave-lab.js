@@ -309,8 +309,8 @@
       var rows = Object.keys(cfgs).map(function (c) {
         var x = cfgs[c];
         var lab = x.groups.length ? x.groups.map(function (g) { return D.groups[g] || g; }).join(" + ") : "no inputs";
-        var read = x.vs_none === "baseline" ? "baseline" : x.vs_none === "lower" ? "lower, intervals apart" : x.vs_none === "higher" ? "higher, intervals apart" : "intervals overlap";
-        return [lab, fmt(x.wql, 4), "[" + fmt(x.lo, 4) + ", " + fmt(x.hi, 4) + "]", x.change_pct === null ? "" : (x.change_pct > 0 ? "+" : "") + fmt(x.change_pct, 1) + "%", read];
+        var read = x.vs_none === "baseline" ? "baseline" : x.vs_none === "lower" ? "lower" : x.vs_none === "higher" ? "higher" : "no clear change";
+        return [lab, fmt(x.wql, 4), "[" + fmt(x.lo, 4) + ", " + fmt(x.hi, 4) + "]", x.change_pct === null ? "" : (x.change_pct > 0 ? "+" : "") + fmt(x.change_pct, 1) + "%" + (x.d_lo === undefined ? "" : " [" + fmt(x.d_lo, 4) + ", " + fmt(x.d_hi, 4) + "]"), read];
       });
       Object.keys(D.methods).filter(function (m) { return m.indexOf("timestral") !== 0; }).forEach(function (m) {
         var x = D.methods[m].none;
@@ -318,7 +318,7 @@
       });
       return h("div", {}, [h("h3", { class: "hwl-h", text: D.what }),
         h("p", { class: "hwl-help", text: kindLabel(D.data_kind) + ". " + fmt(D.n_origins) + " forecast windows, " + D.horizon_steps + " steps of " + D.step + " ahead." }),
-        table(["inputs known ahead", "loss", "95% interval", "change", "reading"], rows, D.what + ": loss with and without known-ahead inputs")]);
+        table(["inputs known ahead", "loss", "95% interval", "change [paired difference interval]", "reading"], rows, D.what + ": loss with and without known-ahead inputs")]);
     }
     function render() {
       holder.replaceChildren();
@@ -348,7 +348,7 @@
     }
     var el = h("div", { class: "hwl-pane" }, []);
     if (!A || A.status !== "ready") { el.append(pending("The known-inputs result is not in yet.")); return { el: el, stop: function () {} }; }
-    el.append(h("p", { class: "hwl-caption", text: "What does a forecaster gain from things that are known ahead of time, like a job schedule, a weather forecast or a day-ahead price? Loss is the weighted quantile loss over all horizons, lower is better. Series are measured (my laptop) or public (grid). Intervals are 95% bootstrap intervals; where they overlap I do not call the difference real. GB carbon uses an archived forecast whose issue time is undocumented." }),
+    el.append(h("p", { class: "hwl-caption", text: "What does a forecaster gain from things that are known ahead of time, like a job schedule, a weather forecast or a day-ahead price? Loss is the weighted quantile loss over all horizons, lower is better. Series are measured (my laptop) or public (grid). Intervals are 95% block-bootstrap intervals. The reading comes from the paired difference over the same windows: I call a change real only when its interval is clear of zero. GB carbon uses an archived forecast whose issue time is undocumented." }),
       group([["timestral-209M", "Timestral 209M"], ["timestral-28M", "Timestral 28M"]], st.size, function (k) { st.size = k; render(); }, "Model size"), holder);
     render();
     return { el: el, stop: function () {} };
