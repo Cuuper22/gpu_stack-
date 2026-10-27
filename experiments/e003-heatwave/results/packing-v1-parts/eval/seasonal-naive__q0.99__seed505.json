@@ -1,0 +1,77 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "706bc00638bb72faccff2ced10e1a61b81cd8151f803af9985a5b152d5b8ec4a",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "e0a23649d441d0be29fd356dc5548c5198ba702f",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 505,
+  "policy": "seasonal-naive/q0.99",
+  "forecaster": "seasonal-naive",
+  "use_covariates": false,
+  "options": {
+   "n_train": 6,
+   "n_test": 0,
+   "grid_stride": 1,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "policy": "seasonal-naive/q0.99",
+  "kind": "fixed",
+  "seed": 505,
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1565.688980248008,
+   "gpu_hours_multisite_jobs": 236.69830254112344,
+   "value_usd": 3815.5828370655668,
+   "jobs_admitted": 44,
+   "jobs_completed": 50,
+   "violation_rate": 0.8072916666666666,
+   "violation_rate_by_site": [
+    0.421875,
+    0.8072916666666666
+   ],
+   "energy_above_cap_kwh": 34.186821760295416,
+   "energy_above_cap_kwh_by_site": [
+    8.090644809621216,
+    26.096176950674135
+   ],
+   "seconds_above_cap": 49940.0,
+   "max_excess_w": 6763.98498160475,
+   "stranded_kwh": 91.71668133628002,
+   "stranded_intervals": 192,
+   "mean_power_over_cap": 0.9761567004638597,
+   "energy_kwh": 1967.6635891678293,
+   "forecast_calls": 192,
+   "forecast_refresh_bins": 1,
+   "job_faults": 2
+  },
+  "wall_s": 30.65023398399353,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 30.68385749650079,
+     "width_h": 8.124432438726725,
+     "add_c": 6.924361964659129
+    },
+    "site-b": {
+     "center_h": 32.68385749650079,
+     "width_h": 9.682939329443712,
+     "add_c": 11.054645313711756
+    }
+   },
+   "n_events": 7,
+   "sim_seed": 258198998
+  }
+ }
+}
