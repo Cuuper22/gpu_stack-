@@ -329,12 +329,22 @@
       var runs = F && F.status === "ready" ? F.runs : null;
       holder.append(h("h3", { class: "hwl-h hwl-h-big", text: "Fine-tuned against zero-shot" }));
       if (!runs) holder.append(pending("Result pending: the fine-tuning runs are not in yet."));
-      else runs.forEach(function (r) {
-        holder.append(table(["model", "mean loss", "ratio to zero-shot", "series where lower"], Object.keys(r.models).map(function (m) {
-          var x = r.models[m];
-          return [m, fmt(x.mean_wql, 4), m === r.reference ? "1" : fmt(x.ratio_to_zero_shot, 3), m === r.reference ? "" : x.n_datasets_lower + " of " + x.n_datasets];
-        }), "Timestral " + r.size + ", zero-shot against fine-tuned, averaged over " + r.datasets.length + " held-out series"));
-      });
+      else {
+        holder.append(h("p", { class: "hwl-help", text: "Loss on held-out windows. For each side I take its better setting, with or without the known-ahead inputs, and divide: below 1 means fine-tuning lowered the loss. The differences are paired over the same windows, with 95% intervals." }));
+        var d = function (x) { return x ? (x.mean > 0 ? "+" : "") + fmt(x.mean, 4) + " [" + fmt(x.lo, 4) + ", " + fmt(x.hi, 4) + "]" : ""; };
+        runs.forEach(function (r) {
+          var rows = [];
+          r.series.forEach(function (sr) {
+            r.models.forEach(function (m) {
+              var z = sr.best.zero_shot, f = sr.best[m], pv = sr.paired_vs_zero_shot[m] || {};
+              if (!z || !f) return;
+              rows.push([sr.what + (r.models.length > 1 ? " (" + m.replace(/^finetuned-/, "") + ")" : ""), kindLabel(sr.data_kind), fmt(z.wql, 4), fmt(f.wql, 4), fmt(f.wql / z.wql, 3), d(pv.none), d(pv.cov_all)]);
+            });
+          });
+          var cap = "Timestral " + r.size + (r.run_label === "colab-cpu" ? ", CPU pilot (" + r.models.map(function (m) { return m.replace(/^finetuned-/, ""); }).join(", ") + ")" : ", all weights trained on one GPU");
+          holder.append(h("h3", { class: "hwl-h", text: cap }), table(["series", "data", "zero-shot", "fine-tuned", "ratio", "difference, no inputs", "difference, with inputs"], rows, cap + ": fine-tuned against zero-shot"));
+        });
+      }
     }
     var el = h("div", { class: "hwl-pane" }, []);
     if (!A || A.status !== "ready") { el.append(pending("The known-inputs result is not in yet.")); return { el: el, stop: function () {} }; }

@@ -307,27 +307,56 @@ def ablation_block(path: Path, only_test: bool) -> dict:
     return out
 
 
+FT_NAMES = {"laptop_power": "laptop GPU power, 1 s", "laptop_temp": "laptop GPU temperature, 1 s",
+            "elsayed_gpu_power": "H100 and B200 GPU power, 1 s", "nlr_job_power": "H100 multi-node job power",
+            "mit_node_power": "V100 node power, 1 s", "mit_node_temp": "V100 node temperature, 1 min",
+            "caiso_rt_price_1h": "CAISO real-time price, 1 h", "uk_carbon_actual_1h": "GB carbon intensity, 1 h",
+            "sim_rack_power_1s": "simulated rack power, 1 s", "sim_rack_temp_1min": "simulated rack temperature, 1 min",
+            "sim_site_power_1h": "simulated site power, 1 h"}
+
+
 def finetune_block(hw: Path) -> dict:
+    """Per size and series: best zero-shot and best fine-tuned configuration (with or without known-future inputs),
+    their ratio, and the paired fine-tuned minus zero-shot difference in each input mode (bootstrap interval)."""
     files = sorted(p for p in (hw / "results" / "finetune").rglob("*.json")) if (hw / "results" / "finetune").exists() else []
     runs = []
     for p in files:
         d = load(p)
-        ev = ((d or {}).get("result") or {}).get("evaluation")
+        res = (d or {}).get("result") or {}
+        ev = res.get("evaluation")
         if not ev:
             continue
+        hwinfo = res.get("hardware") or {}
         for size, e in ev.items():
-            macro = (e.get("macro") or {}).get("none")
             ref = e.get("reference")
-            if not macro or not ref:
+            if not ref:
                 continue
-            rows = {}
-            for label, m in macro.items():
-                rows[label] = {"mean_wql": r3(m["mean_wql"]), "ratio_to_zero_shot": r3(m.get("mean_wql_ratio_to_reference")),
-                               "n_datasets_lower": m.get("n_datasets_lower_wql"), "n_datasets": len(m["datasets"])}
-            runs.append({"file": src(p, hw), "size": size, "reference": ref, "datasets": macro[ref]["datasets"], "models": rows,
-                         "hardware": (d["result"].get("hardware") or {}).get("gpu") or (d["result"].get("hardware") or {}).get("device"),
-                         "run_label": d["result"].get("run_label")})
-    return {"status": "ready", "runs": runs} if runs else {"status": "pending"}
+            series = []
+            for ds, v in e["datasets"].items():
+                modes = v["modes"]
+                best = {}
+                for mode, m in modes.items():
+                    for label, x in m["models"].items():
+                        kind = "zero_shot" if label == ref else label
+                        val = x["all"]["wql"]["est"]
+                        cur = best.get(kind)
+                        if cur is None or val < cur["wql"]:
+                            best[kind] = {"wql": r3(val, 6), "mode": mode}
+                deltas = {}
+                for mode, m in modes.items():
+                    for label, dv in (m.get("delta_vs_reference") or {}).items():
+                        w = (dv.get("all") or {}).get("wql")
+                        if w:
+                            deltas.setdefault(label, {})[mode] = ci3(w)
+                zs_modes = {mode: r3(m["models"][ref]["all"]["wql"]["est"]) for mode, m in modes.items() if ref in m["models"]}
+                series.append({"name": ds, "what": FT_NAMES.get(ds, ds), "data_kind": v.get("data_kind"),
+                               "n_windows": v.get("n_windows"), "best": best, "zero_shot_by_mode": zs_modes,
+                               "paired_vs_zero_shot": deltas})
+            runs.append({"file": src(p, hw), "size": size, "reference": ref, "series": series,
+                         "models": [m for m in next(iter(e["datasets"].values()))["modes"]["none"]["models"] if m != ref],
+                         "hardware": hwinfo.get("gpu") or hwinfo.get("device"), "run_label": res.get("run_label")})
+    return {"status": "ready", "runs": runs,
+            "note": "best = lowest test-window loss over input modes (none, or with known-future inputs where the series has them)"} if runs else {"status": "pending"}
 
 
 def heatwave_blocks(hw: Path | None) -> dict:
@@ -444,7 +473,25 @@ def story_numbers(doc: dict) -> list[dict]:
         add("ablation.laptop10.windows", n0(A["datasets"]["laptop_power_10hz_run2"]["n_origins"]) + " windows", A["datasets"]["laptop_power_10hz_run2"]["n_origins"], s + "laptop_power_10hz_run2.subsampling.n_origins")
     F = doc["finetune"]
     if F["status"] == "ready":
-        pass  # the chapter paragraph for fine-tuning is written once its numbers exist
+        gpu = {r["size"]: r for r in F["runs"] if r["run_label"] == "colab-gpu"}
+        big = gpu.get("209M")
+        if big:
+            s = "heatwave:" + big["file"]["file"] + " result.evaluation.209M.datasets."
+            ser = {x["name"]: x for x in big["series"]}
+            m = big["models"][0]
+
+            def ratio(ds):
+                x = ser[ds]["best"]
+                return x[m]["wql"] / x["zero_shot"]["wql"]
+
+            add("finetune.laptop.ratio", f"{ratio('laptop_power'):.2f}", ratio("laptop_power"), s + "laptop_power best fine-tuned over best zero-shot WQL (all horizons)")
+            add("finetune.simrack.ratio", f"{ratio('sim_rack_power_1s'):.2f}", ratio("sim_rack_power_1s"), s + "sim_rack_power_1s best fine-tuned over best zero-shot WQL")
+            zm = ser["sim_rack_power_1s"]["zero_shot_by_mode"]
+            add("finetune.simrack.zs_none", f"{zm['none']:.3f}", zm["none"], s + "sim_rack_power_1s.modes.none zero-shot-209M WQL")
+            add("finetune.simrack.zs_cov", f"{zm['cov_all']:.3f}", zm["cov_all"], s + "sim_rack_power_1s.modes.cov_all zero-shot-209M WQL")
+            el = ser["elsayed_gpu_power"]["best"]
+            add("finetune.elsayed.zs", f"{el['zero_shot']['wql']:.3f}", el["zero_shot"]["wql"], s + "elsayed_gpu_power.modes.none zero-shot-209M WQL")
+            add("finetune.elsayed.ft", f"{el[m]['wql']:.3f}", el[m]["wql"], s + "elsayed_gpu_power.modes.none " + m + " WQL")
     return out
 
 

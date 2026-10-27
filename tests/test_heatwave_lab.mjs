@@ -134,10 +134,12 @@ test("claims the prose makes about intervals and counts hold in the data", async
 test("a pending marker in the chapter exists only while its result is pending", async () => {
   const { body } = await chapter();
   const d = await readJson("e003-heatwave-story-v1.json");
-  const marker = /HEATWAVE PENDING: ablation_sim and finetune/.test(body);
-  const anyReady = d.ablation_sim.status === "ready" || d.finetune.status === "ready";
-  assert.ok(!(marker && anyReady), "a result landed: replace the pending paragraph with its numbers from data");
-  if (!marker) assert.ok(d.ablation_sim.status === "ready" && d.finetune.status === "ready", "pending paragraph removed too early");
+  for (const key of ["ablation_sim", "finetune"]) {
+    const marker = new RegExp("HEATWAVE PENDING: [a-z_ ]*\\b" + key + "\\b").test(body);
+    const ready = d[key].status === "ready";
+    assert.ok(!(marker && ready), key + " landed: replace its pending paragraph with its numbers from data");
+    if (!marker) assert.ok(ready, key + ": pending paragraph removed too early");
+  }
 });
 
 test("the chapter has its figures and the window exists", async () => {
