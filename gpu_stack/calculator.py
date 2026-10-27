@@ -26,9 +26,13 @@ shown as "settings" in ``breakdown()``:
 
 * ``gpu.peak_flops_power_limited`` = peak FLOP/s x MFU (speed actually achieved);
 * ``thermal.dc.total_power`` = PUE x GPUs x TDP x GPU load x (1 + server extra);
-* ``econ.gpu.capex`` = GPU price x (1 + other hardware share);
+* ``econ.gpu.capex`` = GPU price x (1 + servers-and-network share);
 * ``econ.asset.useful_life`` = years x 31,557,600 s;
-* ``econ.job.capex_rate`` = GPUs x the graph's per-GPU amortized rate;
+* ``econ.cluster.facility_capex`` (per GPU) = facility $/W x chip rating x (1 + server extra);
+* ``econ.facility.useful_life`` = 13 years x 31,557,600 s (the building and its power and cooling
+  plant outlive the servers, so they are not charged on the server life);
+* ``econ.job.capex_rate`` = GPUs x (the graph's per-GPU amortized rate for the servers + the graph's
+  per-GPU facility rate);
 * neutral closures: no recompute, no exposed communication, availability 1,
   the job owns the whole cluster, no staff, water, maintenance or network cost.
 
@@ -48,14 +52,19 @@ Reference (hardware specs):
 * NVIDIA A100 datasheet, A100 80GB SXM: "BFLOAT16 Tensor Core 312 TFLOPS | 624
   TFLOPS* (*with sparsity)", "Max TDP SXM 400W", 80 GB memory.
   https://www.nvidia.com/en-us/data-center/a100/
-* B200 is left out on purpose: NVIDIA's public pages list the 8-GPU system
-  power (about 14.3 kW for DGX B200) but no per-GPU TDP, and the datasheet
-  could not be read. Add it when a per-GPU figure can be cited.
-* Electricity price default: U.S. EIA Electric Power Annual 2024, industrial
-  average 8.13 cents/kWh (the repo's economics preset).
-* H100 price default: 2024 channel range $27,000-$40,000 per card, $30,000
-  used (the repo's DGX H100 closure preset). The A100 price is a rough
-  assumption with no citation.
+* B200 is not in the table. The HGX B200 summary now gives 1,000 W per GPU
+  (https://images.nvidia.com/aem-dam/Solutions/documents/HGX-B200-PCF-Summary.pdf,
+  accessed 2026-10-26), but a price and FLOP/s row would also need to be added;
+  the cost audit builds B200 and GB200 from cited rows inside its own script
+  (``experiments/e003-heatwave/cost_audit/run_cost_audit.py``).
+* Cost defaults come from ``gpu_stack.calculator_cost_basis`` (each with its URL
+  and access date): U.S. industrial electricity 8.51 cents/kWh (EIA Electric
+  Power Annual 2025, Table 2.10); H100 $37,500 and A100 $12,500 per card
+  (midpoints of 2026 new-card ranges); 5.5-year server life (median of eight
+  operators' reported lives); servers, network and storage at 49% of the GPU
+  price; extra server power set so the node matches measured H100 node power;
+  facility at $11.3 per W of provisioned power over 13 years. The audit that
+  collected them is ``experiments/e003-heatwave/cost_audit/``.
 """
 
 from __future__ import annotations
@@ -73,6 +82,7 @@ import sympy as sp
 import gpu_stack  # noqa: F401  (registers every variable and equation)
 from gpu_stack.core.registry import Registry
 from gpu_stack.core.resolver import resolve
+from gpu_stack import calculator_cost_basis as basis
 from gpu_stack.presets.hardware import H100_SXM_BF16_DENSE_FLOPS
 
 # ---------------------------------------------------------------------------
@@ -111,8 +121,11 @@ GPUS: Dict[str, GPU] = {
         peak_flops=H100_SXM_BF16_DENSE_FLOPS,
         tdp_w=700.0,
         memory_gb=80.0,
-        price_usd=30_000.0,
-        price_note="2024 channel range $27,000-$40,000 per card; $30,000 is the middle (repo DGX H100 preset).",
+        price_usd=basis.H100_PRICE_USD,
+        price_note=(
+            "2026 new-card range $35,000-$40,000 per card; $37,500 is the middle "
+            "(IntuitionLabs, Data Center GPU Pricing 2026, accessed 2026-10-26)."
+        ),
         cite=(
             "NVIDIA H100 product page, H100 SXM: BFLOAT16 Tensor Core 1,979 teraFLOPS with sparsity "
             "(dense is half, 989.4 teraFLOPS); Max TDP up to 700W; 80 GB memory."
@@ -124,8 +137,11 @@ GPUS: Dict[str, GPU] = {
         peak_flops=312e12,
         tdp_w=400.0,
         memory_gb=80.0,
-        price_usd=15_000.0,
-        price_note="Rough assumption, no citation.",
+        price_usd=basis.A100_PRICE_USD,
+        price_note=(
+            "New-card range $10,000-$15,000 per card; $12,500 is the middle "
+            "(Jarvislabs, A100 price, March 2026 snapshot, accessed 2026-10-26)."
+        ),
         cite=(
             "NVIDIA A100 datasheet, 80GB SXM: BFLOAT16 Tensor Core 312 TFLOPS (624 with sparsity); "
             "Max TDP SXM 400W; 80 GB memory."
@@ -196,29 +212,35 @@ INPUTS: Dict[str, InputSpec] = {
         InputSpec("pue", "Datacenter overhead (PUE)", "x", 1.2, TAG_ASSUMPTION,
                   "Power usage effectiveness: total building power divided by computer power. "
                   "1.2 means cooling and other overhead add 20%.", advanced=True, lo=1.0, hi=3.0),
-        InputSpec("electricity_price", "Electricity price", "USD/kWh", 0.0813, TAG_ASSUMPTION,
-                  "What one kilowatt-hour costs. Default is the 2024 U.S. industrial average (EIA).",
+        InputSpec("electricity_price", "Electricity price", "USD/kWh", basis.ELECTRICITY_USD_PER_KWH, TAG_ASSUMPTION,
+                  "What one kilowatt-hour costs. Default is the 2025 U.S. industrial average (EIA), which "
+                  "already includes the utility's delivery and demand charges.",
                   advanced=True, lo=0.0, hi=2.0),
         InputSpec("gpu_price", "GPU purchase price", "USD", None, TAG_ASSUMPTION,
                   "What one GPU costs to buy. Default depends on the GPU and is a rough market figure.",
                   advanced=True, lo=0.0),
-        InputSpec("useful_life_years", "Years of use before replacement", "years", 4.0, TAG_ASSUMPTION,
-                  "The hardware's price is spread over this many years. Longer life means cheaper hours.",
+        InputSpec("useful_life_years", "Years of use before replacement", "years", basis.USEFUL_LIFE_YEARS, TAG_ASSUMPTION,
+                  "The servers' price is spread over this many years. Default 5.5 is the median of the lives "
+                  "eight operators report for servers (4 to 6 years). The building is spread over 13 years "
+                  "separately. Longer life means cheaper hours.",
                   advanced=True, lo=0.5, hi=15.0),
         InputSpec("residual_fraction", "Resale value at end of life", "fraction of price", 0.05, TAG_ASSUMPTION,
                   "The share of the purchase price you get back when the GPU is retired.",
                   advanced=True, lo=0.0, hi=0.9),
-        InputSpec("other_hardware_fraction", "Servers, network and building, as a share of GPU price", "fraction",
-                  0.40, TAG_ASSUMPTION,
-                  "Each GPU needs a server, network and space. Default 40% follows the repo's DGX H100 cost "
-                  "preset: server parts about 18% of the GPU price, rack about 5%, building power and cooling "
-                  "about 19%.", advanced=True, lo=0.0, hi=3.0),
+        InputSpec("other_hardware_fraction", "Servers, network and storage, as a share of GPU price", "fraction",
+                  basis.OTHER_HARDWARE_FRACTION, TAG_ASSUMPTION,
+                  "Each GPU needs a server, network and storage. Default 49%: the non-GPU part of an H100 server "
+                  "(about $7,400 per GPU), plus network ($7,500 per GPU) and other cluster hardware ($3,500 per "
+                  "GPU) for a 24,576-GPU H100 cluster, over a $37,500 card. The building, power and cooling "
+                  "are charged separately.", advanced=True, lo=0.0, hi=3.0),
         InputSpec("gpu_power_fraction", "GPU power draw during training", "fraction of rating", 0.80, TAG_ASSUMPTION,
                   "Training rarely pulls the full rated power. 80% is a guess; measured values are often 60-90%.",
                   advanced=True, lo=0.2, hi=1.0),
         InputSpec("server_power_fraction", "Extra server power (CPUs, fans, network)", "fraction of GPU power",
-                  0.25, TAG_ASSUMPTION,
-                  "Power drawn by the rest of the server, as a share of the GPUs' own power.",
+                  basis.SERVER_POWER_FRACTION, TAG_ASSUMPTION,
+                  "Power drawn by the rest of the server, as a share of the GPUs' own power. Default 71% makes "
+                  "an 8-GPU H100 node draw 7.7 kW (median 7.67 kW), the measured average during LLM training (the node is rated "
+                  "10.2 kW).",
                   advanced=True, lo=0.0, hi=2.0),
     ]
 }
@@ -275,7 +297,9 @@ PLAIN_STEPS: Dict[str, Tuple[str, str, str]] = {
     "econ.job.dc_power": ("Power the datacenter draws for this run", "site power x share of cluster used", "W"),
     "econ.run.power_cost": ("Electricity cost", "power x run time x price per watt-second", "USD"),
     "econ.gpu.hourly_amortized": (
-        "Hardware cost per GPU per second", "(price - resale value) / years of use", "USD/s"),
+        "GPU, server and network cost per GPU per second", "(price - resale value) / years of use", "USD/s"),
+    "econ.cluster.facility_capex_rate": (
+        "Building, power and cooling cost per GPU per second", "facility cost per GPU / facility life", "USD/s"),
     "econ.run.hw_cost": ("Hardware cost for this run", "hardware cost per second x run time", "USD"),
     "econ.run.total_cost": ("Total cost", "hardware + running costs (none) + electricity", "USD"),
     "econ.cost.per_token": ("Cost per token", "total cost / tokens", "USD/token"),
@@ -289,9 +313,13 @@ PIN_PLAIN: Dict[str, Tuple[str, str, str]] = {
         "PUE x GPUs x chip power rating x GPU power draw x (1 + extra server power)", "W"),
     "econ.gpu.capex": ("Cost to buy one GPU with its share of servers and network",
                        "GPU price x (1 + servers, network and building share)", "USD"),
-    "econ.asset.useful_life": ("Hardware life in seconds", "years of use x 31,557,600", "s"),
-    "econ.job.capex_rate": ("Hardware cost per second for all GPUs", "number of GPUs x hardware cost per GPU per second",
-                            "USD/s"),
+    "econ.asset.useful_life": ("Server life in seconds", "years of use x 31,557,600", "s"),
+    "econ.cluster.facility_capex": (
+        "Building, power and cooling cost per GPU", "facility USD per W x chip power rating x (1 + extra server power)",
+        "USD"),
+    "econ.facility.useful_life": ("Building life in seconds", "13 years x 31,557,600", "s"),
+    "econ.job.capex_rate": ("Hardware cost per second for all GPUs",
+                            "number of GPUs x (server cost + building cost) per GPU per second", "USD/s"),
 }
 
 OUTPUTS: Dict[str, Dict[str, str]] = {
@@ -364,12 +392,27 @@ def build_model() -> CalculatorModel:
     if amort.missing:
         raise RuntimeError(f"amortization did not resolve: {sorted(amort.missing)}")
 
+    # Per-GPU slice of the facility (building, power and cooling plant): the
+    # graph divides facility capex by the facility's own, longer life. The
+    # facility is sized for the power the GPU and its server can draw.
+    facility_capex_per_gpu = basis.FACILITY_USD_PER_W * S["tdp_w"] * (1 + S["server_power_fraction"])
+    facility_life = basis.FACILITY_USEFUL_LIFE_YEARS * ssum
+    facility = resolve(
+        "econ.cluster.facility_capex_rate",
+        assignments={
+            "econ.cluster.facility_capex": facility_capex_per_gpu,
+            "econ.facility.useful_life": facility_life,
+        },
+    )
+    if facility.missing:
+        raise RuntimeError(f"facility amortization did not resolve: {sorted(facility.missing)}")
+
     pins: Dict[str, sp.Expr] = {
         "gpu.peak_flops_power_limited": S["peak_flops"] * S["mfu"],
         "thermal.dc.total_power": (
             S["pue"] * S["n_gpus"] * S["tdp_w"] * S["gpu_power_fraction"] * (1 + S["server_power_fraction"])
         ),
-        "econ.job.capex_rate": S["n_gpus"] * amort.value,
+        "econ.job.capex_rate": S["n_gpus"] * (amort.value + facility.value),
     }
     assignments: Dict[str, Any] = {
         "arch.params_total_dense": S["params"],
@@ -390,10 +433,10 @@ def build_model() -> CalculatorModel:
         **pins,
     }
 
-    def run(target: str):
-        res = resolve(target, assignments=assignments, variants=GRAPH_VARIANTS)
+    def run(goal: str):
+        res = resolve(goal, assignments=assignments, variants=GRAPH_VARIANTS)
         if res.missing:
-            raise RuntimeError(f"{target}: graph left {sorted(res.missing)} unresolved")
+            raise RuntimeError(f"{goal}: graph left {sorted(res.missing)} unresolved")
         return res
 
     wall = run("training.wallclock")
@@ -443,6 +486,16 @@ def build_model() -> CalculatorModel:
     capex_step = _Step(
         "econ.gpu.capex", *PIN_PLAIN["econ.gpu.capex"][:2], PIN_PLAIN["econ.gpu.capex"][2], "setting", None,
         S["gpu_price"] * (1 + S["other_hardware_fraction"]))
+    fac_capex_step = _Step(
+        "econ.cluster.facility_capex", *PIN_PLAIN["econ.cluster.facility_capex"][:2],
+        PIN_PLAIN["econ.cluster.facility_capex"][2], "setting", None, facility_capex_per_gpu)
+    fac_life_step = _Step(
+        "econ.facility.useful_life", *PIN_PLAIN["econ.facility.useful_life"][:2],
+        PIN_PLAIN["econ.facility.useful_life"][2], "setting", None, sp.sympify(facility_life))
+    fac_step = _Step(
+        "econ.cluster.facility_capex_rate", *PLAIN_STEPS["econ.cluster.facility_capex_rate"][:2],
+        PLAIN_STEPS["econ.cluster.facility_capex_rate"][2], "graph equation", "econ.eq.cluster_facility_capex_rate",
+        facility.value)
     life_step = _Step(
         "econ.asset.useful_life", *PIN_PLAIN["econ.asset.useful_life"][:2], PIN_PLAIN["econ.asset.useful_life"][2],
         "setting", None, S["useful_life_years"] * ssum)
@@ -452,7 +505,8 @@ def build_model() -> CalculatorModel:
         pre = pin_steps(g)
         # hardware chains also need the amortization sub-chain
         if any(s.var in ("econ.run.hw_cost", "econ.run.total_cost", "econ.cost.per_token") for s in g):
-            pre = [capex_step, life_step, amort_step] + [p for p in pre if p.var != "econ.job.capex_rate"]
+            pre = [capex_step, life_step, amort_step, fac_capex_step, fac_life_step, fac_step] + [
+                p for p in pre if p.var != "econ.job.capex_rate"]
             pre.append(_Step("econ.job.capex_rate", *PIN_PLAIN["econ.job.capex_rate"][:2],
                              PIN_PLAIN["econ.job.capex_rate"][2], "setting", None, pins["econ.job.capex_rate"]))
         steps = (extra_before or []) + pre + g + (extra_after or [])
@@ -605,9 +659,9 @@ def estimate(
     mfu : fraction of the chip's peak speed that training reaches. Default 0.40
         (assumption; real runs reach 30-55%).
     pue : datacenter overhead, total power / computer power. Default 1.2 (assumption).
-    electricity_price : USD per kWh. Default 0.0813 (EIA 2024 U.S. industrial average).
+    electricity_price : USD per kWh. Default 0.0851 (EIA 2025 U.S. industrial average).
     gpu_price : USD per GPU. Default depends on the GPU (assumption).
-    useful_life_years : years the hardware is used before replacement. Default 4 (assumption).
+    useful_life_years : years the hardware is used before replacement. Default 5.5 (median of eight operators' reported server lives).
     more : optional ``residual_fraction``, ``other_hardware_fraction``,
         ``gpu_power_fraction``, ``server_power_fraction``, ``peak_flops``, ``tdp_w``.
 

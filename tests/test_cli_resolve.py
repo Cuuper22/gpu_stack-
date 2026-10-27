@@ -91,7 +91,7 @@ def test_resolve_missing_exposes_mixed_cost_frontier_diagnostics():
     assert "econ.cost.per_token =" in out
     assert "missing:" in out
     assert "unresolved inputs:" in out
-    assert out.count("kind=DERIVED reason=symbolic boundary") == 3
+    assert out.count("kind=DERIVED reason=symbolic boundary") == 4
     assert "missing families:" not in out
 
     for variable, expected in {
@@ -156,7 +156,8 @@ def test_resolve_missing_families_groups_mixed_cost_frontier():
     ) in out
     assert (
         "family=econ.cluster boundary_category=symbolic-boundary "
-        "primitive_boundary=False count=1 names=econ.cluster.facility_capex"
+        "primitive_boundary=False count=2 "
+        "names=econ.cluster.facility_capex, econ.cluster.facility_capex_rate"
     ) in out
     assert (
         "family=econ.network boundary_category=symbolic-boundary "

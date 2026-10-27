@@ -137,9 +137,12 @@ class TestPythiaDgxH100RunClosureAssumption:
         ]
         assert non_roots == []
 
-    def test_preset_covers_all_33_missing_roots_of_original_pack(self):
-        # The original pack has 33 missing root inputs. This assumption closure
-        # must cover all of them directly or via upstream decomposition.
+    def test_preset_covers_all_34_missing_roots_of_original_pack(self):
+        # The original pack has 34 missing variables: the 33 it had before the
+        # facility got its own useful life, plus econ.cluster.facility_capex_rate
+        # (a symbolic boundary above econ.facility.useful_life).
+        # This assumption closure must cover all of them directly or via
+        # upstream decomposition.
         original = scenarios.pythia_70m_dgx_h100_us_2024_industrial_power
         original_result = original.resolve("econ.cost.per_token")
         original_missing = set(original_result.missing)
@@ -153,7 +156,8 @@ class TestPythiaDgxH100RunClosureAssumption:
             "full_tco pack still has missing roots: "
             f"{sorted(full_result.missing)}"
         )
-        assert len(original_missing) == 33
+        assert len(original_missing) == 34
+        assert "econ.cluster.facility_capex_rate" in original_missing
 
     def test_water_latent_heat_is_physical_constant(self):
         # Water latent heat at 20 degC: NIST value ~2454 kJ/kg.
@@ -219,14 +223,14 @@ class TestPythiaDgxH100FullTcoPack:
         assert "eia" in source.lower() or "energy information" in source.lower()
 
     def test_pack_advertised_targets_include_cost_per_token(self):
-        targets = dict(scenarios.scenario_targets_for(FULL_TCO_PACK))
-        assert "cost_per_token" in targets
-        assert targets["cost_per_token"] == "econ.cost.per_token"
+        goals = dict(scenarios.scenario_targets_for(FULL_TCO_PACK))
+        assert "cost_per_token" in goals
+        assert goals["cost_per_token"] == "econ.cost.per_token"
 
     def test_pack_advertised_targets_are_registered_variables(self):
-        targets = scenarios.scenario_targets_for(FULL_TCO_PACK)
-        for label, target in targets:
-            assert target in Registry.variables, (FULL_TCO_PACK_NAME, label, target)
+        goals = scenarios.scenario_targets_for(FULL_TCO_PACK)
+        for label, goal in goals:
+            assert goal in Registry.variables, (FULL_TCO_PACK_NAME, label, goal)
 
     def test_pack_resolves_cost_per_token_with_no_missing_inputs(self):
         result = FULL_TCO_PACK.resolve("econ.cost.per_token")
@@ -260,8 +264,8 @@ class TestPythiaDgxH100FullTcoPack:
 
     def test_pack_resolves_all_advertised_targets_cleanly(self):
         failures = []
-        for label, target in scenarios.scenario_targets_for(FULL_TCO_PACK):
-            result = FULL_TCO_PACK.resolve(target)
+        for label, goal in scenarios.scenario_targets_for(FULL_TCO_PACK):
+            result = FULL_TCO_PACK.resolve(goal)
             if result.missing:
                 failures.append(f"{label}: missing {sorted(result.missing)}")
                 continue
@@ -293,25 +297,54 @@ class TestPythiaDgxH100FullTcoPack:
             float(original_result.value), rel=1e-9
         )
 
-    def test_pack_job_dc_power_matches_original_sourced_pack(self):
-        # DC power is driven by thermal.dc.total_power override, unchanged.
+    def test_pack_job_dc_power_is_original_power_times_pue(self):
+        # The original pack pins site power to the 10.2 kW system maximum with no
+        # facility overhead. The full TCO pack multiplies it by the assumed PUE.
         original = scenarios.pythia_70m_dgx_h100_us_2024_industrial_power
         full_result = FULL_TCO_PACK.resolve("econ.job.dc_power")
         original_result = original.resolve("econ.job.dc_power")
 
+        assert float(original_result.value) == pytest.approx(10_200.0, rel=1e-9)
         assert float(full_result.value) == pytest.approx(
-            float(original_result.value), rel=1e-9
+            float(original_result.value) * dgx_h100_tco.ASSUMED_PUE, rel=1e-9
         )
 
-    def test_pack_run_power_cost_matches_original_sourced_pack(self):
-        # Run power cost is driven by electricity price and DC power, unchanged.
+    def test_pack_run_power_cost_is_original_power_cost_times_pue(self):
+        # Run power cost is electricity price x site power x time, so the PUE
+        # factor on site power carries straight through.
         original = scenarios.pythia_70m_dgx_h100_us_2024_industrial_power
         full_result = FULL_TCO_PACK.resolve("econ.run.power_cost")
         original_result = original.resolve("econ.run.power_cost")
 
         assert float(full_result.value) == pytest.approx(
-            float(original_result.value), rel=1e-9
+            float(original_result.value) * dgx_h100_tco.ASSUMED_PUE, rel=1e-9
         )
+
+    def test_pack_demand_charge_is_zero_because_eia_price_contains_it(self):
+        # ROADMAP item 4: the EIA average price is revenue / sales, so it already
+        # includes demand charges; adding a capacity charge counted it twice.
+        full_result = FULL_TCO_PACK.resolve("econ.run.capacity_charge_cost")
+        assert float(full_result.value) == 0.0
+
+    def test_pack_facility_capex_uses_its_own_longer_life(self):
+        # ROADMAP item 4: a 4-year IT life was applied to the whole facility.
+        facility_capex = float(FULL_TCO_PACK.resolve("econ.cluster.facility_capex").value)
+        facility_rate = float(FULL_TCO_PACK.resolve("econ.cluster.facility_capex_rate").value)
+        it_life_s = float(FULL_TCO_PACK.resolve("econ.asset.useful_life").value)
+        facility_life_s = float(FULL_TCO_PACK.resolve("econ.facility.useful_life").value)
+
+        assert facility_life_s == pytest.approx(
+            dgx_h100_tco.FACILITY_USEFUL_LIFE_YEARS * dgx_h100_tco.SECONDS_PER_JULIAN_YEAR
+        )
+        assert facility_life_s > it_life_s
+        assert facility_rate == pytest.approx(facility_capex / facility_life_s, rel=1e-9)
+
+    def test_pack_capex_rate_is_it_rate_plus_facility_rate(self):
+        it_rate = float(FULL_TCO_PACK.resolve("econ.cluster.it_capex_rate").value)
+        facility_rate = float(FULL_TCO_PACK.resolve("econ.cluster.facility_capex_rate").value)
+        total_rate = float(FULL_TCO_PACK.resolve("econ.cluster.capex_rate").value)
+
+        assert total_rate == pytest.approx(it_rate + facility_rate, rel=1e-9)
 
     def test_pack_cost_per_token_trace_uses_capex_and_opex_equations(self):
         result = FULL_TCO_PACK.resolve("econ.cost.per_token")
@@ -333,8 +366,8 @@ class TestPythiaDgxH100FullTcoPack:
         assert FULL_TCO_PACK_NAME in scenarios.SCENARIO_TARGET_SETS
 
     def test_pack_scenario_target_labels_are_stable(self):
-        targets = scenarios.scenario_targets_for(FULL_TCO_PACK)
-        labels = tuple(label for label, _ in targets)
+        goals = scenarios.scenario_targets_for(FULL_TCO_PACK)
+        labels = tuple(label for label, _ in goals)
         assert labels == (
             "tokens_per_second",
             "job_dc_power",
