@@ -180,6 +180,112 @@ def _int(value: Any, name: str, minimum: int = 1) -> int:
 
 
 # ---------------------------------------------------------------------------
+# response design (v3)
+# ---------------------------------------------------------------------------
+
+MODE_NONE = "none"
+MODE_CHECKPOINT = "checkpoint"
+MODE_PAUSE = "pause"
+MODE_MOVE = "move"
+MODES = (MODE_NONE, MODE_CHECKPOINT, MODE_PAUSE, MODE_MOVE)
+MODE_RANK = {MODE_NONE: 0, MODE_CHECKPOINT: 1, MODE_PAUSE: 2, MODE_MOVE: 3}
+FALLBACK_MODES = (MODE_NONE, MODE_CHECKPOINT, MODE_PAUSE)
+
+
+@dataclass(frozen=True)
+class ClassRule:
+    """What the response does for one warning class.
+
+    ``mode`` is the response when the warning covers a job: nothing, a checkpoint
+    only (the job keeps running), a checkpoint followed by a pause once the
+    checkpoint is durable, or a move to the other site (the simulator's
+    ``MigrateJob`` writes the checkpoint itself).  ``fallback`` is used when a
+    move cannot be done (the job is not flexible, or the other site has no room).
+    A pause that cannot be done (the job is not flexible) becomes a checkpoint.
+    """
+
+    mode: str = MODE_CHECKPOINT
+    fallback: str = MODE_CHECKPOINT
+
+    def __post_init__(self) -> None:
+        if self.mode not in MODES:
+            raise ValueError(f"mode must be one of {MODES}")
+        if self.fallback not in FALLBACK_MODES:
+            raise ValueError(f"fallback must be one of {FALLBACK_MODES}")
+
+    def to_dict(self) -> dict[str, str]:
+        return {"mode": self.mode, "fallback": self.fallback}
+
+
+@dataclass(frozen=True)
+class ResponseDesign:
+    """Per-class response rules and timing of the v3 controller (all simulation settings).
+
+    ``protect_ratio``: a policy checkpoint is written only when the job has run at
+    least ``protect_ratio`` times its checkpoint duration since its last durable
+    state (the work a fault would take back is then at least that multiple of the
+    checkpoint cost).  ``min_gap_s``: least time between two policy checkpoints
+    of one job.  ``pause_tol_s``: a job counts as protected, and may be paused,
+    when it has run at most this long since its last durable state.
+    ``clear_decisions``: consecutive below-threshold decisions that end a
+    warning (overrides the settings value when not None).
+    """
+
+    name: str
+    rules: Mapping[str, ClassRule]
+    protect_ratio: float = 0.0
+    min_gap_s: float = 0.0
+    pause_tol_s: float = 90.0
+    clear_decisions: Optional[int] = None
+
+    def __post_init__(self) -> None:
+        if not self.name:
+            raise ValueError("a response design needs a name")
+        for cls, rule in self.rules.items():
+            if cls not in CLASSES:
+                raise ValueError(f"unknown warning class {cls!r}")
+            if not isinstance(rule, ClassRule):
+                raise ValueError("rules must map class names to ClassRule")
+        _num(self.protect_ratio, "protect_ratio")
+        _num(self.min_gap_s, "min_gap_s")
+        _num(self.pause_tol_s, "pause_tol_s", strict=True)
+        if self.clear_decisions is not None:
+            _int(self.clear_decisions, "clear_decisions", 1)
+
+    def rule(self, cls: str) -> ClassRule:
+        return self.rules.get(cls, ClassRule(MODE_NONE, MODE_NONE))
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name, "rules": {k: v.to_dict() for k, v in sorted(self.rules.items())},
+            "protect_ratio": self.protect_ratio, "min_gap_s": self.min_gap_s, "pause_tol_s": self.pause_tol_s,
+            "clear_decisions": self.clear_decisions,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> "ResponseDesign":
+        rules = {k: ClassRule(str(v.get("mode", MODE_CHECKPOINT)), str(v.get("fallback", MODE_CHECKPOINT))) for k, v in data.get("rules", {}).items()}
+        cd = data.get("clear_decisions")
+        return cls(
+            name=str(data["name"]), rules=rules, protect_ratio=float(data.get("protect_ratio", 0.0)),
+            min_gap_s=float(data.get("min_gap_s", 0.0)), pause_tol_s=float(data.get("pause_tol_s", 90.0)),
+            clear_decisions=None if cd is None else int(cd),
+        )
+
+    def with_changes(self, **changes: Any) -> "ResponseDesign":
+        """Copy with fields replaced; ``rules`` entries given as ``rule_<class>`` = ``(mode, fallback)``."""
+        rules = dict(self.rules)
+        plain = {}
+        for key, value in changes.items():
+            if key.startswith("rule_"):
+                mode, fb = value
+                rules[key[len("rule_"):]] = ClassRule(mode, fb)
+            else:
+                plain[key] = value
+        return replace(self, rules=rules, **plain)
+
+
+# ---------------------------------------------------------------------------
 # settings and scenario handling
 # ---------------------------------------------------------------------------
 
@@ -211,6 +317,9 @@ class OutageSettings:
     gpu_peer_excess_floor_frac: float = 0.5
     gpu_baseline_min_samples: int = 6
     gpu_smooth_steps: int = 1
+    # v3 response: per-class rules (None keeps the v1/v2 response) and the controller tick used for it
+    response: Optional[ResponseDesign] = None
+    response_tick_s: Optional[float] = None
 
     def __post_init__(self) -> None:
         _num(self.decision_interval_s, "decision_interval_s", strict=True)
@@ -233,12 +342,30 @@ class OutageSettings:
         _num(self.gpu_peer_excess_floor_frac, "gpu_peer_excess_floor_frac", strict=True, maximum=1.0)
         _int(self.gpu_baseline_min_samples, "gpu_baseline_min_samples", 2)
         _int(self.gpu_smooth_steps, "gpu_smooth_steps", 1)
+        if self.response_tick_s is not None:
+            _num(self.response_tick_s, "response_tick_s", strict=True)
+            ratio = self.decision_interval_s / self.response_tick_s
+            if abs(ratio - round(ratio)) > 1e-9:
+                raise ValueError("decision_interval_s must be a whole multiple of response_tick_s")
+        if self.response is not None and not isinstance(self.response, ResponseDesign):
+            raise ValueError("response must be a ResponseDesign")
         if not self.threshold_grid or any(not 0.0 < g < 1.0 for g in self.threshold_grid):
             raise ValueError("threshold_grid needs values strictly between 0 and 1")
 
     @property
     def horizon_s(self) -> float:
         return self.horizon_steps * self.decision_interval_s
+
+    @property
+    def tick_s(self) -> float:
+        """Interval at which the simulator calls the controller."""
+        return self.decision_interval_s if self.response_tick_s is None else float(self.response_tick_s)
+
+    @property
+    def clear_decisions_effective(self) -> int:
+        if self.response is not None and self.response.clear_decisions is not None:
+            return int(self.response.clear_decisions)
+        return int(self.clear_decisions)
 
     @classmethod
     def from_scenario(cls, outage: Mapping[str, Any]) -> "OutageSettings":
@@ -254,6 +381,11 @@ class OutageSettings:
                 "gpu_baseline_min_samples": int(pg["baseline_min_samples"]),
                 "gpu_smooth_steps": int(pg["smooth_steps"]),
             }
+        resp = block.get("response")
+        if resp:
+            extra["response"] = ResponseDesign.from_dict(resp)
+            if resp.get("tick_s") is not None:
+                extra["response_tick_s"] = float(resp["tick_s"])
         return cls(
             decision_interval_s=float(block["decision_interval_s"]),
             warmup_s=float(gen["warmup_s"]),
@@ -305,8 +437,8 @@ def load_outage_scenario(path: Path | str) -> dict[str, Any]:
     outage["sim"] = deep_merge(base, outage.get("base_overrides", {}))
     s = OutageSettings.from_scenario(outage)
     sim = outage["sim"]
-    if abs(sim["controller_interval_s"] - s.decision_interval_s) > 1e-9:
-        raise ValueError("sim controller_interval_s must equal outage decision_interval_s")
+    if abs(sim["controller_interval_s"] - s.tick_s) > 1e-9:
+        raise ValueError("sim controller_interval_s must equal the outage decision interval (or the response tick when one is set)")
     if sim["horizon_s"] <= s.warmup_s + s.horizon_s:
         raise ValueError("horizon too short for warm-up plus one warning horizon")
     return outage
@@ -361,12 +493,100 @@ def seed_scenario(outage: Mapping[str, Any], seed: int, *, with_events: bool = T
 # ---------------------------------------------------------------------------
 
 
+class StallLedger:
+    """GPU-seconds of every job state in one run (accounting only; no effect on the simulation).
+
+    ``run`` is running time of unpaused jobs; ``run_equivalent`` weights it by the
+    clock fraction (what progresses); ``throttle_loss`` is the difference.
+    ``ckpt`` is checkpoint writes, ``merge`` the multi-site averaging stalls and
+    waits, ``restore_fault`` the restore after a fault, ``move`` the WAN transfer
+    and restore of a migration (its checkpoint is in ``ckpt``), ``paused`` the time a
+    paused job holds its GPUs, ``restart_wait`` the time a faulted job waits for a
+    free placement (the GPUs are not held; counted in job-GPU-seconds).
+    """
+
+    CATEGORIES = ("run", "run_equivalent", "throttle_loss", "ckpt", "merge", "restore_fault", "move", "paused", "restart_wait")
+
+    def __init__(self) -> None:
+        self.gpu_s: dict[str, float] = {k: 0.0 for k in self.CATEGORIES}
+        self.n_restarts = 0
+
+    def to_gpu_hours(self) -> dict[str, float]:
+        return {k: v / 3600.0 for k, v in self.gpu_s.items()}
+
+
 class OutageRun(_Run):
     """The simulator run used by every outage policy.
 
     The hardware precursor's per-GPU temperature offsets are part of the
-    simulator's visible state since commit cbf6d7e, so nothing is added here.
+    simulator's visible state since commit cbf6d7e, so nothing is added to the
+    physics here.  The run keeps a :class:`StallLedger` of where GPU time went;
+    the hooks only read the simulator's state.
     """
+
+    def __init__(self, cfg: SimConfig, controller: Any, seed: int) -> None:
+        self.ledger = StallLedger()
+        self._moving: set[int] = set()
+        self._fault_t: dict[int, float] = {}
+        super().__init__(cfg, controller, seed)
+
+    def _fractions(self, segs: list):  # type: ignore[override]
+        L = self.ledger.gpu_s
+        for sid, mode, _start, dur, _x0, rate in segs:
+            sh = self.shards[int(sid)]
+            g = float(dur) * sh.n_gpus
+            m = int(mode)
+            if m == 0:
+                speed = min(float(rate) * sh.job.step_time_s, 1.0)
+                L["run"] += g
+                L["run_equivalent"] += g * speed
+                L["throttle_loss"] += g * (1.0 - speed)
+            elif m == 1:
+                L["merge"] += g
+            elif m == 2:
+                L["ckpt"] += g
+        return super()._fractions(segs)
+
+    def _advance_shard(self, sh, until, speed, segs):  # type: ignore[override]
+        n0, c0 = len(segs), sh.cursor
+        super()._advance_shard(sh, until, speed, segs)
+        L = self.ledger.gpu_s
+        new = segs[n0:]
+        covered = sum(float(x[3]) for x in new)
+        m3 = sum(float(x[3]) for x in new if int(x[1]) == 3)
+        if m3 > 0.0:
+            L["move" if sh.sid in self._moving else "restore_fault"] += m3 * sh.n_gpus
+        if sh.sid in self._moving and sh.state not in ("transfer", "restore"):
+            self._moving.discard(sh.sid)
+        if sh.paused and sh.state == "running" and sh.cursor >= until - 1e-9:
+            L["paused"] += max((until - c0) - covered, 0.0) * sh.n_gpus
+
+    def _begin_transfer(self, sh):  # type: ignore[override]
+        super()._begin_transfer(sh)
+        if sh.state == "transfer":
+            self._moving.add(sh.sid)
+
+    def _fault_shard(self, sh, t, reason):  # type: ignore[override]
+        was_live = sh.state not in ("done", "queued")
+        super()._fault_shard(sh, t, reason)
+        self._moving.discard(sh.sid)
+        if was_live:
+            self._fault_t[sh.sid] = float(t)
+
+    def _try_place(self, sh, t):  # type: ignore[override]
+        waiting = bool(sh.needs_restore)
+        ok = super()._try_place(sh, t)
+        if ok and waiting and sh.sid in self._fault_t:
+            self.ledger.gpu_s["restart_wait"] += (float(t) - self._fault_t.pop(sh.sid)) * sh.n_gpus
+            self.ledger.n_restarts += 1
+        return ok
+
+    def _finish(self):  # type: ignore[override]
+        end = float(self.cfg.horizon_s)
+        for sid, t0 in list(self._fault_t.items()):
+            self.ledger.gpu_s["restart_wait"] += (end - t0) * self.shards[sid].n_gpus
+        self._fault_t.clear()
+        return super()._finish()
 
 
 class PlacementView:
@@ -1237,6 +1457,201 @@ class ResponsePlanner:
         return actions
 
 
+class ResponsePlannerV3(ResponsePlanner):
+    """Per-class response of the v3 design (see :class:`ResponseDesign`).
+
+    Every job that a warning covers gets the rule of the strongest class warning
+    it (move before pause before checkpoint).  A *checkpoint* is written when the
+    job has run long enough since its last durable state to make the write worth
+    its cost (``protect_ratio``) and not too soon after the previous one
+    (``min_gap_s``); the job keeps running.  A *pause* starts the checkpoint and
+    pauses the job at the first tick at which it is durable again (the simulator
+    does not start a checkpoint on a paused job, so the pause cannot be sent with
+    the checkpoint; with a one-control-step tick the unprotected window is one
+    step).  A *move* is the simulator's ``MigrateJob`` (checkpoint, transfer,
+    restore).  Everything is decided from the visible state: no event times.
+    """
+
+    def __init__(self, cfg: SimConfig, settings: OutageSettings) -> None:
+        super().__init__(cfg, settings)
+        if settings.response is None:
+            raise ValueError("ResponsePlannerV3 needs settings.response")
+        self.design: ResponseDesign = settings.response
+        self._progress: dict[str, float] = {}
+
+    # -- helpers -------------------------------------------------------------------
+
+    def _exposure_s(self, job: Any, jv: Any) -> float:
+        """Seconds of full-speed running since the job's last durable state."""
+        return max(float(jv.steps_since_durable), 0.0) * float(job.step_time_s)
+
+    def _checkpoint_due(self, t: float, job: Any, jv: Any, force: bool = False) -> bool:
+        if jv.status != "running":
+            return False
+        expo = self._exposure_s(job, jv)
+        if expo <= 1e-9:
+            return False
+        if force:
+            return True
+        d = self.design
+        if expo < d.protect_ratio * float(job.checkpoint_duration_s) - 1e-9:
+            return False
+        return t - self.last_checkpoint.get(job.job_id, -math.inf) >= d.min_gap_s - 1e-9
+
+    def _checkpoint(self, t: float, job: Any, unit: str, why: str, actions: list) -> None:
+        actions.append(CheckpointNow(job.job_id))
+        self.last_checkpoint[job.job_id] = t
+        self._note(t, "CheckpointNow", job.job_id, unit, why)
+
+    # -- planning ------------------------------------------------------------------
+
+    def plan(
+        self,
+        t_s: float,
+        vs: VisibleState,
+        placement: Mapping[str, Mapping[str, int]],
+        rack_alarms: Mapping[str, Alarm],
+        site_alarms: Mapping[str, Alarm],
+        job_at: Optional[Callable[[str, int], Optional[str]]] = None,
+        gpu_alarms: Optional[Mapping[str, Mapping[int, Alarm]]] = None,
+    ) -> list[Any]:
+        st, d = self.settings, self.design
+        views = {jv.job_id: jv for jv in vs.jobs}
+        free = {s: int(vs.now["free_gpus"][i]) for i, s in enumerate(vs.site_ids)}
+        site_power = {s: float(vs.now["site_power_w"][i]) for i, s in enumerate(vs.site_ids)}
+        site_limit = {s: float(vs.now["site_import_limit_w"][i]) for i, s in enumerate(vs.site_ids)}
+        blocked_dest = set(site_alarms)
+        demand: dict[str, tuple[int, ClassRule, str, str, str]] = {}  # job -> (rank, rule, unit, why, class)
+
+        def want(job_id: str, cls: str, unit: str, why: str) -> None:
+            rule = d.rule(cls)
+            if rule.mode == MODE_NONE:
+                return
+            cur = demand.get(job_id)
+            if cur is None or MODE_RANK[rule.mode] > cur[0]:
+                demand[job_id] = (MODE_RANK[rule.mode], rule, unit, why, cls)
+
+        # site curtailment: the cheapest flexible jobs that bring the forecast power under the limit
+        for site, alarm in sorted(site_alarms.items()):
+            if d.rule(CLASS_CURTAIL).mode == MODE_NONE:
+                continue
+            limit = alarm.limit_w if alarm.limit_w is not None else site_limit[site]
+            need = site_power[site] - limit * (1.0 - st.curtail_shed_margin)
+            if need <= 0:
+                continue
+            cands = []
+            for job_id, racks in placement.items():
+                job = self.jobs[job_id]
+                jv = views.get(job_id)
+                if jv is None or job.multisite or not jv.flexible or jv.paused or jv.status in ("queued", "done"):
+                    continue
+                if any(self.rack_site[r] == site for r in racks):
+                    cands.append((jv.value_per_gpu_hour, -job.n_gpus, job_id))
+            cands.sort()
+            saved = 0.0
+            for _, _, job_id in cands:
+                if saved >= need:
+                    break
+                saved += self.job_power_saving_w(int(self.jobs[job_id].n_gpus))
+                want(job_id, CLASS_CURTAIL, site, "curtail")
+
+        # rack warnings: every job on the rack (or, for a named slot, the job that holds it)
+        for rack, alarm in sorted(rack_alarms.items()):
+            only = None
+            if alarm.slot is not None and job_at is not None:
+                only = job_at(rack, alarm.slot)
+                if only is None:
+                    continue
+            for job_id, racks in sorted(placement.items()):
+                if rack not in racks or (only is not None and job_id != only):
+                    continue
+                if self.gate is not None and not self.gate(job_id, alarm, t_s):
+                    continue
+                for cls in alarm.classes:
+                    want(job_id, cls, rack, "rack")
+
+        # per-GPU warnings: only the job that holds the warned GPU
+        for rack, slots in sorted((gpu_alarms or {}).items()):
+            if job_at is None or (rack in rack_alarms and CLASS_HARDWARE in rack_alarms[rack].classes):
+                continue
+            for slot, alarm in sorted(slots.items()):
+                job_id = job_at(rack, slot)
+                if job_id is not None:
+                    want(job_id, CLASS_HARDWARE, gpu_unit_id(rack, slot), "gpu")
+
+        actions: list[Any] = []
+        for job_id, (_, rule, unit, why, cls) in sorted(demand.items()):
+            job, jv = self.jobs[job_id], views.get(job_id)
+            if jv is None or job.multisite or jv.paused:
+                continue
+            site = self.rack_site[unit] if unit in self.rack_site else (unit if unit in self.site_ids else self._site_of(unit))
+            n = int(job.n_gpus)
+            mode = rule.mode
+            if mode == MODE_MOVE:
+                dest = self._dest(site, n, free, blocked_dest) if (jv.flexible and jv.status == "running") else None
+                if dest is not None and cls == CLASS_CURTAIL and not self._dest_has_power(dest, n, site_power, site_limit):
+                    dest = None
+                if dest is not None:
+                    actions.append(MigrateJob(job_id, dest))
+                    self._note(t_s, "MigrateJob", job_id, unit, why)
+                    free[dest] -= n
+                    free[site] += n
+                    site_power[dest] += self.job_power_w(n)
+                    self.last_checkpoint[job_id] = t_s
+                    continue
+                mode = rule.fallback
+            if mode == MODE_PAUSE:
+                if not jv.flexible:
+                    mode = MODE_CHECKPOINT  # only flexible jobs can be paused; they still get the checkpoint
+                elif jv.status == "running":
+                    if self._exposure_s(job, jv) <= d.pause_tol_s:
+                        actions.append(PauseJob(job_id))
+                        self.paused[job_id] = (unit, t_s)
+                        self._note(t_s, "PauseJob", job_id, unit, why)
+                    elif self._checkpoint_due(t_s, job, jv, force=True):
+                        self._checkpoint(t_s, job, unit, why, actions)
+                    continue
+                else:
+                    continue
+            if mode == MODE_CHECKPOINT and self._checkpoint_due(t_s, job, jv):
+                self._checkpoint(t_s, job, unit, why, actions)
+        return actions
+
+    def _site_of(self, unit: str) -> str:
+        rack = unit.rsplit("/", 1)[0]
+        return self.rack_site[rack]
+
+    def resumes(self, t_s, vs, rack_active, site_active):
+        """Resume paused jobs whose warning ended, that faulted, or that hit the pause limit."""
+        views = {jv.job_id: jv for jv in vs.jobs}
+        actions = []
+        for job_id, (unit, t0) in sorted(self.paused.items()):
+            jv = views.get(job_id)
+            if jv is None:
+                del self.paused[job_id]
+                continue
+            still = unit in rack_active or unit in site_active
+            back = self._progress.get(job_id)
+            faulted = jv.status in ("queued", "restore") or (back is not None and jv.progress_steps < back - 1e-9)
+            too_long = t_s - t0 >= self.settings.max_pause_s - 1e-9
+            if not still or faulted or too_long:
+                actions.append(ResumeJob(job_id))
+                self._note(t_s, "ResumeJob", job_id, unit, "clear" if not still else ("fault" if faulted else "limit"))
+                del self.paused[job_id]
+        # a job that faulted while paused comes back placed but still flagged as paused: let it run
+        for jv in vs.jobs:
+            if jv.paused and jv.job_id not in self.paused and jv.job_id not in {a.job_id for a in actions}:
+                actions.append(ResumeJob(jv.job_id))
+                self._note(t_s, "ResumeJob", jv.job_id, "", "stale")
+        self._progress = {jv.job_id: float(jv.progress_steps) for jv in vs.jobs}
+        return actions
+
+
+def make_planner(cfg: SimConfig, settings: OutageSettings) -> ResponsePlanner:
+    """The v3 planner when the settings carry a response design, else the v1/v2 planner."""
+    return ResponsePlannerV3(cfg, settings) if settings.response is not None else ResponsePlanner(cfg, settings)
+
+
 # ---------------------------------------------------------------------------
 # controllers
 # ---------------------------------------------------------------------------
@@ -1262,11 +1677,16 @@ class _BankController:
         self.placement = PlacementView(run)
         self.bank = ChannelBank(cfg, self.settings, self.placement)
         self.index = self.bank.index
-        self.planner = ResponsePlanner(cfg, self.settings)
+        self.planner = make_planner(cfg, self.settings)
         self._on_bind()
 
     def _on_bind(self) -> None:  # pragma: no cover - hook
         pass
+
+    def on_grid(self, t_s: float) -> bool:
+        """True at the decision times (multiples of the decision interval); other ticks only run the response."""
+        k = float(t_s) / self.settings.decision_interval_s
+        return abs(k - round(k)) < 1e-6
 
     def decide(self, t_s: float, visible_state: VisibleState) -> Sequence[Any]:  # pragma: no cover - overridden
         return ()
@@ -1292,15 +1712,25 @@ class TraceRecorder(_BankController):
         self.rack_on_rows: list[np.ndarray] = []
         self.gpu_flex_move_gpu_h: list[np.ndarray] = []
         self.gpu_nonflex_checkpoint_gpu_h: list[np.ndarray] = []
+        self.rack_checkpoint_all_gpu_h: list[np.ndarray] = []
+        self.rack_flex_gpus: list[np.ndarray] = []
+        self.site_flex_gpus: list[np.ndarray] = []
+        self.gpu_checkpoint_all_gpu_h: list[np.ndarray] = []
+        self.gpu_flex_gpus: list[np.ndarray] = []
 
     def decide(self, t_s, visible_state):
         assert self.bank is not None and self.placement is not None and self.cfg is not None and self.index is not None
+        if not self.on_grid(t_s):
+            return ()
         self.bank.sample(t_s, visible_state)
         self.decision_times.append(float(t_s))
         R, S = len(self.index.rack_ids), len(self.index.site_ids)
         flex_move = np.zeros(R)
         nonflex = np.zeros(R)
         site_flex = np.zeros(S)
+        ckpt_all = np.zeros(R)
+        flex_gpus = np.zeros(R)
+        site_flex_gpus = np.zeros(S)
         jobs = {j.job_id: j for j in self.cfg.jobs}
         for job_id, racks in self.placement.job_rack_counts().items():
             job = jobs[job_id]
@@ -1309,13 +1739,19 @@ class TraceRecorder(_BankController):
             c = job_costs(job, self.cfg.transfer)
             for rid in racks:
                 ri = self.index.rack_ids.index(rid)
+                ckpt_all[ri] += c["checkpoint"]
                 if job.flexible:
                     flex_move[ri] += c["move"]
+                    flex_gpus[ri] += float(job.n_gpus)
                 else:
                     nonflex[ri] += c["checkpoint"]
             site = self.index.rack_site[self.index.rack_ids.index(next(iter(racks)))]
             if job.flexible:
                 site_flex[self.index.site_ids.index(site)] += c["move"]
+                site_flex_gpus[self.index.site_ids.index(site)] += float(job.n_gpus)
+        self.rack_checkpoint_all_gpu_h.append(ckpt_all)
+        self.rack_flex_gpus.append(flex_gpus)
+        self.site_flex_gpus.append(site_flex_gpus)
         self.rack_flex_move_gpu_h.append(flex_move)
         self.rack_nonflex_checkpoint_gpu_h.append(nonflex)
         self.site_flex_move_gpu_h.append(site_flex)
@@ -1323,16 +1759,22 @@ class TraceRecorder(_BankController):
             # cost of protecting the job that holds each GPU (single-site jobs only, as the planner acts)
             g_flex = np.zeros(self.placement.n_gpus())
             g_non = np.zeros(self.placement.n_gpus())
+            g_all = np.zeros(self.placement.n_gpus())
+            g_fg = np.zeros(self.placement.n_gpus())
             for g, job_id in enumerate(self.placement.gpu_job_ids()):
                 if job_id is None or jobs[job_id].multisite:
                     continue
                 c = job_costs(jobs[job_id], self.cfg.transfer)
+                g_all[g] = c["checkpoint"]
                 if jobs[job_id].flexible:
                     g_flex[g] = c["move"]
+                    g_fg[g] = float(jobs[job_id].n_gpus)
                 else:
                     g_non[g] = c["checkpoint"]
             self.gpu_flex_move_gpu_h.append(g_flex)
             self.gpu_nonflex_checkpoint_gpu_h.append(g_non)
+            self.gpu_checkpoint_all_gpu_h.append(g_all)
+            self.gpu_flex_gpus.append(g_fg)
         self.rack_on_rows.append(np.asarray(visible_state.now["rack_on"], dtype=bool))
         return ()
 
@@ -1345,10 +1787,15 @@ class TraceRecorder(_BankController):
             "rack_flex_move_gpu_h": np.stack(self.rack_flex_move_gpu_h),
             "rack_nonflex_checkpoint_gpu_h": np.stack(self.rack_nonflex_checkpoint_gpu_h),
             "site_flex_move_gpu_h": np.stack(self.site_flex_move_gpu_h),
+            "rack_checkpoint_all_gpu_h": np.stack(self.rack_checkpoint_all_gpu_h),
+            "rack_flex_gpus": np.stack(self.rack_flex_gpus),
+            "site_flex_gpus": np.stack(self.site_flex_gpus),
         }
         if self.gpu_flex_move_gpu_h:
             out["gpu_flex_move_gpu_h"] = np.stack(self.gpu_flex_move_gpu_h)
             out["gpu_nonflex_checkpoint_gpu_h"] = np.stack(self.gpu_nonflex_checkpoint_gpu_h)
+            out["gpu_checkpoint_all_gpu_h"] = np.stack(self.gpu_checkpoint_all_gpu_h)
+            out["gpu_flex_gpus"] = np.stack(self.gpu_flex_gpus)
         return out
 
 
@@ -1375,12 +1822,15 @@ class ForecastWarningController(_BankController):
 
     def _on_bind(self) -> None:
         assert self.index is not None
-        self.tracker = EpisodeTracker(len(self.index), self.threshold, self.settings.clear_decisions)
+        self.tracker = EpisodeTracker(len(self.index), self.threshold, self.settings.clear_decisions_effective)
 
     def decide(self, t_s, visible_state):
         assert self.bank is not None and self.placement is not None and self.planner is not None
         assert self.index is not None and self.tracker is not None
         st = self.settings
+        if not self.on_grid(t_s):
+            # between two decisions only the response runs: warnings stay as the last decision left them
+            return self._respond(t_s, visible_state, self.tracker.active.copy())
         self.bank.sample(t_s, visible_state)
         self.decision_times.append(float(t_s))
         d = len(self.bank.rows) - 1
@@ -1461,7 +1911,7 @@ class OracleAlarm:
 
 def oracle_settings(settings: OutageSettings, control_dt_s: float) -> OutageSettings:
     """Settings for the oracle run: decisions every control step and no re-checkpoint spacing."""
-    return replace(settings, decision_interval_s=float(control_dt_s), recheckpoint_s=float(control_dt_s))
+    return replace(settings, decision_interval_s=float(control_dt_s), recheckpoint_s=float(control_dt_s), response_tick_s=None)
 
 
 def oracle_scenario(sim: Mapping[str, Any]) -> dict[str, Any]:
@@ -1896,7 +2346,8 @@ def response_costs(
                 nxt = [f for f in faults.get(job_id, []) if f > t0]
                 if nxt:
                     end = min(end, min(nxt))
-                out.append({"t_s": t0, "action": "PauseJob", "job_id": job_id, "unit": u0, "applied": True, "gpu_h": n * max(end - t0, 0.0) / 3600.0})
+                out.append({"t_s": t0, "action": "PauseJob", "job_id": job_id, "unit": u0, "applied": True, "gpu_h": n * max(end - t0, 0.0) / 3600.0,
+                            "t_end_s": float(end), "n_gpus": int(n)})
             continue
         else:
             continue
@@ -1907,7 +2358,8 @@ def response_costs(
         nxt = [f for f in faults.get(job_id, []) if f > t0]
         if nxt:
             end = min(end, min(nxt))
-        out.append({"t_s": t0, "action": "PauseJob", "job_id": job_id, "unit": u0, "applied": True, "gpu_h": float(job.n_gpus) * max(end - t0, 0.0) / 3600.0})
+        out.append({"t_s": t0, "action": "PauseJob", "job_id": job_id, "unit": u0, "applied": True, "gpu_h": float(job.n_gpus) * max(end - t0, 0.0) / 3600.0,
+                    "t_end_s": float(end), "n_gpus": int(job.n_gpus)})
     out.sort(key=lambda r: (r["t_s"], r["action"], str(r["job_id"])))
     return out
 
@@ -2039,11 +2491,16 @@ def score_run(
     costs = response_costs(res, jobs, cfg, export.get("meta_actions", []))
     alarms = classify_alarms(merge_alarms(episodes, settings.episode_merge_gap_s), table, settings)
     for a in alarms:
-        lo, hi = a["start_s"], a["end_s"] + settings.decision_interval_s * settings.clear_decisions
+        lo, hi = a["start_s"], a["end_s"] + settings.decision_interval_s * settings.clear_decisions_effective
         mine = [c for c in costs if c["unit"] == a["unit"] and lo - 1e-9 <= c["t_s"] <= hi + 1e-9]
         a["cost_gpu_h"] = float(sum(c["gpu_h"] for c in mine))
         a["n_actions"] = len(mine)
+        by_act: dict[str, float] = {}
+        for c in mine:
+            by_act[c["action"]] = by_act.get(c["action"], 0.0) + c["gpu_h"]
+        a["cost_by_action"] = by_act
     summary = res.summary()
+    pauses = pause_records(costs, table, settings)
     by_action: dict[str, float] = {}
     n_actions: dict[str, int] = {}
     rejected = 0
@@ -2076,7 +2533,41 @@ def score_run(
             "false_alarms_per_day": sum(1 for a in alarms if not a["true"]) / days, "evaluated_days": days,
         },
         "min_lead_s": min_lead,
+        "pauses": pauses,
+        "ledger_gpu_h": res._run.ledger.to_gpu_hours(),
+        "n_restarts": int(res._run.ledger.n_restarts),
     }
+
+
+def pause_records(costs: Sequence[Mapping[str, Any]], table: Sequence[Mapping[str, Any]], settings: OutageSettings) -> list[dict[str, Any]]:
+    """Each applied pause with the event it served (if any) and the part of it that outlasted that event.
+
+    A pause is matched to the earliest event on its unit (a rack, a GPU of the
+    rack, or the site) whose window, widened by one warning horizon, overlaps it.
+    ``after_event_gpu_h`` is the GPU-hours held after the event window ended (the
+    resumption delay); ``unmatched`` pauses served no event.
+    """
+    L = settings.horizon_s
+    out = []
+    for c in costs:
+        if c["action"] != "PauseJob" or not c.get("applied") or "t_end_s" not in c:
+            continue
+        t0, t1 = float(c["t_s"]), float(c["t_end_s"])
+        match = None
+        for ev in table:
+            if c["unit"] not in ev["units"]:
+                continue
+            if ev["onset_s"] - L <= t1 and ev["window_end_s"] + L >= t0:
+                match = ev
+                break
+        span = max(t1 - t0, 1e-9)
+        after = 0.0
+        if match is not None:
+            after = c["gpu_h"] * max(t1 - max(t0, float(match["window_end_s"])), 0.0) / span
+        out.append({"t_s": t0, "t_end_s": t1, "job_id": c["job_id"], "unit": c["unit"], "gpu_h": float(c["gpu_h"]),
+                    "event_id": None if match is None else match["event_id"], "kind": None if match is None else match["kind"],
+                    "after_event_gpu_h": float(after)})
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -2092,35 +2583,71 @@ def replay_objective(
     index: SeriesIndex,
     settings: OutageSettings,
     min_lead_s: float,
+    design: Optional[ResponseDesign] = None,
 ) -> dict[str, float]:
     """Replay estimate of total loss (GPU-hours) for one warning rule on one recorded trace.
 
     Misses cost what the reactive run lost on the event (rollback work); every
-    alarm costs the checkpoint of non-flexible jobs on its rack at its start,
-    re-done every ``recheckpoint_s``, plus the move of flexible jobs.  Events
-    with no rollback (curtailment, throttle) add no miss cost.  This is an
-    approximation used only to choose a threshold on training seeds; closed-loop
-    runs report the realized numbers.
+    alarm costs what the response would spend at its start on the jobs it covers.
+    Without ``design`` this is the v1/v2 response: the checkpoint of non-flexible
+    jobs on its rack, re-done every ``recheckpoint_s``, plus the move of flexible
+    jobs.  With ``design`` the alarm cost follows the strongest rule among the
+    classes of the alarm: a checkpoint of every covered job (re-done every
+    ``min_gap_s``), a move (flexible jobs; the others checkpoint), or a
+    checkpoint plus the time a flexible job sits paused for the alarm's length.
+    Events whose class rule is "none" cannot be helped by a warning and add no
+    miss cost.  Events with no rollback (curtailment, throttle) add no miss cost.
+    This is an approximation used only to choose a threshold on training seeds;
+    closed-loop runs report the realized numbers.
     """
     matches = match_events(table, episodes, settings, min_lead_s)
     lost = {r["event_id"]: float(r["lost_gpu_h"]) for r in reactive_by_event}
-    miss = float(sum(lost.get(ev["event_id"], 0.0) for ev in table if not matches[ev["event_id"]]["caught_in_time"]))
+
+    def helped(ev: Mapping[str, Any]) -> bool:
+        if design is None:
+            return True
+        return any(design.rule(c).mode != MODE_NONE for c in EVENT_CLASSES[ev["kind"]])
+
+    miss = float(sum(lost.get(ev["event_id"], 0.0) for ev in table if helped(ev) and not matches[ev["event_id"]]["caught_in_time"]))
     times = np.asarray(trace["times_s"])
     alarm_cost = 0.0
     for a in merge_alarms(episodes, settings.episode_merge_gap_s):
         d0 = int(np.argmin(np.abs(times - a["start_s"])))
         dur = a["end_s"] - a["start_s"]
         if a["unit"] in index.gpu_units:
-            g = index.gpu_units.index(a["unit"])
-            alarm_cost += float(trace["gpu_flex_move_gpu_h"][d0, g])
-            alarm_cost += float(trace["gpu_nonflex_checkpoint_gpu_h"][d0, g]) * (1 + math.floor(dur / settings.recheckpoint_s))
+            kind, k = "gpu", index.gpu_units.index(a["unit"])
         elif a["unit"] in index.rack_ids:
-            r = index.rack_ids.index(a["unit"])
-            alarm_cost += float(trace["rack_flex_move_gpu_h"][d0, r])
-            alarm_cost += float(trace["rack_nonflex_checkpoint_gpu_h"][d0, r]) * (1 + math.floor(dur / settings.recheckpoint_s))
+            kind, k = "rack", index.rack_ids.index(a["unit"])
         else:
-            s = index.site_ids.index(a["unit"])
-            alarm_cost += float(trace["site_flex_move_gpu_h"][d0, s])
+            kind, k = "site", index.site_ids.index(a["unit"])
+        if design is None:
+            if kind == "gpu":
+                alarm_cost += float(trace["gpu_flex_move_gpu_h"][d0, k])
+                alarm_cost += float(trace["gpu_nonflex_checkpoint_gpu_h"][d0, k]) * (1 + math.floor(dur / settings.recheckpoint_s))
+            elif kind == "rack":
+                alarm_cost += float(trace["rack_flex_move_gpu_h"][d0, k])
+                alarm_cost += float(trace["rack_nonflex_checkpoint_gpu_h"][d0, k]) * (1 + math.floor(dur / settings.recheckpoint_s))
+            else:
+                alarm_cost += float(trace["site_flex_move_gpu_h"][d0, k])
+            continue
+        mode = max((design.rule(c).mode for c in a["classes"]), key=lambda m: MODE_RANK[m])
+        if mode == MODE_NONE:
+            continue
+        repeats = 1 + (math.floor(dur / design.min_gap_s) if design.min_gap_s > 0 else 0)
+        if kind == "site":
+            if mode in (MODE_MOVE, MODE_PAUSE):
+                alarm_cost += float(trace["site_flex_move_gpu_h"][d0, k])
+            continue
+        ck_all = float(trace["gpu_checkpoint_all_gpu_h" if kind == "gpu" else "rack_checkpoint_all_gpu_h"][d0, k])
+        flex_move = float(trace["gpu_flex_move_gpu_h" if kind == "gpu" else "rack_flex_move_gpu_h"][d0, k])
+        non_ck = float(trace["gpu_nonflex_checkpoint_gpu_h" if kind == "gpu" else "rack_nonflex_checkpoint_gpu_h"][d0, k])
+        flex_gpus = float(trace["gpu_flex_gpus" if kind == "gpu" else "rack_flex_gpus"][d0, k])
+        if mode == MODE_CHECKPOINT:
+            alarm_cost += ck_all * repeats
+        elif mode == MODE_MOVE:
+            alarm_cost += flex_move + non_ck * repeats
+        else:  # pause: flexible jobs checkpoint once and sit paused for the alarm, the others keep checkpointing
+            alarm_cost += (ck_all - non_ck) + non_ck * repeats + flex_gpus * dur / 3600.0
     return {"miss_gpu_h": miss, "alarm_gpu_h": float(alarm_cost), "total_gpu_h": miss + float(alarm_cost)}
 
 
@@ -2328,6 +2855,94 @@ def aggregate_runs(runs: Sequence[Mapping[str, Any]], settings: OutageSettings, 
     return out
 
 
+STALL_CATEGORIES = ("ckpt", "merge", "restore_fault", "move", "paused")
+
+
+def decompose_deficit(
+    runs: Sequence[Mapping[str, Any]],
+    ref_ledgers: Sequence[Mapping[str, float]],
+    n_resamples: int,
+) -> dict[str, Any]:
+    """Where a policy's useful-GPU-hour deficit goes, averaged over seeds (all simulated).
+
+    ``runs`` are :func:`score_run` outputs of one policy, ``ref_ledgers`` the
+    event-free ledgers (GPU-hours) of the same seeds.  Per seed the identity
+    ``deficit = lost_work + (reference run-equivalent hours - run-equivalent hours)`` is exact
+    (useful hours are run-equivalent hours minus rolled-back hours).  The second
+    term is split into the increase of throttle loss, the increases of the stall
+    categories (checkpoint writes, multi-site averaging, restore after faults,
+    migration transfer and restore, pause time) over the event-free run, and a
+    ``residual`` that holds the rest: GPUs that sit idle because a rack or GPU
+    is down, jobs that wait for a placement, and stalls that the schedule
+    absorbed (a negative residual: part of the stall time cost no useful hours
+    at the end of the window).  Fault loss, response cost, throttle slowdown and
+    curtailment violation are also split by event type, with the alarms' response
+    cost and the pause time that outlasted the event it served.
+    """
+    n = len(runs)
+    if n == 0 or n != len(ref_ledgers):
+        raise ValueError("runs and ref_ledgers must be non-empty and the same length")
+    B = n_resamples
+
+    def per_seed(fn: Callable[[Mapping[str, Any], Mapping[str, float]], float]) -> list[float]:
+        return [fn(r, ref) for r, ref in zip(runs, ref_ledgers)]
+
+    def delta(cat: str) -> list[float]:
+        return per_seed(lambda r, ref: r["ledger_gpu_h"][cat] - ref[cat])
+
+    comp: dict[str, list[float]] = {
+        "lost_work": per_seed(lambda r, ref: r["summary"]["lost_gpu_hours"]),
+        "throttle_loss_increase": delta("throttle_loss"),
+    }
+    for cat in STALL_CATEGORIES:
+        comp[f"{cat}_increase"] = delta(cat)
+    deficit = per_seed(lambda r, ref: r["deficit_gpu_h"])
+    explained = [sum(comp[k][i] for k in comp) for i in range(n)]
+    comp["residual"] = [deficit[i] - explained[i] for i in range(n)]
+    out: dict[str, Any] = {
+        "n_seeds": n, "data_kind": "simulated",
+        "deficit_gpu_h": bootstrap_ci(deficit, B, 201),
+        "components_gpu_h": {k: bootstrap_ci(v, B, 210 + i) for i, (k, v) in enumerate(comp.items())},
+        "restart_wait_increase_job_gpu_h": bootstrap_ci(delta("restart_wait"), B, 230),
+        "identity_max_abs_error_gpu_h": float(max(
+            abs(r["deficit_gpu_h"] - (r["summary"]["lost_gpu_hours"] + (ref["run_equivalent"] - r["ledger_gpu_h"]["run_equivalent"])))
+            for r, ref in zip(runs, ref_ledgers))),
+        "note": "deficit = lost_work + throttle_loss_increase + sum of stall increases + residual; the first identity (deficit = lost_work + reference run-equivalent hours - run-equivalent hours) is exact",
+    }
+    by_kind: dict[str, Any] = {}
+    for ki, kind in enumerate(EVENT_TYPES):
+        rows = [[e for e in r["by_event"] if e["kind"] == kind] for r in runs]
+        if sum(len(x) for x in rows) == 0:
+            continue
+        ev_alarm: list[dict[str, float]] = []
+        for r in runs:
+            kind_of = {e["event_id"]: e["kind"] for e in r["by_event"]}
+            acc: dict[str, float] = {"total": 0.0}
+            for a in r["alarms"]:
+                if a["true"] and kind_of.get(a["event_id"]) == kind:
+                    acc["total"] += a["cost_gpu_h"]
+                    for act, v in a.get("cost_by_action", {}).items():
+                        acc[act] = acc.get(act, 0.0) + v
+            ev_alarm.append(acc)
+        acts = sorted({k for a in ev_alarm for k in a if k != "total"})
+        pause_after = [sum(p["after_event_gpu_h"] for p in r["pauses"] if p["kind"] == kind) for r in runs]
+        by_kind[kind] = {
+            "n_events": int(sum(len(x) for x in rows)),
+            "fault_loss_gpu_h": bootstrap_ci([sum(e["lost_gpu_h"] for e in x) for x in rows], B, 240 + ki),
+            "throttle_slowdown_gpu_h": bootstrap_ci([sum(e["throttle_slowdown_gpu_h"] for e in x) for x in rows], B, 250 + ki),
+            "violation_kwh": bootstrap_ci([sum(e["violation_kwh"] for e in x) for x in rows], B, 260 + ki),
+            "response_gpu_h": bootstrap_ci([a["total"] for a in ev_alarm], B, 270 + ki),
+            "response_gpu_h_by_action": {act: bootstrap_ci([a.get(act, 0.0) for a in ev_alarm], B, 280 + ki) for act in acts},
+            "pause_after_event_gpu_h": bootstrap_ci(pause_after, B, 290 + ki),
+        }
+    out["by_event_type"] = by_kind
+    out["false_alarm_response_gpu_h"] = bootstrap_ci(
+        [sum(a["cost_gpu_h"] for a in r["alarms"] if not a["true"]) for r in runs], B, 300)
+    out["unattributed_lost_gpu_h"] = bootstrap_ci([r["unattributed"]["lost_gpu_h"] for r in runs], B, 301)
+    out["unmatched_pause_gpu_h"] = bootstrap_ci([sum(p["gpu_h"] for p in r["pauses"] if p["event_id"] is None) for r in runs], B, 302)
+    return out
+
+
 def paired_difference(a: Sequence[float], b: Sequence[float], n_resamples: int, seed: int = 0) -> dict[str, Any]:
     """Mean of ``a - b`` over seeds (paired) with a bootstrap interval."""
     d = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
@@ -2345,9 +2960,10 @@ def file_sha256(path: Path | str) -> str:
 __all__ = [
     "Alarm", "Calibration", "ChannelBank", "EpisodeTracker", "ForecastWarningController", "OracleAlarm", "OracleController",
     "OutageRun", "OutageSettings", "PersistenceForecaster", "PlacementView", "ResponsePlanner", "SeriesIndex", "TraceRecorder",
+    "ClassRule", "ResponseDesign", "ResponsePlannerV3", "StallLedger", "make_planner", "pause_records",
     "CH_GPU_RESID", "GpuResidualChannel", "aggregate_runs", "attribute_faults", "gpu_unit_id", "bootstrap_ci", "build_event_table", "calibrate", "classify_alarms",
     "curtailment_violation", "deep_merge", "detection_stats", "episodes_from_pmax", "exceedance_probability", "job_costs",
     "load_outage_scenario", "match_events", "oracle_scenario", "oracle_settings", "merge_alarms", "openloop_pmax", "oracle_alarms_from_reference",
-    "paired_difference", "periodic_local_jobs", "replay_objective", "response_costs", "run_policy", "score_run",
+    "paired_difference", "periodic_local_jobs", "decompose_deficit", "STALL_CATEGORIES", "replay_objective", "response_costs", "run_policy", "score_run",
     "seed_scenario", "series_limits", "throttle_episodes", "throttle_slowdown_gpu_h", "window_probabilities",
 ]
