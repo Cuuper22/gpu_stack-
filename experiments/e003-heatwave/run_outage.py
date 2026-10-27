@@ -576,7 +576,8 @@ def stage_report(outage, S, args, work) -> None:
     base_scenario = SCENARIO.parent / outage["base_scenario"]
     inputs = [SCENARIO, base_scenario] + ([V1_RESULT] if v1_cmp is not None else [])
     record = write_result(OUT, result, script=__file__, data_kind="simulated", inputs=inputs,
-                          notes="Held-out seeds; thresholds tuned on training seeds; all outputs simulated.")
+                          notes="Held-out seeds; thresholds tuned on training seeds; all outputs simulated."
+                                + (f" Open-loop, tuning and closed-loop stages ran on: {args.ran_on}." if args.ran_on else ""))
     record["provenance"]["git"] = git_state()
     record["provenance"]["script"] = str(Path(__file__).resolve().relative_to(ROOT))
     record["provenance"]["script_sha256"] = file_sha256(__file__)
@@ -608,6 +609,7 @@ def main() -> None:
     ap.add_argument("--scenario", type=Path, default=SCENARIO, help="outage scenario file (default outage-scenario-v2.json)")
     ap.add_argument("--out", type=Path, default=OUT, help="result file written by the report stage")
     ap.add_argument("--no-compare-v1", dest="compare_v1", action="store_false", help="skip the side-by-side with results/outage-v1.json")
+    ap.add_argument("--ran-on", default=None, help="hardware description recorded in the result notes (stages other than report)")
     ap.add_argument("--finetuned-weights", default=None)
     ap.add_argument("--finetuned-size", default="28M")
     args = ap.parse_args()
