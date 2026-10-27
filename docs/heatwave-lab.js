@@ -168,16 +168,24 @@
   function outagePane(O) {
     if (!O || O.status !== "ready") return pending();
     var box = h("div", { class: "hwl-pane" }, [h("p", { class: "hwl-caption", text: "Simulated. Warn before trouble, checkpoint early, then move or pause the work. Means over the held-out seeds." })]);
-    ["v2", "v1"].forEach(function (ver) {
+    var TITLES = { v3: "Redesigned response: the action depends on the kind of trouble", v2: "With each GPU's own temperature as a warning sign", v1: "First version (rack-level warning signs)" };
+    ["v3", "v2", "v1"].forEach(function (ver) {
       var V = O.versions[ver];
-      box.append(h("h3", { class: "hwl-h", text: ver === "v2" ? "With each GPU's own temperature as a warning sign" : "First version (rack-level warning signs)" }));
-      if (!V || V.status !== "ready") { box.append(pending()); return; }
-      var t = h("table", { class: "hwl-table" }, [h("thead", {}, [h("tr", {}, ["policy", "useful GPU-hours", "GPU-hours lost to faults", "events warned in time", "false alarms per day"].map(function (x) { return h("th", { text: x }); }))])]);
+      if (!V) return;
+      box.append(h("h3", { class: "hwl-h", text: TITLES[ver] }));
+      if (V.status !== "ready") { box.append(pending()); return; }
+      var paired = ver === "v3";
+      var cols = ["policy", "useful GPU-hours"].concat(paired ? ["vs reacting (95%)"] : []).concat(["GPU-hours lost to faults", "events warned in time", "false alarms per day"]);
+      var t = h("table", { class: "hwl-table" }, [h("thead", {}, [h("tr", {}, cols.map(function (x) { return h("th", { text: x }); }))])]);
       var tb = h("tbody");
       Object.keys(V.policies).forEach(function (k) {
         var p = V.policies[k];
-        tb.append(h("tr", {}, [h("td", { text: p.label }), h("td", { text: fmt(p.useful_gpu_h, 0) }), h("td", { text: fmt(p.lost_gpu_h, 1) }),
-          h("td", { text: p.recall === null ? "n/a" : pct(p.recall) }), h("td", { text: p.false_alarms_per_day === null ? "n/a" : fmt(p.false_alarms_per_day, 1) })]));
+        var u = p.useful_vs_reactive;
+        var cells = [h("td", { text: p.label }), h("td", { text: fmt(p.useful_gpu_h, 0) })];
+        if (paired) cells.push(h("td", { text: u ? (u[0] > 0 ? "+" : "") + fmt(u[0], 1) + " (" + fmt(u[1], 1) + " to " + fmt(u[2], 1) + ")" : "n/a" }));
+        cells.push(h("td", { text: fmt(p.lost_gpu_h, 1) }), h("td", { text: p.recall === null ? "n/a" : pct(p.recall) }),
+          h("td", { text: p.false_alarms_per_day === null ? "n/a" : fmt(p.false_alarms_per_day, 1) }));
+        tb.append(h("tr", {}, cells));
       });
       t.append(tb);
       box.append(t);

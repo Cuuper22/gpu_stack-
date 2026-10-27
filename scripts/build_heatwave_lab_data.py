@@ -5,7 +5,7 @@ typed here). Optional inputs that do not exist yet become explicit "pending"
 entries, which the page shows as "result pending", never as a number.
 
   packing  experiments/e003-heatwave/results/packing-v1.json and lab-traces-v1.json  (simulated)
-  outage   experiments/e003-heatwave/results/outage-v1.json, outage-v2.json if present (simulated)
+  outage   experiments/e003-heatwave/results/outage-v1.json, outage-v2.json, outage-v3.json if present (simulated)
   cost     experiments/e003-heatwave/results/cost-v1.json (public price and carbon, modeled workload)
   audit    experiments/e003-heatwave/results/cost-audit-v1.json (published prices, calculator)
   heatwave --heatwave PATH: the Heatwave repository checkout, for results/forecast/multiscale.json,
@@ -80,7 +80,7 @@ def packing_block() -> dict:
 
 def outage_block() -> dict:
     out = {"status": "ready", "data_kind": "simulated", "versions": {}}
-    for ver in ("v1", "v2"):
+    for ver in ("v1", "v2", "v3"):
         p = E3 / f"outage-{ver}.json"
         d = load(p)
         if d is None:
@@ -94,6 +94,9 @@ def outage_block() -> dict:
                       "deficit_gpu_h": r3(o["deficit_gpu_h"]["mean"], 1),
                       "recall": r3((o.get("recall") or {}).get("value"), 3),
                       "false_alarms_per_day": r3((o.get("false_alarms_per_day") or {}).get("mean"), 2)}
+            pv = (d["result"].get("paired_vs_reactive") or {}).get(k, {}).get("useful_gpu_h_minus_reactive")
+            if pv:
+                pol[k]["useful_vs_reactive"] = [r3(pv["mean"], 1), r3(pv["lo"], 1), r3(pv["hi"], 1)]
         out["versions"][ver] = {"status": "ready", "source": src(p, ROOT), "policies": pol,
                                 "n_test_seeds": len(d["result"]["seeds"]["test"])}
     return out
