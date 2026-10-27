@@ -56,7 +56,10 @@
     var raw = max / n, mag = Math.pow(10, Math.floor(Math.log10(raw))), step = mag;
     [1, 2, 2.5, 5, 10].some(function (m) { step = m * mag; return step >= raw; });
     var out = [];
-    for (var v = 0; v <= max + 1e-9; v += step) out.push(v);
+    for (var v = 0; ; v += step) {
+      out.push(v);
+      if (v >= max - 1e-9) break;
+    }
     return out;
   }
   function group(options, current, onPick, label) {
@@ -101,7 +104,7 @@
     var scrub = h("input", { type: "range", min: "0", max: String(nT - 1), step: "1", value: "0", class: "hwl-range" });
     var play = h("button", { type: "button", class: "hwl-btn", text: reduced ? "Next hour" : "Play" });
 
-    var W = 640, H = 230, L = 50, R = 10, T = 12, B = 34;
+    var W = 640, H = 240, L = 50, R = 10, T = 12, B = 44;
     var svg = s("svg", { viewBox: "0 0 " + W + " " + H, class: "hwl-chart", role: "img",
       "aria-label": "Simulated site power over the scored window against each site's power cap. Planning lower in the forecast keeps more jobs in and crosses the cap more often." });
     function x(i) { return L + (W - L - R) * i / (nT - 1); }
@@ -111,8 +114,8 @@
       txt(svg, L - 6, y(v) + 4, "hwl-axis", fmt(v), "end");
     });
     txt(svg, 4, 11, "hwl-axis", "kW");
-    for (var hr = 0; hr <= hours; hr += 4) txt(svg, x(Math.min(nT - 1, hr * perHour)), H - 14, "hwl-axis", String(hr), "middle");
-    txt(svg, W - R, H - 2, "hwl-axis", "hours into the scored window", "end");
+    for (var hr = 0; hr <= hours; hr += 4) txt(svg, x(Math.min(nT - 1, hr * perHour)), H - B + 16, "hwl-axis", String(hr), "middle");
+    txt(svg, W - R, H - 4, "hwl-axis", "hours into the scored window", "end");
     var over = s("g", { class: "hwl-over" });
     svg.append(over);
     tr.site_caps_kw.forEach(function (c, k) {
@@ -134,7 +137,7 @@
     });
     var racks = h("div", { class: "hwl-racks", role: "group", "aria-label": "Racks at the moment shown by the time slider, colored by their hottest GPU" }, cells.map(function (c) { return c.cell; }));
     var scale = h("p", { class: "hwl-scale" }, [h("span", { text: fmt(tMin, 0) + " °C" }), h("i", { class: "hwl-ramp", "aria-hidden": "true" }), h("span", { text: fmt(tMax, 0) + " °C" }),
-      h("span", { class: "hwl-help", text: "Each box is a rack, colored by its hottest GPU. Gray means no job is running there." })]);
+      h("span", { class: "hwl-help", text: "Each box is a rack, colored by its hottest GPU, from pale and cool to red and hot." })]);
     var counters = h("div");
     var best = h("p", { class: "hwl-note" });
     var clock = h("span", { class: "hwl-help" });

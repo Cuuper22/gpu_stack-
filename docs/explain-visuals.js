@@ -1441,6 +1441,157 @@
     }
   );
 
+  /* =========================================================
+     33. quantile forecast (a fan of percentile lines)
+     ========================================================= */
+  def(
+    "quantiles",
+    "A line of past values on the left, then a widening fan of percentile lines going forward, with the 90th percentile line picked out in gold.",
+    function () {
+      var past = [[10, 70], [22, 62], [34, 74], [46, 58], [58, 66], [70, 52], [82, 60], [94, 50], [106, 56], [118, 48]];
+      var out = T(10, 12, "past", "ts") + T(250, 12, "future, 21 lines", "ts te");
+      out += poly(past, "ln s-bl w2 dr pa");
+      var fan = "M118 48";
+      var up = [];
+      var dn = [];
+      for (var i = 0; i <= 6; i++) {
+        var x = 118 + i * 22;
+        up.push([x, 48 - i * 4.2]);
+        dn.push([x, 48 + i * 4.6]);
+      }
+      out += '<path d="' + pathD(up.concat(dn.slice().reverse())) + 'Z" class="f-t1 fa"/>';
+      var lines = [
+        ["99th", -1.1, "s-ln w1"],
+        ["90th", -0.7, "s-go w3"],
+        ["50th", 0, "s-cd w2"],
+        ["10th", 0.7, "s-ln w1"],
+        ["1st", 1.1, "s-ln w1"],
+      ];
+      lines.forEach(function (l, k) {
+        var pts = [];
+        for (var j = 0; j <= 6; j++) {
+          var xx = 118 + j * 22;
+          pts.push([xx, 48 + (l[1] < 0 ? l[1] * j * 4.2 : l[1] * j * 4.6)]);
+        }
+        out += poly(pts, "ln " + l[2] + " dr fl fl" + k);
+        an(".fl" + k, 4, 40 + k * 3, 62 + k * 3, "stroke-dashoffset:1", "stroke-dashoffset:0", "linear");
+      });
+      out += T(130, 112, "plan on the 90th (gold): short 1 time in 10", "tm tb");
+      draw(".pa", 4, 4, 38);
+      an(".fa", 4, 38, 60, "opacity:0", "opacity:1", "linear");
+      return out;
+    }
+  );
+
+  /* =========================================================
+     34. Timestral (history and known-ahead inputs in, quantiles out)
+     ========================================================= */
+  def(
+    "timestral",
+    "A long history of values and a strip of known-ahead inputs, such as a schedule, both feeding a box labeled Timestral, which returns a fan of 21 quantile lines.",
+    function () {
+      var hist = [];
+      for (var x = 10; x <= 84; x += 4) hist.push([x, 40 + 12 * Math.sin(x / 7) + 4 * Math.sin(x / 2.3)]);
+      var out = T(10, 12, "history", "ts") + poly(hist, "ln s-bl w15 dr hh");
+      out += T(10, 74, "known ahead", "ts");
+      [[10, 14], [30, 10], [44, 22], [70, 14]].forEach(function (b, i) {
+        out += rect(b[0], 80, b[1], 9, "f-t2 s-ink w1 kb kb" + i);
+        an(".kb" + i, 4, 6 + i * 7, 14 + i * 7, "opacity:0", "opacity:1", "linear");
+      });
+      out += line(88, 40, 98, 52, "s-ink w1") + line(86, 84, 98, 62, "s-ink w1");
+      out += rect(98, 34, 66, 42, "f-pa s-ink w2 bx") + T(131, 52, "Timestral", "tm tb") + T(131, 66, "209M", "tm ts");
+      out += line(164, 55, 172, 55, "s-ink w1");
+      var up = [[172, 55], [250, 28]];
+      var dn = [[172, 55], [250, 82]];
+      out += '<path d="' + pathD(up.concat(dn.slice().reverse())) + 'Z" class="f-t1 fa2"/>';
+      for (var k = 0; k < 5; k++) {
+        var y = 28 + k * 13.5;
+        out += poly([[172, 55], [250, y]], "ln " + (k === 2 ? "s-cd w2" : "s-ln w1") + " dr fq fq" + k);
+        an(".fq" + k, 4, 52 + k * 3, 70 + k * 3, "stroke-dashoffset:1", "stroke-dashoffset:0", "linear");
+      }
+      out += T(250, 100, "21 quantiles", "te tb");
+      out += T(130, 114, "open model, runs on an ordinary CPU", "tm ts");
+      draw(".hh", 4, 4, 34);
+      an(".fa2", 4, 50, 66, "opacity:0", "opacity:1", "linear");
+      return out;
+    }
+  );
+
+  /* =========================================================
+     35. thermal throttling (hot chip, slower clock)
+     ========================================================= */
+  def(
+    "throttle",
+    "Two stacked curves. The temperature climbs to a dashed limit line, and at that moment the clock speed below steps down to about half.",
+    function () {
+      var out = T(10, 12, "temperature", "tb") + T(250, 12, "limit", "te ts");
+      out += line(10, 24, 250, 24, "s-rd w1", 'stroke-dasharray="4 3"');
+      var temp = [[10, 62], [50, 54], [90, 40], [120, 28], [140, 25], [170, 26], [210, 25], [250, 26]];
+      out += poly(temp, "ln s-rd w2 dr tt");
+      out += T(10, 80, "clock speed", "tb");
+      out += poly([[10, 92], [128, 92], [128, 106], [250, 106]], "ln s-bl w2 dr cc");
+      out += T(250, 90, "full speed", "te ts");
+      out += T(250, 118, "slowed to stay cool", "te ts");
+      out += line(128, 24, 128, 106, "s-ln w1", 'stroke-dasharray="2 2"');
+      draw(".tt", 4, 4, 52);
+      draw(".cc", 4, 40, 86);
+      return out;
+    }
+  );
+
+  /* =========================================================
+     36. power cap (room under a ceiling, and going over it)
+     ========================================================= */
+  def(
+    "powercap",
+    "A power curve under a dashed ceiling. Two spikes poke over the ceiling in red, and the hatched gaps under it are room that goes unused.",
+    function () {
+      var capY = 40;
+      var out = T(10, 12, "site power", "tb") + T(250, 32, "the cap", "te ts");
+      var ys = [];
+      var cols = "";
+      for (var x = 10; x <= 250; x += 6) {
+        var y = 62 - 10 * Math.sin(x / 19) - 3 * Math.sin(x / 4.1);
+        if (x >= 100 && x <= 124) y = 30 + (x % 12 === 4 ? 0 : 3);
+        if (x >= 190 && x <= 208) y = 33;
+        ys.push([x, y]);
+        if (y < capY) cols += rect(x - 3, y, 6, capY - y, "f-rd");
+        else if (y - capY > 14) cols += rect(x - 3, capY, 6, y - capY, "f-ha");
+      }
+      out += '<g class="cx">' + cols + "</g>";
+      out += line(10, capY, 250, capY, "s-ink w2", 'stroke-dasharray="6 4"');
+      out += poly(ys, "ln s-bl w2 dr pw");
+      out += rect(10, 92, 10, 8, "f-rd") + T(24, 100, "over the cap", "");
+      out += rect(110, 92, 10, 8, "f-ha s-ln w1") + T(124, 100, "room left unused", "");
+      out += T(130, 116, "too low wastes room, too high trips it", "tm tb");
+      draw(".pw", 4, 4, 70);
+      an(".cx", 4, 40, 70, "opacity:0", "opacity:1", "linear");
+      return out;
+    }
+  );
+
+  /* =========================================================
+     37. carbon intensity (the grid is cleaner at some hours)
+     ========================================================= */
+  def(
+    "carbonmix",
+    "Twenty-four bars for the hours of one example day. The bars are tall at night and short around midday, when solar power is plentiful.",
+    function () {
+      var out = T(10, 12, "grams of CO2 per kWh, by hour", "tb");
+      var base = 92;
+      for (var i = 0; i < 24; i++) {
+        var hgt = 52 - 30 * Math.max(0, Math.sin(((i - 6) / 12) * Math.PI)) + (i % 5) * 1.5;
+        var cls = hgt > 40 ? "f-t4" : hgt > 30 ? "f-t2" : "f-t3";
+        out += rect(12 + i * 10, base - hgt, 8, hgt, cls + " s-ink w1 ob cb cb" + i);
+        an(".cb" + i, 4, 4 + i * 2.2, 14 + i * 2.2, "transform:scaleY(0)", "transform:none", "ease-out");
+      }
+      out += line(10, base, 252, base, "s-ink w1");
+      out += T(12, 104, "midnight", "ts") + T(130, 104, "noon", "tm ts") + T(250, 104, "midnight", "te ts");
+      out += T(130, 116, "an example day, not data", "tm ts");
+      return out;
+    }
+  );
+
   /* ---------- public API ---------- */
 
   var HATCH =

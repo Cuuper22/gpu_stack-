@@ -33,6 +33,7 @@ ROOT = Path(__file__).resolve().parents[1]
 E3 = ROOT / "experiments" / "e003-heatwave" / "results"
 OUT = ROOT / "docs" / "data" / "e003-heatwave-lab-v1.json"
 OUT_STORY = ROOT / "docs" / "data" / "e003-heatwave-story-v1.json"
+ENC = json.JSONEncoder(separators=(",", ":"), allow_nan=False).encode
 WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten",
          11: "eleven", 12: "twelve"}
 
@@ -348,7 +349,7 @@ def story_numbers(doc: dict) -> list[dict]:
     def add(id_: str, text: str, value, source: str) -> None:
         out.append({"id": id_, "text": text, "value": value, "source": source})
 
-    f, th, P, O, C = doc["forecast"], doc["thermal"], doc["packing"], doc["outage"], doc["cost"]
+    f, th, P, OUTG, C = doc["forecast"], doc["thermal"], doc["packing"], doc["outage"], doc["cost"]
     if f["status"] == "ready":
         s = "heatwave:results/forecast/multiscale.json"
         el = f["datasets"]["elsayed_gpu_power"]
@@ -383,6 +384,8 @@ def story_numbers(doc: dict) -> list[dict]:
         add("packing.q90.energy_ratio", "a sixth of the energy", ratio, s + "timestral-5M/q0.9.energy_above_cap_kwh.mean over reactive (1/6 = 0.167)")
         add("packing.reactive.energy", n1(re_["energy_above_cap_kwh"]["mean"]) + " kWh", re_["energy_above_cap_kwh"]["mean"], s + "reactive.energy_above_cap_kwh.mean")
         add("packing.q90.energy", n1(q9["energy_above_cap_kwh"]["mean"]) + " kWh", q9["energy_above_cap_kwh"]["mean"], s + "timestral-5M/q0.9.energy_above_cap_kwh.mean")
+        for pen in P["penalties_usd_per_kwh"]:
+            add(f"packing.penalty.{pen:g}", f"${pen:,.2f}" if pen % 1 else f"${pen:,.0f}", pen, "packing-v1.json result.paired_net_value_difference (penalty sweep keys)")
         lv = P["learned_vs_reactive"]
         add("packing.learned.at40", f"${lv['40']['vs_reactive']['mean']:,.0f}", lv["40"]["vs_reactive"]["mean"], "packing-v1.json result.paired_net_value_difference.40 vs reactive mean")
         add("packing.learned.at160", f"${lv['160']['vs_reactive']['mean']:,.0f}", lv["160"]["vs_reactive"]["mean"], "packing-v1.json result.paired_net_value_difference.160 vs reactive mean")
@@ -391,12 +394,13 @@ def story_numbers(doc: dict) -> list[dict]:
         s = "gpu_stack:experiments/e003-heatwave/results/cost-v1.json pairs.caiso curves (f=0.3, W=24, rho=0.7, q=0.5) at lambda 0.5 "
         c = C["pairs"]["caiso"]["curves"]
         mid = c["timestral_28M"]["lambda"].index(0.5)
+        add("cost.flexible", f"{100 * C['setting']['flexible_fraction']:.0f} percent of the work", C["setting"]["flexible_fraction"], "cost-v1.json result.scenario.workload.headline.flexible_fraction")
         add("cost.timestral.electricity", f"{c['timestral_28M']['saving_pct_electricity'][mid]:.1f} percent", c["timestral_28M"]["saving_pct_electricity"][mid], s + "timestral_28M saving_pct_electricity")
         add("cost.timestral.co2", f"{c['timestral_28M']['saving_pct_co2'][mid]:.1f} percent", c["timestral_28M"]["saving_pct_co2"][mid], s + "timestral_28M saving_pct_co2")
         add("cost.perfect.electricity", f"{c['perfect']['saving_pct_electricity'][mid]:.1f} percent", c["perfect"]["saving_pct_electricity"][mid], s + "perfect saving_pct_electricity")
         add("cost.naive.electricity", f"{c['seasonal_naive_24']['saving_pct_electricity'][mid]:.1f} percent", c["seasonal_naive_24"]["saving_pct_electricity"][mid], s + "seasonal_naive_24 saving_pct_electricity")
         add("cost.timestral.total", f"{c['timestral_28M']['saving_pct_total'][mid]:.2f} percent", c["timestral_28M"]["saving_pct_total"][mid], s + "timestral_28M saving_pct_total")
-    v2 = O["versions"].get("v2", {})
+    v2 = OUTG["versions"].get("v2", {})
     if v2.get("status") == "ready" and "events" in v2:
         s = "gpu_stack:experiments/e003-heatwave/results/outage-v2.json result."
         pol = v2["policies"]
@@ -415,7 +419,7 @@ def story_numbers(doc: dict) -> list[dict]:
         add("outage.ts28m.useful", n0(ts["useful_gpu_h"]), ts["useful_gpu_h"], s + "policies.ts28m.overall.useful_gpu_h.mean")
         u = ts["useful_gpu_h_vs_reactive"]
         add("outage.ts28m.useful_diff", f"{u['mean']:.1f} GPU-hours more, with a 95 percent interval from {u['lo']:.1f} to {u['hi']:.1f}", u["mean"], s + "paired_vs_reactive.ts28m.useful_gpu_h_minus_reactive")
-        v1_ts = O["versions"]["v1"]["policies"]["ts28m"]
+        v1_ts = OUTG["versions"]["v1"]["policies"]["ts28m"]
         add("outage.v1.ts28m.warned", f"{100 * v1_ts['recall_in_time']:.0f} percent", v1_ts["recall_in_time"], "outage-v1.json result.policies.ts28m.overall.recall_in_time.value")
     A = doc["ablation"]
     if A["status"] == "ready":
@@ -454,14 +458,14 @@ def main() -> None:
            "packing": packing_block(), "outage": outage_block(), "cost": cost_block(), "audit": audit_block(),
            **heatwave_blocks(hw)}
     doc["story_numbers"] = story_numbers(doc)
-    OUT.write_text(json.dumps(doc, separators=(",", ":"), allow_nan=False))
+    OUT.write_text(ENC(doc))
     print(f"wrote {OUT} ({OUT.stat().st_size / 1024:.0f} KiB)")
-    story = json.loads(json.dumps(doc))
+    story = json.loads(ENC(doc))
     if story["packing"].get("status") == "ready":
         story["packing"]["trace"] = {k: v for k, v in story["packing"]["trace"].items() if k != "runs"}
         story["packing"]["trace"]["note"] = "replay traces are in e003-heatwave-lab-v1.json"
     story["schema"] = "gpu-stack.e003-heatwave-story.v1"
-    OUT_STORY.write_text(json.dumps(story, separators=(",", ":"), allow_nan=False))
+    OUT_STORY.write_text(ENC(story))
     print(f"wrote {OUT_STORY} ({OUT_STORY.stat().st_size / 1024:.0f} KiB)")
 
 
