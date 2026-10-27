@@ -173,8 +173,18 @@ def seeds_for(outage: dict, which: str, args: argparse.Namespace) -> list[int]:
 
 
 def tuning_seeds(outage: dict, args: argparse.Namespace) -> list[int]:
-    """Seeds on which warning thresholds are tuned: ``outage.tuning_seeds`` is ``train`` (default) or ``design``."""
-    return seeds_for(outage, "design" if outage["outage"].get("tuning_seeds") == "design" else "train", args)
+    """Seeds on which warning thresholds are tuned.
+
+    ``outage.tuning_seeds`` is ``"train"`` (the calibration seeds, default), ``"design"`` (all training seeds), or an
+    integer N (the calibration seeds and the first N-4 extra training seeds, so N seeds in all).
+    """
+    spec = outage["outage"].get("tuning_seeds", "train")
+    if spec == "train":
+        return seeds_for(outage, "train", args)
+    design = seeds_for(outage, "design", args)
+    if spec == "design":
+        return design
+    return design[: max(int(spec), len(seeds_for(outage, "train", args)))]
 
 
 def openloop_seeds(outage: dict, args: argparse.Namespace) -> list[int]:

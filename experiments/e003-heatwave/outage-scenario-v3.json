@@ -295,8 +295,7 @@
       ],
       "warned_reference": {
         "forecasters": {
-          "naive": 0.7,
-          "ets": 0.9
+          "naive": 0.7
         },
         "note": "thresholds are the outage-v2 training choices; used only to score design candidates under realistic false alarms and misses"
       },
