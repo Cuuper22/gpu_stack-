@@ -1,0 +1,77 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "775824294538dd7090bef77219f8ffc4235574ac1dc67d03c379609abd423248",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "79366ffb4eb6b6495c381a673ec08115a7ca565f",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 501,
+  "policy": "timestral-5M/q0.7",
+  "forecaster": "timestral-5M",
+  "use_covariates": true,
+  "options": {
+   "n_train": 6,
+   "n_test": 3,
+   "grid_stride": 2,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "policy": "timestral-5M/q0.7",
+  "kind": "fixed",
+  "seed": 501,
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1575.1598817496783,
+   "gpu_hours_multisite_jobs": 110.1278888888884,
+   "value_usd": 3911.988791798963,
+   "jobs_admitted": 46,
+   "jobs_completed": 47,
+   "violation_rate": 0.3802083333333333,
+   "violation_rate_by_site": [
+    0.2552083333333333,
+    0.21354166666666666
+   ],
+   "energy_above_cap_kwh": 0.28412342941575486,
+   "energy_above_cap_kwh_by_site": [
+    0.12601375343027416,
+    0.15810967598548067
+   ],
+   "seconds_above_cap": 3860.0,
+   "max_excess_w": 1322.8790893492114,
+   "stranded_kwh": 73.04217919253027,
+   "stranded_intervals": 192,
+   "mean_power_over_cap": 0.9637294243961654,
+   "energy_kwh": 1952.4353929806996,
+   "forecast_calls": 192,
+   "forecast_refresh_bins": 1,
+   "job_faults": 0
+  },
+  "wall_s": 56.9548761844635,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 30.549762670133095,
+     "width_h": 7.375543052987341,
+     "add_c": 7.293306072819712
+    },
+    "site-b": {
+     "center_h": 32.54976267013309,
+     "width_h": 6.348024512926546,
+     "add_c": 6.894294797221747
+    }
+   },
+   "n_events": 2,
+   "sim_seed": 1897289818
+  }
+ }
+}

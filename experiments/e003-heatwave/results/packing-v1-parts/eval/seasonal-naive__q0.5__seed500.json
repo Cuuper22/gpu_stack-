@@ -1,0 +1,77 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "775824294538dd7090bef77219f8ffc4235574ac1dc67d03c379609abd423248",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "79366ffb4eb6b6495c381a673ec08115a7ca565f",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 500,
+  "policy": "seasonal-naive/q0.5",
+  "forecaster": "seasonal-naive",
+  "use_covariates": false,
+  "options": {
+   "n_train": 6,
+   "n_test": 3,
+   "grid_stride": 2,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "policy": "seasonal-naive/q0.5",
+  "kind": "fixed",
+  "seed": 500,
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1721.245744606534,
+   "gpu_hours_multisite_jobs": 172.03634114376945,
+   "value_usd": 4719.543824703999,
+   "jobs_admitted": 48,
+   "jobs_completed": 52,
+   "violation_rate": 0.9947916666666666,
+   "violation_rate_by_site": [
+    0.9635416666666666,
+    0.921875
+   ],
+   "energy_above_cap_kwh": 51.69924839438382,
+   "energy_above_cap_kwh_by_site": [
+    36.88166147721442,
+    14.817586917169473
+   ],
+   "seconds_above_cap": 82530.0,
+   "max_excess_w": 6742.078825150689,
+   "stranded_kwh": 13.087094114159289,
+   "stranded_intervals": 192,
+   "mean_power_over_cap": 1.017588454493119,
+   "energy_kwh": 2063.805603024038,
+   "forecast_calls": 192,
+   "forecast_refresh_bins": 1,
+   "job_faults": 3
+  },
+  "wall_s": 25.066953897476196,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 33.45137853486401,
+     "width_h": 7.965310278704651,
+     "add_c": 10.747451311810256
+    },
+    "site-b": {
+     "center_h": 35.45137853486401,
+     "width_h": 7.52074955580357,
+     "add_c": 8.02111209440545
+    }
+   },
+   "n_events": 6,
+   "sim_seed": 852058663
+  }
+ }
+}

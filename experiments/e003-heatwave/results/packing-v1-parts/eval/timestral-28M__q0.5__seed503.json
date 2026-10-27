@@ -1,0 +1,77 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "706bc00638bb72faccff2ced10e1a61b81cd8151f803af9985a5b152d5b8ec4a",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "e0a23649d441d0be29fd356dc5548c5198ba702f",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 503,
+  "policy": "timestral-28M/q0.5",
+  "forecaster": "timestral-28M",
+  "use_covariates": true,
+  "options": {
+   "n_train": 6,
+   "n_test": 0,
+   "grid_stride": 1,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "policy": "timestral-28M/q0.5",
+  "kind": "fixed",
+  "seed": 503,
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1588.7724314765471,
+   "gpu_hours_multisite_jobs": 395.34842222222187,
+   "value_usd": 3729.677334190366,
+   "jobs_admitted": 46,
+   "jobs_completed": 51,
+   "violation_rate": 0.6770833333333334,
+   "violation_rate_by_site": [
+    0.5052083333333334,
+    0.3697916666666667
+   ],
+   "energy_above_cap_kwh": 9.267865933040355,
+   "energy_above_cap_kwh_by_site": [
+    8.09999697136934,
+    1.1678689616710183
+   ],
+   "seconds_above_cap": 14860.0,
+   "max_excess_w": 20014.150352603756,
+   "stranded_kwh": 66.17670300290779,
+   "stranded_intervals": 192,
+   "mean_power_over_cap": 0.9707130801003324,
+   "energy_kwh": 1968.2846116739463,
+   "forecast_calls": 192,
+   "forecast_refresh_bins": 1,
+   "job_faults": 11
+  },
+  "wall_s": 145.07241129875183,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 28.69693716559329,
+     "width_h": 8.485539850348593,
+     "add_c": 6.583726272179926
+    },
+    "site-b": {
+     "center_h": 30.69693716559329,
+     "width_h": 7.612279111558819,
+     "add_c": 11.659848198696821
+    }
+   },
+   "n_events": 6,
+   "sim_seed": 1156610557
+  }
+ }
+}

@@ -1,0 +1,77 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "775824294538dd7090bef77219f8ffc4235574ac1dc67d03c379609abd423248",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "79366ffb4eb6b6495c381a673ec08115a7ca565f",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 500,
+  "policy": "timestral-5M/learned@10",
+  "forecaster": "timestral-5M",
+  "use_covariates": true,
+  "options": {
+   "n_train": 6,
+   "n_test": 3,
+   "grid_stride": 2,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "policy": "timestral-5M/learned@10",
+  "kind": "learned",
+  "seed": 500,
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1539.295362421797,
+   "gpu_hours_multisite_jobs": 162.55238558821387,
+   "value_usd": 4619.373030672096,
+   "jobs_admitted": 41,
+   "jobs_completed": 46,
+   "violation_rate": 0.5729166666666666,
+   "violation_rate_by_site": [
+    0.3958333333333333,
+    0.359375
+   ],
+   "energy_above_cap_kwh": 2.6199211065411054,
+   "energy_above_cap_kwh_by_site": [
+    1.9589904344880968,
+    0.6609306720530083
+   ],
+   "seconds_above_cap": 14440.0,
+   "max_excess_w": 2750.1117897462536,
+   "stranded_kwh": 66.02778900303463,
+   "stranded_intervals": 192,
+   "mean_power_over_cap": 0.9683531285359436,
+   "energy_kwh": 1961.7855808473203,
+   "forecast_calls": 192,
+   "forecast_refresh_bins": 1,
+   "job_faults": 3
+  },
+  "wall_s": 63.692711353302,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 33.45137853486401,
+     "width_h": 7.965310278704651,
+     "add_c": 10.747451311810256
+    },
+    "site-b": {
+     "center_h": 35.45137853486401,
+     "width_h": 7.52074955580357,
+     "add_c": 8.02111209440545
+    }
+   },
+   "n_events": 6,
+   "sim_seed": 852058663
+  }
+ }
+}

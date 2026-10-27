@@ -1,0 +1,77 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "706bc00638bb72faccff2ced10e1a61b81cd8151f803af9985a5b152d5b8ec4a",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "e0a23649d441d0be29fd356dc5548c5198ba702f",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 504,
+  "policy": "timestral-5M/q0.3",
+  "forecaster": "timestral-5M",
+  "use_covariates": true,
+  "options": {
+   "n_train": 6,
+   "n_test": 0,
+   "grid_stride": 1,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "policy": "timestral-5M/q0.3",
+  "kind": "fixed",
+  "seed": 504,
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1539.5639974962723,
+   "gpu_hours_multisite_jobs": 328.1221777777779,
+   "value_usd": 3580.95840140161,
+   "jobs_admitted": 36,
+   "jobs_completed": 45,
+   "violation_rate": 0.7395833333333334,
+   "violation_rate_by_site": [
+    0.4375,
+    0.5989583333333334
+   ],
+   "energy_above_cap_kwh": 3.9994286511110078,
+   "energy_above_cap_kwh_by_site": [
+    1.9302156424223098,
+    2.069213008688692
+   ],
+   "seconds_above_cap": 19660.0,
+   "max_excess_w": 2453.5093288945063,
+   "stranded_kwh": 74.51131625665555,
+   "stranded_intervals": 192,
+   "mean_power_over_cap": 0.9650647977854035,
+   "energy_kwh": 1954.6815611382692,
+   "forecast_calls": 192,
+   "forecast_refresh_bins": 1,
+   "job_faults": 1
+  },
+  "wall_s": 82.37947273254395,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 33.38411541304453,
+     "width_h": 8.013569193408635,
+     "add_c": 7.018603984207262
+    },
+    "site-b": {
+     "center_h": 35.38411541304453,
+     "width_h": 6.064193486335819,
+     "add_c": 9.595493555604865
+    }
+   },
+   "n_events": 3,
+   "sim_seed": 1348840674
+  }
+ }
+}

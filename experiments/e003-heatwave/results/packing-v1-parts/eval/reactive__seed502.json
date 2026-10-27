@@ -1,0 +1,77 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "775824294538dd7090bef77219f8ffc4235574ac1dc67d03c379609abd423248",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "79366ffb4eb6b6495c381a673ec08115a7ca565f",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 502,
+  "policy": "reactive",
+  "forecaster": null,
+  "use_covariates": false,
+  "options": {
+   "n_train": 6,
+   "n_test": 3,
+   "grid_stride": 2,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "policy": "reactive",
+  "kind": "reactive",
+  "seed": 502,
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1810.7615023086437,
+   "gpu_hours_multisite_jobs": 172.91101699114557,
+   "value_usd": 4855.036736591638,
+   "jobs_admitted": 47,
+   "jobs_completed": 59,
+   "violation_rate": 0.6197916666666666,
+   "violation_rate_by_site": [
+    0.3802083333333333,
+    0.4479166666666667
+   ],
+   "energy_above_cap_kwh": 31.836897019080467,
+   "energy_above_cap_kwh_by_site": [
+    21.496496921023038,
+    10.340400098057435
+   ],
+   "seconds_above_cap": 19960.0,
+   "max_excess_w": 20866.6195898617,
+   "stranded_kwh": 101.26374555218275,
+   "stranded_intervals": 118,
+   "mean_power_over_cap": 0.9329109195936248,
+   "energy_kwh": 1890.771062778807,
+   "forecast_calls": 0,
+   "forecast_refresh_bins": 1,
+   "job_faults": 11
+  },
+  "wall_s": 37.3090660572052,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 31.103693584341134,
+     "width_h": 9.22436002559779,
+     "add_c": 6.146835029551676
+    },
+    "site-b": {
+     "center_h": 33.10369358434113,
+     "width_h": 6.220294705000173,
+     "add_c": 9.098821741363022
+    }
+   },
+   "n_events": 7,
+   "sim_seed": 1294216915
+  }
+ }
+}
