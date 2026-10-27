@@ -1,0 +1,189 @@
+{
+  "schema": "gpu-stack.e003-heatwave-outage-scenario.v1",
+  "data_kind": "simulated",
+  "scenario_id": "e003-heatwave-outage-v2",
+  "description": "Outage-response experiment on the e003 two-site simulated cluster. Each seed is a 15-hour simulated window with its own synthetic job mix, synthetic weather and a randomly drawn schedule of cooling failures, breaker events, grid curtailments and hardware faults (some with precursors). Every number here is a simulation assumption, not a measurement. v2 adds one monitored series per GPU (temperature residual against rack peers) and reads the simulator scenario v3; seeds, event generation and every other setting equal outage-scenario-v1.json.",
+  "base_scenario": "sim-scenario-v3.json",
+  "base_overrides": {
+    "horizon_s": 54000,
+    "base_dt_s": 60.0,
+    "control_dt_s": 60.0,
+    "controller_interval_s": 600.0,
+    "outputs": {
+      "gpu_windows": []
+    },
+    "environment": {
+      "synthetic": {
+        "start_hour_utc": 17.0,
+        "sites": {
+          "site-a": {
+            "outdoor": {
+              "heatwaves": [
+                {
+                  "center_h": 6.0,
+                  "width_h": 3.0,
+                  "add_c": 8.0
+                }
+              ]
+            }
+          },
+          "site-b": {
+            "outdoor": {
+              "heatwaves": [
+                {
+                  "center_h": 5.0,
+                  "width_h": 3.0,
+                  "add_c": 7.0
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "jobs": {
+      "generate": {
+        "duration_range_s": [
+          1800,
+          21600
+        ]
+      }
+    }
+  },
+  "seeds": {
+    "train": [
+      101,
+      102,
+      103,
+      104
+    ],
+    "test": [
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      208,
+      209,
+      210
+    ]
+  },
+  "seed_streams": {
+    "job_seed_offset": 1000,
+    "environment_seed_offset": 2000,
+    "event_seed_offset": 3000,
+    "sim_seed_offset": 0
+  },
+  "event_generation": {
+    "warmup_s": 10800.0,
+    "tail_s": 3600.0,
+    "rates_per_site_per_day": {
+      "cooling_failure": 1.5,
+      "breaker_trip": 1.5,
+      "grid_curtailment": 1.5,
+      "hardware_fault": 3.0
+    },
+    "precursor_probability": 0.5,
+    "lead_range_s": [
+      1800.0,
+      5400.0
+    ],
+    "strength_ranges": {
+      "supply_temp_c": [
+        2.0,
+        4.0
+      ],
+      "gpu_temp_c": [
+        4.0,
+        8.0
+      ]
+    },
+    "duration_range_s": [
+      1800.0,
+      5400.0
+    ],
+    "remaining_capacity_range": [
+      0.15,
+      0.5
+    ],
+    "derate_range": [
+      0.5,
+      0.7
+    ],
+    "limit_fraction_range": [
+      0.4,
+      0.7
+    ],
+    "repair_range_s": [
+      3600.0,
+      14400.0
+    ]
+  },
+  "outage": {
+    "decision_interval_s": 600.0,
+    "context_steps": 18,
+    "horizon_steps": 6,
+    "clear_decisions": 2,
+    "recheckpoint_s": 1200.0,
+    "max_pause_s": 7200.0,
+    "calibration_quantile": 1.0,
+    "anomaly_baseline_window_s": 14400.0,
+    "anomaly_baseline_gap_s": 2700.0,
+    "anomaly_smooth_steps": 2,
+    "curtail_shed_margin": 0.02,
+    "oracle_extra_lead_steps": 2,
+    "episode_merge_gap_s": 1200.0,
+    "threshold_grid": [
+      0.05,
+      0.1,
+      0.2,
+      0.3,
+      0.5,
+      0.7,
+      0.9
+    ],
+    "observed_threshold": 0.5,
+    "classical": {
+      "seasonal_naive_season_length": 1,
+      "ets_season_length": 1,
+      "arima_order": [
+        2,
+        1,
+        1
+      ]
+    },
+    "timestral_sizes": [
+      "5M",
+      "28M"
+    ],
+    "bootstrap_resamples": 2000,
+    "per_gpu_channel": {
+      "min_peers": 3,
+      "peer_excess_floor_fraction_of_idle": 0.5,
+      "baseline_min_samples": 6,
+      "smooth_steps": 1
+    }
+  },
+  "assumptions": [
+    "Everything in this file is a simulation setting. No number here is a measurement of a real cluster.",
+    "The two-site cluster, job generator, thermal, breaker and power parameters come from sim-scenario-v2.json (not edited here). Power levels are read through the simulator at run time, so a recalibration of the simulator scenario flows through.",
+    "Job durations are drawn log-uniform between 1800 s and 21600 s (the base scenario uses 3600 s to 172800 s) so that a 15-hour window holds dozens of jobs; the job mix is otherwise the base scenario's, including its 10 percent of two-shard jobs that already follow the averaging rule.",
+    "The simulated clock starts at 17:00 UTC (late morning to midday local time); heat-wave centers and amplitudes are chosen to fall inside the 15-hour window and are simulation assumptions.",
+    "Event rates, precursor probability, precursor lead times and strengths, durations and severities are simulation assumptions chosen to produce several events per window; they are not rates of real facilities.",
+    "Controller decisions, forecasts and warnings use a 600 s interval; the simulator control step is 60 s and the base step is 60 s (the sim-scenario-v2.json steps are 10 s and 1 s).",
+    "Warning horizon 6 steps x 600 s = 60 min; forecast context 18 steps x 600 s = 3 h, equal to the 3 h warm-up before the first scheduled event.",
+    "Probability levels for the supply-temperature and GPU-temperature anomaly channels are the largest value (calibration_quantile 1.0) seen in event-free runs on training seeds. Level of the GPU temperature channel is the throttle threshold of the simulator scenario; level of the breaker load channel is 1.0 (rack power above rating); level of the site channel is the grid import limit including announced curtailments.",
+    "recheckpoint_s, clear_decisions, max_pause_s and oracle_extra_lead_steps are response-policy design choices that are not tuned.",
+    "Per-GPU channel (v2): one series per GPU, the GPU's temperature above rack air averaged over the decision interval (from the simulator's per-GPU history) minus its own gain times the median of its peers (same job, same rack). The gain is the median ratio to the peer median over the GPU's samples that are between anomaly_baseline_gap_s and anomaly_baseline_window_s old, with at least baseline_min_samples samples. A sample needs at least min_peers peers, a peer median above peer_excess_floor_fraction_of_idle times the idle-level excess (idle GPU power times the thermal scenario's GPU-to-air coefficient, both read from the simulator configuration) and an unchanged job group since the previous decision. Its level is the largest value seen in event-free runs on training seeds, as for the other anomaly channels."
+  ],
+  "derived_from": {
+    "file": "outage-scenario-v1.json",
+    "changes": [
+      "base_scenario: sim-scenario-v2.json -> sim-scenario-v3.json (job schedule and synthetic environment follow the run seed; outage seed_scenario already sets both seeds, so the simulated inputs are unchanged)",
+      "outage.per_gpu_channel added (one residual series per GPU, class hardware)",
+      "scenario_id and description"
+    ]
+  }
+}
