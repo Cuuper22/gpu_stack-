@@ -228,9 +228,17 @@
       "smooth_steps": 1
     },
     "response": {
-      "name": "initial",
+      "name": "v3",
       "tick_s": 60.0,
       "rules": {
+        "cooling": {
+          "mode": "move",
+          "fallback": "checkpoint"
+        },
+        "curtail": {
+          "mode": "none",
+          "fallback": "none"
+        },
         "hardware": {
           "mode": "checkpoint",
           "fallback": "checkpoint"
@@ -239,21 +247,13 @@
           "mode": "checkpoint",
           "fallback": "checkpoint"
         },
-        "cooling": {
-          "mode": "checkpoint",
-          "fallback": "checkpoint"
-        },
         "thermal": {
-          "mode": "checkpoint",
+          "mode": "move",
           "fallback": "checkpoint"
-        },
-        "curtail": {
-          "mode": "none",
-          "fallback": "none"
         }
       },
-      "protect_ratio": 0.0,
-      "min_gap_s": 1200.0,
+      "protect_ratio": 2.0,
+      "min_gap_s": 600.0,
       "pause_tol_s": 90.0,
       "clear_decisions": null
     },
@@ -467,9 +467,16 @@
           "objective": "warned",
           "reason": "repeat under the warned reference forecasters"
         }
-      ]
+      ],
+      "robustness": {
+        "forecasters": {
+          "ets": 0.9,
+          "ts5m": 0.9
+        },
+        "note": "closed-loop check of the v2 response, the start design and the chosen design with other forecasters on the same training seeds (thresholds are the outage-v2 training choices); not used to pick the design"
+      }
     },
-    "tuning_seeds": "design"
+    "tuning_seeds": 36
   },
   "assumptions": [
     "Everything in this file is a simulation setting. No number here is a measurement of a real cluster.",

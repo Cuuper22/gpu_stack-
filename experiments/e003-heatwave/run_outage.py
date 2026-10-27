@@ -486,6 +486,15 @@ def stage_design(outage, S, args, work) -> dict:
     for lead in spec.get("timing_sensitivity", []):
         ev = evaluate(chosen["design"], f"chosen design, perfect-foresight lead = checkpoint + {lead} control steps", int(lead))
         sens.append({"oracle_extra_lead_steps": int(lead), "summary": {k: v for k, v in ev["summary"].items() if k != "deficit_by_seed_gpu_h"}})
+    robustness = {}
+    for fname, thr in spec.get("robustness", {}).get("forecasters", {}).items():
+        rows = {}
+        for label, design in (("v2_response", None), ("start", reference["start"]["design"]), ("chosen", chosen["design"])):
+            sc = design_scores(outage, S, args, work, design, None, seeds, (fname, thr))
+            rows[label] = {"summary": {k: v for k, v in design_summary(sc, preps, seeds).items() if k != "deficit_by_seed_gpu_h"},
+                           "decomposition": decompose_deficit([sc[s] for s in seeds], [preps[s]["ref_ledger"] for s in seeds], B)}
+        robustness[fname] = {"threshold": thr, "designs": rows}
+        log(f"design robustness {fname}: " + ", ".join(f"{k} diff {v['summary']['deficit_minus_reactive_gpu_h']:+.2f} +- {v['summary']['deficit_minus_reactive_se_gpu_h']:.2f}" for k, v in rows.items()))
     ref_ledgers = [preps[s]["ref_ledger"] for s in seeds]
     first = lambda ev: ev["_scores"][next(iter(ev["_scores"]))]  # noqa: E731
     decomposition = {
@@ -511,6 +520,7 @@ def stage_design(outage, S, args, work) -> dict:
         "chosen_warned": None if chosen_warned is None else strip(chosen_warned),
         "chosen_equals_scenario_response": _same_design(chosen["design"], outage["outage"].get("response")),
         "timing_sensitivity": sens,
+        "robustness_other_forecasters": robustness,
         "decomposition": decomposition,
     }
     (work / "design.json").write_text(json.JSONEncoder(indent=1, allow_nan=False).encode(_jsonable(out)) + "\n")
