@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "note": "Hover and tap explainers. Every entry is a draft for the story author to edit.",
+  "note": "Hover and tap explainers. Entries marked draft still need the story author's edit.",
   "entries": [
     {
       "id": "token",
@@ -415,57 +415,57 @@
       "id": "quantile-forecast",
       "term": "quantile forecast",
       "title": "Quantile forecast",
-      "body": "A forecast that gives a range instead of one number: the level the value stays under 1 percent of the time, 5 percent, 10 percent and so on up to 99. Planning on the 90th means you expect to be caught short about one time in ten.",
-      "visual": "rule",
+      "body": "A forecast that gives a range instead of one number: the level the value stays under 1 percent of the time, 5 percent, 10 percent and so on up to 99. Plan on the 90th and you expect to be caught short about one time in ten.",
+      "visual": "quantiles",
       "aliases": [
         "quantile forecasts",
         "percentile forecast"
       ],
-      "review": "draft"
+      "review": "edited"
     },
     {
       "id": "timestral",
       "term": "Timestral",
       "title": "Timestral",
-      "body": "An open forecasting model released by Mistral in October 2026. It reads a long history of numbers, optionally with things known in advance such as a schedule, and returns 21 quantiles for each future step. It runs on an ordinary CPU.",
-      "visual": "agents",
+      "body": "An open forecasting model Mistral released in October 2026. It reads a long history of numbers, plus anything known ahead like a schedule, and returns 21 quantiles for every future step. The small versions run on an ordinary CPU, which is where I ran them.",
+      "visual": "timestral",
       "aliases": [],
-      "review": "draft"
+      "review": "edited"
     },
     {
       "id": "thermal-throttling",
       "term": "thermal throttling",
       "title": "Thermal throttling",
-      "body": "When a chip gets too hot it slows its own clock to make less heat. The work still gets done, just slower, and the power bill per unit of work goes up. My laptop's GPU starts doing this around 84 degrees.",
-      "visual": "power",
+      "body": "When a chip gets too hot it slows its own clock to make less heat. The work still gets done, just slower, so each unit of work costs more. My laptop's GPU starts doing this at about 84 degrees Celsius.",
+      "visual": "throttle",
       "aliases": [
         "throttles itself",
         "throttling"
       ],
-      "review": "draft"
+      "review": "edited"
     },
     {
       "id": "power-cap",
       "term": "power cap",
       "title": "Power cap",
       "body": "The most power a site may draw, set by its grid contract, its transformers or its cooling. Going over can mean penalty fees, a tripped breaker or overheated racks, so operators leave room under it, and room left unused is capacity paid for and wasted.",
-      "visual": "power",
+      "visual": "powercap",
       "aliases": [
         "power caps",
         "site power cap"
       ],
-      "review": "draft"
+      "review": "edited"
     },
     {
       "id": "carbon-intensity",
       "term": "carbon intensity",
       "title": "Carbon intensity",
       "body": "Grams of carbon dioxide emitted per kilowatt-hour of electricity on the grid at a given hour. It moves with the weather and the time of day, because sun and wind come and go and gas plants fill the gaps.",
-      "visual": "costpertoken",
+      "visual": "carbonmix",
       "aliases": [
         "grid carbon"
       ],
-      "review": "draft"
+      "review": "edited"
     }
   ]
 }
