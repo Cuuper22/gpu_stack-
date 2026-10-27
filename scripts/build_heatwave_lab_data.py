@@ -497,6 +497,19 @@ def story_numbers(doc: dict) -> list[dict]:
         a("ablation.laptop10.none", "laptop_power_10hz_run2", "none")
         a("ablation.laptop10.s", "laptop_power_10hz_run2", "S")
         add("ablation.laptop10.windows", n0(A["datasets"]["laptop_power_10hz_run2"]["n_origins"]) + " windows", A["datasets"]["laptop_power_10hz_run2"]["n_origins"], s + "laptop_power_10hz_run2.subsampling.n_origins")
+    AS = doc["ablation_sim"]
+    if AS["status"] == "ready":
+        s = "heatwave:results/ablation/ablation_sim.json result.datasets."
+
+        def b(id_, ds, cfg, size="timestral-209M"):
+            x = AS["datasets"][ds]["methods"][size][cfg]
+            add(id_, f"{x['wql']:.3f}", x["wql"], f"{s}{ds}.methods.{size}.configs.{cfg}.buckets.all.wql")
+
+        b("ablation_sim.site1min.none", "sim_site_power_1min", "none")
+        b("ablation_sim.site1min.j", "sim_site_power_1min", "J")
+        b("ablation_sim.rack1s.none", "sim_rack_power_1s", "none")
+        b("ablation_sim.rack1s.j", "sim_rack_power_1s", "J")
+        b("ablation_sim.rack1s.c", "sim_rack_power_1s", "C")
     F = doc["finetune"]
     if F["status"] == "ready":
         gpu = {r["size"]: r for r in F["runs"] if r["run_label"] == "colab-gpu"}
