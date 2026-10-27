@@ -655,3 +655,61 @@ def test_scenario_v2_calibration_notes_label_levels():
     with _pytest.raises(ValueError):
         _hs.run_scenario(bad, seed=0)
     _json.dumps(meta, default=str)
+
+
+def test_hardware_fault_precursor_is_visible_and_jobs_report_racks():
+    """A GPU-temperature precursor shows in visible now/history before onset; JobView lists racks."""
+    jobs = [job("a", n=32, duration=5000.0)]
+    pre = {"kind": "hardware_fault", "event_id": "hp", "site_id": "site-a", "rack_id": "a1", "gpu_slot": 1,
+           "onset_s": 3000.0, "repair_s": 600.0,
+           "precursors": [{"channel": "gpu_temp_c", "lead_s": 1200.0, "strength": 6.0}]}
+    ra, rb = Recorder(), Recorder()
+    run_scenario(base_scenario(3600, jobs=jobs, events=[]), controller=ra, seed=3)
+    run_scenario(base_scenario(3600, jobs=jobs, events=[pre]), controller=rb, seed=3)
+    t_early = max(t for t in ra.states if t <= 1700.0)
+    t_late = max(t for t in ra.states if t <= 2900.0)
+    sa, sb = ra.states[t_early], rb.states[t_early]
+    assert np.array_equal(sa.now["gpu_temp_c"], sb.now["gpu_temp_c"], equal_nan=True)  # before the ramp
+    sa, sb = ra.states[t_late], rb.states[t_late]
+    rack = list(sb.rack_ids).index("a1")
+    diff = np.nan_to_num(sb.now["gpu_temp_c"]) - np.nan_to_num(sa.now["gpu_temp_c"])
+    assert diff.max() > 3.0  # ramp is about 6 K * (2900 - 1800) / 1200 by then
+    _, ha = sa.history("max_gpu_temp_c", 600.0)
+    _, hb = sb.history("max_gpu_temp_c", 600.0)
+    assert hb[-1, rack] > ha[-1, rack]
+    views = [v for v in sb.jobs if v.job_id == "a"]
+    assert views and views[0].rack_ids and all(r in sb.rack_ids for r in views[0].rack_ids)
+
+
+def test_per_gpu_temperature_history_shows_single_gpu_precursor():
+    """The per-GPU history channel carries a one-GPU precursor that a rack max can hide."""
+    jobs = [job("a", n=32, duration=5000.0)]
+    pre = {"kind": "hardware_fault", "event_id": "hp", "site_id": "site-a", "rack_id": "a1", "gpu_slot": 1,
+           "onset_s": 3000.0, "repair_s": 600.0,
+           "precursors": [{"channel": "gpu_temp_c", "lead_s": 1200.0, "strength": 6.0}]}
+    ra, rb = Recorder(), Recorder()
+    run_scenario(base_scenario(3600, jobs=jobs, events=[]), controller=ra, seed=3)
+    res_b = run_scenario(base_scenario(3600, jobs=jobs, events=[pre]), controller=rb, seed=3)
+    t_late = max(t for t in ra.states if t <= 2900.0)
+    _, ha = ra.states[t_late].history("gpu_temp_c", 300.0)
+    _, hb = rb.states[t_late].history("gpu_temp_c", 300.0)
+    gidx = rb.states[t_late].now["gpu_rack_index"]
+    rack = list(rb.states[t_late].rack_ids).index("a1")
+    g = int(np.flatnonzero(gidx == rack)[0] + 1)
+    assert hb[-1, g] - ha[-1, g] > 3.0
+    others = np.delete(np.arange(hb.shape[1]), g)
+    assert np.allclose(np.nan_to_num(hb[-1, others]), np.nan_to_num(ha[-1, others]))
+    arr = res_b.to_arrays()
+    assert arr["gpu_temp_c_1min"].shape[1] == gidx.size
+
+
+def test_scenario_v3_schedule_follows_run_seed():
+    from pathlib import Path as _Path
+
+    from gpu_stack.research import heatwave_sim as _hs
+
+    sc = _hs.load_scenario(_Path(__file__).resolve().parents[1] / "experiments/e003-heatwave/sim-scenario-v3.json")
+    a, b = _hs.build_config(sc, seed=100), _hs.build_config(sc, seed=101)
+    assert [j.job_id for j in a.jobs] != [j.job_id for j in b.jobs] or \
+        [j.duration_s for j in a.jobs] != [j.duration_s for j in b.jobs]
+    assert [j.duration_s for j in _hs.build_config(sc, seed=100).jobs] == [j.duration_s for j in a.jobs]
