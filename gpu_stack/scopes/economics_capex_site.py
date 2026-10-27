@@ -9,10 +9,13 @@ top sits facility capex, sized by physical drivers from the thermal scope:
 floor area, electrical design capacity, and cooling design capacity, each
 times a unit cost.
 
-The totals then turn into rates: subtract residual value to get the
-depreciable base, divide by useful life for a cluster-wide capex rate in
-USD/s, and scale by a job's share of the cluster to charge one training run
-its fair slice. The finance and recovery helpers consume those rates.
+The totals then turn into rates. IT equipment (servers, network, storage)
+is depreciated over its own useful life after its residual value is removed;
+the facility (building shell, power and cooling plant) outlives it and is
+depreciated over a separate, longer facility life. The two rates add to a
+cluster-wide capex rate in USD/s, and a job's share of the cluster then
+charges one training run its fair slice. The finance and recovery helpers
+consume those rates.
 """
 
 from ..core import eq, var
@@ -29,6 +32,7 @@ from .economics_capex_refs import (
     CAPEX_BOM_REF,
     DIMENSIONLESS,
     FACILITY_CAPEX_REF,
+    FACILITY_LIFE_REF,
     USD,
 )
 from .parallelism import n_gpus_total
@@ -123,6 +127,13 @@ cooling_infra_unit_cost = var(
     sp_units=USD / WATT,
     references=[FACILITY_CAPEX_REF],
 )
+facility_useful_life = var(
+    "econ.facility.useful_life", "T_life_fac", "s",
+    "Depreciation horizon of facility capex (building shell, power infrastructure, cooling plant) in seconds.",
+    scope="economics",
+    sp_units=SECOND,
+    references=[FACILITY_LIFE_REF],
+)
 building_shell_capex = var(
     "econ.facility.building_shell_capex", "C_bldg", "USD",
     "Building shell and civil works capex allocated to the site.",
@@ -193,9 +204,23 @@ cluster_depreciable_base = var(
     sp_units=USD,
     references=[CAPEX_BOM_REF],
 )
+cluster_it_capex_rate = var(
+    "econ.cluster.it_capex_rate", "Cdot_IT_site", "USD/s",
+    "Straight-line IT-equipment capex charge per second after residual value, before utilization allocation.",
+    scope="economics",
+    sp_units=USD / SECOND,
+    references=[CAPEX_BOM_REF],
+)
+cluster_facility_capex_rate = var(
+    "econ.cluster.facility_capex_rate", "Cdot_fac_site", "USD/s",
+    "Straight-line facility capex charge per second over the facility life, before utilization allocation.",
+    scope="economics",
+    sp_units=USD / SECOND,
+    references=[FACILITY_LIFE_REF],
+)
 cluster_capex_rate = var(
     "econ.cluster.capex_rate", "Cdot_site", "USD/s",
-    "Straight-line site capex charge per second before utilization allocation.",
+    "Straight-line site capex charge per second (IT rate plus facility rate) before utilization allocation.",
     scope="economics",
     sp_units=USD / SECOND,
     references=[CAPEX_BOM_REF],
@@ -295,8 +320,8 @@ eq_cluster_capex_total = eq(
 eq_cluster_residual_value = eq(
     "econ.eq.cluster_residual_value",
     cluster_residual_value.symbol,
-    residual_value_fraction.symbol * cluster_capex_total.symbol,
-    "Site residual value equals residual fraction times total site capex.",
+    residual_value_fraction.symbol * cluster_it_capex.symbol,
+    "Site residual value equals residual fraction times IT capex. The facility is depreciated to zero over its own life, so it carries no residual here.",
     references=[CAPEX_BOM_REF],
     check_units=True,
 )
@@ -310,12 +335,30 @@ eq_cluster_depreciable_base = eq(
     check_units=True,
 )
 
+eq_cluster_it_capex_rate = eq(
+    "econ.eq.cluster_it_capex_rate",
+    cluster_it_capex_rate.symbol,
+    (cluster_it_capex.symbol - cluster_residual_value.symbol) / useful_life.symbol,
+    "IT capex charge rate equals IT capex minus residual value, divided by the IT useful life.",
+    references=[CAPEX_BOM_REF],
+    check_units=True,
+)
+
+eq_cluster_facility_capex_rate = eq(
+    "econ.eq.cluster_facility_capex_rate",
+    cluster_facility_capex_rate.symbol,
+    cluster_facility_capex.symbol / facility_useful_life.symbol,
+    "Facility capex charge rate equals facility capex divided by the facility useful life, which is longer than the IT life.",
+    references=[FACILITY_LIFE_REF],
+    check_units=True,
+)
+
 eq_cluster_capex_rate = eq(
     "econ.eq.cluster_capex_rate",
     cluster_capex_rate.symbol,
-    cluster_depreciable_base.symbol / useful_life.symbol,
-    "Site capex charge rate equals depreciable site capex divided by useful life.",
-    references=[CAPEX_BOM_REF],
+    cluster_it_capex_rate.symbol + cluster_facility_capex_rate.symbol,
+    "Site capex charge rate equals the IT capex rate plus the facility capex rate.",
+    references=[CAPEX_BOM_REF, FACILITY_LIFE_REF],
     check_units=True,
 )
 
@@ -336,7 +379,9 @@ __all__ = [
     "cluster_capex_total",
     "cluster_depreciable_base",
     "cluster_facility_capex",
+    "cluster_facility_capex_rate",
     "cluster_it_capex",
+    "cluster_it_capex_rate",
     "cluster_residual_value",
     "cluster_spine_network_capex",
     "cluster_storage_capex",
@@ -346,6 +391,8 @@ __all__ = [
     "eq_cluster_capex_rate",
     "eq_cluster_capex_total",
     "eq_cluster_depreciable_base",
+    "eq_cluster_facility_capex_rate",
+    "eq_cluster_it_capex_rate",
     "eq_cluster_facility_capex",
     "eq_cluster_it_capex",
     "eq_cluster_residual_value",
@@ -354,6 +401,7 @@ __all__ = [
     "eq_node_capex",
     "eq_power_infra_capex",
     "eq_rack_capex",
+    "facility_useful_life",
     "job_share_of_cluster",
     "node_capex",
     "node_chassis_capex",

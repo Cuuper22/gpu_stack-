@@ -79,19 +79,19 @@ I built this with AI coding agents. They write quickly, and they grade their own
 ```text
 Registry stats:
   systems        17
-  variables      1316
+  variables      1319
   constants      18
-  equations      733
-  root_inputs    603
-  leaves         251
+  equations      735
+  root_inputs    604
+  leaves         252
 
 Coverage:
-  non_constant_variables         1298
-  with_sp_units                  1298
-  with_references                1298
-  equations                      733
-  equations_with_references      733
-  equations_with_unit_check      670
+  non_constant_variables         1301
+  with_sp_units                  1301
+  with_references                1301
+  equations                      735
+  equations_with_references      735
+  equations_with_unit_check      672
 ```
 
 ## Current Snapshot
@@ -99,18 +99,18 @@ Coverage:
 | Signal | Value |
 |---|---:|
 | Systems | 17 |
-| Variables | 1316 |
+| Variables | 1319 |
 | Constants | 18 |
-| Equations | 733 |
-| Root inputs | 603 |
-| Leaves | 251 |
+| Equations | 735 |
+| Root inputs | 604 |
+| Leaves | 252 |
 | Cycles | 0 |
-| Topological order length | 1316 |
+| Topological order length | 1319 |
 | Hard audit failures | 0 |
-| Non-constant variables with `sp_units` | 1298 |
-| Non-constant variables with references | 1298 |
-| Equations with references | 733 |
-| Equations with unit checks | 670 |
+| Non-constant variables with `sp_units` | 1301 |
+| Non-constant variables with references | 1301 |
+| Equations with references | 735 |
+| Equations with unit checks | 672 |
 | Root-debt families | 146 |
 | Package version | 0.27.0 |
 

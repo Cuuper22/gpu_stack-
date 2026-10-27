@@ -30,10 +30,22 @@ FACILITY_CAPEX_REF = Reference(
     kind="model",
 )
 
+FACILITY_LIFE_REF = Reference(
+    "Facility capex (building shell, electrical and mechanical plant) is "
+    "depreciated over its own useful life, longer than the IT equipment it "
+    "houses: Amazon's 10-K FY2025 lists servers and networking equipment at "
+    "five to six years, heavy equipment at ten to thirteen years and "
+    "buildings at up to forty years "
+    "(https://app.edgar.tools/companies/AMZN/disclosures/property-plant-equipment, "
+    "accessed 2026-10-26).",
+    kind="model",
+)
+
 
 __all__ = [
     "CAPEX_BOM_REF",
     "DIMENSIONLESS",
     "FACILITY_CAPEX_REF",
+    "FACILITY_LIFE_REF",
     "USD",
 ]

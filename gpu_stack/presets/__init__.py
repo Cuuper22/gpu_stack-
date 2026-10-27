@@ -25,8 +25,9 @@ Current inventory:
   dense / MoE variant selectors to "dense" for every variable tagged as a
   dense-vs-MoE VARIANT family.
 * `workload.moe_variant_selector`: the MoE counterpart.
-* `economics.POWER_PRICE_PRESETS`: EIA 2024 historical average flat power
-  tariffs for U.S. and California commercial/industrial electricity prices.
+* `economics.POWER_PRICE_PRESETS`: EIA 2024 and 2025 historical average flat
+  power tariffs for U.S. and California commercial/industrial electricity
+  prices.
 * `lithography.euv_exposure` and `lithography.arf_immersion_exposure`:
   exposure optics (wavelength, numerical aperture, medium index) for EUV at
   13.5 nm and ArF immersion at 193 nm, from ASML product specifications.

@@ -10,6 +10,11 @@ are deliberately not live procurement quotes, utility rate schedules, or
 time-of-use tariffs. Demand-charge roots stay unassigned on purpose —
 average retail prices already blend those charges in, and assigning them
 too would double count.
+
+The 2024 presets are kept for the scenario packs that name them. The 2025
+presets use the final 2025 annual averages from EIA Electric Power Annual
+Table 2.10 (read 2026-10-26), which the calculator now takes as its
+default electricity price.
 """
 
 from __future__ import annotations
@@ -34,10 +39,35 @@ _EIA_CA_2024_AVERAGE_PRICE_SOURCE = (
     "https://www.eia.gov/electricity/annual/secrev-map.php"
 )
 
+_EIA_2025_TABLE_2_10_SOURCE = (
+    "U.S. Energy Information Administration (EIA), Electric Power Annual, "
+    "Table 2.10, 'Average Price of Electricity to Ultimate Customers by "
+    "End-Use Sector, by State, 2025 and 2024 (Cents per Kilowatthour)', "
+    "2025 column: U.S. Total Commercial 13.37 and Industrial 8.51 "
+    "cents/kWh; California Commercial 26.16 and Industrial 20.96 cents/kWh. "
+    "URL: https://www.eia.gov/electricity/annual/html/epa_02_10.html "
+    "(accessed 2026-10-26)."
+)
+
 _EIA_PRICE_LIMITATION = (
     "EIA FAQ: published average retail electricity prices are derived as "
     "utility revenue divided by retail sales and are not utility rates or "
     "itemized tariff schedules."
+)
+
+_FLAT_TARIFF_NOTES_2025 = (
+    "Annual-average flat-tariff closure: the same sourced EIA average price "
+    "is assigned to peak and off-peak price roots.",
+    "The peak-energy fraction is set to 0.0 only as a resolver-neutral "
+    "closure under equal peak/off-peak prices; it is not a measured "
+    "time-of-use load split.",
+    "Demand-charge roots are not assigned. EIA average retail prices are "
+    "delivered average prices (revenue divided by sales), so demand charges, "
+    "transmission and distribution charges and riders are already in them. "
+    "For a load that runs flat out the demand charge per kWh is lower than "
+    "the class average; for an energy-only price assign the demand charge "
+    "separately.",
+    "Final 2025 annual averages; not a live 2026 value.",
 )
 
 _FLAT_TARIFF_NOTES = (
@@ -80,6 +110,7 @@ def _flat_power_tariff(
     description: str,
     usd_per_kwh: float,
     source: str,
+    notes: tuple[str, ...] | None = None,
 ) -> Preset:
     return Preset(
         name=name,
@@ -92,7 +123,7 @@ def _flat_power_tariff(
             }
         ),
         source=source,
-        notes=_FLAT_TARIFF_NOTES,
+        notes=_FLAT_TARIFF_NOTES if notes is None else notes,
     )
 
 
@@ -152,11 +183,75 @@ california_2024_industrial_flat_power_tariff = _flat_power_tariff(
 )
 
 
+us_2025_commercial_flat_power_tariff = _flat_power_tariff(
+    name="us_2025_commercial_flat_power_tariff",
+    description=(
+        "U.S. 2025 Total Electric Industry commercial average retail "
+        "electricity price, represented as a flat tariff."
+    ),
+    usd_per_kwh=0.1337,
+    source=(
+        f"{_EIA_2025_TABLE_2_10_SOURCE} Converts 13.37 cents/kWh to "
+        f"0.1337 USD/kWh. {_EIA_PRICE_LIMITATION}"
+    ),
+    notes=_FLAT_TARIFF_NOTES_2025,
+)
+
+
+us_2025_industrial_flat_power_tariff = _flat_power_tariff(
+    name="us_2025_industrial_flat_power_tariff",
+    description=(
+        "U.S. 2025 Total Electric Industry industrial average retail "
+        "electricity price, represented as a flat tariff."
+    ),
+    usd_per_kwh=0.0851,
+    source=(
+        f"{_EIA_2025_TABLE_2_10_SOURCE} Converts 8.51 cents/kWh to "
+        f"0.0851 USD/kWh. {_EIA_PRICE_LIMITATION}"
+    ),
+    notes=_FLAT_TARIFF_NOTES_2025,
+)
+
+
+california_2025_commercial_flat_power_tariff = _flat_power_tariff(
+    name="california_2025_commercial_flat_power_tariff",
+    description=(
+        "California 2025 commercial average retail electricity price, "
+        "represented as a flat tariff."
+    ),
+    usd_per_kwh=0.2616,
+    source=(
+        f"{_EIA_2025_TABLE_2_10_SOURCE} Converts 26.16 cents/kWh to "
+        f"0.2616 USD/kWh. {_EIA_PRICE_LIMITATION}"
+    ),
+    notes=_FLAT_TARIFF_NOTES_2025,
+)
+
+
+california_2025_industrial_flat_power_tariff = _flat_power_tariff(
+    name="california_2025_industrial_flat_power_tariff",
+    description=(
+        "California 2025 industrial average retail electricity price, "
+        "represented as a flat tariff."
+    ),
+    usd_per_kwh=0.2096,
+    source=(
+        f"{_EIA_2025_TABLE_2_10_SOURCE} Converts 20.96 cents/kWh to "
+        f"0.2096 USD/kWh. {_EIA_PRICE_LIMITATION}"
+    ),
+    notes=_FLAT_TARIFF_NOTES_2025,
+)
+
+
 POWER_PRICE_PRESETS = (
     us_2024_commercial_flat_power_tariff,
     us_2024_industrial_flat_power_tariff,
     california_2024_commercial_flat_power_tariff,
     california_2024_industrial_flat_power_tariff,
+    us_2025_commercial_flat_power_tariff,
+    us_2025_industrial_flat_power_tariff,
+    california_2025_commercial_flat_power_tariff,
+    california_2025_industrial_flat_power_tariff,
 )
 
 
@@ -166,4 +261,8 @@ __all__ = [
     "us_2024_industrial_flat_power_tariff",
     "california_2024_commercial_flat_power_tariff",
     "california_2024_industrial_flat_power_tariff",
+    "us_2025_commercial_flat_power_tariff",
+    "us_2025_industrial_flat_power_tariff",
+    "california_2025_commercial_flat_power_tariff",
+    "california_2025_industrial_flat_power_tariff",
 ]

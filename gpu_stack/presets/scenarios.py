@@ -247,6 +247,7 @@ def _pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption() -> Preset:
         pythia_70m_dgx_h100_single_node_run_closure,
         dgx_h100_tco.dgx_h100_node_power_bom,
         dgx_h100_tco.pythia_70m_dgx_h100_run_closure_assumption,
+        dgx_h100_tco.dgx_h100_site_power_with_pue,
         name="pythia_70m_dgx_h100_us_2024_industrial_full_tco_assumption",
         description=(
             "Fully-closed scenario pack for Pythia-70M on a single DGX H100 "
