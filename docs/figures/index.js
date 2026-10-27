@@ -17,6 +17,8 @@
     "accuracy",
     "flaky-sites",
     "agents-report-card",
+    "packing-tradeoff",
+    "known-future",
   ];
   var NS = "http://www.w3.org/2000/svg";
   var hasDom = typeof document !== "undefined";

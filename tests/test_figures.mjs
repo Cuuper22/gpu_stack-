@@ -14,6 +14,8 @@ const IDS = [
   "accuracy",
   "flaky-sites",
   "agents-report-card",
+  "packing-tradeoff",
+  "known-future",
 ];
 
 await import(path.join(FIG, "index.js"));

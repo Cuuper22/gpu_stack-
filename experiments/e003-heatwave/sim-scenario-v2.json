@@ -1,0 +1,426 @@
+{
+ "schema": "gpu-stack.e003-heatwave-sim-scenario.v1",
+ "data_kind": "simulated",
+ "scenario_id": "e003-heatwave-sim-v2",
+ "description": "Two-site, eight-rack simulated GPU cluster over seven days with a synthetic job mix, a synthetic heat wave, and scheduled fault and grid events (with and without precursors). Nothing in this file is measured data.",
+ "start_utc": "2026-07-06T00:00:00Z",
+ "horizon_s": 604800,
+ "base_dt_s": 1.0,
+ "control_dt_s": 10.0,
+ "controller_interval_s": 60.0,
+ "history_s": 7200.0,
+ "known_future_horizon_s": 86400.0,
+ "sites": [
+  {
+   "site": {
+    "site_id": "site-a",
+    "accelerator_type": "NVIDIA H100 SXM 80GB",
+    "accelerator_count": 104,
+    "accelerator_flops_per_second": 500000000000000.0,
+    "collective_bandwidth_bytes_per_second": 400000000000.0,
+    "state_transfer_bandwidth_bytes_per_second": 12500000000.0,
+    "checkpoint_bandwidth_bytes_per_second": 10000000000.0,
+    "base_power_w": 0.0,
+    "accelerator_power_w": 700.0,
+    "power_cap_w": 100000.0,
+    "cooling_capacity_w": 110000.0,
+    "grid_import_limit_w": 110000.0
+   },
+   "racks": [
+    {
+     "rack_id": "a1",
+     "n_gpus": 32,
+     "breaker_rating_w": 24640.0
+    },
+    {
+     "rack_id": "a2",
+     "n_gpus": 32,
+     "breaker_rating_w": 24640.0
+    },
+    {
+     "rack_id": "a3",
+     "n_gpus": 24,
+     "breaker_rating_w": 18480.0
+    },
+    {
+     "rack_id": "a4",
+     "n_gpus": 16,
+     "breaker_rating_w": 12320.0
+    }
+   ]
+  },
+  {
+   "site": {
+    "site_id": "site-b",
+    "accelerator_type": "NVIDIA H100 SXM 80GB",
+    "accelerator_count": 80,
+    "accelerator_flops_per_second": 500000000000000.0,
+    "collective_bandwidth_bytes_per_second": 400000000000.0,
+    "state_transfer_bandwidth_bytes_per_second": 12500000000.0,
+    "checkpoint_bandwidth_bytes_per_second": 10000000000.0,
+    "base_power_w": 0.0,
+    "accelerator_power_w": 700.0,
+    "power_cap_w": 77000.0,
+    "cooling_capacity_w": 85000.0,
+    "grid_import_limit_w": 85000.0
+   },
+   "racks": [
+    {
+     "rack_id": "b1",
+     "n_gpus": 32,
+     "breaker_rating_w": 24640.0
+    },
+    {
+     "rack_id": "b2",
+     "n_gpus": 24,
+     "breaker_rating_w": 18480.0
+    },
+    {
+     "rack_id": "b3",
+     "n_gpus": 16,
+     "breaker_rating_w": 12320.0
+    },
+    {
+     "rack_id": "b4",
+     "n_gpus": 8,
+     "breaker_rating_w": 6160.0
+    }
+   ]
+  }
+ ],
+ "gpu": {
+  "preset": "h100_sxm_80gb_gpu",
+  "compute_fraction_of_tdp": 0.8550598580496651,
+  "host_fraction_of_compute": 0.25,
+  "compute_fraction_of_step": 0.8565830452214802
+ },
+ "power_levels": {
+  "e002_raw_path": "docs/data/e002-checkpoint-power-raw-v1.json",
+  "comm_ratio": 0.2492626550302487,
+  "checkpoint_ratio": 0.6123595506482253,
+  "idle_ratio_override": 0.21292761611145372,
+  "calibration_notes": {
+   "compute_w": "public data: compute power / 700 W limit = 0.8551 (Elsayed et al. 2026 H100 SXM llm_training, median over 72 GPU-sessions)",
+   "idle_w": "public data: idle/compute = 0.2129 (Elsayed et al. 2026 H100 SXM llm_training, median over 72 GPU-sessions)",
+   "comm_w": "public data: low-phase/compute = 0.2493 (Elsayed et al. 2026 H100 SXM llm_training, median over 72 GPU-sessions)",
+   "checkpoint_w": "measured laptop data: checkpoint/compute = 0.6124 from the NVML energy counter (RTX 3060 Laptop GPU; transfer to a datacenter GPU is an assumption)"
+  }
+ },
+ "thermal": {
+  "heat_capacity_j_per_k_per_gpu": 8153.125,
+  "design_air_rise_k": 12.0,
+  "cooling_lag_s": 120.0,
+  "supply_setpoint_c": 24.0,
+  "outdoor_coupling_k_per_k": 0.2,
+  "outdoor_reference_c": 30.0,
+  "capacity_derate_per_k": 0.01,
+  "capacity_derate_reference_c": 30.0,
+  "gpu_to_air_k_per_w": 0.02558234685296796,
+  "gpu_to_air_rel_sigma": 0.1,
+  "breaker_reset_delay_s": 1800.0,
+  "gpu_shutdown_c": 95.0,
+  "thermal_shutdown_hold_s": 1800.0
+ },
+ "throttle": {
+  "throttle_threshold_c": 80.0,
+  "throttle_span_c": 8.0,
+  "min_clock_fraction": 0.5,
+  "power_exponent": 2.0
+ },
+ "cooling_power": {
+  "kind": "carnot",
+  "pue": 1.2,
+  "reference_outdoor_c": 20.0,
+  "reference_supply_c": 24.0,
+  "evaporator_approach_k": 10.0,
+  "condenser_approach_k": 10.0,
+  "cop_min": 1.5,
+  "cop_max": 30.0
+ },
+ "breaker": {
+  "nontrip_ratio": 1.13,
+  "trip_ratio": 1.45,
+  "conventional_time_s": 3600.0
+ },
+ "transfer": {
+  "wan_bandwidth_bytes_per_second": 3125000000.0,
+  "wan_latency_s": 0.02,
+  "restore_bandwidth_bytes_per_second": 200000000000.0,
+  "fixed_restart_latency_s": 0.02,
+  "membership_reconfiguration_s": 0.012,
+  "checkpoint_bytes_per_gpu": 4375000000.0
+ },
+ "jobs": {
+  "generate": {
+   "seed": 7,
+   "utilization_goal": 0.72,
+   "gpu_choices": [
+    8,
+    16,
+    32,
+    64
+   ],
+   "gpu_weights": [
+    3,
+    3,
+    2,
+    1
+   ],
+   "duration_range_s": [
+    3600,
+    172800
+   ],
+   "step_time_choices_s": [
+    2.0,
+    4.0,
+    8.0
+   ],
+   "checkpoint_every_range_s": [
+    1200,
+    3600
+   ],
+   "checkpoint_duration_range_s": [
+    20,
+    120
+   ],
+   "value_range": [
+    1.0,
+    4.0
+   ],
+   "flexible_fraction": 0.4,
+   "multisite_fraction": 0.1,
+   "max_start_delay_s": 21600,
+   "initial_fraction": 0.5
+  }
+ },
+ "events": [
+  {
+   "kind": "cooling_failure",
+   "event_id": "cf-1-precursor",
+   "site_id": "site-a",
+   "rack_id": "a1",
+   "onset_s": 129600,
+   "duration_s": 5400,
+   "remaining_capacity_fraction": 0.3,
+   "precursors": [
+    {
+     "channel": "supply_temp_c",
+     "lead_s": 3600,
+     "strength": 3.0
+    }
+   ]
+  },
+  {
+   "kind": "cooling_failure",
+   "event_id": "cf-2-sudden",
+   "site_id": "site-b",
+   "rack_id": "b2",
+   "onset_s": 276480,
+   "duration_s": 3600,
+   "remaining_capacity_fraction": 0.2
+  },
+  {
+   "kind": "cooling_failure",
+   "event_id": "cf-3-fan-precursor",
+   "site_id": "site-a",
+   "onset_s": 440640,
+   "duration_s": 7200,
+   "remaining_capacity_fraction": 0.6,
+   "resistance_multiplier": 1.3,
+   "precursors": [
+    {
+     "channel": "thermal_resistance",
+     "lead_s": 7200,
+     "strength": 0.25
+    }
+   ]
+  },
+  {
+   "kind": "breaker_trip",
+   "event_id": "bt-1-derate-precursor",
+   "site_id": "site-a",
+   "rack_id": "a1",
+   "onset_s": 198720,
+   "duration_s": 14400,
+   "mode": "derate",
+   "derate_fraction": 0.6,
+   "precursor_lead_s": 3600
+  },
+  {
+   "kind": "breaker_trip",
+   "event_id": "bt-2-forced",
+   "site_id": "site-b",
+   "rack_id": "b1",
+   "onset_s": 380160,
+   "duration_s": 1200,
+   "mode": "forced"
+  },
+  {
+   "kind": "grid_curtailment",
+   "event_id": "gc-1-announced",
+   "site_id": "site-a",
+   "onset_s": 233280,
+   "duration_s": 7200,
+   "limit_fraction": 0.6,
+   "announce_lead_s": 1800
+  },
+  {
+   "kind": "grid_curtailment",
+   "event_id": "gc-2-unannounced",
+   "site_id": "site-b",
+   "onset_s": 483840,
+   "duration_s": 5400,
+   "limit_fraction": 0.5
+  },
+  {
+   "kind": "hardware_fault",
+   "event_id": "hw-1-precursor",
+   "site_id": "site-a",
+   "rack_id": "a2",
+   "gpu_slot": 5,
+   "onset_s": 103680,
+   "repair_s": 21600,
+   "precursors": [
+    {
+     "channel": "gpu_temp_c",
+     "lead_s": 7200,
+     "strength": 6.0
+    }
+   ]
+  },
+  {
+   "kind": "hardware_fault",
+   "event_id": "hw-2-sudden",
+   "site_id": "site-b",
+   "rack_id": "b1",
+   "gpu_slot": 3,
+   "onset_s": 328320,
+   "repair_s": 14400
+  },
+  {
+   "kind": "hardware_fault",
+   "event_id": "hw-3-sudden",
+   "site_id": "site-a",
+   "rack_id": "a1",
+   "gpu_slot": 2,
+   "onset_s": 535680,
+   "repair_s": 14400
+  }
+ ],
+ "environment": {
+  "seed": 11,
+  "synthetic": {
+   "start_hour_utc": 0.0,
+   "sites": {
+    "site-a": {
+     "utc_offset_h": -7.0,
+     "outdoor": {
+      "mean_c": 24.0,
+      "diurnal_amplitude_c": 7.0,
+      "peak_hour_local": 15.0,
+      "noise_sigma_c": 0.8,
+      "noise_ar1": 0.9,
+      "heatwaves": [
+       {
+        "center_h": 96.0,
+        "width_h": 18.0,
+        "add_c": 11.0
+       }
+      ]
+     },
+     "forecast_error_sigma_c": 1.2,
+     "price": {
+      "base_usd_per_kwh": 0.08,
+      "diurnal_amplitude": 0.35,
+      "peak_hour_local": 18.0
+     },
+     "carbon": {
+      "base_g_per_kwh": 350.0,
+      "diurnal_amplitude": 0.2,
+      "peak_hour_local": 20.0
+     }
+    },
+    "site-b": {
+     "utc_offset_h": -5.0,
+     "outdoor": {
+      "mean_c": 22.0,
+      "diurnal_amplitude_c": 6.0,
+      "peak_hour_local": 15.0,
+      "noise_sigma_c": 0.8,
+      "noise_ar1": 0.9,
+      "heatwaves": [
+       {
+        "center_h": 100.0,
+        "width_h": 20.0,
+        "add_c": 9.0
+       }
+      ]
+     },
+     "forecast_error_sigma_c": 1.2,
+     "price": {
+      "base_usd_per_kwh": 0.07,
+      "diurnal_amplitude": 0.3,
+      "peak_hour_local": 19.0
+     },
+     "carbon": {
+      "base_g_per_kwh": 450.0,
+      "diurnal_amplitude": 0.15,
+      "peak_hour_local": 19.0
+     }
+    }
+   }
+  }
+ },
+ "outputs": {
+  "gpu_windows": [
+   [
+    0,
+    3600
+   ],
+   [
+    129600,
+    133200
+   ]
+  ]
+ },
+ "assumptions": [
+  "Everything in this scenario is simulated. No number here is a measurement of a real cluster.",
+  "Site capacities (power cap, cooling capacity, import limit) are scenario choices; the per-GPU accelerator fields follow the e001 screening scenario H100 SXM sites (experiments/e001-beyond-one-datacenter/screening-scenario-v1.json).",
+  "Compute-phase GPU power is 0.8 x the cited H100 SXM TDP (700 W): the 0.8 is the gpu_stack calculator's gpu_power_fraction assumption. Host overhead is 0.25 x compute power: the calculator's server_power_fraction assumption.",
+  "Idle/compute and relative compute-phase noise are measured ratios from the e002 laptop RTX telemetry. The communication-phase and checkpoint levels are set equal to the measured idle ratio (structural assumption, no measurement). The measured checkpoint/compute ratio is reported alongside in the result.",
+  "Fraction of a training step spent in compute (0.7) is an assumption.",
+  "Rack heat capacity per GPU = DGX H100 system mass 130.45 kg / 8 GPUs x an assumed effective specific heat of 500 J/(kg K). Mass source: https://docs.nvidia.com/dgx/dgxh100-user-guide/introduction-to-dgxh100.html",
+  "Supply setpoint 24 C is an assumption inside the DGX H100 cited operating range of 5-30 C (same source). Design air rise 12 K, cooling lag 120 s, outdoor coupling 0.2 K/K above 30 C, capacity derate 1 percent per K above 30 C, GPU-to-air offset 0.05 K/W, protective GPU shutdown at 95 C and its 1800 s hold are assumptions.",
+  "Throttle threshold 80 C, span 8 K, minimum clock 0.5 and power exponent 2 are assumptions; they are not H100 datasheet values.",
+  "Cooling power: Carnot-shaped COP with second-law efficiency chosen so the overhead equals the gpu_stack calculator PUE assumption (1.2) at 20 C outdoor and 24 C supply; approach temperatures 10 K and COP bounds 1.5 to 30 are assumptions.",
+  "Breaker curve: IEC 60898-1 conventional values (1.13 and 1.45 x rated, 1 hour), https://www.se.com/au/en/faqs/FA369327/. Rack breaker ratings are 1.1 x the full-load rack power; reset delay 1800 s is an assumption.",
+  "WAN, restore, restart and membership parameters come from the e001 scenarios; the per-GPU checkpoint size is the e001 screening checkpoint (1.12 TB) divided by its 256 GPUs.",
+  "The job mix, outdoor temperature (including the heat wave), electricity price and carbon intensity are synthetic and seeded. Job value per GPU-hour is a synthetic number with no source.",
+  "Event precursors (supply-temperature creep, resistance rise, GPU temperature creep, breaker derate ramp, curtailment announcement) are assumptions of the simulation, not measured facts.",
+  "v2 calibration: compute level, idle level, communication (low-phase) level, compute share of a step, and the GPU-to-air temperature offset are medians from public H100 SXM telemetry (Elsayed et al. 2026, CC BY 4.0); the checkpoint level is a measured laptop ratio. These replace the corresponding v1 values; the v1 text above describing those fields is superseded by this calibration block."
+ ],
+ "provenance": [
+  "https://www.nvidia.com/en-us/data-center/h100/",
+  "https://docs.nvidia.com/dgx/dgxh100-user-guide/introduction-to-dgxh100.html",
+  "https://www.se.com/au/en/faqs/FA369327/",
+  "https://en.wikipedia.org/wiki/Coefficient_of_performance",
+  "docs/data/e002-checkpoint-power-raw-v1.json",
+  "experiments/e001-beyond-one-datacenter/recovery-scenario-v2.json",
+  "experiments/e001-beyond-one-datacenter/screening-scenario-v1.json"
+ ],
+ "calibration": {
+  "file": "heatwave/results/calibration/datacenter_power.json",
+  "sha256": "43967b1d3a15a5df4ee3b897c5eb6663a73af44b2154406ad5d066d22db07ad1",
+  "producer_script": "experiments/calibration/datacenter_power.py",
+  "producer_script_sha256": "f6aa2a6ca6feab65fef67693086f1662e5c157b4e6237c99e090b41638dcf3e3",
+  "producer_git_commit": "494f1eb58930cd0405e3881d7e021fdabc28ec21",
+  "fields": {
+   "gpu.compute_fraction_of_tdp": "compute_fraction_of_limit.median",
+   "gpu.compute_fraction_of_step": "1 - low_phase_fraction_of_active_time.median",
+   "power_levels.idle_ratio_override": "idle_ratio.median",
+   "power_levels.comm_ratio": "low_phase_ratio.median",
+   "power_levels.checkpoint_ratio": "laptop_checkpoint.ratio (measured laptop)",
+   "thermal.gpu_to_air_k_per_w": "temp_per_power_k_per_w.median"
+  }
+ }
+}

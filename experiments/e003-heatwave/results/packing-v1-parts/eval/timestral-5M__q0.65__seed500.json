@@ -1,0 +1,77 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "706bc00638bb72faccff2ced10e1a61b81cd8151f803af9985a5b152d5b8ec4a",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "e0a23649d441d0be29fd356dc5548c5198ba702f",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 500,
+  "policy": "timestral-5M/q0.65",
+  "forecaster": "timestral-5M",
+  "use_covariates": true,
+  "options": {
+   "n_train": 6,
+   "n_test": 0,
+   "grid_stride": 1,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "policy": "timestral-5M/q0.65",
+  "kind": "fixed",
+  "seed": 500,
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1516.3504810628617,
+   "gpu_hours_multisite_jobs": 137.83469669932498,
+   "value_usd": 4530.448260707426,
+   "jobs_admitted": 41,
+   "jobs_completed": 47,
+   "violation_rate": 0.3489583333333333,
+   "violation_rate_by_site": [
+    0.17708333333333334,
+    0.21354166666666666
+   ],
+   "energy_above_cap_kwh": 0.3465823908807533,
+   "energy_above_cap_kwh_by_site": [
+    0.13594520317028108,
+    0.21063718771047224
+   ],
+   "seconds_above_cap": 3730.0,
+   "max_excess_w": 1496.5130268905705,
+   "stranded_kwh": 77.91003389933692,
+   "stranded_intervals": 192,
+   "mean_power_over_cap": 0.9616802376811335,
+   "energy_kwh": 1947.6299972353577,
+   "forecast_calls": 192,
+   "forecast_refresh_bins": 1,
+   "job_faults": 3
+  },
+  "wall_s": 87.73180961608887,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 33.45137853486401,
+     "width_h": 7.965310278704651,
+     "add_c": 10.747451311810256
+    },
+    "site-b": {
+     "center_h": 35.45137853486401,
+     "width_h": 7.52074955580357,
+     "add_c": 8.02111209440545
+    }
+   },
+   "n_events": 6,
+   "sim_seed": 852058663
+  }
+ }
+}

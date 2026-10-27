@@ -1,12 +1,12 @@
 """Pins the registry's published size and proves it can rebuild from empty.
 
-PUBLISHED_SNAPSHOT records the exact counts the project advertises — 1267
-variables, 701 equations, 583 root inputs, and the rest. Any scope change
+PUBLISHED_SNAPSHOT records the exact counts the project advertises — 1319
+variables, 735 equations, 604 root inputs, and the rest. Any scope change
 that adds or removes a variable moves these numbers, and that is the
 point: the change must be seen and the snapshot updated deliberately. If a
 change legitimately moves the numbers, update the expectations here — never
 delete the assertions. The second test resets the registry to zero and
-bootstraps it back, proving the full graph is reconstructible from code
+bootstraps it back, proving the full graph is rebuildable from code
 alone.
 """
 
@@ -16,19 +16,19 @@ from gpu_stack.core import VariableKind
 
 
 PUBLISHED_SNAPSHOT = {
-    "systems": 16,
-    "variables": 1267,
+    "systems": 17,
+    "variables": 1319,
     "constants": 18,
-    "equations": 701,
-    "root_inputs": 583,
-    "leaves": 241,
-    "topological_order_length": 1267,
-    "with_sp_units": 1249,
-    "with_references": 1249,
-    "equations_with_references": 701,
-    "equations_with_unit_check": 642,
-    "root_kind": 583,
-    "derived_kind": 666,
+    "equations": 735,
+    "root_inputs": 604,
+    "leaves": 252,
+    "topological_order_length": 1319,
+    "with_sp_units": 1301,
+    "with_references": 1301,
+    "equations_with_references": 735,
+    "equations_with_unit_check": 672,
+    "root_kind": 604,
+    "derived_kind": 697,
     "measured_kind": 0,
     "definitional_kind": 18,
 }

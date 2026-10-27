@@ -88,9 +88,9 @@
    "id": "electricity_price",
    "label": "Electricity price",
    "unit": "USD/kWh",
-   "default": 0.0813,
+   "default": 0.0851,
    "tag": "assumption",
-   "tooltip": "What one kilowatt-hour costs. Default is the 2024 U.S. industrial average (EIA).",
+   "tooltip": "What one kilowatt-hour costs. Default is the 2025 U.S. industrial average (EIA), which already includes the utility's delivery and demand charges.",
    "advanced": true,
    "min": 0.0,
    "max": 2.0
@@ -110,9 +110,9 @@
    "id": "useful_life_years",
    "label": "Years of use before replacement",
    "unit": "years",
-   "default": 4.0,
+   "default": 5.5,
    "tag": "assumption",
-   "tooltip": "The hardware's price is spread over this many years. Longer life means cheaper hours.",
+   "tooltip": "The servers' price is spread over this many years. Default 5.5 is the median of the lives eight operators report for servers (4 to 6 years). The building is spread over 13 years separately. Longer life means cheaper hours.",
    "advanced": true,
    "min": 0.5,
    "max": 15.0
@@ -130,11 +130,11 @@
   },
   {
    "id": "other_hardware_fraction",
-   "label": "Servers, network and building, as a share of GPU price",
+   "label": "Servers, network and storage, as a share of GPU price",
    "unit": "fraction",
-   "default": 0.4,
+   "default": 0.49,
    "tag": "assumption",
-   "tooltip": "Each GPU needs a server, network and space. Default 40% follows the repo's DGX H100 cost preset: server parts about 18% of the GPU price, rack about 5%, building power and cooling about 19%.",
+   "tooltip": "Each GPU needs a server, network and storage. Default 49%: the non-GPU part of an H100 server (about $7,400 per GPU), plus network ($7,500 per GPU) and other cluster hardware ($3,500 per GPU) for a 24,576-GPU H100 cluster, over a $37,500 card. The building, power and cooling are charged separately.",
    "advanced": true,
    "min": 0.0,
    "max": 3.0
@@ -154,9 +154,9 @@
    "id": "server_power_fraction",
    "label": "Extra server power (CPUs, fans, network)",
    "unit": "fraction of GPU power",
-   "default": 0.25,
+   "default": 0.71,
    "tag": "assumption",
-   "tooltip": "Power drawn by the rest of the server, as a share of the GPUs' own power.",
+   "tooltip": "Power drawn by the rest of the server, as a share of the GPUs' own power. Default 71% makes an 8-GPU H100 node draw 7.7 kW (median 7.67 kW), the measured average during LLM training (the node is rated 10.2 kW).",
    "advanced": true,
    "min": 0.0,
    "max": 2.0
@@ -168,8 +168,8 @@
    "peak_flops": 989400000000000.0,
    "tdp_w": 700.0,
    "memory_gb": 80.0,
-   "price_usd": 30000.0,
-   "price_note": "2024 channel range $27,000-$40,000 per card; $30,000 is the middle (repo DGX H100 preset).",
+   "price_usd": 37500.0,
+   "price_note": "2026 new-card range $35,000-$40,000 per card; $37,500 is the middle (IntuitionLabs, Data Center GPU Pricing 2026, accessed 2026-10-26).",
    "cite": "NVIDIA H100 product page, H100 SXM: BFLOAT16 Tensor Core 1,979 teraFLOPS with sparsity (dense is half, 989.4 teraFLOPS); Max TDP up to 700W; 80 GB memory."
   },
   "A100-80GB-SXM": {
@@ -177,8 +177,8 @@
    "peak_flops": 312000000000000.0,
    "tdp_w": 400.0,
    "memory_gb": 80.0,
-   "price_usd": 15000.0,
-   "price_note": "Rough assumption, no citation.",
+   "price_usd": 12500.0,
+   "price_note": "New-card range $10,000-$15,000 per card; $12,500 is the middle (Jarvislabs, A100 price, March 2026 snapshot, accessed 2026-10-26).",
    "cite": "NVIDIA A100 datasheet, 80GB SXM: BFLOAT16 Tensor Core 312 TFLOPS (624 with sparsity); Max TDP SXM 400W; 80 GB memory."
   }
  },
@@ -1477,8 +1477,7 @@
    "tooltip": "The share of the hardware's price used up during this run.",
    "expr": [
     "mul",
-    -1.9012852688417367e-07,
-    "gpu_price",
+    -6.0,
     "params",
     "tokens",
     [
@@ -1498,24 +1497,45 @@
     ],
     [
      "add",
-     1.0,
-     "other_hardware_fraction"
-    ],
-    [
-     "add",
-     -1.0,
-     "residual_fraction"
+     [
+      "mul",
+      3.168808781402895e-08,
+      "gpu_price",
+      [
+       "add",
+       1.0,
+       "other_hardware_fraction"
+      ],
+      [
+       "add",
+       -1.0,
+       "residual_fraction"
+      ]
+     ],
+     [
+      "mul",
+      -2.7544260946040552e-08,
+      "tdp_w",
+      "useful_life_years",
+      [
+       "add",
+       1.0,
+       "server_power_fraction"
+      ]
+     ]
     ]
    ],
    "inputs": [
     "params",
     "tokens",
     "peak_flops",
+    "tdp_w",
     "mfu",
     "gpu_price",
     "useful_life_years",
     "residual_fraction",
-    "other_hardware_fraction"
+    "other_hardware_fraction",
+    "server_power_fraction"
    ],
    "chain": [
     {
@@ -1537,7 +1557,7 @@
     },
     {
      "variable": "econ.asset.useful_life",
-     "label": "Hardware life in seconds",
+     "label": "Server life in seconds",
      "formula": "years of use x 31,557,600",
      "unit": "s",
      "kind": "setting",
@@ -1550,7 +1570,7 @@
     },
     {
      "variable": "econ.gpu.hourly_amortized",
-     "label": "Hardware cost per GPU per second",
+     "label": "GPU, server and network cost per GPU per second",
      "formula": "(price - resale value) / years of use",
      "unit": "USD/s",
      "kind": "graph equation",
@@ -1581,6 +1601,51 @@
      ]
     },
     {
+     "variable": "econ.cluster.facility_capex",
+     "label": "Building, power and cooling cost per GPU",
+     "formula": "facility USD per W x chip power rating x (1 + extra server power)",
+     "unit": "USD",
+     "kind": "setting",
+     "equation": null,
+     "expr": [
+      "mul",
+      11.3,
+      "tdp_w",
+      [
+       "add",
+       1.0,
+       "server_power_fraction"
+      ]
+     ]
+    },
+    {
+     "variable": "econ.facility.useful_life",
+     "label": "Building life in seconds",
+     "formula": "13 years x 31,557,600",
+     "unit": "s",
+     "kind": "setting",
+     "equation": null,
+     "expr": 410248800.0
+    },
+    {
+     "variable": "econ.cluster.facility_capex_rate",
+     "label": "Building, power and cooling cost per GPU per second",
+     "formula": "facility cost per GPU / facility life",
+     "unit": "USD/s",
+     "kind": "graph equation",
+     "equation": "econ.eq.cluster_facility_capex_rate",
+     "expr": [
+      "mul",
+      2.7544260946040552e-08,
+      "tdp_w",
+      [
+       "add",
+       1.0,
+       "server_power_fraction"
+      ]
+     ]
+    },
+    {
      "variable": "gpu.peak_flops_power_limited",
      "label": "Speed achieved per GPU",
      "formula": "chip peak speed x MFU",
@@ -1596,32 +1661,48 @@
     {
      "variable": "econ.job.capex_rate",
      "label": "Hardware cost per second for all GPUs",
-     "formula": "number of GPUs x hardware cost per GPU per second",
+     "formula": "number of GPUs x (server cost + building cost) per GPU per second",
      "unit": "USD/s",
      "kind": "setting",
      "equation": null,
      "expr": [
       "mul",
-      3.168808781402895e-08,
-      "gpu_price",
       "n_gpus",
       [
-       "pow",
-       "useful_life_years",
-       -1.0
-      ],
-      [
        "add",
-       1.0,
-       "other_hardware_fraction"
-      ],
-      [
-       "add",
-       1.0,
        [
         "mul",
-        -1.0,
-        "residual_fraction"
+        2.7544260946040552e-08,
+        "tdp_w",
+        [
+         "add",
+         1.0,
+         "server_power_fraction"
+        ]
+       ],
+       [
+        "mul",
+        3.168808781402895e-08,
+        "gpu_price",
+        [
+         "pow",
+         "useful_life_years",
+         -1.0
+        ],
+        [
+         "add",
+         1.0,
+         "other_hardware_fraction"
+        ],
+        [
+         "add",
+         1.0,
+         [
+          "mul",
+          -1.0,
+          "residual_fraction"
+         ]
+        ]
        ]
       ]
      ]
@@ -1852,8 +1933,7 @@
      "equation": "econ.eq.run_hw_cost",
      "expr": [
       "mul",
-      -1.9012852688417367e-07,
-      "gpu_price",
+      -6.0,
       "params",
       "tokens",
       [
@@ -1873,13 +1953,32 @@
       ],
       [
        "add",
-       1.0,
-       "other_hardware_fraction"
-      ],
-      [
-       "add",
-       -1.0,
-       "residual_fraction"
+       [
+        "mul",
+        3.168808781402895e-08,
+        "gpu_price",
+        [
+         "add",
+         1.0,
+         "other_hardware_fraction"
+        ],
+        [
+         "add",
+         -1.0,
+         "residual_fraction"
+        ]
+       ],
+       [
+        "mul",
+        -2.7544260946040552e-08,
+        "tdp_w",
+        "useful_life_years",
+        [
+         "add",
+         1.0,
+         "server_power_fraction"
+        ]
+       ]
       ]
      ]
     }
@@ -1913,7 +2012,18 @@
      "add",
      [
       "mul",
-      -0.1140771161305042,
+      0.09915933940574599,
+      "tdp_w",
+      "useful_life_years",
+      [
+       "add",
+       1.0,
+       "server_power_fraction"
+      ]
+     ],
+     [
+      "mul",
+      -0.11407711613050421,
       "gpu_price",
       [
        "add",
@@ -1976,7 +2086,7 @@
     },
     {
      "variable": "econ.asset.useful_life",
-     "label": "Hardware life in seconds",
+     "label": "Server life in seconds",
      "formula": "years of use x 31,557,600",
      "unit": "s",
      "kind": "setting",
@@ -1989,7 +2099,7 @@
     },
     {
      "variable": "econ.gpu.hourly_amortized",
-     "label": "Hardware cost per GPU per second",
+     "label": "GPU, server and network cost per GPU per second",
      "formula": "(price - resale value) / years of use",
      "unit": "USD/s",
      "kind": "graph equation",
@@ -2016,6 +2126,51 @@
         -1.0,
         "residual_fraction"
        ]
+      ]
+     ]
+    },
+    {
+     "variable": "econ.cluster.facility_capex",
+     "label": "Building, power and cooling cost per GPU",
+     "formula": "facility USD per W x chip power rating x (1 + extra server power)",
+     "unit": "USD",
+     "kind": "setting",
+     "equation": null,
+     "expr": [
+      "mul",
+      11.3,
+      "tdp_w",
+      [
+       "add",
+       1.0,
+       "server_power_fraction"
+      ]
+     ]
+    },
+    {
+     "variable": "econ.facility.useful_life",
+     "label": "Building life in seconds",
+     "formula": "13 years x 31,557,600",
+     "unit": "s",
+     "kind": "setting",
+     "equation": null,
+     "expr": 410248800.0
+    },
+    {
+     "variable": "econ.cluster.facility_capex_rate",
+     "label": "Building, power and cooling cost per GPU per second",
+     "formula": "facility cost per GPU / facility life",
+     "unit": "USD/s",
+     "kind": "graph equation",
+     "equation": "econ.eq.cluster_facility_capex_rate",
+     "expr": [
+      "mul",
+      2.7544260946040552e-08,
+      "tdp_w",
+      [
+       "add",
+       1.0,
+       "server_power_fraction"
       ]
      ]
     },
@@ -2055,32 +2210,48 @@
     {
      "variable": "econ.job.capex_rate",
      "label": "Hardware cost per second for all GPUs",
-     "formula": "number of GPUs x hardware cost per GPU per second",
+     "formula": "number of GPUs x (server cost + building cost) per GPU per second",
      "unit": "USD/s",
      "kind": "setting",
      "equation": null,
      "expr": [
       "mul",
-      3.168808781402895e-08,
-      "gpu_price",
       "n_gpus",
       [
-       "pow",
-       "useful_life_years",
-       -1.0
-      ],
-      [
        "add",
-       1.0,
-       "other_hardware_fraction"
-      ],
-      [
-       "add",
-       1.0,
        [
         "mul",
-        -1.0,
-        "residual_fraction"
+        2.7544260946040552e-08,
+        "tdp_w",
+        [
+         "add",
+         1.0,
+         "server_power_fraction"
+        ]
+       ],
+       [
+        "mul",
+        3.168808781402895e-08,
+        "gpu_price",
+        [
+         "pow",
+         "useful_life_years",
+         -1.0
+        ],
+        [
+         "add",
+         1.0,
+         "other_hardware_fraction"
+        ],
+        [
+         "add",
+         1.0,
+         [
+          "mul",
+          -1.0,
+          "residual_fraction"
+         ]
+        ]
        ]
       ]
      ]
@@ -2386,8 +2557,7 @@
      "equation": "econ.eq.run_hw_cost",
      "expr": [
       "mul",
-      -1.9012852688417367e-07,
-      "gpu_price",
+      -6.0,
       "params",
       "tokens",
       [
@@ -2407,13 +2577,32 @@
       ],
       [
        "add",
-       1.0,
-       "other_hardware_fraction"
-      ],
-      [
-       "add",
-       -1.0,
-       "residual_fraction"
+       [
+        "mul",
+        3.168808781402895e-08,
+        "gpu_price",
+        [
+         "add",
+         1.0,
+         "other_hardware_fraction"
+        ],
+        [
+         "add",
+         -1.0,
+         "residual_fraction"
+        ]
+       ],
+       [
+        "mul",
+        -2.7544260946040552e-08,
+        "tdp_w",
+        "useful_life_years",
+        [
+         "add",
+         1.0,
+         "server_power_fraction"
+        ]
+       ]
       ]
      ]
     },
@@ -2448,7 +2637,18 @@
        "add",
        [
         "mul",
-        -0.1140771161305042,
+        0.09915933940574599,
+        "tdp_w",
+        "useful_life_years",
+        [
+         "add",
+         1.0,
+         "server_power_fraction"
+        ]
+       ],
+       [
+        "mul",
+        -0.11407711613050421,
         "gpu_price",
         [
          "add",
@@ -2506,7 +2706,18 @@
      "add",
      [
       "mul",
-      -0.1140771161305042,
+      0.09915933940574599,
+      "tdp_w",
+      "useful_life_years",
+      [
+       "add",
+       1.0,
+       "server_power_fraction"
+      ]
+     ],
+     [
+      "mul",
+      -0.11407711613050421,
       "gpu_price",
       [
        "add",
@@ -2568,7 +2779,7 @@
     },
     {
      "variable": "econ.asset.useful_life",
-     "label": "Hardware life in seconds",
+     "label": "Server life in seconds",
      "formula": "years of use x 31,557,600",
      "unit": "s",
      "kind": "setting",
@@ -2581,7 +2792,7 @@
     },
     {
      "variable": "econ.gpu.hourly_amortized",
-     "label": "Hardware cost per GPU per second",
+     "label": "GPU, server and network cost per GPU per second",
      "formula": "(price - resale value) / years of use",
      "unit": "USD/s",
      "kind": "graph equation",
@@ -2608,6 +2819,51 @@
         -1.0,
         "residual_fraction"
        ]
+      ]
+     ]
+    },
+    {
+     "variable": "econ.cluster.facility_capex",
+     "label": "Building, power and cooling cost per GPU",
+     "formula": "facility USD per W x chip power rating x (1 + extra server power)",
+     "unit": "USD",
+     "kind": "setting",
+     "equation": null,
+     "expr": [
+      "mul",
+      11.3,
+      "tdp_w",
+      [
+       "add",
+       1.0,
+       "server_power_fraction"
+      ]
+     ]
+    },
+    {
+     "variable": "econ.facility.useful_life",
+     "label": "Building life in seconds",
+     "formula": "13 years x 31,557,600",
+     "unit": "s",
+     "kind": "setting",
+     "equation": null,
+     "expr": 410248800.0
+    },
+    {
+     "variable": "econ.cluster.facility_capex_rate",
+     "label": "Building, power and cooling cost per GPU per second",
+     "formula": "facility cost per GPU / facility life",
+     "unit": "USD/s",
+     "kind": "graph equation",
+     "equation": "econ.eq.cluster_facility_capex_rate",
+     "expr": [
+      "mul",
+      2.7544260946040552e-08,
+      "tdp_w",
+      [
+       "add",
+       1.0,
+       "server_power_fraction"
       ]
      ]
     },
@@ -2647,32 +2903,48 @@
     {
      "variable": "econ.job.capex_rate",
      "label": "Hardware cost per second for all GPUs",
-     "formula": "number of GPUs x hardware cost per GPU per second",
+     "formula": "number of GPUs x (server cost + building cost) per GPU per second",
      "unit": "USD/s",
      "kind": "setting",
      "equation": null,
      "expr": [
       "mul",
-      3.168808781402895e-08,
-      "gpu_price",
       "n_gpus",
       [
-       "pow",
-       "useful_life_years",
-       -1.0
-      ],
-      [
        "add",
-       1.0,
-       "other_hardware_fraction"
-      ],
-      [
-       "add",
-       1.0,
        [
         "mul",
-        -1.0,
-        "residual_fraction"
+        2.7544260946040552e-08,
+        "tdp_w",
+        [
+         "add",
+         1.0,
+         "server_power_fraction"
+        ]
+       ],
+       [
+        "mul",
+        3.168808781402895e-08,
+        "gpu_price",
+        [
+         "pow",
+         "useful_life_years",
+         -1.0
+        ],
+        [
+         "add",
+         1.0,
+         "other_hardware_fraction"
+        ],
+        [
+         "add",
+         1.0,
+         [
+          "mul",
+          -1.0,
+          "residual_fraction"
+         ]
+        ]
        ]
       ]
      ]
@@ -2978,8 +3250,7 @@
      "equation": "econ.eq.run_hw_cost",
      "expr": [
       "mul",
-      -1.9012852688417367e-07,
-      "gpu_price",
+      -6.0,
       "params",
       "tokens",
       [
@@ -2999,13 +3270,32 @@
       ],
       [
        "add",
-       1.0,
-       "other_hardware_fraction"
-      ],
-      [
-       "add",
-       -1.0,
-       "residual_fraction"
+       [
+        "mul",
+        3.168808781402895e-08,
+        "gpu_price",
+        [
+         "add",
+         1.0,
+         "other_hardware_fraction"
+        ],
+        [
+         "add",
+         -1.0,
+         "residual_fraction"
+        ]
+       ],
+       [
+        "mul",
+        -2.7544260946040552e-08,
+        "tdp_w",
+        "useful_life_years",
+        [
+         "add",
+         1.0,
+         "server_power_fraction"
+        ]
+       ]
       ]
      ]
     },
@@ -3040,7 +3330,18 @@
        "add",
        [
         "mul",
-        -0.1140771161305042,
+        0.09915933940574599,
+        "tdp_w",
+        "useful_life_years",
+        [
+         "add",
+         1.0,
+         "server_power_fraction"
+        ]
+       ],
+       [
+        "mul",
+        -0.11407711613050421,
         "gpu_price",
         [
          "add",
@@ -3099,7 +3400,18 @@
        "add",
        [
         "mul",
-        -0.1140771161305042,
+        0.09915933940574599,
+        "tdp_w",
+        "useful_life_years",
+        [
+         "add",
+         1.0,
+         "server_power_fraction"
+        ]
+       ],
+       [
+        "mul",
+        -0.11407711613050421,
         "gpu_price",
         [
          "add",
@@ -3158,7 +3470,18 @@
        "add",
        [
         "mul",
-        -0.1140771161305042,
+        0.09915933940574599,
+        "tdp_w",
+        "useful_life_years",
+        [
+         "add",
+         1.0,
+         "server_power_fraction"
+        ]
+       ],
+       [
+        "mul",
+        -0.11407711613050421,
         "gpu_price",
         [
          "add",
@@ -3263,22 +3586,22 @@
     "tdp_w": 700.0,
     "mfu": 0.4,
     "pue": 1.2,
-    "electricity_price": 0.0813,
-    "gpu_price": 30000.0,
-    "useful_life_years": 4.0,
+    "electricity_price": 0.0851,
+    "gpu_price": 37500.0,
+    "useful_life_years": 5.5,
     "residual_fraction": 0.05,
-    "other_hardware_fraction": 0.4,
+    "other_hardware_fraction": 0.49,
     "gpu_power_fraction": 0.8,
-    "server_power_fraction": 0.25
+    "server_power_fraction": 0.71
    },
    "expected": {
     "training_days": 2.3990190112413807,
     "gpu_hours": 58958.291220268184,
-    "energy_mwh": 49.52496462502528,
-    "electricity_cost": 4026.3796240145543,
-    "hardware_cost": 67089.77354804653,
-    "total_cost": 71116.15317206085,
-    "cost_per_million_tokens": 0.035558076586030496
+    "energy_mwh": 67.75015160703458,
+    "electricity_cost": 5765.53790175864,
+    "hardware_cost": 71909.51360337812,
+    "total_cost": 77675.05150513674,
+    "cost_per_million_tokens": 0.03883752575256845
    }
   },
   {
@@ -3291,22 +3614,22 @@
     "tdp_w": 400.0,
     "mfu": 0.5,
     "pue": 1.2,
-    "electricity_price": 0.0813,
-    "gpu_price": 15000.0,
-    "useful_life_years": 4.0,
+    "electricity_price": 0.0851,
+    "gpu_price": 12500.0,
+    "useful_life_years": 5.5,
     "residual_fraction": 0.05,
-    "other_hardware_fraction": 0.4,
+    "other_hardware_fraction": 0.49,
     "gpu_power_fraction": 0.8,
-    "server_power_fraction": 0.25
+    "server_power_fraction": 0.71
    },
    "expected": {
     "training_days": 21.301443420584047,
     "gpu_hours": 1047008.5470085471,
-    "energy_mwh": 502.56410256410265,
-    "electricity_cost": 40858.46153846153,
-    "hardware_cost": 595705.5815885392,
-    "total_cost": 636564.0431269989,
-    "cost_per_million_tokens": 0.4546886022335715
+    "energy_mwh": 687.5076923076924,
+    "electricity_cost": 58506.9046153846,
+    "hardware_cost": 455256.336482314,
+    "total_cost": 513763.24109769834,
+    "cost_per_million_tokens": 0.3669737436412138
    }
   },
   {
@@ -3332,9 +3655,9 @@
     "gpu_hours": 1263.3919547200323,
     "energy_mwh": 1.5520770163735598,
     "electricity_cost": 310.41540327471205,
-    "hardware_cost": 1513.3031627378919,
-    "total_cost": 1823.7185660125983,
-    "cost_per_million_tokens": 0.006079061886708674
+    "hardware_cost": 1627.3053343308086,
+    "total_cost": 1937.7207376055196,
+    "cost_per_million_tokens": 0.006459069125351745
    }
   }
  ]

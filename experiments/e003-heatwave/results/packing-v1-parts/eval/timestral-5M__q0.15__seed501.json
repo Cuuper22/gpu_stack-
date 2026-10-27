@@ -1,0 +1,77 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "706bc00638bb72faccff2ced10e1a61b81cd8151f803af9985a5b152d5b8ec4a",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "e0a23649d441d0be29fd356dc5548c5198ba702f",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 501,
+  "policy": "timestral-5M/q0.15",
+  "forecaster": "timestral-5M",
+  "use_covariates": true,
+  "options": {
+   "n_train": 6,
+   "n_test": 0,
+   "grid_stride": 1,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "policy": "timestral-5M/q0.15",
+  "kind": "fixed",
+  "seed": 501,
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1613.7892561960323,
+   "gpu_hours_multisite_jobs": 113.66817777777733,
+   "value_usd": 4199.586986216649,
+   "jobs_admitted": 44,
+   "jobs_completed": 47,
+   "violation_rate": 0.765625,
+   "violation_rate_by_site": [
+    0.4114583333333333,
+    0.5885416666666666
+   ],
+   "energy_above_cap_kwh": 2.923830425707725,
+   "energy_above_cap_kwh_by_site": [
+    1.2193469383403972,
+    1.7044834873673271
+   ],
+   "seconds_above_cap": 20950.0,
+   "max_excess_w": 2369.2279117195576,
+   "stranded_kwh": 55.20887926694709,
+   "stranded_intervals": 192,
+   "mean_power_over_cap": 0.9745108307550342,
+   "energy_kwh": 1972.9083999025745,
+   "forecast_calls": 192,
+   "forecast_refresh_bins": 1,
+   "job_faults": 0
+  },
+  "wall_s": 81.97658491134644,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 30.549762670133095,
+     "width_h": 7.375543052987341,
+     "add_c": 7.293306072819712
+    },
+    "site-b": {
+     "center_h": 32.54976267013309,
+     "width_h": 6.348024512926546,
+     "add_c": 6.894294797221747
+    }
+   },
+   "n_events": 2,
+   "sim_seed": 1897289818
+  }
+ }
+}

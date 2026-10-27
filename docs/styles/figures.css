@@ -1163,3 +1163,38 @@
     height: 40px;
   }
 }
+
+/* ---------- packing-tradeoff ---------- */
+.pt-svg { display: block; width: 100%; max-width: 480px; height: auto; background: var(--f-body); }
+.pt-t { font: 500 13px var(--f-mono); fill: var(--f-soft); }
+.pt-grid { stroke: var(--f-line); stroke-width: 1; }
+.pt-line { stroke: var(--f-blue); stroke-width: 1.5; }
+.pt-dot { fill: var(--f-blue); }
+.pt-react { fill: var(--f-red); stroke: var(--f-ink); stroke-width: 1; }
+.pt-mark { fill: var(--f-gold); stroke: var(--f-ink); stroke-width: 2; }
+.pt-whisk line { stroke: var(--f-ink); stroke-width: 1.5; }
+.pt-label { display: block; margin: 8px 0 0; font-weight: 600; font-size: 14px; }
+.pt-read { margin: 6px 0 0; font: 500 14px/1.45 var(--f-mono); }
+
+/* ---------- known-future ---------- */
+.kf-list { margin: 10px 0 0; }
+.kf-row { display: grid; grid-template-columns: minmax(120px, 36%) 1fr; gap: 8px; align-items: center; padding: 4px 0; border-top: 1px solid var(--f-line); transition: opacity 0.2s; }
+.kf-what { display: flex; flex-direction: column; font-size: 14px; line-height: 1.3; }
+.kf-kind { font: 500 13px var(--f-mono); color: var(--f-soft); }
+.kf-svg { display: block; width: 100%; height: 30px; }
+.kf-ax { height: 24px; }
+.kf-axl { stroke: var(--f-soft); stroke-width: 1; }
+.kf-at { font: 500 10px var(--f-mono); fill: var(--f-soft); }
+.kf-axisrow { border-top: 1px solid var(--f-ink); }
+.kf-zero { stroke: var(--f-ink); stroke-width: 1.5; stroke-dasharray: 3 2; }
+.kf-m { fill: var(--f-body); stroke-width: 2; stroke: var(--f-blue); }
+.kf-m.is-f { fill: var(--f-blue); }
+.kf-m[data-k="1"] { stroke: var(--f-red); } .kf-m[data-k="1"].is-f { fill: var(--f-red); }
+.kf-m[data-k="2"] { stroke: var(--f-cyan); } .kf-m[data-k="2"].is-f { fill: var(--f-cyan); }
+.kf-m[data-k="3"] { stroke: var(--f-ink); } .kf-m[data-k="3"].is-f { fill: var(--f-ink); }
+.kf-m[data-k="4"] { stroke: oklch(0.5 0.12 300); } .kf-m[data-k="4"].is-f { fill: oklch(0.5 0.12 300); }
+.kf-m[data-k="5"] { stroke: oklch(0.5 0.12 150); } .kf-m[data-k="5"].is-f { fill: oklch(0.5 0.12 150); }
+.kf-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font-size: 13px; }
+.kf-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.kf-key { width: 16px; height: 16px; }
+@container (max-width: 440px) { .kf-row { grid-template-columns: 1fr; gap: 0; } }

@@ -16,7 +16,7 @@ The easiest way in is the site, which tells the story with pictures you can play
 
 **The share of speed you actually get is the one people underestimate.** The spec sheet number is a ceiling. Meta reports about 40 percent for Llama 3, and that counts as good.
 
-**Electricity is a small slice.** For a 7 billion parameter model trained on 2 trillion tokens on 1,024 H100s, power and cooling come to about 6 percent of the cost. The rest is expensive hardware gradually becoming old hardware.
+**Electricity is a small slice, though not as small as I first wrote.** For a 7 billion parameter model trained on 2 trillion tokens on 1,024 H100s, power and cooling come to about 7.4 percent of the cost. Earlier versions of this page said about 6 percent; an audit against 2026 prices, measured server power and a separate term for the building moved it ([what changed and why](experiments/e003-heatwave/cost_audit/CORRECTION.md)). At the industrial electricity prices of different places, with the calculator's other defaults (5.5-year server life, PUE 1.2), the same run ranges from about 5 percent (New Mexico average) to about 16 percent (California average). The rest is expensive hardware gradually becoming old hardware.
 
 **How the chip is made doesn't change the bill.** The map once went down to lithography, atoms and even quarks. All of it reaches the cost through one number, how fast the GPU is, and that number is already on the spec sheet. I removed the quarks and kept a short layer on how chips are printed.
 
@@ -33,14 +33,14 @@ gpu-stack estimate --params 7e9 --tokens 2e12 --gpu H100-SXM --gpus 1024
 
 ```text
 7 billion parameters, 2 trillion tokens, 1,024 x H100-SXM
-(MFU 40%, PUE 1.2, electricity $0.0813/kWh)
+(MFU 40%, PUE 1.2, electricity $0.0851/kWh)
   Training time              2.4 days
   GPU-hours                  58,958
-  Energy                     49.5 MWh
-  Electricity cost           $4,026
-  Hardware cost (amortized)  $67,090
-  Total cost                 $71,116
-  Cost per million tokens    $0.0356
+  Energy                     67.8 MWh
+  Electricity cost           $5,766
+  Hardware cost (amortized)  $71,910
+  Total cost                 $77,675
+  Cost per million tokens    $0.0388
 ```
 
 Add `--explain` to see what each number is made of, down to the equation, and whether each input was something you entered, a cited hardware spec, or an assumption. The same from Python:
@@ -78,40 +78,40 @@ I built this with AI coding agents. They write quickly, and they grade their own
 
 ```text
 Registry stats:
-  systems        16
-  variables      1267
+  systems        17
+  variables      1319
   constants      18
-  equations      701
-  root_inputs    583
-  leaves         241
+  equations      735
+  root_inputs    604
+  leaves         252
 
 Coverage:
-  non_constant_variables         1249
-  with_sp_units                  1249
-  with_references                1249
-  equations                      701
-  equations_with_references      701
-  equations_with_unit_check      642
+  non_constant_variables         1301
+  with_sp_units                  1301
+  with_references                1301
+  equations                      735
+  equations_with_references      735
+  equations_with_unit_check      672
 ```
 
 ## Current Snapshot
 
 | Signal | Value |
 |---|---:|
-| Systems | 16 |
-| Variables | 1267 |
+| Systems | 17 |
+| Variables | 1319 |
 | Constants | 18 |
-| Equations | 701 |
-| Root inputs | 583 |
-| Leaves | 241 |
+| Equations | 735 |
+| Root inputs | 604 |
+| Leaves | 252 |
 | Cycles | 0 |
-| Topological order length | 1267 |
+| Topological order length | 1319 |
 | Hard audit failures | 0 |
-| Non-constant variables with `sp_units` | 1249 |
-| Non-constant variables with references | 1249 |
-| Equations with references | 701 |
-| Equations with unit checks | 642 |
-| Root-debt families | 142 |
+| Non-constant variables with `sp_units` | 1301 |
+| Non-constant variables with references | 1301 |
+| Equations with references | 735 |
+| Equations with unit checks | 672 |
+| Root-debt families | 146 |
 | Package version | 0.27.0 |
 
 </details>

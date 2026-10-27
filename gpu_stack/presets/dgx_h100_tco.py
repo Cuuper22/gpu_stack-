@@ -24,6 +24,17 @@ assumptions:
     inputs, maintenance, staff, network transit, demand charge, water,
     carbon intensity and price, and cooling-tower thermal parameters.
     Each assumption is labeled with its rationale and bound.
+
+Three corrections apply to this closure (ROADMAP item 4, cost audit T10):
+
+  * Site power includes facility overhead. dgx_h100_site_power_with_pue sets
+    thermal.dc.total_power to the DGX H100 system maximum (10.2 kW) times an
+    assumed PUE, not the system maximum alone.
+  * The demand charge is not added on top of an EIA average price. The EIA
+    average retail price is revenue divided by sales and already contains
+    the demand charges, so econ.power.capacity_charge_kw_month is zero.
+  * Facility capex has its own, longer life (econ.facility.useful_life)
+    instead of the 4-year IT life.
 """
 
 from __future__ import annotations
@@ -167,6 +178,28 @@ _WATER_PHYSICS_SOURCE = (
     "typical 3-5 for chemical inhibitor programs (DOE, same source)."
 )
 
+# PUE applied to the DGX H100 system maximum to get site power. 1.2 is the
+# calculator default and sits between operator-reported fleet values and the
+# industry survey mean (accessed 2026-10-26): Google 1.09 trailing twelve
+# months (https://www.datacenters.google/efficiency), AWS 1.14 for 2025
+# (https://aws.amazon.com/sustainability/), Microsoft 1.17 for FY25
+# (https://datacenters.microsoft.com/sustainability/efficiency/), Uptime
+# Institute Global Data Center Survey 2026 capacity-weighted 1.36 and
+# per-facility mean 1.52
+# (https://intelligence.uptimeinstitute.com/resource/growing-pue-advantage-larger-data-centers).
+ASSUMED_PUE = 1.2
+DGX_H100_SYSTEM_MAX_POWER_W = 10_200.0
+
+# Facility life: Amazon's FY2025 10-K lists heavy equipment at ten to thirteen
+# years and buildings at up to forty years
+# (https://app.edgar.tools/companies/AMZN/disclosures/property-plant-equipment,
+# accessed 2026-10-26). The upper end of the heavy-equipment range is used for
+# the whole facility: power and cooling plant dominate facility capex, and the
+# building shell lasts longer, so 13 years is the shortest cited facility life.
+FACILITY_USEFUL_LIFE_YEARS = 13.0
+SECONDS_PER_JULIAN_YEAR = 365.25 * 86400.0
+
+
 pythia_70m_dgx_h100_run_closure_assumption = Preset(
     name="pythia_70m_dgx_h100_run_closure_assumption",
     description=(
@@ -291,6 +324,13 @@ pythia_70m_dgx_h100_run_closure_assumption = Preset(
         # a PUE ~ 1.0 colocation scenario. Using same 15,000 W.
         "thermal.facility.cooling_design_capacity": 15_000.0,
         # -----------------------------------------------------------------------
+        # Facility life
+        # -----------------------------------------------------------------------
+        # 13 years for building shell, power and cooling plant (see the
+        # FACILITY_USEFUL_LIFE_YEARS comment); IT equipment keeps the 4-year
+        # life above.
+        "econ.facility.useful_life": FACILITY_USEFUL_LIFE_YEARS * SECONDS_PER_JULIAN_YEAR,
+        # -----------------------------------------------------------------------
         # Maintenance
         # -----------------------------------------------------------------------
         # Annual maintenance fraction: 2 % of total capex per year.
@@ -318,10 +358,12 @@ pythia_70m_dgx_h100_run_closure_assumption = Preset(
         # -----------------------------------------------------------------------
         # Power demand charge
         # -----------------------------------------------------------------------
-        # Capacity charge per kW-month: $8.00/(kW*month) is a common US
-        # industrial demand-charge rate. Demand charges vary widely;
-        # $5-$15/kW-month is a representative US industrial range.
-        "econ.power.capacity_charge_kw_month": 8.00,
+        # Zero: the energy price in this pack is the EIA average retail price,
+        # which is utility revenue divided by sales (EIA FAQ) and therefore
+        # already contains the demand charges. Adding $8.00/(kW*month) on top
+        # counted the same charge twice. A scenario that uses an energy-only
+        # price should assign the tariff's demand charge here instead.
+        "econ.power.capacity_charge_kw_month": 0.0,
         # -----------------------------------------------------------------------
         # Water cost
         # -----------------------------------------------------------------------
@@ -445,8 +487,13 @@ pythia_70m_dgx_h100_run_closure_assumption = Preset(
         "econ.network.transit_price_per_gb=0.08 USD/GB and "
         "econ.network.egress_bytes_per_s=1e6 byte/s give a minimal "
         "transit cost boundary for a single-node on-premises system.",
-        "econ.power.capacity_charge_kw_month=8.00 USD/(kW*month) is "
-        "a representative US industrial demand charge; actual rates vary.",
+        "econ.power.capacity_charge_kw_month=0.0 because the EIA average "
+        "retail price already contains demand charges; the earlier 8.00 "
+        "USD/(kW*month) counted them twice (ROADMAP item 4). Assign a "
+        "tariff's demand charge here only together with an energy-only price.",
+        "econ.facility.useful_life=410248800 s is 13 years, the upper end of "
+        "Amazon's FY2025 heavy-equipment life; the facility was on the "
+        "4-year IT life before (ROADMAP item 4).",
         "econ.water.price_per_liter=0.005 USD/L ($5/m^3) represents "
         "US industrial water cost including treatment and discharge.",
         "This pack is an explicit assumption closure, not measured "
@@ -455,7 +502,43 @@ pythia_70m_dgx_h100_run_closure_assumption = Preset(
 )
 
 
+dgx_h100_site_power_with_pue = Preset(
+    name="dgx_h100_site_power_with_pue",
+    description=(
+        "Site power for a DGX H100 node including facility overhead: the 10.2 kW "
+        "system maximum times an assumed PUE of 1.2, in place of the system "
+        "maximum alone."
+    ),
+    assignments={
+        "thermal.dc.total_power": ASSUMED_PUE * DGX_H100_SYSTEM_MAX_POWER_W,
+    },
+    source=(
+        "DGX H100 system maximum 10.2 kW: NVIDIA DGX H100/H200 User Guide, "
+        "Table 3, https://docs.nvidia.com/dgx/dgxh100-user-guide/"
+        "introduction-to-dgxh100.html (as cited in presets/scenarios.py). "
+        "PUE 1.2 is an assumption between operator-reported fleet values and "
+        "the industry survey mean (accessed 2026-10-26): Google 1.09 trailing "
+        "twelve months (https://www.datacenters.google/efficiency), AWS 1.14 "
+        "for 2025 (https://aws.amazon.com/sustainability/), Microsoft 1.17 for "
+        "FY25 (https://datacenters.microsoft.com/sustainability/efficiency/), "
+        "Uptime Institute Global Data Center Survey 2026 capacity-weighted "
+        "1.36 and per-facility mean 1.52 "
+        "(https://intelligence.uptimeinstitute.com/resource/"
+        "growing-pue-advantage-larger-data-centers)."
+    ),
+    notes=(
+        "thermal.dc.total_power=12240 W is PUE 1.2 times 10200 W. The run "
+        "closure had used 10200 W alone, so facility overhead never reached "
+        "the electricity bill (ROADMAP item 4).",
+        "IT power stays the DGX H100 system maximum, a rating; measured "
+        "training draw is lower (an average of about 7.7 kW per node in "
+        "arXiv 2506.14551 Table 2), so this is an upper-end IT load.",
+    ),
+)
+
+
 __all__ = [
     "dgx_h100_node_power_bom",
+    "dgx_h100_site_power_with_pue",
     "pythia_70m_dgx_h100_run_closure_assumption",
 ]

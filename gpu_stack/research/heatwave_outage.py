@@ -1,0 +1,2969 @@
+"""Forecast-driven outage response for the e003 Heatwave simulator (all simulated).
+
+Everything in this module acts on, or scores, the SIMULATED two-site cluster of
+:mod:`gpu_stack.research.heatwave_sim`.  Event rates, precursors, lead times and
+severities are simulation assumptions; nothing here is a claim about a real
+facility.
+
+Decision loop
+-------------
+Every decision interval a controller
+
+1. reads the visible telemetry (never the ground-truth event list),
+2. appends one sample per monitored series (see ``Channels``),
+3. forecasts every series with 21 quantiles over the warning horizon using any
+   :class:`heatwave.forecast.Forecaster` (Timestral, seasonal naive, ETS, ARIMA,
+   a persistence reference, or a fine-tuned Timestral through ``weights_dir``),
+4. converts the quantiles into the probability that the series crosses its
+   trouble level within the horizon,
+5. raises a warning for a series when that probability reaches a threshold, and
+6. responds: checkpoint the affected jobs immediately, move flexible jobs to the
+   other site if it has free GPUs (the simulator's ``MigrateJob`` checkpoints
+   first), otherwise pause them after the checkpoint, and resume when the
+   warning clears.
+
+Monitored series (``Channels``)
+-------------------------------
+``gpu_temp_max`` (rack, class ``thermal``)
+    Hottest GPU of the rack.  Trouble level: the simulator's throttle threshold
+    (read from the scenario).
+``supply_anom`` (rack, class ``cooling``)
+    Supply air temperature minus the supply setpoint implied by the outdoor
+    forecast.  Carries the cooling-failure supply-temperature precursor.
+    Trouble level: a high quantile of the same channel in event-free runs on
+    training seeds (:func:`calibrate`).
+``breaker_ratio`` (rack, class ``power``)
+    Rack IT power divided by the effective breaker rating (the derate precursor
+    shows up here).  Trouble level: 1.0, rack power above the rating.
+``gpu_anom`` (rack, class ``hardware``)
+    Largest per-GPU temperature rise of the rack relative to the GPU's own slow
+    baseline and its peers in the same job.  Carries the hardware-fault
+    temperature precursor.  Level: calibrated like ``supply_anom``.
+``site_power`` (site, class ``curtail``)
+    Site power against the grid import limit, including curtailments announced
+    in the known-future schedule.
+``gpu_resid`` (one series per GPU, class ``hardware``; only when ``per_gpu_channel`` is on)
+    Temperature of one GPU above the level its rack peers predict (K).  The
+    GPU's temperature above rack air is compared with the median of the GPUs of
+    the same job in the same rack, scaled by the GPU's own gain against those
+    peers (a median over its older samples).  Job power changes cancel because
+    peers share them, and a creep of one GPU shows at full size even when the
+    rack maximum stays unchanged.  Level: calibrated like ``supply_anom``.
+
+Information boundary
+--------------------
+Controllers see the simulator's :class:`VisibleState`.  Two scheduler-side
+facts are added through :class:`PlacementView`: which job holds which GPUs.
+That is operational state of any scheduler, not event ground truth.  The oracle
+policy (perfect foresight, an upper bound) is the only one that reads event
+times, and it says so in its name.
+
+Simulator note
+--------------
+From simulator commit cbf6d7e the per-GPU temperature offsets of the hardware
+fault precursor are part of the visible per-GPU temperature
+(``VisibleState.now["gpu_temp_c"]``), of the history channel
+``history("gpu_temp_c", window_s)`` and of the rack maximum.  Before that
+commit they were applied inside the thermal step only, and :class:`OutageRun`
+added them to the visible state; the simulator now does this itself, so
+:class:`OutageRun` is the plain simulator run.
+
+Scoring
+-------
+:func:`score_run` turns one simulator result plus the controller export into
+per-event outcomes (lead time, work lost in steps and GPU-hours, curtailment
+violation energy, throttle slowdown), warning-alarm outcomes (true or false
+alarm, response cost in GPU-hours) and response costs.  Aggregation with seed
+bootstrap intervals is in :func:`aggregate_runs`.
+"""
+
+from __future__ import annotations
+
+import copy
+import hashlib
+import json
+import math
+import re
+import warnings
+from dataclasses import dataclass, field, replace
+from pathlib import Path
+from typing import Any, Callable, Iterable, Mapping, Optional, Sequence
+
+import numpy as np
+
+from .heatwave_events import (
+    KIND_BREAKER_TRIP,
+    KIND_COOLING_FAILURE,
+    KIND_GRID_CURTAILMENT,
+    KIND_HARDWARE_FAULT,
+    KIND_THERMAL_THROTTLE,
+    EventSchedule,
+    random_schedule,
+)
+from .heatwave_sim import (
+    CheckpointNow,
+    MigrateJob,
+    NullController,
+    PauseJob,
+    ResumeJob,
+    SimConfig,
+    SimResult,
+    VisibleState,
+    _Run,
+    build_config,
+    load_scenario,
+)
+
+SCHEMA = "gpu-stack.e003-heatwave-outage-scenario.v1"
+RESULT_SCHEMA = "gpu-stack.e003-heatwave-outage-result.v1"
+
+CLASS_THERMAL = "thermal"
+CLASS_COOLING = "cooling"
+CLASS_POWER = "power"
+CLASS_HARDWARE = "hardware"
+CLASS_CURTAIL = "curtail"
+CLASSES = (CLASS_THERMAL, CLASS_COOLING, CLASS_POWER, CLASS_HARDWARE, CLASS_CURTAIL)
+
+CH_GPU_TEMP = "gpu_temp_max"
+CH_SUPPLY = "supply_anom"
+CH_BREAKER = "breaker_ratio"
+CH_GPU_ANOM = "gpu_anom"
+CH_SITE_POWER = "site_power"
+CH_GPU_RESID = "gpu_resid"
+RACK_CHANNELS = (CH_GPU_TEMP, CH_SUPPLY, CH_BREAKER, CH_GPU_ANOM)
+SITE_CHANNELS = (CH_SITE_POWER,)
+GPU_CHANNELS = (CH_GPU_RESID,)
+CHANNEL_CLASS = {
+    CH_GPU_TEMP: CLASS_THERMAL,
+    CH_SUPPLY: CLASS_COOLING,
+    CH_BREAKER: CLASS_POWER,
+    CH_GPU_ANOM: CLASS_HARDWARE,
+    CH_SITE_POWER: CLASS_CURTAIL,
+    CH_GPU_RESID: CLASS_HARDWARE,
+}
+
+# Which warning classes may explain which kind of event.
+EVENT_CLASSES = {
+    KIND_COOLING_FAILURE: (CLASS_THERMAL, CLASS_COOLING),
+    KIND_BREAKER_TRIP: (CLASS_POWER,),
+    KIND_GRID_CURTAILMENT: (CLASS_CURTAIL,),
+    KIND_HARDWARE_FAULT: (CLASS_HARDWARE,),
+    KIND_THERMAL_THROTTLE: (CLASS_THERMAL, CLASS_COOLING),
+}
+EVENT_TYPES = (KIND_THERMAL_THROTTLE, KIND_COOLING_FAILURE, KIND_BREAKER_TRIP, KIND_GRID_CURTAILMENT, KIND_HARDWARE_FAULT)
+
+MIN_VALID_SAMPLES = 12
+MIN_BASELINE_SAMPLES = 6
+
+# ---------------------------------------------------------------------------
+# validation helpers
+# ---------------------------------------------------------------------------
+
+
+def _num(value: Any, name: str, *, minimum: float = 0.0, strict: bool = False, maximum: float = math.inf) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float, np.integer, np.floating)):
+        raise ValueError(f"{name} must be a real number")
+    v = float(value)
+    if not math.isfinite(v):
+        raise ValueError(f"{name} must be finite")
+    if (strict and not v > minimum) or (not strict and v < minimum):
+        raise ValueError(f"{name} must be {'>' if strict else '>='} {minimum}")
+    if v > maximum:
+        raise ValueError(f"{name} must be <= {maximum}")
+    return v
+
+
+def _int(value: Any, name: str, minimum: int = 1) -> int:
+    if isinstance(value, bool) or not isinstance(value, (int, np.integer)) or int(value) < minimum:
+        raise ValueError(f"{name} must be an integer >= {minimum}")
+    return int(value)
+
+
+# ---------------------------------------------------------------------------
+# response design (v3)
+# ---------------------------------------------------------------------------
+
+MODE_NONE = "none"
+MODE_CHECKPOINT = "checkpoint"
+MODE_PAUSE = "pause"
+MODE_MOVE = "move"
+MODES = (MODE_NONE, MODE_CHECKPOINT, MODE_PAUSE, MODE_MOVE)
+MODE_RANK = {MODE_NONE: 0, MODE_CHECKPOINT: 1, MODE_PAUSE: 2, MODE_MOVE: 3}
+FALLBACK_MODES = (MODE_NONE, MODE_CHECKPOINT, MODE_PAUSE)
+
+
+@dataclass(frozen=True)
+class ClassRule:
+    """What the response does for one warning class.
+
+    ``mode`` is the response when the warning covers a job: nothing, a checkpoint
+    only (the job keeps running), a checkpoint followed by a pause once the
+    checkpoint is durable, or a move to the other site (the simulator's
+    ``MigrateJob`` writes the checkpoint itself).  ``fallback`` is used when a
+    move cannot be done (the job is not flexible, or the other site has no room).
+    A pause that cannot be done (the job is not flexible) becomes a checkpoint.
+    """
+
+    mode: str = MODE_CHECKPOINT
+    fallback: str = MODE_CHECKPOINT
+
+    def __post_init__(self) -> None:
+        if self.mode not in MODES:
+            raise ValueError(f"mode must be one of {MODES}")
+        if self.fallback not in FALLBACK_MODES:
+            raise ValueError(f"fallback must be one of {FALLBACK_MODES}")
+
+    def to_dict(self) -> dict[str, str]:
+        return {"mode": self.mode, "fallback": self.fallback}
+
+
+@dataclass(frozen=True)
+class ResponseDesign:
+    """Per-class response rules and timing of the v3 controller (all simulation settings).
+
+    ``protect_ratio``: a policy checkpoint is written only when the job has run at
+    least ``protect_ratio`` times its checkpoint duration since its last durable
+    state (the work a fault would take back is then at least that multiple of the
+    checkpoint cost).  ``min_gap_s``: least time between two policy checkpoints
+    of one job.  ``pause_tol_s``: a job counts as protected, and may be paused,
+    when it has run at most this long since its last durable state.
+    ``clear_decisions``: consecutive below-threshold decisions that end a
+    warning (overrides the settings value when not None).
+    """
+
+    name: str
+    rules: Mapping[str, ClassRule]
+    protect_ratio: float = 0.0
+    min_gap_s: float = 0.0
+    pause_tol_s: float = 90.0
+    clear_decisions: Optional[int] = None
+
+    def __post_init__(self) -> None:
+        if not self.name:
+            raise ValueError("a response design needs a name")
+        for cls, rule in self.rules.items():
+            if cls not in CLASSES:
+                raise ValueError(f"unknown warning class {cls!r}")
+            if not isinstance(rule, ClassRule):
+                raise ValueError("rules must map class names to ClassRule")
+        _num(self.protect_ratio, "protect_ratio")
+        _num(self.min_gap_s, "min_gap_s")
+        _num(self.pause_tol_s, "pause_tol_s", strict=True)
+        if self.clear_decisions is not None:
+            _int(self.clear_decisions, "clear_decisions", 1)
+
+    def rule(self, cls: str) -> ClassRule:
+        return self.rules.get(cls, ClassRule(MODE_NONE, MODE_NONE))
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name, "rules": {k: v.to_dict() for k, v in sorted(self.rules.items())},
+            "protect_ratio": self.protect_ratio, "min_gap_s": self.min_gap_s, "pause_tol_s": self.pause_tol_s,
+            "clear_decisions": self.clear_decisions,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, Any]) -> "ResponseDesign":
+        rules = {k: ClassRule(str(v.get("mode", MODE_CHECKPOINT)), str(v.get("fallback", MODE_CHECKPOINT))) for k, v in data.get("rules", {}).items()}
+        cd = data.get("clear_decisions")
+        return cls(
+            name=str(data["name"]), rules=rules, protect_ratio=float(data.get("protect_ratio", 0.0)),
+            min_gap_s=float(data.get("min_gap_s", 0.0)), pause_tol_s=float(data.get("pause_tol_s", 90.0)),
+            clear_decisions=None if cd is None else int(cd),
+        )
+
+    def with_changes(self, **changes: Any) -> "ResponseDesign":
+        """Copy with fields replaced; ``rules`` entries given as ``rule_<class>`` = ``(mode, fallback)``."""
+        rules = dict(self.rules)
+        plain = {}
+        for key, value in changes.items():
+            if key.startswith("rule_"):
+                mode, fb = value
+                rules[key[len("rule_"):]] = ClassRule(mode, fb)
+            else:
+                plain[key] = value
+        return replace(self, rules=rules, **plain)
+
+
+# ---------------------------------------------------------------------------
+# settings and scenario handling
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class OutageSettings:
+    """Response-policy and evaluation settings (all simulation assumptions)."""
+
+    decision_interval_s: float
+    warmup_s: float
+    context_steps: int
+    horizon_steps: int
+    clear_decisions: int
+    recheckpoint_s: float
+    max_pause_s: float
+    calibration_quantile: float
+    anomaly_baseline_window_s: float
+    anomaly_baseline_gap_s: float
+    anomaly_smooth_steps: int
+    curtail_shed_margin: float
+    oracle_extra_lead_steps: int
+    episode_merge_gap_s: float
+    threshold_grid: tuple[float, ...]
+    observed_threshold: float
+    bootstrap_resamples: int
+    # per-GPU residual channel (off by default: the v1 channel set)
+    per_gpu_channel: bool = False
+    gpu_min_peers: int = 3
+    gpu_peer_excess_floor_frac: float = 0.5
+    gpu_baseline_min_samples: int = 6
+    gpu_smooth_steps: int = 1
+    # v3 response: per-class rules (None keeps the v1/v2 response) and the controller tick used for it
+    response: Optional[ResponseDesign] = None
+    response_tick_s: Optional[float] = None
+
+    def __post_init__(self) -> None:
+        _num(self.decision_interval_s, "decision_interval_s", strict=True)
+        _num(self.warmup_s, "warmup_s")
+        _int(self.context_steps, "context_steps", MIN_VALID_SAMPLES)
+        _int(self.horizon_steps, "horizon_steps", 1)
+        _int(self.clear_decisions, "clear_decisions", 1)
+        _num(self.recheckpoint_s, "recheckpoint_s", strict=True)
+        _num(self.max_pause_s, "max_pause_s", strict=True)
+        _num(self.calibration_quantile, "calibration_quantile", strict=True, maximum=1.0)
+        _num(self.anomaly_baseline_window_s, "anomaly_baseline_window_s", strict=True)
+        _num(self.anomaly_baseline_gap_s, "anomaly_baseline_gap_s")
+        _int(self.anomaly_smooth_steps, "anomaly_smooth_steps", 1)
+        _num(self.curtail_shed_margin, "curtail_shed_margin", maximum=0.5)
+        _int(self.oracle_extra_lead_steps, "oracle_extra_lead_steps", 0)
+        _num(self.episode_merge_gap_s, "episode_merge_gap_s")
+        _num(self.observed_threshold, "observed_threshold", strict=True, maximum=1.0)
+        _int(self.bootstrap_resamples, "bootstrap_resamples", 10)
+        _int(self.gpu_min_peers, "gpu_min_peers", 2)
+        _num(self.gpu_peer_excess_floor_frac, "gpu_peer_excess_floor_frac", strict=True, maximum=1.0)
+        _int(self.gpu_baseline_min_samples, "gpu_baseline_min_samples", 2)
+        _int(self.gpu_smooth_steps, "gpu_smooth_steps", 1)
+        if self.response_tick_s is not None:
+            _num(self.response_tick_s, "response_tick_s", strict=True)
+            ratio = self.decision_interval_s / self.response_tick_s
+            if abs(ratio - round(ratio)) > 1e-9:
+                raise ValueError("decision_interval_s must be a whole multiple of response_tick_s")
+        if self.response is not None and not isinstance(self.response, ResponseDesign):
+            raise ValueError("response must be a ResponseDesign")
+        if not self.threshold_grid or any(not 0.0 < g < 1.0 for g in self.threshold_grid):
+            raise ValueError("threshold_grid needs values strictly between 0 and 1")
+
+    @property
+    def horizon_s(self) -> float:
+        return self.horizon_steps * self.decision_interval_s
+
+    @property
+    def tick_s(self) -> float:
+        """Interval at which the simulator calls the controller."""
+        return self.decision_interval_s if self.response_tick_s is None else float(self.response_tick_s)
+
+    @property
+    def clear_decisions_effective(self) -> int:
+        if self.response is not None and self.response.clear_decisions is not None:
+            return int(self.response.clear_decisions)
+        return int(self.clear_decisions)
+
+    @classmethod
+    def from_scenario(cls, outage: Mapping[str, Any]) -> "OutageSettings":
+        block = outage["outage"]
+        gen = outage["event_generation"]
+        pg = block.get("per_gpu_channel")
+        extra: dict[str, Any] = {}
+        if pg:
+            extra = {
+                "per_gpu_channel": True,
+                "gpu_min_peers": int(pg["min_peers"]),
+                "gpu_peer_excess_floor_frac": float(pg["peer_excess_floor_fraction_of_idle"]),
+                "gpu_baseline_min_samples": int(pg["baseline_min_samples"]),
+                "gpu_smooth_steps": int(pg["smooth_steps"]),
+            }
+        resp = block.get("response")
+        if resp:
+            extra["response"] = ResponseDesign.from_dict(resp)
+            if resp.get("tick_s") is not None:
+                extra["response_tick_s"] = float(resp["tick_s"])
+        return cls(
+            decision_interval_s=float(block["decision_interval_s"]),
+            warmup_s=float(gen["warmup_s"]),
+            context_steps=int(block["context_steps"]),
+            horizon_steps=int(block["horizon_steps"]),
+            clear_decisions=int(block["clear_decisions"]),
+            recheckpoint_s=float(block["recheckpoint_s"]),
+            max_pause_s=float(block["max_pause_s"]),
+            calibration_quantile=float(block["calibration_quantile"]),
+            anomaly_baseline_window_s=float(block["anomaly_baseline_window_s"]),
+            anomaly_baseline_gap_s=float(block["anomaly_baseline_gap_s"]),
+            anomaly_smooth_steps=int(block["anomaly_smooth_steps"]),
+            curtail_shed_margin=float(block["curtail_shed_margin"]),
+            oracle_extra_lead_steps=int(block["oracle_extra_lead_steps"]),
+            episode_merge_gap_s=float(block["episode_merge_gap_s"]),
+            threshold_grid=tuple(float(x) for x in block["threshold_grid"]),
+            observed_threshold=float(block["observed_threshold"]),
+            bootstrap_resamples=int(block["bootstrap_resamples"]),
+            **extra,
+        )
+
+
+def deep_merge(base: Mapping[str, Any], over: Mapping[str, Any]) -> dict[str, Any]:
+    """Recursive dict merge; lists and scalars in ``over`` replace those in ``base``."""
+    out = copy.deepcopy(dict(base))
+    for key, value in over.items():
+        if isinstance(value, Mapping) and isinstance(out.get(key), Mapping):
+            out[key] = deep_merge(out[key], value)
+        else:
+            out[key] = copy.deepcopy(value)
+    return out
+
+
+def load_outage_scenario(path: Path | str) -> dict[str, Any]:
+    """Load the outage scenario and attach the merged simulator scenario as ``sim``.
+
+    ``sim`` is the base simulator scenario (``base_scenario``, relative to the
+    outage file) with ``base_overrides`` merged in.  No power parameter is set
+    here, so a recalibrated base scenario flows straight through.
+    """
+    path = Path(path)
+    outage = json.loads(path.read_text())
+    if outage.get("schema") != SCHEMA:
+        raise ValueError(f"outage scenario schema must be {SCHEMA!r}")
+    if outage.get("data_kind") != "simulated":
+        raise ValueError("outage scenario data_kind must be 'simulated'")
+    base = load_scenario(path.parent / outage["base_scenario"])
+    outage = dict(outage)
+    outage["sim"] = deep_merge(base, outage.get("base_overrides", {}))
+    s = OutageSettings.from_scenario(outage)
+    sim = outage["sim"]
+    if abs(sim["controller_interval_s"] - s.tick_s) > 1e-9:
+        raise ValueError("sim controller_interval_s must equal the outage decision interval (or the response tick when one is set)")
+    if sim["horizon_s"] <= s.warmup_s + s.horizon_s:
+        raise ValueError("horizon too short for warm-up plus one warning horizon")
+    return outage
+
+
+def seed_scenario(outage: Mapping[str, Any], seed: int, *, with_events: bool = True) -> dict[str, Any]:
+    """Simulator scenario for one seed: seeded jobs, weather and (optionally) events.
+
+    Events are drawn with :func:`random_schedule` from ``event_generation`` and
+    shifted by the warm-up so that none start before the forecaster has a full
+    context.  Same seed, same scenario.
+    """
+    offsets = outage["seed_streams"]
+    sim = copy.deepcopy(outage["sim"])
+    sim["jobs"]["generate"]["seed"] = int(seed) + int(offsets["job_seed_offset"])
+    sim["environment"]["seed"] = int(seed) + int(offsets["environment_seed_offset"])
+    gen = outage["event_generation"]
+    if not with_events:
+        sim["events"] = []
+        return sim
+    site_racks = {
+        item["site"]["site_id"]: [(r["rack_id"], int(r["n_gpus"])) for r in item["racks"]] for item in sim["sites"]
+    }
+    window = float(sim["horizon_s"]) - float(gen["warmup_s"]) - float(gen["tail_s"])
+    if window <= 0:
+        raise ValueError("no room for events between warm-up and tail")
+    sched = random_schedule(
+        int(seed) + int(offsets["event_seed_offset"]),
+        window,
+        site_racks,
+        gen["rates_per_site_per_day"],
+        float(gen["precursor_probability"]),
+        tuple(gen["lead_range_s"]),
+        {k: tuple(v) for k, v in gen["strength_ranges"].items()},
+        tuple(gen["duration_range_s"]),
+        tuple(gen["remaining_capacity_range"]),
+        tuple(gen["derate_range"]),
+        tuple(gen["limit_fraction_range"]),
+        tuple(gen["repair_range_s"]),
+    )
+    events = []
+    for ev in sched.events:
+        d = ev.to_dict()
+        d["onset_s"] = float(d["onset_s"]) + float(gen["warmup_s"])
+        events.append(d)
+    sim["events"] = events
+    return sim
+
+
+# ---------------------------------------------------------------------------
+# running the simulator with the scheduler-side placement view
+# ---------------------------------------------------------------------------
+
+
+class StallLedger:
+    """GPU-seconds of every job state in one run (accounting only; no effect on the simulation).
+
+    ``run`` is running time of unpaused jobs; ``run_equivalent`` weights it by the
+    clock fraction (what progresses); ``throttle_loss`` is the difference.
+    ``ckpt`` is checkpoint writes, ``merge`` the multi-site averaging stalls and
+    waits, ``restore_fault`` the restore after a fault, ``move`` the WAN transfer
+    and restore of a migration (its checkpoint is in ``ckpt``), ``paused`` the time a
+    paused job holds its GPUs, ``restart_wait`` the time a faulted job waits for a
+    free placement (the GPUs are not held; counted in job-GPU-seconds).
+    """
+
+    CATEGORIES = ("run", "run_equivalent", "throttle_loss", "ckpt", "merge", "restore_fault", "move", "paused", "restart_wait")
+
+    def __init__(self) -> None:
+        self.gpu_s: dict[str, float] = {k: 0.0 for k in self.CATEGORIES}
+        self.n_restarts = 0
+
+    def to_gpu_hours(self) -> dict[str, float]:
+        return {k: v / 3600.0 for k, v in self.gpu_s.items()}
+
+
+class OutageRun(_Run):
+    """The simulator run used by every outage policy.
+
+    The hardware precursor's per-GPU temperature offsets are part of the
+    simulator's visible state since commit cbf6d7e, so nothing is added to the
+    physics here.  The run keeps a :class:`StallLedger` of where GPU time went;
+    the hooks only read the simulator's state.
+    """
+
+    def __init__(self, cfg: SimConfig, controller: Any, seed: int) -> None:
+        self.ledger = StallLedger()
+        self._moving: set[int] = set()
+        self._fault_t: dict[int, float] = {}
+        super().__init__(cfg, controller, seed)
+
+    def _fractions(self, segs: list):  # type: ignore[override]
+        L = self.ledger.gpu_s
+        for sid, mode, _start, dur, _x0, rate in segs:
+            sh = self.shards[int(sid)]
+            g = float(dur) * sh.n_gpus
+            m = int(mode)
+            if m == 0:
+                speed = min(float(rate) * sh.job.step_time_s, 1.0)
+                L["run"] += g
+                L["run_equivalent"] += g * speed
+                L["throttle_loss"] += g * (1.0 - speed)
+            elif m == 1:
+                L["merge"] += g
+            elif m == 2:
+                L["ckpt"] += g
+        return super()._fractions(segs)
+
+    def _advance_shard(self, sh, until, speed, segs):  # type: ignore[override]
+        n0, c0 = len(segs), sh.cursor
+        super()._advance_shard(sh, until, speed, segs)
+        L = self.ledger.gpu_s
+        new = segs[n0:]
+        covered = sum(float(x[3]) for x in new)
+        m3 = sum(float(x[3]) for x in new if int(x[1]) == 3)
+        if m3 > 0.0:
+            L["move" if sh.sid in self._moving else "restore_fault"] += m3 * sh.n_gpus
+        if sh.sid in self._moving and sh.state not in ("transfer", "restore"):
+            self._moving.discard(sh.sid)
+        if sh.paused and sh.state == "running" and sh.cursor >= until - 1e-9:
+            L["paused"] += max((until - c0) - covered, 0.0) * sh.n_gpus
+
+    def _begin_transfer(self, sh):  # type: ignore[override]
+        super()._begin_transfer(sh)
+        if sh.state == "transfer":
+            self._moving.add(sh.sid)
+
+    def _fault_shard(self, sh, t, reason):  # type: ignore[override]
+        was_live = sh.state not in ("done", "queued")
+        super()._fault_shard(sh, t, reason)
+        self._moving.discard(sh.sid)
+        if was_live:
+            self._fault_t[sh.sid] = float(t)
+
+    def _try_place(self, sh, t):  # type: ignore[override]
+        waiting = bool(sh.needs_restore)
+        ok = super()._try_place(sh, t)
+        if ok and waiting and sh.sid in self._fault_t:
+            self.ledger.gpu_s["restart_wait"] += (float(t) - self._fault_t.pop(sh.sid)) * sh.n_gpus
+            self.ledger.n_restarts += 1
+        return ok
+
+    def _finish(self):  # type: ignore[override]
+        end = float(self.cfg.horizon_s)
+        for sid, t0 in list(self._fault_t.items()):
+            self.ledger.gpu_s["restart_wait"] += (end - t0) * self.shards[sid].n_gpus
+        self._fault_t.clear()
+        return super()._finish()
+
+
+class PlacementView:
+    """Which job holds which GPUs (scheduler state; not event ground truth)."""
+
+    def __init__(self, run: _Run) -> None:
+        self._run = run
+
+    @property
+    def rack_ids(self) -> list[str]:
+        return list(self._run.rack_ids)
+
+    def n_gpus(self) -> int:
+        return int(self._run.G)
+
+    def gpu_rack(self) -> np.ndarray:
+        return np.asarray(self._run.gpu_rack)
+
+    def gpu_slot(self) -> np.ndarray:
+        return np.asarray(self._run.gpu_slot)
+
+    def gpu_group(self) -> np.ndarray:
+        """Shard id per GPU, ``-1`` for GPUs without a job."""
+        g = np.asarray(self._run.gpu_shard).astype(int)
+        g[g == self._run.n_shards] = -1
+        return g
+
+    def gpu_job_ids(self) -> list[Optional[str]]:
+        """Job id per GPU (``None`` for GPUs without a job)."""
+        run = self._run
+        sid = np.asarray(run.gpu_shard).astype(int)
+        return [None if int(x) == run.n_shards else run.shards[int(x)].job.job_id for x in sid]
+
+    def job_rack_counts(self) -> dict[str, dict[str, int]]:
+        out: dict[str, dict[str, int]] = {}
+        run = self._run
+        for sh in run.shards:
+            if not sh.gpus.size:
+                continue
+            racks = run.gpu_rack[sh.gpus]
+            counts = out.setdefault(sh.job.job_id, {})
+            for r in np.unique(racks):
+                counts[run.rack_ids[int(r)]] = counts.get(run.rack_ids[int(r)], 0) + int(np.sum(racks == r))
+        return out
+
+    def job_at(self, rack_id: str, slot: int) -> Optional[str]:
+        run = self._run
+        g = int(run.rack_start[run.rack_ids.index(rack_id)] + slot)
+        sid = int(run.gpu_shard[g])
+        if sid == run.n_shards:
+            return None
+        return run.shards[sid].job.job_id
+
+
+def run_policy(
+    scenario: Mapping[str, Any],
+    controller: Any = None,
+    seed: int = 0,
+    job_transform: Optional[Callable[[Sequence[Any]], Sequence[Any]]] = None,
+) -> tuple[SimResult, SimConfig]:
+    """Run the simulator with a controller; controllers with ``bind`` get a placement view first.
+
+    ``job_transform`` rewrites the generated job list before the run (used for
+    the e001 averaging-rule policy).  Returns the result and the config used.
+    """
+    cfg = build_config(scenario, seed=seed)
+    if job_transform is not None:
+        cfg = replace(cfg, jobs=tuple(job_transform(cfg.jobs)))
+    run = OutageRun(cfg, controller, seed)
+    if controller is not None and hasattr(controller, "bind"):
+        controller.bind(run, cfg)
+    return run.run(), cfg
+
+
+def periodic_local_jobs(jobs: Iterable[Any]) -> list[Any]:
+    """The e001 averaging rule for every job: two shards, one per site, averaged every 8 steps.
+
+    Jobs with an odd GPU count cannot be split and are left single-site.
+    """
+    out = []
+    for j in jobs:
+        if j.n_gpus % 2 == 0 and not j.multisite:
+            out.append(replace(j, multisite=True, site_id=None, average_every_steps=8))
+        else:
+            out.append(j)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# series layout
+# ---------------------------------------------------------------------------
+
+
+def gpu_unit_id(rack_id: str, slot: int) -> str:
+    """Unit id of one GPU: ``<rack>/<slot>`` (the simulator's own spelling in fault reasons)."""
+    return f"{rack_id}/{int(slot)}"
+
+
+@dataclass(frozen=True)
+class SeriesIndex:
+    """Fixed order of the monitored series: rack channels, site channels, then per-GPU channels."""
+
+    keys: tuple[tuple[str, str], ...]  # (unit_id, channel)
+    rack_ids: tuple[str, ...]
+    site_ids: tuple[str, ...]
+    rack_site: tuple[str, ...]
+    gpu_units: tuple[str, ...] = ()  # unit ids of the per-GPU series (empty without the per-GPU channel)
+
+    @classmethod
+    def from_config(cls, cfg: SimConfig, per_gpu: bool = False) -> "SeriesIndex":
+        rack_ids = tuple(r.rack_id for lay in cfg.layouts for r in lay.racks)
+        rack_site = tuple(lay.site.site_id for lay in cfg.layouts for _ in lay.racks)
+        site_ids = tuple(lay.site.site_id for lay in cfg.layouts)
+        keys = [(r, ch) for ch in RACK_CHANNELS for r in rack_ids] + [(s, ch) for ch in SITE_CHANNELS for s in site_ids]
+        gpu_units: tuple[str, ...] = ()
+        if per_gpu:
+            gpu_units = tuple(gpu_unit_id(r.rack_id, slot) for lay in cfg.layouts for r in lay.racks for slot in range(r.n_gpus))
+            keys += [(u, ch) for ch in GPU_CHANNELS for u in gpu_units]
+        return cls(tuple(keys), rack_ids, site_ids, rack_site, gpu_units)
+
+    def __len__(self) -> int:
+        return len(self.keys)
+
+    def index(self, unit: str, channel: str) -> int:
+        return self.keys.index((unit, channel))
+
+    def classes(self) -> list[str]:
+        return [CHANNEL_CLASS[ch] for _, ch in self.keys]
+
+    def units(self) -> list[str]:
+        return [u for u, _ in self.keys]
+
+    def gpu_parts(self, unit: str) -> tuple[str, int]:
+        """``(rack_id, slot)`` of a per-GPU unit id."""
+        rack, slot = unit.rsplit("/", 1)
+        return rack, int(slot)
+
+
+# ---------------------------------------------------------------------------
+# probabilities from quantiles
+# ---------------------------------------------------------------------------
+
+
+def exceedance_probability(values: np.ndarray, levels: Sequence[float], limit: np.ndarray) -> np.ndarray:
+    """P(X > limit) from quantile forecasts.
+
+    ``values`` is ``(n, H, Q)`` with the Q quantile levels ``levels``; ``limit``
+    is ``(n, H)``.  Between the quantiles the CDF is interpolated linearly; below
+    the lowest level the probability is capped at ``1 - levels[0]`` and above the
+    highest level it is floored at ``1 - levels[-1]`` (the forecast carries no
+    information past its outermost quantile).  A forecast with zero spread (a
+    persistence or oracle forecast) gives exactly 0 or 1.  NaN limits give 0.
+    """
+    q = np.asarray(values, dtype=float)
+    lim = np.asarray(limit, dtype=float)
+    lv = np.asarray(levels, dtype=float)
+    if q.ndim != 3 or q.shape[-1] != lv.size or lim.shape != q.shape[:2]:
+        raise ValueError("values must be (n, H, Q) and limit (n, H)")
+    q = np.sort(q, axis=-1)
+    spread = q[..., -1] - q[..., 0]
+    # position of the limit among the quantiles (vectorized searchsorted)
+    below = (q <= lim[..., None]).sum(axis=-1)  # number of quantiles <= limit
+    p = np.empty(lim.shape)
+    lo_idx = np.clip(below - 1, 0, lv.size - 2)
+    q_lo = np.take_along_axis(q, lo_idx[..., None], axis=-1)[..., 0]
+    q_hi = np.take_along_axis(q, (lo_idx + 1)[..., None], axis=-1)[..., 0]
+    width = np.maximum(q_hi - q_lo, 1e-12)
+    frac = np.clip((lim - q_lo) / width, 0.0, 1.0)
+    cdf = lv[lo_idx] + frac * (lv[lo_idx + 1] - lv[lo_idx])
+    cdf = np.where(below == 0, lv[0], cdf)
+    cdf = np.where(below == lv.size, lv[-1], cdf)
+    p[...] = 1.0 - cdf
+    flat = spread <= 1e-9
+    p = np.where(flat, (q[..., 0] > lim).astype(float), p)
+    p = np.where(np.isfinite(lim), p, 0.0)
+    return np.clip(p, 0.0, 1.0)
+
+
+class PersistenceForecaster:
+    """No forecast: every quantile equals the last observed value.
+
+    Used for the reactive-observed reference, which acts when the current value
+    is already past its trouble level.
+    """
+
+    name = "persistence"
+
+    def forecast(self, context, horizon, *, known_covariates=None, past_covariates=None):
+        from heatwave.forecast.base import QUANTILE_LEVELS, QuantileForecast
+
+        x = np.asarray(context, dtype=float)
+        if x.ndim == 2:
+            x = x[:, None, :]
+        last = np.full(x.shape[:2], np.nan)
+        for b in range(x.shape[0]):
+            for v in range(x.shape[1]):
+                ok = np.flatnonzero(np.isfinite(x[b, v]))
+                if ok.size:
+                    last[b, v] = x[b, v, ok[-1]]
+        vals = np.repeat(last[:, :, None, None], horizon, axis=2)
+        vals = np.repeat(vals, len(QUANTILE_LEVELS), axis=3)
+        return QuantileForecast(values=np.nan_to_num(vals, nan=0.0), method=self.name)
+
+
+def window_probabilities(
+    forecaster: Any,
+    windows: np.ndarray,
+    limits: np.ndarray,
+    horizon: int,
+    *,
+    batch_size: int = 512,
+) -> np.ndarray:
+    """Exceedance probability per series and horizon step: ``(n, H)``.
+
+    ``windows`` is ``(n, T)`` with NaN for missing samples; rows with fewer than
+    ``MIN_VALID_SAMPLES`` finite samples or whose newest sample is missing get
+    probability 0 (a rack that is off is not forecast).
+    """
+    from heatwave.forecast.base import QUANTILE_LEVELS
+
+    n = windows.shape[0]
+    out = np.zeros((n, horizon))
+    valid = (np.isfinite(windows).sum(axis=1) >= MIN_VALID_SAMPLES) & np.isfinite(windows[:, -1])
+    rows = np.flatnonzero(valid)
+    for start in range(0, rows.size, batch_size):
+        sel = rows[start:start + batch_size]
+        fc = forecaster.forecast(windows[sel][:, None, :], horizon)
+        vals = np.asarray(fc.values)[:, 0]
+        out[sel] = exceedance_probability(vals, getattr(fc, "levels", QUANTILE_LEVELS), limits[sel])
+    return out
+
+
+# ---------------------------------------------------------------------------
+# warning episodes
+# ---------------------------------------------------------------------------
+
+
+class EpisodeTracker:
+    """Per-series warning state with release hysteresis.
+
+    A series is in warning from the first decision with probability at or above
+    ``threshold`` until ``clear_decisions`` consecutive decisions fall below it.
+    An episode ends at the last decision at which the series was at or above the
+    threshold.
+    """
+
+    def __init__(self, n_series: int, threshold: float, clear_decisions: int) -> None:
+        self.n = int(n_series)
+        self.threshold = float(threshold)
+        self.clear_decisions = int(clear_decisions)
+        self.active = np.zeros(self.n, dtype=bool)
+        self._below = np.zeros(self.n, dtype=int)
+        self._start = np.full(self.n, np.nan)
+        self._last = np.full(self.n, np.nan)
+        self._peak = np.zeros(self.n)
+        self._count = np.zeros(self.n, dtype=int)
+        self.closed: list[dict[str, Any]] = []
+
+    def update(self, t_s: float, pmax: np.ndarray) -> np.ndarray:
+        p = np.nan_to_num(np.asarray(pmax, dtype=float), nan=0.0)
+        hit = p >= self.threshold
+        for k in np.flatnonzero(hit):
+            if not self.active[k]:
+                self.active[k] = True
+                self._start[k] = t_s
+                self._peak[k] = 0.0
+                self._count[k] = 0
+            self._last[k] = t_s
+            self._below[k] = 0
+            self._peak[k] = max(self._peak[k], p[k])
+            self._count[k] += 1
+        for k in np.flatnonzero(self.active & ~hit):
+            self._below[k] += 1
+            if self._below[k] >= self.clear_decisions:
+                self._close(k)
+        return self.active.copy()
+
+    def _close(self, k: int) -> None:
+        self.closed.append(
+            {"k": int(k), "start_s": float(self._start[k]), "end_s": float(self._last[k]),
+             "peak_p": float(self._peak[k]), "n_decisions": int(self._count[k])}
+        )
+        self.active[k] = False
+        self._below[k] = 0
+
+    def finish(self) -> list[dict[str, Any]]:
+        for k in np.flatnonzero(self.active):
+            self._close(int(k))
+        return sorted(self.closed, key=lambda e: (e["start_s"], e["k"]))
+
+    def since(self, k: int) -> float:
+        return float(self._start[k])
+
+
+def episodes_from_pmax(
+    times_s: np.ndarray,
+    pmax: np.ndarray,
+    threshold: float,
+    clear_decisions: int,
+    index: Optional["SeriesIndex"] = None,
+) -> list[dict[str, Any]]:
+    """Episodes from a recorded ``(n_decisions, n_series)`` probability matrix.
+
+    With ``index`` each episode also carries ``unit``, ``channel`` and ``class``
+    (the same fields a controller export has).
+    """
+    tr = EpisodeTracker(pmax.shape[1], threshold, clear_decisions)
+    for d in range(pmax.shape[0]):
+        tr.update(float(times_s[d]), pmax[d])
+    out = tr.finish()
+    if index is not None:
+        out = [{**e, "unit": index.keys[e["k"]][0], "channel": index.keys[e["k"]][1], "class": CHANNEL_CLASS[index.keys[e["k"]][1]]} for e in out]
+    return out
+
+
+# ---------------------------------------------------------------------------
+# channel sampling
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Calibration:
+    """Trouble levels for the anomaly channels, from event-free runs on training seeds."""
+
+    limits: Mapping[str, float]
+    quantile: float
+    n_samples: Mapping[str, int]
+    source: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"limits": dict(self.limits), "quantile": self.quantile, "n_samples": dict(self.n_samples), "source": self.source}
+
+
+def _peer_median(values: np.ndarray, group: np.ndarray, rack: np.ndarray) -> np.ndarray:
+    """Median of ``values`` over GPUs with the same job group in the same rack (NaN-aware)."""
+    key = (group.astype(np.int64) + 1) * 1000 + rack.astype(np.int64)
+    out = np.full(values.shape, np.nan)
+    for k in np.unique(key):
+        idx = np.flatnonzero(key == k)
+        v = values[idx]
+        if np.isfinite(v).any():
+            out[idx] = np.nanmedian(v[np.isfinite(v)])
+    return out
+
+
+def _peer_stats(values: np.ndarray, key: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Median and count of the finite ``values`` that share a ``key`` (per element; NaN/0 if none)."""
+    med = np.full(values.shape, np.nan)
+    cnt = np.zeros(values.shape)
+    for k in np.unique(key):
+        idx = np.flatnonzero(key == k)
+        v = values[idx]
+        f = np.isfinite(v)
+        if f.any():
+            med[idx] = np.median(v[f])
+            cnt[idx] = float(f.sum())
+    return med, cnt
+
+
+class GpuResidualChannel:
+    """Per-GPU temperature residual against the GPU's rack peers (K).  Causal.
+
+    Input per decision: ``excess`` (GPU temperature above its rack air, averaged
+    over the decision interval, NaN where the GPU is dead or its rack is off) and
+    ``key`` (job group and rack of each GPU; GPUs with the same key are peers).
+
+    All GPUs of a job in a rack run at the same power, so ``excess`` of a GPU is
+    its own gain times the peer median, whatever the power level.  The gain is
+    estimated as the median ratio ``excess / peer median`` over the GPU's
+    samples that are at least ``anomaly_baseline_gap_s`` old and at most
+    ``anomaly_baseline_window_s`` old.  The residual is ``excess`` minus gain
+    times the current peer median.  A sample is valid only if the GPU had at
+    least ``gpu_min_peers`` finite peers, the peer median is above a floor
+    (a fraction of the idle-level excess), and the GPU kept its key since the
+    previous decision (a job start, end or move inside the interval gives NaN).
+    The residual is then averaged over the last ``gpu_smooth_steps`` valid
+    decisions.  Only past samples enter any step.
+    """
+
+    def __init__(self, n_gpus: int, settings: OutageSettings, floor_k: float) -> None:
+        self.n = int(n_gpus)
+        self.settings = settings
+        self.floor_k = float(floor_k)
+        self._ratio: list[np.ndarray] = []
+        self._raw: list[np.ndarray] = []
+        self._prev_key: Optional[np.ndarray] = None
+
+    def update(self, excess: np.ndarray, key: np.ndarray) -> np.ndarray:
+        st = self.settings
+        excess = np.asarray(excess, dtype=float)
+        key = np.asarray(key)
+        med, cnt = _peer_stats(excess, key)
+        stable = np.zeros(self.n, dtype=bool) if self._prev_key is None else (key == self._prev_key)
+        ok = np.isfinite(excess) & (cnt >= st.gpu_min_peers) & (med > self.floor_k) & stable
+        safe = np.where(ok, med, 1.0)
+        self._ratio.append(np.where(ok, excess / safe, np.nan))
+        n = len(self._ratio)
+        dt = st.decision_interval_s
+        gap = int(math.ceil(st.anomaly_baseline_gap_s / dt))
+        win = int(math.ceil(st.anomaly_baseline_window_s / dt))
+        base = np.full(self.n, np.nan)
+        lo, hi = max(0, n - 1 - win), max(0, n - gap)
+        if hi - lo >= st.gpu_baseline_min_samples:
+            old = np.stack(self._ratio[lo:hi])
+            enough = np.isfinite(old).sum(axis=0) >= st.gpu_baseline_min_samples
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                base = np.where(enough, np.nanmedian(old, axis=0), np.nan)
+        raw = np.where(ok & np.isfinite(base), excess - base * med, np.nan)
+        self._raw.append(raw)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            out = np.where(np.isfinite(raw), np.nanmean(np.stack(self._raw[-st.gpu_smooth_steps:]), axis=0), np.nan)
+        self._prev_key = key.copy()
+        return out
+
+
+class ChannelBank:
+    """Turns visible state into one sample vector per decision and keeps the history."""
+
+    def __init__(self, cfg: SimConfig, settings: OutageSettings, placement: Optional[PlacementView] = None) -> None:
+        self.cfg = cfg
+        self.settings = settings
+        self.placement = placement
+        self.index = SeriesIndex.from_config(cfg, settings.per_gpu_channel)
+        self.times: list[float] = []
+        self.rows: list[np.ndarray] = []
+        self.site_limits: list[np.ndarray] = []  # (S, H) per decision
+        self._rel_hist: list[np.ndarray] = []
+        self._grp_hist: list[np.ndarray] = []
+        self._site_nominal_import = np.array([float(lay.site.grid_import_limit_w) for lay in cfg.layouts])
+        self._site_cap = np.array([float(lay.site.power_cap_w) for lay in cfg.layouts])
+        self._rack_start = None
+        self.gpu_channel: Optional[GpuResidualChannel] = None
+        if settings.per_gpu_channel:
+            if placement is None:
+                raise ValueError("the per-GPU channel needs the placement view")
+            idle_excess_k = float(cfg.levels.idle_w) * float(cfg.thermal.gpu_to_air_k_per_w)
+            self.gpu_channel = GpuResidualChannel(
+                len(self.index.gpu_units), settings, settings.gpu_peer_excess_floor_frac * idle_excess_k
+            )
+
+    # -- helpers -----------------------------------------------------------------
+
+    def _outdoor_forecast_at(self, vs: VisibleState, t_s: float) -> np.ndarray:
+        hours = np.asarray(vs.known_future["hour_start_s"], dtype=float)
+        fc = np.asarray(vs.known_future["outdoor_forecast_c"], dtype=float)
+        return np.array([np.interp(t_s, hours, fc[:, s]) for s in range(fc.shape[1])])
+
+    def supply_setpoint_c(self, vs: VisibleState, t_s: float) -> np.ndarray:
+        th = self.cfg.thermal
+        out = self._outdoor_forecast_at(vs, t_s)
+        return th.supply_setpoint_c + th.outdoor_coupling_k_per_k * np.maximum(0.0, out - th.outdoor_reference_c)
+
+    def site_limit_path(self, vs: VisibleState, t_s: float) -> np.ndarray:
+        """Grid import limit (W) at each horizon step, from the current limit and announced curtailments."""
+        H = self.settings.horizon_steps
+        dt = self.settings.decision_interval_s
+        site_ids = list(vs.site_ids)
+        current = np.asarray(vs.now["site_import_limit_w"], dtype=float)
+        path = np.repeat(current[:, None], H, axis=1)
+        for c in vs.known_future.get("announced_curtailments", ()):
+            s = site_ids.index(c["site_id"])
+            for h in range(H):
+                th = t_s + (h + 1) * dt
+                if c["onset_s"] <= th < c["end_s"]:
+                    path[s, h] = min(path[s, h], self._site_nominal_import[s] * float(c["limit_fraction"]))
+        return path
+
+    # -- sampling ------------------------------------------------------------------
+
+    def sample(self, t_s: float, vs: VisibleState) -> np.ndarray:
+        now = vs.now
+        R = len(self.index.rack_ids)
+        S = len(self.index.site_ids)
+        on = np.asarray(now["rack_on"], dtype=bool)
+        gpu_temp_max = np.where(on, np.asarray(now["max_gpu_temp_c"], dtype=float), np.nan)
+        sp = self.supply_setpoint_c(vs, t_s)
+        site_index = {s: i for i, s in enumerate(self.index.site_ids)}
+        rack_site_i = np.array([site_index[s] for s in self.index.rack_site])
+        supply = np.where(on, np.asarray(now["supply_c"], dtype=float) - sp[rack_site_i], np.nan)
+        ratio = np.where(on, np.asarray(now["breaker_load_ratio"], dtype=float), np.nan)
+        gpu_anom = self._gpu_anomaly(vs)
+        site_power = np.asarray(now["site_power_w"], dtype=float)
+        parts = [gpu_temp_max, supply, ratio, gpu_anom, site_power]
+        if self.gpu_channel is not None:
+            parts.append(self._gpu_resid(vs))
+        row = np.concatenate(parts)
+        row[~np.isfinite(row)] = np.nan
+        self.times.append(float(t_s))
+        self.rows.append(row)
+        self.site_limits.append(self.site_limit_path(vs, t_s))
+        return row
+
+    def _gpu_resid(self, vs: VisibleState) -> np.ndarray:
+        """Per-GPU residual against rack peers (see :class:`GpuResidualChannel`).
+
+        The GPU's excess over rack air is the mean of the simulator's per-GPU
+        temperature history over the last decision interval (past samples only).
+        """
+        assert self.gpu_channel is not None and self.placement is not None
+        dt = self.settings.decision_interval_s
+        gpu_rack = self.placement.gpu_rack()
+        _, temp = vs.history("gpu_temp_c", dt)
+        _, air = vs.history("rack_air_c", dt)
+        if temp.shape[0] == 0:
+            excess = np.full(gpu_rack.shape, np.nan)
+        else:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                excess = np.nanmean(np.asarray(temp, dtype=float) - np.asarray(air, dtype=float)[:, gpu_rack], axis=0)
+        key = (self.placement.gpu_group().astype(np.int64) + 1) * 1000 + gpu_rack.astype(np.int64)
+        return self.gpu_channel.update(excess, key)
+
+    def _gpu_anomaly(self, vs: VisibleState) -> np.ndarray:
+        """Per-rack largest per-GPU temperature rise against the GPU's own baseline (K).
+
+        Each GPU's temperature above its rack air is compared with the median of
+        its peers (same job, same rack) so job-wide power changes cancel.  The
+        result is smoothed over ``anomaly_smooth_steps`` decisions and compared
+        with the GPU's own median over the baseline window, using only samples
+        taken while the GPU belonged to the same job.
+        """
+        R = len(self.index.rack_ids)
+        temp = np.asarray(vs.now["gpu_temp_c"], dtype=float)
+        gpu_rack = self.placement.gpu_rack() if self.placement is not None else self._infer_gpu_rack(temp, vs)
+        group = self.placement.gpu_group() if self.placement is not None else np.full(temp.shape, -1)
+        air = np.asarray(vs.now["rack_air_c"], dtype=float)
+        excess = temp - air[gpu_rack]
+        rel = excess - _peer_median(excess, group, gpu_rack)
+        self._rel_hist.append(rel)
+        self._grp_hist.append(group)
+        n = len(self._rel_hist)
+        dt = self.settings.decision_interval_s
+        gap = int(math.ceil(self.settings.anomaly_baseline_gap_s / dt))
+        win = int(math.ceil(self.settings.anomaly_baseline_window_s / dt))
+        sm = self.settings.anomaly_smooth_steps
+        out = np.full(R, np.nan)
+        lo, hi = max(0, n - 1 - win), max(0, n - gap)
+        if hi - lo < MIN_BASELINE_SAMPLES:
+            return out
+        old = np.stack(self._rel_hist[lo:hi])
+        same = np.stack(self._grp_hist[lo:hi]) == group[None, :]
+        old = np.where(same, old, np.nan)
+        enough = np.isfinite(old).sum(axis=0) >= MIN_BASELINE_SAMPLES
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            base = np.nanmedian(old, axis=0)
+            recent = np.nanmean(np.stack(self._rel_hist[-sm:]), axis=0)
+        anomaly = np.where(enough, recent - base, np.nan)
+        for r in range(R):
+            v = anomaly[gpu_rack == r]
+            if np.isfinite(v).any():
+                out[r] = np.nanmax(v)
+        return out
+
+    def _infer_gpu_rack(self, temp: np.ndarray, vs: VisibleState) -> np.ndarray:
+        if self._rack_start is None:
+            counts = [lay_r.n_gpus for lay in self.cfg.layouts for lay_r in lay.racks]
+            self._rack_start = np.repeat(np.arange(len(counts)), counts)
+        return self._rack_start
+
+    # -- views ----------------------------------------------------------------------
+
+    def matrix(self) -> np.ndarray:
+        """Samples as ``(n_series, n_decisions)``."""
+        return np.stack(self.rows, axis=1) if self.rows else np.zeros((len(self.index), 0))
+
+    def limits_matrix(self, calibration: Optional[Calibration], d: int) -> np.ndarray:
+        """Trouble levels ``(n_series, H)`` for decision ``d``."""
+        return series_limits(self.cfg, self.index, self.settings, calibration, self.site_limits[d])
+
+
+def series_limits(
+    cfg: SimConfig,
+    index: SeriesIndex,
+    settings: OutageSettings,
+    calibration: Optional[Calibration],
+    site_limit: np.ndarray,
+) -> np.ndarray:
+    """Trouble level of every series at each horizon step: ``(n_series, H)``; NaN when unknown."""
+    H = settings.horizon_steps
+    out = np.full((len(index), H), np.nan)
+    site_i = {s: i for i, s in enumerate(index.site_ids)}
+    for k, (unit, ch) in enumerate(index.keys):
+        if ch == CH_GPU_TEMP:
+            out[k] = float(cfg.throttle.throttle_threshold_c)
+        elif ch == CH_BREAKER:
+            out[k] = 1.0
+        elif ch in (CH_SUPPLY, CH_GPU_ANOM, CH_GPU_RESID):
+            if calibration is not None and ch in calibration.limits:
+                out[k] = float(calibration.limits[ch])
+        elif ch == CH_SITE_POWER:
+            out[k] = site_limit[site_i[unit]]
+    return out
+
+
+def calibrate(
+    traces: Sequence[np.ndarray],
+    index: SeriesIndex,
+    settings: OutageSettings,
+    times: Sequence[np.ndarray],
+    source: str = "",
+) -> Calibration:
+    """Trouble levels for ``supply_anom``, ``gpu_anom`` and (if present) ``gpu_resid``: a high quantile of event-free samples.
+
+    ``traces`` are ``(n_series, n_decisions)`` sample matrices from event-free
+    runs on training seeds; samples before the warm-up are ignored.
+    """
+    limits: dict[str, float] = {}
+    counts: dict[str, int] = {}
+    channels = (CH_SUPPLY, CH_GPU_ANOM) + tuple(ch for ch in GPU_CHANNELS if any(c == ch for _, c in index.keys))
+    for ch in channels:
+        ks = [k for k, (_, c) in enumerate(index.keys) if c == ch]
+        pool = []
+        for tr, t in zip(traces, times):
+            keep = np.asarray(t) >= settings.warmup_s
+            pool.append(tr[np.ix_(ks, np.flatnonzero(keep))].ravel())
+        v = np.concatenate(pool) if pool else np.zeros(0)
+        v = v[np.isfinite(v)]
+        if v.size == 0:
+            raise ValueError(f"no event-free samples to calibrate {ch}")
+        limits[ch] = float(np.quantile(v, settings.calibration_quantile))
+        counts[ch] = int(v.size)
+    return Calibration(limits, settings.calibration_quantile, counts, source)
+
+
+# ---------------------------------------------------------------------------
+# response planning
+# ---------------------------------------------------------------------------
+
+
+def job_costs(job: Any, transfer: Any) -> dict[str, float]:
+    """GPU-hours a response costs one job, from the simulator's own stall and transfer times."""
+    n = float(job.n_gpus)
+    ckpt = n * float(job.checkpoint_duration_s) / 3600.0
+    move = ckpt + n * (float(transfer.transfer_s(int(job.n_gpus))) + float(transfer.restore_s(int(job.n_gpus)))) / 3600.0
+    return {"checkpoint": ckpt, "move": move}
+
+
+@dataclass
+class Alarm:
+    """An active warning on a rack (or site) and what caused it."""
+
+    unit: str
+    classes: tuple[str, ...]
+    since_s: float
+    p: float = 1.0
+    slot: Optional[int] = None  # oracle only: the single GPU slot that will fail
+    limit_w: Optional[float] = None  # site alarms: lowest import limit expected within the horizon
+    event_s: Optional[float] = None  # oracle only: time of the event the alarm is for
+    gated: bool = False  # oracle only: wait for each job's exact checkpoint lead
+
+
+class ResponsePlanner:
+    """Checkpoint now, then move to the other site if it has room, else pause; resume when clear."""
+
+    def __init__(self, cfg: SimConfig, settings: OutageSettings) -> None:
+        self.cfg = cfg
+        self.settings = settings
+        self.jobs = {j.job_id: j for j in cfg.jobs}
+        self.site_ids = [lay.site.site_id for lay in cfg.layouts]
+        self.rack_site = {r.rack_id: lay.site.site_id for lay in cfg.layouts for r in lay.racks}
+        self.gate: Optional[Callable[[str, Alarm, float], bool]] = None  # oracle only: is a job due for its action?
+        self.last_checkpoint: dict[str, float] = {}
+        self.staged: dict[str, float] = {}
+        self.paused: dict[str, tuple[str, float]] = {}
+        self.meta: list[dict[str, Any]] = []
+        lv = cfg.levels
+        c = cfg.compute_fraction_of_step
+        self._run_w = c * lv.compute_w + (1.0 - c) * lv.comm_w
+        self._idle_w = lv.idle_w
+        self._host_w = lv.host_w_per_gpu
+
+    # -- bookkeeping ---------------------------------------------------------------
+
+    def _note(self, t: float, action: str, job_id: str, unit: str, why: str) -> None:
+        self.meta.append({"t_s": float(t), "action": action, "job_id": job_id, "unit": unit, "why": why})
+
+    def job_power_saving_w(self, n_gpus: int) -> float:
+        """Power a paused job sheds: its GPUs go from the phase-averaged running level to idle."""
+        return n_gpus * max(self._run_w - self._idle_w, 0.0)
+
+    def job_power_w(self, n_gpus: int) -> float:
+        return n_gpus * (self._run_w + self._host_w)
+
+    def _dest(self, src_site: str, n: int, free: dict[str, int], blocked: set[str]) -> Optional[str]:
+        best, best_free = None, -1
+        for s in self.site_ids:
+            if s == src_site or s in blocked:
+                continue
+            if free.get(s, 0) >= n and free[s] > best_free:
+                best, best_free = s, free[s]
+        return best
+
+    # -- planning ------------------------------------------------------------------
+
+    def plan(
+        self,
+        t_s: float,
+        vs: VisibleState,
+        placement: Mapping[str, Mapping[str, int]],
+        rack_alarms: Mapping[str, Alarm],
+        site_alarms: Mapping[str, Alarm],
+        job_at: Optional[Callable[[str, int], Optional[str]]] = None,
+        gpu_alarms: Optional[Mapping[str, Mapping[int, Alarm]]] = None,
+    ) -> list[Any]:
+        """Actions for this decision.
+
+        Site alarms carry ``limit_w``; rack alarms may name one GPU slot (oracle).
+        ``gpu_alarms`` maps rack id to ``{slot: alarm}`` for per-GPU warnings: only
+        the job that holds the GPU is protected, and actions are tagged with the
+        GPU unit id (``<rack>/<slot>``) unless a rack-wide alarm already covers it.
+        """
+        st = self.settings
+        views = {jv.job_id: jv for jv in vs.jobs}
+        free = {s: int(vs.now["free_gpus"][i]) for i, s in enumerate(vs.site_ids)}
+        site_power = {s: float(vs.now["site_power_w"][i]) for i, s in enumerate(vs.site_ids)}
+        site_limit = {s: float(vs.now["site_import_limit_w"][i]) for i, s in enumerate(vs.site_ids)}
+        actions: list[Any] = []
+        handled: set[str] = set()
+        blocked_dest = set(site_alarms)
+
+        # -- site curtailment: shed the cheapest flexible jobs until the forecast power fits
+        for site, alarm in sorted(site_alarms.items()):
+            limit = alarm.limit_w if alarm.limit_w is not None else site_limit[site]
+            need = site_power[site] - limit * (1.0 - st.curtail_shed_margin)
+            if need <= 0:
+                continue
+            cands = []
+            for job_id, racks in placement.items():
+                job = self.jobs[job_id]
+                jv = views.get(job_id)
+                if jv is None or job.multisite or not jv.flexible or jv.paused:
+                    continue
+                if jv.status in ("queued", "done"):
+                    continue
+                if any(self.rack_site[r] == site for r in racks):
+                    cands.append((jv.value_per_gpu_hour, -job.n_gpus, job_id))
+            cands.sort()
+            saved = 0.0
+            for _, _, job_id in cands:
+                if saved >= need:
+                    break
+                job = self.jobs[job_id]
+                n = int(job.n_gpus)
+                jv = views[job_id]
+                saved += self.job_power_saving_w(n)
+                handled.add(job_id)
+                dest = self._dest(site, n, free, blocked_dest) if jv.status == "running" else None
+                if dest is not None and self._dest_has_power(dest, n, site_power, site_limit):
+                    actions.append(MigrateJob(job_id, dest))
+                    self._note(t_s, "MigrateJob", job_id, site, "curtail")
+                    free[dest] -= n
+                    free[site] += n
+                    site_power[dest] += self.job_power_w(n)
+                    self.last_checkpoint[job_id] = t_s
+                    continue
+                self._checkpoint_or_pause(t_s, job_id, jv, site, "curtail", actions)
+
+        # -- rack alarms: protect every job that holds GPUs on the rack
+        for rack, alarm in sorted(rack_alarms.items()):
+            site = self.rack_site[rack]
+            only = None
+            if alarm.slot is not None and job_at is not None:
+                only = job_at(rack, alarm.slot)
+                if only is None:
+                    continue
+            for job_id, racks in sorted(placement.items()):
+                if rack not in racks or job_id in handled:
+                    continue
+                if only is not None and job_id != only:
+                    continue
+                job = self.jobs[job_id]
+                jv = views.get(job_id)
+                if jv is None or job.multisite or jv.paused:
+                    continue
+                if self.gate is not None and not self.gate(job_id, alarm, t_s):
+                    continue
+                handled.add(job_id)
+                n = int(job.n_gpus)
+                dest = self._dest(site, n, free, blocked_dest) if (jv.flexible and jv.status == "running") else None
+                if dest is not None:
+                    actions.append(MigrateJob(job_id, dest))
+                    self._note(t_s, "MigrateJob", job_id, rack, "rack")
+                    free[dest] -= n
+                    free[site] += n
+                    self.last_checkpoint[job_id] = t_s
+                    continue
+                self._checkpoint_or_pause(t_s, job_id, jv, rack, "rack", actions)
+
+        # -- per-GPU alarms: protect the job that holds the warned GPU (unless a rack-wide alarm covers it)
+        for rack, slots in sorted((gpu_alarms or {}).items()):
+            if rack in rack_alarms or job_at is None:
+                continue
+            site = self.rack_site[rack]
+            for slot, alarm in sorted(slots.items()):
+                job_id = job_at(rack, slot)
+                if job_id is None or job_id in handled:
+                    continue
+                job = self.jobs[job_id]
+                jv = views.get(job_id)
+                if jv is None or job.multisite or jv.paused:
+                    continue
+                handled.add(job_id)
+                unit = gpu_unit_id(rack, slot)
+                n = int(job.n_gpus)
+                dest = self._dest(site, n, free, blocked_dest) if (jv.flexible and jv.status == "running") else None
+                if dest is not None:
+                    actions.append(MigrateJob(job_id, dest))
+                    self._note(t_s, "MigrateJob", job_id, unit, "gpu")
+                    free[dest] -= n
+                    free[site] += n
+                    self.last_checkpoint[job_id] = t_s
+                    continue
+                self._checkpoint_or_pause(t_s, job_id, jv, unit, "gpu", actions)
+        return actions
+
+    def _dest_has_power(self, dest: str, n: int, site_power: Mapping[str, float], site_limit: Mapping[str, float]) -> bool:
+        return site_power[dest] + self.job_power_w(n) <= site_limit[dest]
+
+    def _checkpoint_or_pause(self, t: float, job_id: str, jv: Any, unit: str, why: str, actions: list) -> None:
+        st = self.settings
+        staged = self.staged.get(job_id)
+        if jv.flexible and staged is not None and t - staged >= st.decision_interval_s - 1e-9 and jv.status in ("running", "ckpt", "restore", "transfer"):
+            actions.append(PauseJob(job_id))
+            self.paused[job_id] = (unit, t)
+            self._note(t, "PauseJob", job_id, unit, why)
+            return
+        if jv.status == "running" and t - self.last_checkpoint.get(job_id, -math.inf) >= st.recheckpoint_s - 1e-9:
+            actions.append(CheckpointNow(job_id))
+            self.last_checkpoint[job_id] = t
+            if jv.flexible:
+                self.staged.setdefault(job_id, t)
+            self._note(t, "CheckpointNow", job_id, unit, why)
+
+    def resumes(
+        self,
+        t_s: float,
+        vs: VisibleState,
+        rack_active: set[str],
+        site_active: set[str],
+    ) -> list[Any]:
+        """Resume paused jobs whose warning cleared, that faulted, or that hit the pause limit."""
+        views = {jv.job_id: jv for jv in vs.jobs}
+        actions = []
+        for job_id, (unit, t0) in sorted(self.paused.items()):
+            jv = views.get(job_id)
+            if jv is None:
+                del self.paused[job_id]
+                self.staged.pop(job_id, None)
+                continue
+            still = unit in rack_active or unit in site_active
+            faulted = jv.status in ("queued", "restore")
+            too_long = t_s - t0 >= self.settings.max_pause_s - 1e-9
+            if not still or faulted or too_long:
+                actions.append(ResumeJob(job_id))
+                self._note(t_s, "ResumeJob", job_id, unit, "clear" if not still else ("fault" if faulted else "limit"))
+                del self.paused[job_id]
+                self.staged.pop(job_id, None)
+        # staged flags expire when the warning on their unit is over
+        for job_id in list(self.staged):
+            if job_id in self.paused:
+                continue
+            jv = views.get(job_id)
+            if jv is None or t_s - self.staged[job_id] > 2 * self.settings.recheckpoint_s:
+                self.staged.pop(job_id, None)
+        return actions
+
+
+class ResponsePlannerV3(ResponsePlanner):
+    """Per-class response of the v3 design (see :class:`ResponseDesign`).
+
+    Every job that a warning covers gets the rule of the strongest class warning
+    it (move before pause before checkpoint).  A *checkpoint* is written when the
+    job has run long enough since its last durable state to make the write worth
+    its cost (``protect_ratio``) and not too soon after the previous one
+    (``min_gap_s``); the job keeps running.  A *pause* starts the checkpoint and
+    pauses the job at the first tick at which it is durable again (the simulator
+    does not start a checkpoint on a paused job, so the pause cannot be sent with
+    the checkpoint; with a one-control-step tick the unprotected window is one
+    step).  A *move* is the simulator's ``MigrateJob`` (checkpoint, transfer,
+    restore).  Everything is decided from the visible state: no event times.
+    """
+
+    def __init__(self, cfg: SimConfig, settings: OutageSettings) -> None:
+        super().__init__(cfg, settings)
+        if settings.response is None:
+            raise ValueError("ResponsePlannerV3 needs settings.response")
+        self.design: ResponseDesign = settings.response
+        self._progress: dict[str, float] = {}
+
+    # -- helpers -------------------------------------------------------------------
+
+    def _exposure_s(self, job: Any, jv: Any) -> float:
+        """Seconds of full-speed running since the job's last durable state."""
+        return max(float(jv.steps_since_durable), 0.0) * float(job.step_time_s)
+
+    def _checkpoint_due(self, t: float, job: Any, jv: Any, force: bool = False) -> bool:
+        if jv.status != "running":
+            return False
+        expo = self._exposure_s(job, jv)
+        if expo <= 1e-9:
+            return False
+        if force:
+            return True
+        d = self.design
+        if expo < d.protect_ratio * float(job.checkpoint_duration_s) - 1e-9:
+            return False
+        return t - self.last_checkpoint.get(job.job_id, -math.inf) >= d.min_gap_s - 1e-9
+
+    def _checkpoint(self, t: float, job: Any, unit: str, why: str, actions: list) -> None:
+        actions.append(CheckpointNow(job.job_id))
+        self.last_checkpoint[job.job_id] = t
+        self._note(t, "CheckpointNow", job.job_id, unit, why)
+
+    # -- planning ------------------------------------------------------------------
+
+    def plan(
+        self,
+        t_s: float,
+        vs: VisibleState,
+        placement: Mapping[str, Mapping[str, int]],
+        rack_alarms: Mapping[str, Alarm],
+        site_alarms: Mapping[str, Alarm],
+        job_at: Optional[Callable[[str, int], Optional[str]]] = None,
+        gpu_alarms: Optional[Mapping[str, Mapping[int, Alarm]]] = None,
+    ) -> list[Any]:
+        st, d = self.settings, self.design
+        views = {jv.job_id: jv for jv in vs.jobs}
+        free = {s: int(vs.now["free_gpus"][i]) for i, s in enumerate(vs.site_ids)}
+        site_power = {s: float(vs.now["site_power_w"][i]) for i, s in enumerate(vs.site_ids)}
+        site_limit = {s: float(vs.now["site_import_limit_w"][i]) for i, s in enumerate(vs.site_ids)}
+        blocked_dest = set(site_alarms)
+        demand: dict[str, tuple[int, ClassRule, str, str, str]] = {}  # job -> (rank, rule, unit, why, class)
+
+        def want(job_id: str, cls: str, unit: str, why: str) -> None:
+            rule = d.rule(cls)
+            if rule.mode == MODE_NONE:
+                return
+            cur = demand.get(job_id)
+            if cur is None or MODE_RANK[rule.mode] > cur[0]:
+                demand[job_id] = (MODE_RANK[rule.mode], rule, unit, why, cls)
+
+        # site curtailment: the cheapest flexible jobs that bring the forecast power under the limit
+        for site, alarm in sorted(site_alarms.items()):
+            if d.rule(CLASS_CURTAIL).mode == MODE_NONE:
+                continue
+            limit = alarm.limit_w if alarm.limit_w is not None else site_limit[site]
+            need = site_power[site] - limit * (1.0 - st.curtail_shed_margin)
+            if need <= 0:
+                continue
+            cands = []
+            for job_id, racks in placement.items():
+                job = self.jobs[job_id]
+                jv = views.get(job_id)
+                if jv is None or job.multisite or not jv.flexible or jv.paused or jv.status in ("queued", "done"):
+                    continue
+                if any(self.rack_site[r] == site for r in racks):
+                    cands.append((jv.value_per_gpu_hour, -job.n_gpus, job_id))
+            cands.sort()
+            saved = 0.0
+            for _, _, job_id in cands:
+                if saved >= need:
+                    break
+                saved += self.job_power_saving_w(int(self.jobs[job_id].n_gpus))
+                want(job_id, CLASS_CURTAIL, site, "curtail")
+
+        # rack warnings: every job on the rack (or, for a named slot, the job that holds it)
+        for rack, alarm in sorted(rack_alarms.items()):
+            only = None
+            if alarm.slot is not None and job_at is not None:
+                only = job_at(rack, alarm.slot)
+                if only is None:
+                    continue
+            for job_id, racks in sorted(placement.items()):
+                if rack not in racks or (only is not None and job_id != only):
+                    continue
+                if self.gate is not None and not self.gate(job_id, alarm, t_s):
+                    continue
+                for cls in alarm.classes:
+                    want(job_id, cls, rack, "rack")
+
+        # per-GPU warnings: only the job that holds the warned GPU
+        for rack, slots in sorted((gpu_alarms or {}).items()):
+            if job_at is None or (rack in rack_alarms and CLASS_HARDWARE in rack_alarms[rack].classes):
+                continue
+            for slot, alarm in sorted(slots.items()):
+                job_id = job_at(rack, slot)
+                if job_id is not None:
+                    want(job_id, CLASS_HARDWARE, gpu_unit_id(rack, slot), "gpu")
+
+        actions: list[Any] = []
+        for job_id, (_, rule, unit, why, cls) in sorted(demand.items()):
+            job, jv = self.jobs[job_id], views.get(job_id)
+            if jv is None or job.multisite or jv.paused:
+                continue
+            site = self.rack_site[unit] if unit in self.rack_site else (unit if unit in self.site_ids else self._site_of(unit))
+            n = int(job.n_gpus)
+            mode = rule.mode
+            if mode == MODE_MOVE:
+                dest = self._dest(site, n, free, blocked_dest) if (jv.flexible and jv.status == "running") else None
+                if dest is not None and cls == CLASS_CURTAIL and not self._dest_has_power(dest, n, site_power, site_limit):
+                    dest = None
+                if dest is not None:
+                    actions.append(MigrateJob(job_id, dest))
+                    self._note(t_s, "MigrateJob", job_id, unit, why)
+                    free[dest] -= n
+                    free[site] += n
+                    site_power[dest] += self.job_power_w(n)
+                    self.last_checkpoint[job_id] = t_s
+                    continue
+                mode = rule.fallback
+            if mode == MODE_PAUSE:
+                if not jv.flexible:
+                    mode = MODE_CHECKPOINT  # only flexible jobs can be paused; they still get the checkpoint
+                elif jv.status == "running":
+                    if self._exposure_s(job, jv) <= d.pause_tol_s:
+                        actions.append(PauseJob(job_id))
+                        self.paused[job_id] = (unit, t_s)
+                        self._note(t_s, "PauseJob", job_id, unit, why)
+                    elif self._checkpoint_due(t_s, job, jv, force=True):
+                        self._checkpoint(t_s, job, unit, why, actions)
+                    continue
+                else:
+                    continue
+            if mode == MODE_CHECKPOINT and self._checkpoint_due(t_s, job, jv):
+                self._checkpoint(t_s, job, unit, why, actions)
+        return actions
+
+    def _site_of(self, unit: str) -> str:
+        rack = unit.rsplit("/", 1)[0]
+        return self.rack_site[rack]
+
+    def resumes(self, t_s, vs, rack_active, site_active):
+        """Resume paused jobs whose warning ended, that faulted, or that hit the pause limit."""
+        views = {jv.job_id: jv for jv in vs.jobs}
+        actions = []
+        for job_id, (unit, t0) in sorted(self.paused.items()):
+            jv = views.get(job_id)
+            if jv is None:
+                del self.paused[job_id]
+                continue
+            still = unit in rack_active or unit in site_active
+            back = self._progress.get(job_id)
+            faulted = jv.status in ("queued", "restore") or (back is not None and jv.progress_steps < back - 1e-9)
+            too_long = t_s - t0 >= self.settings.max_pause_s - 1e-9
+            if not still or faulted or too_long:
+                actions.append(ResumeJob(job_id))
+                self._note(t_s, "ResumeJob", job_id, unit, "clear" if not still else ("fault" if faulted else "limit"))
+                del self.paused[job_id]
+        # a job that faulted while paused comes back placed but still flagged as paused: let it run
+        for jv in vs.jobs:
+            if jv.paused and jv.job_id not in self.paused and jv.job_id not in {a.job_id for a in actions}:
+                actions.append(ResumeJob(jv.job_id))
+                self._note(t_s, "ResumeJob", jv.job_id, "", "stale")
+        self._progress = {jv.job_id: float(jv.progress_steps) for jv in vs.jobs}
+        return actions
+
+
+def make_planner(cfg: SimConfig, settings: OutageSettings) -> ResponsePlanner:
+    """The v3 planner when the settings carry a response design, else the v1/v2 planner."""
+    return ResponsePlannerV3(cfg, settings) if settings.response is not None else ResponsePlanner(cfg, settings)
+
+
+# ---------------------------------------------------------------------------
+# controllers
+# ---------------------------------------------------------------------------
+
+
+class _BankController:
+    """Shared sampling, alarm bookkeeping and export for all outage controllers."""
+
+    name = "base"
+
+    def __init__(self, settings: OutageSettings) -> None:
+        self.settings = settings
+        self.bank: Optional[ChannelBank] = None
+        self.placement: Optional[PlacementView] = None
+        self.cfg: Optional[SimConfig] = None
+        self.pmax_rows: list[np.ndarray] = []
+        self.decision_times: list[float] = []
+        self.planner: Optional[ResponsePlanner] = None
+        self.index: Optional[SeriesIndex] = None
+
+    def bind(self, run: _Run, cfg: SimConfig) -> None:
+        self.cfg = cfg
+        self.placement = PlacementView(run)
+        self.bank = ChannelBank(cfg, self.settings, self.placement)
+        self.index = self.bank.index
+        self.planner = make_planner(cfg, self.settings)
+        self._on_bind()
+
+    def _on_bind(self) -> None:  # pragma: no cover - hook
+        pass
+
+    def on_grid(self, t_s: float) -> bool:
+        """True at the decision times (multiples of the decision interval); other ticks only run the response."""
+        k = float(t_s) / self.settings.decision_interval_s
+        return abs(k - round(k)) < 1e-6
+
+    def decide(self, t_s: float, visible_state: VisibleState) -> Sequence[Any]:  # pragma: no cover - overridden
+        return ()
+
+    def export(self) -> dict[str, Any]:
+        return {
+            "policy": self.name,
+            "times_s": [float(t) for t in self.decision_times],
+            "meta_actions": list(self.planner.meta) if self.planner is not None else [],
+        }
+
+
+class TraceRecorder(_BankController):
+    """Takes no action; records the samples that forecasters see and the costs a response would carry."""
+
+    name = "reactive"
+
+    def _on_bind(self) -> None:
+        self.rack_checkpoint_gpu_h: list[np.ndarray] = []
+        self.rack_flex_move_gpu_h: list[np.ndarray] = []
+        self.rack_nonflex_checkpoint_gpu_h: list[np.ndarray] = []
+        self.site_flex_move_gpu_h: list[np.ndarray] = []
+        self.rack_on_rows: list[np.ndarray] = []
+        self.gpu_flex_move_gpu_h: list[np.ndarray] = []
+        self.gpu_nonflex_checkpoint_gpu_h: list[np.ndarray] = []
+        self.rack_checkpoint_all_gpu_h: list[np.ndarray] = []
+        self.rack_flex_gpus: list[np.ndarray] = []
+        self.site_flex_gpus: list[np.ndarray] = []
+        self.gpu_checkpoint_all_gpu_h: list[np.ndarray] = []
+        self.gpu_flex_gpus: list[np.ndarray] = []
+
+    def decide(self, t_s, visible_state):
+        assert self.bank is not None and self.placement is not None and self.cfg is not None and self.index is not None
+        if not self.on_grid(t_s):
+            return ()
+        self.bank.sample(t_s, visible_state)
+        self.decision_times.append(float(t_s))
+        R, S = len(self.index.rack_ids), len(self.index.site_ids)
+        flex_move = np.zeros(R)
+        nonflex = np.zeros(R)
+        site_flex = np.zeros(S)
+        ckpt_all = np.zeros(R)
+        flex_gpus = np.zeros(R)
+        site_flex_gpus = np.zeros(S)
+        jobs = {j.job_id: j for j in self.cfg.jobs}
+        for job_id, racks in self.placement.job_rack_counts().items():
+            job = jobs[job_id]
+            if job.multisite:
+                continue
+            c = job_costs(job, self.cfg.transfer)
+            for rid in racks:
+                ri = self.index.rack_ids.index(rid)
+                ckpt_all[ri] += c["checkpoint"]
+                if job.flexible:
+                    flex_move[ri] += c["move"]
+                    flex_gpus[ri] += float(job.n_gpus)
+                else:
+                    nonflex[ri] += c["checkpoint"]
+            site = self.index.rack_site[self.index.rack_ids.index(next(iter(racks)))]
+            if job.flexible:
+                site_flex[self.index.site_ids.index(site)] += c["move"]
+                site_flex_gpus[self.index.site_ids.index(site)] += float(job.n_gpus)
+        self.rack_checkpoint_all_gpu_h.append(ckpt_all)
+        self.rack_flex_gpus.append(flex_gpus)
+        self.site_flex_gpus.append(site_flex_gpus)
+        self.rack_flex_move_gpu_h.append(flex_move)
+        self.rack_nonflex_checkpoint_gpu_h.append(nonflex)
+        self.site_flex_move_gpu_h.append(site_flex)
+        if self.settings.per_gpu_channel:
+            # cost of protecting the job that holds each GPU (single-site jobs only, as the planner acts)
+            g_flex = np.zeros(self.placement.n_gpus())
+            g_non = np.zeros(self.placement.n_gpus())
+            g_all = np.zeros(self.placement.n_gpus())
+            g_fg = np.zeros(self.placement.n_gpus())
+            for g, job_id in enumerate(self.placement.gpu_job_ids()):
+                if job_id is None or jobs[job_id].multisite:
+                    continue
+                c = job_costs(jobs[job_id], self.cfg.transfer)
+                g_all[g] = c["checkpoint"]
+                if jobs[job_id].flexible:
+                    g_flex[g] = c["move"]
+                    g_fg[g] = float(jobs[job_id].n_gpus)
+                else:
+                    g_non[g] = c["checkpoint"]
+            self.gpu_flex_move_gpu_h.append(g_flex)
+            self.gpu_nonflex_checkpoint_gpu_h.append(g_non)
+            self.gpu_checkpoint_all_gpu_h.append(g_all)
+            self.gpu_flex_gpus.append(g_fg)
+        self.rack_on_rows.append(np.asarray(visible_state.now["rack_on"], dtype=bool))
+        return ()
+
+    def trace(self) -> dict[str, Any]:
+        assert self.bank is not None
+        out = {
+            "times_s": np.array(self.decision_times),
+            "samples": self.bank.matrix(),
+            "site_limits": np.stack(self.bank.site_limits) if self.bank.site_limits else np.zeros((0, 0, 0)),
+            "rack_flex_move_gpu_h": np.stack(self.rack_flex_move_gpu_h),
+            "rack_nonflex_checkpoint_gpu_h": np.stack(self.rack_nonflex_checkpoint_gpu_h),
+            "site_flex_move_gpu_h": np.stack(self.site_flex_move_gpu_h),
+            "rack_checkpoint_all_gpu_h": np.stack(self.rack_checkpoint_all_gpu_h),
+            "rack_flex_gpus": np.stack(self.rack_flex_gpus),
+            "site_flex_gpus": np.stack(self.site_flex_gpus),
+        }
+        if self.gpu_flex_move_gpu_h:
+            out["gpu_flex_move_gpu_h"] = np.stack(self.gpu_flex_move_gpu_h)
+            out["gpu_nonflex_checkpoint_gpu_h"] = np.stack(self.gpu_nonflex_checkpoint_gpu_h)
+            out["gpu_checkpoint_all_gpu_h"] = np.stack(self.gpu_checkpoint_all_gpu_h)
+            out["gpu_flex_gpus"] = np.stack(self.gpu_flex_gpus)
+        return out
+
+
+class ForecastWarningController(_BankController):
+    """Forecast every series, warn on exceedance probability, respond with the planner."""
+
+    def __init__(
+        self,
+        settings: OutageSettings,
+        forecaster: Any,
+        threshold: float,
+        calibration: Optional[Calibration],
+        name: str,
+        *,
+        batch_size: int = 512,
+    ) -> None:
+        super().__init__(settings)
+        self.forecaster = forecaster
+        self.threshold = float(threshold)
+        self.calibration = calibration
+        self.name = name
+        self.batch_size = batch_size
+        self.tracker: Optional[EpisodeTracker] = None
+
+    def _on_bind(self) -> None:
+        assert self.index is not None
+        self.tracker = EpisodeTracker(len(self.index), self.threshold, self.settings.clear_decisions_effective)
+
+    def decide(self, t_s, visible_state):
+        assert self.bank is not None and self.placement is not None and self.planner is not None
+        assert self.index is not None and self.tracker is not None
+        st = self.settings
+        if not self.on_grid(t_s):
+            # between two decisions only the response runs: warnings stay as the last decision left them
+            return self._respond(t_s, visible_state, self.tracker.active.copy())
+        self.bank.sample(t_s, visible_state)
+        self.decision_times.append(float(t_s))
+        d = len(self.bank.rows) - 1
+        mat = self.bank.matrix()
+        T = st.context_steps
+        pmax = np.zeros(len(self.index))
+        if d + 1 >= T:
+            ctx = mat[:, d + 1 - T: d + 1]
+            limits = self.bank.limits_matrix(self.calibration, d)
+            p = window_probabilities(self.forecaster, ctx, limits, st.horizon_steps, batch_size=self.batch_size)
+            pmax = p.max(axis=1)
+        self.pmax_rows.append(pmax)
+        active = self.tracker.update(t_s, pmax)
+        return self._respond(t_s, visible_state, active)
+
+    def _respond(self, t_s: float, vs: VisibleState, active: np.ndarray) -> list[Any]:
+        assert self.index is not None and self.tracker is not None and self.planner is not None and self.placement is not None
+        rack_alarms: dict[str, Alarm] = {}
+        site_alarms: dict[str, Alarm] = {}
+        gpu_alarms: dict[str, dict[int, Alarm]] = {}
+        for k in np.flatnonzero(active):
+            unit, ch = self.index.keys[k]
+            cls = CHANNEL_CLASS[ch]
+            if ch == CH_GPU_RESID:
+                rack, slot = self.index.gpu_parts(unit)
+                gpu_alarms.setdefault(rack, {})[slot] = Alarm(rack, (cls,), self.tracker.since(int(k)), slot=slot)
+                continue
+            by_unit = site_alarms if ch in SITE_CHANNELS else rack_alarms
+            a = by_unit.get(unit)
+            if a is None:
+                limit_w = None
+                if ch in SITE_CHANNELS:
+                    limit_w = float(np.min(self.bank.site_limits[-1][self.index.site_ids.index(unit)]))
+                by_unit[unit] = Alarm(unit, (cls,), self.tracker.since(int(k)), limit_w=limit_w)
+            else:
+                a.classes = tuple(sorted(set(a.classes) | {cls}))
+                a.since_s = min(a.since_s, self.tracker.since(int(k)))
+        gpu_tags = {gpu_unit_id(rack, slot) for rack, slots in gpu_alarms.items() for slot in slots}
+        actions = list(self.planner.resumes(t_s, vs, set(rack_alarms) | gpu_tags, set(site_alarms)))
+        actions += self.planner.plan(
+            t_s, vs, self.placement.job_rack_counts(), rack_alarms, site_alarms, self.placement.job_at, gpu_alarms
+        )
+        return actions
+
+    def export(self) -> dict[str, Any]:
+        out = super().export()
+        assert self.tracker is not None and self.index is not None
+        out["threshold"] = self.threshold
+        out["pmax"] = np.stack(self.pmax_rows) if self.pmax_rows else np.zeros((0, len(self.index)))
+        out["episodes"] = [
+            {**e, "unit": self.index.keys[e["k"]][0], "channel": self.index.keys[e["k"]][1],
+             "class": CHANNEL_CLASS[self.index.keys[e["k"]][1]]}
+            for e in self.tracker.finish()
+        ]
+        return out
+
+
+@dataclass(frozen=True)
+class OracleAlarm:
+    """Alarm of the perfect-foresight upper bound.
+
+    ``acts`` False marks a detection-only alarm (a scheduled event whose
+    consequences are handled by other alarms); it is exported for scoring but
+    never drives an action.  ``event_s`` is the exact time of the event.
+    """
+
+    unit: str
+    cls: str
+    start_s: float
+    end_s: float
+    slot: Optional[int] = None
+    event_id: str = ""
+    limit_w: Optional[float] = None
+    event_s: Optional[float] = None
+    gated: bool = False
+    acts: bool = True
+
+
+def oracle_settings(settings: OutageSettings, control_dt_s: float) -> OutageSettings:
+    """Settings for the oracle run: decisions every control step and no re-checkpoint spacing."""
+    return replace(settings, decision_interval_s=float(control_dt_s), recheckpoint_s=float(control_dt_s), response_tick_s=None)
+
+
+def oracle_scenario(sim: Mapping[str, Any]) -> dict[str, Any]:
+    """Simulator scenario with the controller called every control step (for the oracle run)."""
+    out = copy.deepcopy(dict(sim))
+    out["controller_interval_s"] = out["control_dt_s"]
+    return out
+
+
+def oracle_lead_s(cfg: SimConfig, settings: OutageSettings, ckpt_s: Optional[float] = None) -> float:
+    """Lead of the oracle: one checkpoint plus ``oracle_extra_lead_steps`` control steps."""
+    if ckpt_s is None:
+        ckpt_s = max((float(j.checkpoint_duration_s) for j in cfg.jobs), default=0.0)
+    return float(ckpt_s) + settings.oracle_extra_lead_steps * cfg.control_dt_s
+
+
+def oracle_alarms_from_reference(
+    cfg: SimConfig,
+    ref_events: Sequence[Mapping[str, Any]],
+    throttle_eps: Sequence[Mapping[str, Any]],
+    settings: OutageSettings,
+) -> list[OracleAlarm]:
+    """Alarms of the perfect-foresight upper bound.
+
+    Built from the reactive reference run of the same seed.  Every rollback
+    event of that run (GPU fault, rack trip, thermal shutdown) gets an alarm
+    whose checkpoint of each affected job starts exactly one checkpoint time
+    (that job's) plus ``oracle_extra_lead_steps`` control steps before the
+    event.  Scheduled curtailments and throttle episodes get an alarm that
+    starts one maximum-checkpoint lead before the event.  Every scheduled event
+    also gets a detection-only alarm at that lead so recall is defined.  Reads
+    event times; no policy other than this upper bound may do that.
+    """
+    lead = oracle_lead_s(cfg, settings)
+    out: list[OracleAlarm] = []
+    for e in ref_events:
+        kind = e["kind"]
+        t = float(e["t_s"])
+        if kind == KIND_HARDWARE_FAULT:
+            out.append(OracleAlarm(e["rack_id"], CLASS_HARDWARE, t - lead, t + cfg.control_dt_s, int(e["gpu_slot"]), "hardware_fault",
+                                   None, t, True))
+        elif kind in (KIND_BREAKER_TRIP, "thermal_shutdown"):
+            cls = CLASS_POWER if kind == KIND_BREAKER_TRIP else CLASS_THERMAL
+            out.append(OracleAlarm(e["rack_id"], cls, t - lead, t + cfg.control_dt_s, None, kind, None, t, True))
+    nominal = {lay.site.site_id: float(lay.site.grid_import_limit_w) for lay in cfg.layouts}
+    rack_site = {r.rack_id: lay.site.site_id for lay in cfg.layouts for r in lay.racks}
+    site_racks: dict[str, list[str]] = {}
+    for r, sid in rack_site.items():
+        site_racks.setdefault(sid, []).append(r)
+    for ev in cfg.events.events:
+        if ev.kind == KIND_GRID_CURTAILMENT:
+            out.append(OracleAlarm(ev.site_id, CLASS_CURTAIL, ev.onset_s - lead, ev.end_s, None, ev.event_id,
+                                   nominal[ev.site_id] * float(ev.limit_fraction), ev.onset_s, False, True))
+            continue
+        if ev.kind == KIND_COOLING_FAILURE:
+            units, cls = ([ev.rack_id] if ev.rack_id else site_racks[ev.site_id]), CLASS_COOLING
+        elif ev.kind == KIND_BREAKER_TRIP:
+            units, cls = [ev.rack_id], CLASS_POWER
+        else:
+            units, cls = [ev.rack_id], CLASS_HARDWARE
+        end = ev.end_s if ev.kind != KIND_HARDWARE_FAULT else ev.onset_s + cfg.control_dt_s
+        for u in units:
+            out.append(OracleAlarm(u, cls, ev.onset_s - lead, end, None, ev.event_id, None, ev.onset_s, False, False))
+    for ep in throttle_eps:
+        out.append(OracleAlarm(ep["rack_id"], CLASS_THERMAL, ep["onset_s"] - lead, ep["end_s"] + cfg.control_dt_s, None,
+                               "thermal_throttle", None, ep["onset_s"], False, True))
+    return out
+
+
+class OracleController(_BankController):
+    """Perfect-foresight upper bound: the planner driven by exact event times (see :func:`oracle_alarms_from_reference`).
+
+    Run it with a simulator scenario whose ``controller_interval_s`` equals the
+    control step and with ``settings.decision_interval_s`` set to that step, so
+    it can act at the exact lead.
+    """
+
+    def __init__(self, settings: OutageSettings, alarms: Sequence[OracleAlarm], name: str = "perfect_foresight") -> None:
+        super().__init__(settings)
+        self.alarms = list(alarms)
+        self.name = name
+
+    def _on_bind(self) -> None:
+        assert self.planner is not None and self.cfg is not None
+        extra = self.settings.oracle_extra_lead_steps * self.cfg.control_dt_s
+        jobs = self.planner.jobs
+
+        def gate(job_id: str, alarm: Alarm, t_s: float) -> bool:
+            if alarm.event_s is None or not alarm.gated:
+                return True
+            return t_s >= alarm.event_s - (float(jobs[job_id].checkpoint_duration_s) + extra) - 1e-9
+
+        self.planner.gate = gate
+
+    def decide(self, t_s, visible_state):
+        assert self.bank is not None and self.placement is not None and self.planner is not None
+        self.bank.sample(t_s, visible_state)
+        self.decision_times.append(float(t_s))
+        rack_alarms: dict[str, Alarm] = {}
+        site_alarms: dict[str, Alarm] = {}
+        for a in self.alarms:
+            if not a.acts or not (a.start_s <= t_s < a.end_s):
+                continue
+            is_site = a.unit in self.planner.site_ids
+            by_unit = site_alarms if is_site else rack_alarms
+            cur = by_unit.get(a.unit)
+            new = Alarm(a.unit, (a.cls,), a.start_s, 1.0, a.slot, a.limit_w, a.event_s, a.gated)
+            if cur is None:
+                by_unit[a.unit] = new
+            else:
+                cur.classes = tuple(sorted(set(cur.classes) | {a.cls}))
+                cur.since_s = min(cur.since_s, a.start_s)
+                if a.slot != cur.slot:
+                    cur.slot = None  # two causes on one rack: protect the whole rack
+                if a.limit_w is not None:
+                    cur.limit_w = a.limit_w if cur.limit_w is None else min(cur.limit_w, a.limit_w)
+                cur.gated = cur.gated and a.gated
+                if a.event_s is not None:
+                    cur.event_s = a.event_s if cur.event_s is None else min(cur.event_s, a.event_s)
+        actions = list(self.planner.resumes(t_s, visible_state, set(rack_alarms), set(site_alarms)))
+        actions += self.planner.plan(t_s, visible_state, self.placement.job_rack_counts(), rack_alarms, site_alarms, self.placement.job_at)
+        return actions
+
+    def export(self) -> dict[str, Any]:
+        out = super().export()
+        step = self.settings.decision_interval_s
+        out["episodes"] = [
+            {"unit": a.unit, "class": a.cls, "channel": "oracle", "start_s": a.start_s, "end_s": max(a.end_s - step, a.start_s),
+             "peak_p": 1.0, "n_decisions": 1, "k": -1}
+            for a in self.alarms
+        ]
+        out["threshold"] = None
+        return out
+
+
+# ---------------------------------------------------------------------------
+# open-loop probabilities on a recorded trace
+# ---------------------------------------------------------------------------
+
+
+def openloop_pmax(
+    forecaster: Any,
+    trace: Mapping[str, Any],
+    cfg: SimConfig,
+    settings: OutageSettings,
+    calibration: Optional[Calibration],
+    *,
+    batch_size: int = 512,
+    perfect: bool = False,
+) -> np.ndarray:
+    """Warning probabilities ``(n_decisions, n_series)`` from a recorded no-action trace.
+
+    Decision ``d`` sees ``samples[:, d - T + 1 : d + 1]``.  With ``perfect`` the
+    realized future of the same trace is used as a zero-spread forecast (an upper
+    bound for any forecaster on that trace).
+    """
+    index = SeriesIndex.from_config(cfg, settings.per_gpu_channel)
+    samples = np.asarray(trace["samples"], dtype=float)
+    n_series, n_dec = samples.shape
+    T, H = settings.context_steps, settings.horizon_steps
+    pmax = np.zeros((n_dec, n_series))
+    site_limits = np.asarray(trace["site_limits"])
+    decisions = list(range(T - 1, n_dec))
+    full = decisions
+
+    def limits_at(d: int) -> np.ndarray:
+        return series_limits(cfg, index, settings, calibration, site_limits[d])
+
+    if perfect:
+        from heatwave.forecast.base import QUANTILE_LEVELS
+
+        missing = -1.0e18
+        for d in decisions:
+            fut = np.full((n_series, H), np.nan)
+            n_av = min(H, n_dec - 1 - d)
+            if n_av > 0:
+                fut[:, :n_av] = samples[:, d + 1: d + 1 + n_av]
+            fut = np.where(np.isfinite(fut), fut, missing)
+            vals = np.repeat(fut[:, :, None], len(QUANTILE_LEVELS), axis=2)
+            pmax[d] = exceedance_probability(vals, QUANTILE_LEVELS, limits_at(d)).max(axis=1)
+        return pmax
+
+    rows_per_batch = max(1, batch_size // n_series)
+    for start in range(0, len(full), rows_per_batch):
+        ds = full[start:start + rows_per_batch]
+        win = np.concatenate([samples[:, d + 1 - T: d + 1] for d in ds], axis=0)
+        lim = np.concatenate([limits_at(d) for d in ds], axis=0)
+        p = window_probabilities(forecaster, win, lim, H, batch_size=batch_size)
+        p = p.reshape(len(ds), n_series, H).max(axis=2)
+        for j, d in enumerate(ds):
+            pmax[d] = p[j]
+    return pmax
+
+
+# ---------------------------------------------------------------------------
+# event table and attribution
+# ---------------------------------------------------------------------------
+
+
+def throttle_episodes(events: Sequence[Mapping[str, Any]], horizon_s: float, merge_gap_s: float) -> list[dict[str, Any]]:
+    """Merge the simulator's throttle start/end log into one episode per rack and burst."""
+    by_rack: dict[str, list[tuple[float, str]]] = {}
+    for e in events:
+        if e["kind"] == KIND_THERMAL_THROTTLE:
+            by_rack.setdefault(e["rack_id"], []).append((float(e["t_s"]), e["phase"]))
+    out = []
+    for rack, items in sorted(by_rack.items()):
+        items.sort(key=lambda x: (x[0], 0 if x[1] == "end" else 1))
+        spans: list[list[float]] = []
+        for t, phase in items:
+            if phase == "start":
+                spans.append([t, horizon_s])
+            elif spans and spans[-1][1] == horizon_s:
+                spans[-1][1] = t
+        merged: list[list[float]] = []
+        for a, b in spans:
+            if merged and a - merged[-1][1] <= merge_gap_s:
+                merged[-1][1] = max(merged[-1][1], b)
+            else:
+                merged.append([a, b])
+        for a, b in merged:
+            out.append({"rack_id": rack, "onset_s": a, "end_s": b})
+    out.sort(key=lambda e: (e["onset_s"], e["rack_id"]))
+    return out
+
+
+def build_event_table(
+    cfg: SimConfig,
+    ref_events: Sequence[Mapping[str, Any]],
+    settings: OutageSettings,
+) -> list[dict[str, Any]]:
+    """Scheduled events plus the throttle episodes of the reactive reference run.
+
+    Only events that start at or after the warm-up are scored.
+    """
+    rack_site = {r.rack_id: lay.site.site_id for lay in cfg.layouts for r in lay.racks}
+    site_racks: dict[str, list[str]] = {}
+    for r, s in rack_site.items():
+        site_racks.setdefault(s, []).append(r)
+    rows = []
+    for gt in cfg.events.ground_truth():
+        kind = gt["kind"]
+        rack = gt["rack_id"]
+        if kind == KIND_GRID_CURTAILMENT:
+            units = [gt["site_id"]]
+        elif rack is None:
+            units = list(site_racks[gt["site_id"]])
+        else:
+            units = [rack]
+        slot = None
+        for ev in cfg.events.events:
+            if ev.event_id == gt["event_id"]:
+                slot = getattr(ev, "gpu_slot", None)
+        if kind == KIND_HARDWARE_FAULT and slot is not None and rack is not None:
+            units = units + [gpu_unit_id(rack, int(slot))]  # a per-GPU warning must name the faulty GPU
+        window_end = gt["end_s"] if kind != KIND_HARDWARE_FAULT else gt["onset_s"]
+        rows.append(
+            {
+                "event_id": gt["event_id"], "kind": kind, "site_id": gt["site_id"], "rack_id": rack, "units": units,
+                "gpu_slot": slot, "onset_s": float(gt["onset_s"]), "end_s": float(gt["end_s"]),
+                "window_end_s": float(window_end), "has_precursor": bool(gt["has_precursor"]),
+                "precursor_lead_s": float(gt["precursor_lead_s"]), "mode": gt.get("mode"), "source": "scheduled",
+            }
+        )
+    for i, ep in enumerate(throttle_episodes(ref_events, cfg.horizon_s, settings.episode_merge_gap_s)):
+        rows.append(
+            {
+                "event_id": f"throttle-{i:03d}-{ep['rack_id']}", "kind": KIND_THERMAL_THROTTLE, "site_id": rack_site[ep["rack_id"]],
+                "rack_id": ep["rack_id"], "units": [ep["rack_id"]], "gpu_slot": None, "onset_s": float(ep["onset_s"]),
+                "end_s": float(ep["end_s"]), "window_end_s": float(ep["end_s"]), "has_precursor": False,
+                "precursor_lead_s": 0.0, "mode": None, "source": "emergent",
+            }
+        )
+    rows = [r for r in rows if r["onset_s"] >= settings.warmup_s - 1e-9]
+    rows.sort(key=lambda r: (r["onset_s"], r["event_id"]))
+    return rows
+
+
+_RE_GPU = re.compile(r"^gpu fault (\S+)/(\d+)$")
+_RE_RACK = re.compile(r"^rack (\S+) off \((.+)\)$")
+
+
+def attribute_faults(
+    events: Sequence[Mapping[str, Any]],
+    table: Sequence[Mapping[str, Any]],
+    jobs: Mapping[str, Any],
+    control_dt_s: float,
+) -> dict[str, Any]:
+    """Assign each rollback in a run's event log to a scheduled event, or to ``unattributed``.
+
+    Rules: a GPU fault goes to the hardware fault on that rack and slot at that
+    time; a forced rack trip to the forced breaker event; an overload trip to the
+    breaker derate event active on that rack; a thermal shutdown to the cooling
+    failure that covers the rack.  Windows extend from the precursor start to
+    one hour past the event end.  Rollback in the log carries steps; GPU-hours
+    use the job's step time and shard size.
+    """
+    per: dict[str, dict[str, float]] = {r["event_id"]: {"lost_steps": 0.0, "lost_gpu_h": 0.0, "n_faults": 0} for r in table}
+    unattr = {"lost_steps": 0.0, "lost_gpu_h": 0.0, "n_faults": 0}
+    sched = [r for r in table if r["source"] == "scheduled"]
+    # the simulator logs the rack trip or GPU fault first, then the job faults of the same time
+    for e in events:
+        if e["kind"] != "job_fault":
+            continue
+        job = jobs[e["job_id"]]
+        shard = job.n_gpus // (2 if job.multisite else 1)
+        gpu_h = float(e["lost_steps"]) * float(job.step_time_s) * shard / 3600.0
+        t = float(e["t_s"])
+        reason = str(e["reason"])
+        chosen = None
+        m = _RE_GPU.match(reason)
+        if m:
+            rack, slot = m.group(1), int(m.group(2))
+            for r in sched:
+                if r["kind"] == KIND_HARDWARE_FAULT and r["rack_id"] == rack and r["gpu_slot"] == slot and r["onset_s"] - 1e-6 <= t <= r["onset_s"] + control_dt_s + 1e-6:
+                    chosen = r
+        else:
+            m = _RE_RACK.match(reason)
+            if m:
+                rack, why = m.group(1), m.group(2)
+                if why == "forced":
+                    for r in sched:
+                        if r["kind"] == KIND_BREAKER_TRIP and r["rack_id"] == rack and r["mode"] == "forced" and r["onset_s"] - 1e-6 <= t <= r["onset_s"] + control_dt_s + 1e-6:
+                            chosen = r
+                elif why == "overload":
+                    chosen = _latest(sched, t, lambda r: r["kind"] == KIND_BREAKER_TRIP and r["mode"] == "derate" and r["rack_id"] == rack, 3600.0)
+                else:
+                    chosen = _latest(sched, t, lambda r: r["kind"] == KIND_COOLING_FAILURE and rack in r["units"], 3600.0)
+        bucket = unattr if chosen is None else per[chosen["event_id"]]
+        bucket["lost_steps"] += float(e["lost_steps"])
+        bucket["lost_gpu_h"] += gpu_h
+        bucket["n_faults"] += 1
+    return {"per_event": per, "unattributed": unattr}
+
+
+def _latest(rows: Sequence[Mapping[str, Any]], t: float, pred: Callable[[Mapping[str, Any]], bool], slack_s: float) -> Optional[Mapping[str, Any]]:
+    best = None
+    for r in rows:
+        if not pred(r):
+            continue
+        start = r["onset_s"] - max(r["precursor_lead_s"], 0.0)
+        if start - 1e-6 <= t <= r["end_s"] + slack_s:
+            if best is None or r["onset_s"] > best["onset_s"]:
+                best = r
+    return best
+
+
+def curtailment_violation(res: SimResult, event: Mapping[str, Any]) -> dict[str, float]:
+    """Energy (kWh) and seconds above the effective import limit at the event's site during its window."""
+    run = res._run
+    s = run.site_ids.index(event["site_id"])
+    K = run.K
+    eff = run.site_import[s] * np.repeat(run.signals.import_limit_factor[:, s], K)
+    power = res.site_power_w[:, s]
+    t = np.arange(power.size) * run.dt
+    m = (t >= event["onset_s"] - 1e-9) & (t < event["end_s"] + 1e-9)
+    over = np.maximum(power[m] - eff[m], 0.0)
+    return {"violation_kwh": float(over.sum() * run.dt / 3.6e6), "violation_s": float((over > 0).sum() * run.dt)}
+
+
+def throttle_slowdown_gpu_h(res: SimResult, cfg: SimConfig, rack_id: str, t0: float, t1: float, tail_s: float) -> float:
+    """Approximate GPU-hours of throttled operation (clock shortfall of the rack's hottest GPU).
+
+    Counts the fraction of the rack's GPUs below the throttle threshold clock
+    times the shortfall of the clock at the rack's hottest GPU.  An approximation: it
+    includes idle GPUs and uses the hottest GPU for all throttled ones.
+    """
+    run = res._run
+    r = run.rack_ids.index(rack_id)
+    times = np.arange(run.Nb) * run.cdt
+    m = (times >= t0 - 1e-9) & (times < t1 + tail_s)
+    frac = run.rack_throttled_b[m, r]
+    hot = np.where(np.isfinite(run.rack_maxgpu_b[m, r]), run.rack_maxgpu_b[m, r], -np.inf)
+    shortfall = 1.0 - cfg.throttle.clock_fraction(hot)
+    return float(np.sum(frac * run.rack_n[r] * shortfall) * run.cdt / 3600.0)
+
+
+# ---------------------------------------------------------------------------
+# response costs
+# ---------------------------------------------------------------------------
+
+
+def response_costs(
+    res: SimResult, jobs: Mapping[str, Any], cfg: SimConfig, meta_actions: Sequence[Mapping[str, Any]]
+) -> list[dict[str, Any]]:
+    """GPU-hours spent by every applied controller action, joined to the controller's unit tag.
+
+    Checkpoint: the job's GPUs stall for its checkpoint duration.  Migration:
+    checkpoint stall plus WAN transfer and restore (transfer and restore are
+    counted only when the simulator logged ``migration_start``).  Pause: the job's
+    GPUs sit idle from the pause to the resume, to the job's next fault, or to
+    the end of the run.  All from the simulator's own transfer parameters.
+    """
+    tr = cfg.transfer
+    horizon = cfg.horizon_s
+    ev = res.events
+    meta_by_key: dict[tuple[float, str, str], str] = {}
+    for m in meta_actions:
+        meta_by_key[(float(m["t_s"]), m["action"], m["job_id"])] = m["unit"]
+    started: dict[str, list[float]] = {}
+    faults: dict[str, list[float]] = {}
+    for e in ev:
+        if e["kind"] == "migration_start":
+            started.setdefault(e["job_id"], []).append(float(e["t_s"]))
+        elif e["kind"] == "job_fault":
+            faults.setdefault(e["job_id"], []).append(float(e["t_s"]))
+    pending_pause: dict[str, tuple[float, str]] = {}
+    out = []
+    for a in res.actions:
+        name, t, status = a["action"], float(a["t_s"]), a["status"]
+        job_id = a["detail"].get("job_id")
+        unit = meta_by_key.get((t, name, job_id), "")
+        if status != "applied":
+            out.append({"t_s": t, "action": name, "job_id": job_id, "unit": unit, "applied": False, "gpu_h": 0.0})
+            continue
+        job = jobs[job_id]
+        n = float(job.n_gpus)
+        if name == "CheckpointNow":
+            cost = n * float(job.checkpoint_duration_s) / 3600.0
+        elif name == "MigrateJob":
+            cost = n * float(job.checkpoint_duration_s) / 3600.0
+            window = float(job.checkpoint_duration_s) + cfg.control_dt_s + 1.0
+            if any(0.0 <= s0 - t <= window for s0 in started.get(job_id, [])):
+                cost += n * (float(tr.transfer_s(int(job.n_gpus))) + float(tr.restore_s(int(job.n_gpus)))) / 3600.0
+        elif name == "PauseJob":
+            pending_pause[job_id] = (t, unit)
+            continue
+        elif name == "ResumeJob":
+            if job_id in pending_pause:
+                t0, u0 = pending_pause.pop(job_id)
+                end = t
+                nxt = [f for f in faults.get(job_id, []) if f > t0]
+                if nxt:
+                    end = min(end, min(nxt))
+                out.append({"t_s": t0, "action": "PauseJob", "job_id": job_id, "unit": u0, "applied": True, "gpu_h": n * max(end - t0, 0.0) / 3600.0,
+                            "t_end_s": float(end), "n_gpus": int(n)})
+            continue
+        else:
+            continue
+        out.append({"t_s": t, "action": name, "job_id": job_id, "unit": unit, "applied": True, "gpu_h": cost})
+    for job_id, (t0, u0) in pending_pause.items():
+        job = jobs[job_id]
+        end = horizon
+        nxt = [f for f in faults.get(job_id, []) if f > t0]
+        if nxt:
+            end = min(end, min(nxt))
+        out.append({"t_s": t0, "action": "PauseJob", "job_id": job_id, "unit": u0, "applied": True, "gpu_h": float(job.n_gpus) * max(end - t0, 0.0) / 3600.0,
+                    "t_end_s": float(end), "n_gpus": int(job.n_gpus)})
+    out.sort(key=lambda r: (r["t_s"], r["action"], str(r["job_id"])))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# alarms, matching, scoring
+# ---------------------------------------------------------------------------
+
+
+def merge_alarms(episodes: Sequence[Mapping[str, Any]], merge_gap_s: float) -> list[dict[str, Any]]:
+    """Merge class episodes of the same unit that overlap or lie within ``merge_gap_s``."""
+    by_unit: dict[str, list[Mapping[str, Any]]] = {}
+    for e in episodes:
+        by_unit.setdefault(e["unit"], []).append(e)
+    out = []
+    for unit, items in sorted(by_unit.items()):
+        items = sorted(items, key=lambda e: e["start_s"])
+        cur = None
+        for e in items:
+            if cur is not None and e["start_s"] <= cur["end_s"] + merge_gap_s:
+                cur["end_s"] = max(cur["end_s"], e["end_s"])
+                cur["classes"].add(e["class"])
+                cur["episodes"].append(e)
+                cur["peak_p"] = max(cur["peak_p"], e["peak_p"])
+            else:
+                if cur is not None:
+                    out.append(cur)
+                cur = {"unit": unit, "start_s": e["start_s"], "end_s": e["end_s"], "classes": {e["class"]}, "episodes": [e], "peak_p": e["peak_p"]}
+        if cur is not None:
+            out.append(cur)
+    out.sort(key=lambda a: (a["start_s"], a["unit"]))
+    return out
+
+
+def match_events(
+    table: Sequence[Mapping[str, Any]],
+    episodes: Sequence[Mapping[str, Any]],
+    settings: OutageSettings,
+    min_lead_s: float = 0.0,
+) -> dict[str, dict[str, Any]]:
+    """Per event: earliest covering warning (lead time), or the first late warning.
+
+    A class episode covers an event if its unit is one of the event's units, its
+    class may explain the event kind, it starts at or before the onset and the
+    onset is no later than its end plus the warning horizon.  The lead time is
+    onset minus the episode start.  A warning that first appears after the
+    onset but within one warning horizon is recorded as late.
+    """
+    L = settings.horizon_s
+    out: dict[str, dict[str, Any]] = {}
+    for ev in table:
+        classes = EVENT_CLASSES[ev["kind"]]
+        cand = [e for e in episodes if e["unit"] in ev["units"] and e["class"] in classes]
+        covering = [e for e in cand if e["start_s"] <= ev["onset_s"] + 1e-9 and ev["onset_s"] <= e["end_s"] + L + 1e-9]
+        lead = None
+        first_channel = None
+        if covering:
+            first = min(covering, key=lambda e: (e["start_s"], str(e.get("channel", ""))))
+            lead = ev["onset_s"] - first["start_s"]
+            first_channel = first.get("channel")
+        late = None
+        if lead is None:
+            after = [e["start_s"] - ev["onset_s"] for e in cand if ev["onset_s"] < e["start_s"] <= ev["onset_s"] + L + 1e-9]
+            if after:
+                late = float(min(after))
+        out[ev["event_id"]] = {
+            "caught": lead is not None,
+            "caught_in_time": lead is not None and lead >= min_lead_s,
+            "lead_s": None if lead is None else float(lead),
+            "late_s": late,
+            "first_channel": first_channel,
+        }
+    return out
+
+
+def classify_alarms(
+    alarms: Sequence[Mapping[str, Any]], table: Sequence[Mapping[str, Any]], settings: OutageSettings
+) -> list[dict[str, Any]]:
+    """True or false for each alarm: true if it overlaps the effect window of an event it could explain."""
+    L = settings.horizon_s
+    out = []
+    for a in alarms:
+        explained = None
+        for ev in table:
+            if a["unit"] not in ev["units"]:
+                continue
+            classes = set(EVENT_CLASSES[ev["kind"]])
+            if not (set(a["classes"]) & classes):
+                continue
+            w0 = ev["onset_s"]
+            w1 = ev["window_end_s"] + L
+            if a["start_s"] <= w1 and a["end_s"] + L >= w0:
+                explained = ev["event_id"]
+                break
+        out.append({"unit": a["unit"], "start_s": a["start_s"], "end_s": a["end_s"], "classes": sorted(a["classes"]), "peak_p": a["peak_p"],
+                    "channels": sorted({str(e.get("channel", "")) for e in a["episodes"]}),
+                    "true": explained is not None, "event_id": explained})
+    return out
+
+
+def score_run(
+    res: SimResult,
+    cfg: SimConfig,
+    table: Sequence[Mapping[str, Any]],
+    export: Mapping[str, Any],
+    settings: OutageSettings,
+    reference_useful_gpu_h: float,
+) -> dict[str, Any]:
+    """Outcomes of one policy run on one seed (all simulated)."""
+    jobs = {j.job_id: j for j in cfg.jobs}
+    episodes = [e for e in export.get("episodes", []) if e["start_s"] >= 0.0]
+    ckpt_max = max((float(j.checkpoint_duration_s) for j in cfg.jobs), default=0.0)
+    min_lead = ckpt_max + cfg.control_dt_s
+    matches = match_events(table, episodes, settings, min_lead)
+    attr = attribute_faults(res.events, table, jobs, cfg.control_dt_s)
+    by_event = []
+    for ev in table:
+        row = {k: ev[k] for k in ("event_id", "kind", "site_id", "rack_id", "onset_s", "end_s", "has_precursor", "mode", "source")}
+        row.update(matches[ev["event_id"]])
+        row.update(attr["per_event"][ev["event_id"]])
+        row["violation_kwh"] = 0.0
+        row["violation_s"] = 0.0
+        row["throttle_slowdown_gpu_h"] = 0.0
+        if ev["kind"] == KIND_GRID_CURTAILMENT:
+            row.update(curtailment_violation(res, ev))
+        if ev["kind"] == KIND_THERMAL_THROTTLE:
+            row["throttle_slowdown_gpu_h"] = throttle_slowdown_gpu_h(res, cfg, ev["rack_id"], ev["onset_s"], ev["end_s"], settings.episode_merge_gap_s)
+        by_event.append(row)
+    costs = response_costs(res, jobs, cfg, export.get("meta_actions", []))
+    alarms = classify_alarms(merge_alarms(episodes, settings.episode_merge_gap_s), table, settings)
+    for a in alarms:
+        lo, hi = a["start_s"], a["end_s"] + settings.decision_interval_s * settings.clear_decisions_effective
+        mine = [c for c in costs if c["unit"] == a["unit"] and lo - 1e-9 <= c["t_s"] <= hi + 1e-9]
+        a["cost_gpu_h"] = float(sum(c["gpu_h"] for c in mine))
+        a["n_actions"] = len(mine)
+        by_act: dict[str, float] = {}
+        for c in mine:
+            by_act[c["action"]] = by_act.get(c["action"], 0.0) + c["gpu_h"]
+        a["cost_by_action"] = by_act
+    summary = res.summary()
+    pauses = pause_records(costs, table, settings)
+    by_action: dict[str, float] = {}
+    n_actions: dict[str, int] = {}
+    rejected = 0
+    for c in costs:
+        if not c["applied"]:
+            rejected += 1
+            continue
+        by_action[c["action"]] = by_action.get(c["action"], 0.0) + c["gpu_h"]
+        n_actions[c["action"]] = n_actions.get(c["action"], 0) + 1
+    total_cost = float(sum(by_action.values()))
+    false_cost = float(sum(a["cost_gpu_h"] for a in alarms if not a["true"]))
+    days = (cfg.horizon_s - settings.warmup_s) / 86400.0
+    total_viol = float(np.sum(res.import_violation["energy_above_kwh"]))
+    return {
+        "policy": export.get("policy"),
+        "data_kind": "simulated",
+        "summary": {
+            "useful_gpu_hours": summary["useful_gpu_hours"], "lost_gpu_hours": summary["lost_gpu_hours"],
+            "lost_steps": summary["lost_steps"], "job_faults": summary["job_faults"], "migrations": summary["migrations"],
+            "import_energy_above_kwh": total_viol, "jobs_done": summary["jobs_done"], "thermal_shutdowns": summary["thermal_shutdowns"],
+            "breaker_trips": summary["breaker_trips"], "throttle_episodes": summary["throttle_episodes"],
+        },
+        "deficit_gpu_h": float(reference_useful_gpu_h - summary["useful_gpu_hours"]),
+        "by_event": by_event,
+        "unattributed": attr["unattributed"],
+        "alarms": alarms,
+        "response": {
+            "gpu_h_by_action": by_action, "n_actions": n_actions, "rejected": rejected, "total_gpu_h": total_cost,
+            "false_alarm_gpu_h": false_cost, "n_alarms": len(alarms), "n_false_alarms": sum(1 for a in alarms if not a["true"]),
+            "false_alarms_per_day": sum(1 for a in alarms if not a["true"]) / days, "evaluated_days": days,
+        },
+        "min_lead_s": min_lead,
+        "pauses": pauses,
+        "ledger_gpu_h": res._run.ledger.to_gpu_hours(),
+        "n_restarts": int(res._run.ledger.n_restarts),
+    }
+
+
+def pause_records(costs: Sequence[Mapping[str, Any]], table: Sequence[Mapping[str, Any]], settings: OutageSettings) -> list[dict[str, Any]]:
+    """Each applied pause with the event it served (if any) and the part of it that outlasted that event.
+
+    A pause is matched to the earliest event on its unit (a rack, a GPU of the
+    rack, or the site) whose window, widened by one warning horizon, overlaps it.
+    ``after_event_gpu_h`` is the GPU-hours held after the event window ended (the
+    resumption delay); ``unmatched`` pauses served no event.
+    """
+    L = settings.horizon_s
+    out = []
+    for c in costs:
+        if c["action"] != "PauseJob" or not c.get("applied") or "t_end_s" not in c:
+            continue
+        t0, t1 = float(c["t_s"]), float(c["t_end_s"])
+        match = None
+        for ev in table:
+            if c["unit"] not in ev["units"]:
+                continue
+            if ev["onset_s"] - L <= t1 and ev["window_end_s"] + L >= t0:
+                match = ev
+                break
+        span = max(t1 - t0, 1e-9)
+        after = 0.0
+        if match is not None:
+            after = c["gpu_h"] * max(t1 - max(t0, float(match["window_end_s"])), 0.0) / span
+        out.append({"t_s": t0, "t_end_s": t1, "job_id": c["job_id"], "unit": c["unit"], "gpu_h": float(c["gpu_h"]),
+                    "event_id": None if match is None else match["event_id"], "kind": None if match is None else match["kind"],
+                    "after_event_gpu_h": float(after)})
+    return out
+
+
+# ---------------------------------------------------------------------------
+# threshold tuning and sweep on recorded traces
+# ---------------------------------------------------------------------------
+
+
+def replay_objective(
+    table: Sequence[Mapping[str, Any]],
+    reactive_by_event: Sequence[Mapping[str, Any]],
+    episodes: Sequence[Mapping[str, Any]],
+    trace: Mapping[str, Any],
+    index: SeriesIndex,
+    settings: OutageSettings,
+    min_lead_s: float,
+    design: Optional[ResponseDesign] = None,
+) -> dict[str, float]:
+    """Replay estimate of total loss (GPU-hours) for one warning rule on one recorded trace.
+
+    Misses cost what the reactive run lost on the event (rollback work); every
+    alarm costs what the response would spend at its start on the jobs it covers.
+    Without ``design`` this is the v1/v2 response: the checkpoint of non-flexible
+    jobs on its rack, re-done every ``recheckpoint_s``, plus the move of flexible
+    jobs.  With ``design`` the alarm cost follows the strongest rule among the
+    classes of the alarm: a checkpoint of every covered job (re-done every
+    ``min_gap_s``), a move (flexible jobs; the others checkpoint), or a
+    checkpoint plus the time a flexible job sits paused for the alarm's length.
+    Events whose class rule is "none" cannot be helped by a warning and add no
+    miss cost.  Events with no rollback (curtailment, throttle) add no miss cost.
+    This is an approximation used only to choose a threshold on training seeds;
+    closed-loop runs report the realized numbers.
+    """
+    matches = match_events(table, episodes, settings, min_lead_s)
+    lost = {r["event_id"]: float(r["lost_gpu_h"]) for r in reactive_by_event}
+
+    def helped(ev: Mapping[str, Any]) -> bool:
+        if design is None:
+            return True
+        return any(design.rule(c).mode != MODE_NONE for c in EVENT_CLASSES[ev["kind"]])
+
+    miss = float(sum(lost.get(ev["event_id"], 0.0) for ev in table if helped(ev) and not matches[ev["event_id"]]["caught_in_time"]))
+    times = np.asarray(trace["times_s"])
+    alarm_cost = 0.0
+    for a in merge_alarms(episodes, settings.episode_merge_gap_s):
+        d0 = int(np.argmin(np.abs(times - a["start_s"])))
+        dur = a["end_s"] - a["start_s"]
+        if a["unit"] in index.gpu_units:
+            kind, k = "gpu", index.gpu_units.index(a["unit"])
+        elif a["unit"] in index.rack_ids:
+            kind, k = "rack", index.rack_ids.index(a["unit"])
+        else:
+            kind, k = "site", index.site_ids.index(a["unit"])
+        if design is None:
+            if kind == "gpu":
+                alarm_cost += float(trace["gpu_flex_move_gpu_h"][d0, k])
+                alarm_cost += float(trace["gpu_nonflex_checkpoint_gpu_h"][d0, k]) * (1 + math.floor(dur / settings.recheckpoint_s))
+            elif kind == "rack":
+                alarm_cost += float(trace["rack_flex_move_gpu_h"][d0, k])
+                alarm_cost += float(trace["rack_nonflex_checkpoint_gpu_h"][d0, k]) * (1 + math.floor(dur / settings.recheckpoint_s))
+            else:
+                alarm_cost += float(trace["site_flex_move_gpu_h"][d0, k])
+            continue
+        mode = max((design.rule(c).mode for c in a["classes"]), key=lambda m: MODE_RANK[m])
+        if mode == MODE_NONE:
+            continue
+        repeats = 1 + (math.floor(dur / design.min_gap_s) if design.min_gap_s > 0 else 0)
+        if kind == "site":
+            if mode in (MODE_MOVE, MODE_PAUSE):
+                alarm_cost += float(trace["site_flex_move_gpu_h"][d0, k])
+            continue
+        ck_all = float(trace["gpu_checkpoint_all_gpu_h" if kind == "gpu" else "rack_checkpoint_all_gpu_h"][d0, k])
+        flex_move = float(trace["gpu_flex_move_gpu_h" if kind == "gpu" else "rack_flex_move_gpu_h"][d0, k])
+        non_ck = float(trace["gpu_nonflex_checkpoint_gpu_h" if kind == "gpu" else "rack_nonflex_checkpoint_gpu_h"][d0, k])
+        flex_gpus = float(trace["gpu_flex_gpus" if kind == "gpu" else "rack_flex_gpus"][d0, k])
+        if mode == MODE_CHECKPOINT:
+            alarm_cost += ck_all * repeats
+        elif mode == MODE_MOVE:
+            alarm_cost += flex_move + non_ck * repeats
+        else:  # pause: flexible jobs checkpoint once and sit paused for the alarm, the others keep checkpointing
+            alarm_cost += (ck_all - non_ck) + non_ck * repeats + flex_gpus * dur / 3600.0
+    return {"miss_gpu_h": miss, "alarm_gpu_h": float(alarm_cost), "total_gpu_h": miss + float(alarm_cost)}
+
+
+def detection_stats(
+    table: Sequence[Mapping[str, Any]],
+    episodes: Sequence[Mapping[str, Any]],
+    settings: OutageSettings,
+    evaluated_days: float,
+    min_lead_s: float,
+) -> dict[str, Any]:
+    """Recall, false alarms and lead times of one warning rule on one seed (no actions)."""
+    matches = match_events(table, episodes, settings, min_lead_s)
+    alarms = classify_alarms(merge_alarms(episodes, settings.episode_merge_gap_s), table, settings)
+    by_kind: dict[str, dict[str, Any]] = {}
+    for ev in table:
+        m = matches[ev["event_id"]]
+        b = by_kind.setdefault(ev["kind"], {"n": 0, "caught": 0, "caught_in_time": 0, "leads_s": []})
+        b["n"] += 1
+        b["caught"] += int(m["caught"])
+        b["caught_in_time"] += int(m["caught_in_time"])
+        if m["lead_s"] is not None:
+            b["leads_s"].append(m["lead_s"])
+    return {
+        "by_kind": by_kind,
+        "n_alarms": len(alarms),
+        "n_false_alarms": sum(1 for a in alarms if not a["true"]),
+        "false_alarms_per_day": sum(1 for a in alarms if not a["true"]) / evaluated_days,
+    }
+
+
+# ---------------------------------------------------------------------------
+# aggregation with seed-bootstrap intervals
+# ---------------------------------------------------------------------------
+
+
+def bootstrap_ci(values: Sequence[float], n_resamples: int, seed: int = 0, stat: Callable[[np.ndarray], float] = np.mean) -> dict[str, Any]:
+    """Percentile 95 percent interval of ``stat`` over seeds (resampling seeds)."""
+    v = np.asarray([x for x in values if x is not None and np.isfinite(x)], dtype=float)
+    if v.size == 0:
+        return {"mean": None, "lo": None, "hi": None, "n": 0}
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, v.size, size=(n_resamples, v.size))
+    boots = np.array([stat(v[i]) for i in idx])
+    return {"mean": float(stat(v)), "lo": float(np.quantile(boots, 0.025)), "hi": float(np.quantile(boots, 0.975)), "n": int(v.size)}
+
+
+def ratio_ci(num: Sequence[float], den: Sequence[float], n_resamples: int, seed: int = 0) -> dict[str, Any]:
+    """Pooled ratio (sum num / sum den) with a seed-cluster bootstrap interval."""
+    n = np.asarray(num, dtype=float)
+    d = np.asarray(den, dtype=float)
+    if n.size == 0 or d.sum() == 0:
+        return {"value": None, "lo": None, "hi": None, "n_seeds": int(n.size), "den": float(d.sum())}
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, n.size, size=(n_resamples, n.size))
+    den_b = d[idx].sum(axis=1)
+    ok = den_b > 0
+    boots = n[idx].sum(axis=1)[ok] / den_b[ok]
+    return {"value": float(n.sum() / d.sum()), "lo": float(np.quantile(boots, 0.025)), "hi": float(np.quantile(boots, 0.975)),
+            "n_seeds": int(n.size), "den": float(d.sum())}
+
+
+def pooled_quantile_ci(per_seed: Sequence[Sequence[float]], q: float, n_resamples: int, seed: int = 0) -> dict[str, Any]:
+    """Quantile of values pooled over seeds, with a seed-cluster bootstrap interval."""
+    flat = [x for s in per_seed for x in s]
+    if not flat:
+        return {"value": None, "lo": None, "hi": None, "n": 0}
+    rng = np.random.default_rng(seed)
+    k = len(per_seed)
+    boots = []
+    for _ in range(n_resamples):
+        pick = rng.integers(0, k, size=k)
+        pool = [x for i in pick for x in per_seed[i]]
+        if pool:
+            boots.append(np.quantile(pool, q))
+    return {"value": float(np.quantile(flat, q)), "lo": float(np.quantile(boots, 0.025)) if boots else None,
+            "hi": float(np.quantile(boots, 0.975)) if boots else None, "n": len(flat)}
+
+
+def aggregate_runs(runs: Sequence[Mapping[str, Any]], settings: OutageSettings, has_warnings: bool = True) -> dict[str, Any]:
+    """Pool per-seed ``score_run`` outputs of one policy into overall and per-event-type statistics.
+
+    ``has_warnings`` is False for policies without a warning rule (reactive,
+    averaging rule alone); their detection fields (recall, lead time, alarm
+    counts) are reported as ``None`` instead of zero.
+    """
+    B = settings.bootstrap_resamples
+    out: dict[str, Any] = {"n_seeds": len(runs), "data_kind": "simulated", "has_warnings": bool(has_warnings)}
+
+    def per_seed(fn: Callable[[Mapping[str, Any]], float]) -> list[float]:
+        return [fn(r) for r in runs]
+
+    out["overall"] = {
+        "deficit_gpu_h": bootstrap_ci(per_seed(lambda r: r["deficit_gpu_h"]), B, 1),
+        "useful_gpu_h": bootstrap_ci(per_seed(lambda r: r["summary"]["useful_gpu_hours"]), B, 2),
+        "lost_gpu_h": bootstrap_ci(per_seed(lambda r: r["summary"]["lost_gpu_hours"]), B, 3),
+        "lost_steps": bootstrap_ci(per_seed(lambda r: r["summary"]["lost_steps"]), B, 4),
+        "import_energy_above_kwh": bootstrap_ci(per_seed(lambda r: r["summary"]["import_energy_above_kwh"]), B, 5),
+        "response_gpu_h": bootstrap_ci(per_seed(lambda r: r["response"]["total_gpu_h"]), B, 6),
+        "false_alarm_gpu_h": bootstrap_ci(per_seed(lambda r: r["response"]["false_alarm_gpu_h"]), B, 7),
+        "false_alarms_per_day": bootstrap_ci(per_seed(lambda r: r["response"]["false_alarms_per_day"]), B, 8),
+        "n_alarms": bootstrap_ci(per_seed(lambda r: r["response"]["n_alarms"]), B, 9),
+        "job_faults": bootstrap_ci(per_seed(lambda r: r["summary"]["job_faults"]), B, 10),
+        "migrations": bootstrap_ci(per_seed(lambda r: r["summary"]["migrations"]), B, 11),
+    }
+    n_ev = [len(r["by_event"]) for r in runs]
+    caught = [sum(1 for e in r["by_event"] if e["caught"]) for r in runs]
+    in_time = [sum(1 for e in r["by_event"] if e["caught_in_time"]) for r in runs]
+    out["overall"]["recall"] = ratio_ci(caught, n_ev, B, 12)
+    out["overall"]["recall_in_time"] = ratio_ci(in_time, n_ev, B, 13)
+    leads = [[e["lead_s"] / 60.0 for e in r["by_event"] if e["lead_s"] is not None] for r in runs]
+    out["overall"]["lead_minutes"] = {
+        "median": pooled_quantile_ci(leads, 0.5, B, 14), "p10": pooled_quantile_ci(leads, 0.1, B, 15),
+        "p90": pooled_quantile_ci(leads, 0.9, B, 16),
+    }
+    alarms_true = [sum(1 for a in r["alarms"] if a["true"]) for r in runs]
+    alarms_all = [len(r["alarms"]) for r in runs]
+    out["overall"]["alarm_precision"] = ratio_ci(alarms_true, alarms_all, B, 17)
+    # false alarms per day by alarm class (an alarm that carries several classes counts once for each)
+    by_class: dict[str, Any] = {}
+    for cls_i, cls in enumerate(CLASSES):
+        by_class[cls] = {
+            "false_alarms_per_day": bootstrap_ci(
+                [sum(1 for a in r["alarms"] if not a["true"] and cls in a["classes"]) / r["response"]["evaluated_days"] for r in runs], B, 80 + cls_i),
+            "alarms_per_day": bootstrap_ci(
+                [sum(1 for a in r["alarms"] if cls in a["classes"]) / r["response"]["evaluated_days"] for r in runs], B, 90 + cls_i),
+        }
+    out["by_alarm_class"] = by_class
+    by_channel: dict[str, Any] = {}
+    channels = sorted({c for r in runs for a in r["alarms"] for c in a.get("channels", ())})
+    for ch_i, ch in enumerate(channels):
+        by_channel[ch] = {
+            "false_alarms_per_day": bootstrap_ci(
+                [sum(1 for a in r["alarms"] if not a["true"] and ch in a.get("channels", ())) / r["response"]["evaluated_days"] for r in runs], B, 100 + ch_i),
+            "alarms_per_day": bootstrap_ci(
+                [sum(1 for a in r["alarms"] if ch in a.get("channels", ())) / r["response"]["evaluated_days"] for r in runs], B, 120 + ch_i),
+        }
+    out["by_alarm_channel"] = by_channel
+    by_type: dict[str, Any] = {}
+    for kind in EVENT_TYPES:
+        sel = [[e for e in r["by_event"] if e["kind"] == kind] for r in runs]
+        n_k = [len(s) for s in sel]
+        if sum(n_k) == 0:
+            continue
+        entry: dict[str, Any] = {
+            "n_events": int(sum(n_k)),
+            "n_with_precursor": int(sum(1 for s in sel for e in s if e["has_precursor"])),
+            "recall": ratio_ci([sum(1 for e in s if e["caught"]) for s in sel], n_k, B, 20),
+            "recall_in_time": ratio_ci([sum(1 for e in s if e["caught_in_time"]) for s in sel], n_k, B, 21),
+            "lead_minutes_median": pooled_quantile_ci([[e["lead_s"] / 60.0 for e in s if e["lead_s"] is not None] for s in sel], 0.5, B, 22),
+            "lost_gpu_h": bootstrap_ci([sum(e["lost_gpu_h"] for e in s) for s in sel], B, 23),
+            "lost_steps": bootstrap_ci([sum(e["lost_steps"] for e in s) for s in sel], B, 24),
+        }
+        with_pre = [[e for e in s_ if e["has_precursor"]] for s_ in sel]
+        if sum(len(x) for x in with_pre):
+            entry["recall_with_precursor"] = ratio_ci([sum(1 for e in x if e["caught"]) for x in with_pre], [len(x) for x in with_pre], B, 28)
+            entry["recall_in_time_with_precursor"] = ratio_ci([sum(1 for e in x if e["caught_in_time"]) for x in with_pre], [len(x) for x in with_pre], B, 29)
+        else:
+            entry["recall_with_precursor"] = None
+            entry["recall_in_time_with_precursor"] = None
+        first_ch: dict[str, int] = {}
+        for s_ in sel:
+            for e in s_:
+                if e.get("first_channel"):
+                    first_ch[e["first_channel"]] = first_ch.get(e["first_channel"], 0) + 1
+        entry["first_warning_channel_counts"] = first_ch
+        if kind == KIND_GRID_CURTAILMENT:
+            entry["violation_kwh"] = bootstrap_ci([sum(e["violation_kwh"] for e in s) for s in sel], B, 25)
+            entry["violation_s"] = bootstrap_ci([sum(e["violation_s"] for e in s) for s in sel], B, 26)
+        if kind == KIND_THERMAL_THROTTLE:
+            entry["throttle_slowdown_gpu_h"] = bootstrap_ci([sum(e["throttle_slowdown_gpu_h"] for e in s) for s in sel], B, 27)
+        by_type[kind] = entry
+    out["by_event_type"] = by_type
+    # events with no precursor
+    nop = [[e for e in r["by_event"] if not e["has_precursor"] and e["source"] == "scheduled"] for r in runs]
+    n_nop = [len(s) for s in nop]
+    out["no_precursor"] = {
+        "n_events": int(sum(n_nop)),
+        "lost_gpu_h": bootstrap_ci([sum(e["lost_gpu_h"] for e in s) for s in nop], B, 30),
+        "lost_steps": bootstrap_ci([sum(e["lost_steps"] for e in s) for s in nop], B, 31),
+        "recall": ratio_ci([sum(1 for e in s if e["caught"]) for s in nop], n_nop, B, 32),
+        "lost_gpu_h_per_event": (float(sum(e["lost_gpu_h"] for s in nop for e in s) / max(sum(n_nop), 1))),
+    }
+    prec = [[e for e in r["by_event"] if e["has_precursor"] and e["source"] == "scheduled"] for r in runs]
+    n_p = [len(s) for s in prec]
+    out["with_precursor"] = {
+        "n_events": int(sum(n_p)),
+        "lost_gpu_h": bootstrap_ci([sum(e["lost_gpu_h"] for e in s) for s in prec], B, 33),
+        "recall": ratio_ci([sum(1 for e in s if e["caught"]) for s in prec], n_p, B, 34),
+        "lost_gpu_h_per_event": (float(sum(e["lost_gpu_h"] for s in prec for e in s) / max(sum(n_p), 1))),
+    }
+    out["unattributed_lost_gpu_h"] = bootstrap_ci([r["unattributed"]["lost_gpu_h"] for r in runs], B, 35)
+    if not has_warnings:
+        for key in ("recall", "recall_in_time", "lead_minutes", "alarm_precision", "false_alarms_per_day", "false_alarm_gpu_h", "n_alarms"):
+            out["overall"][key] = None
+        out["by_alarm_class"] = None
+        out["by_alarm_channel"] = None
+        for entry in by_type.values():
+            for key in ("recall", "recall_in_time", "lead_minutes_median"):
+                entry[key] = None
+            entry["first_warning_channel_counts"] = None
+            entry["recall_with_precursor"] = None
+            entry["recall_in_time_with_precursor"] = None
+        out["no_precursor"]["recall"] = None
+        out["with_precursor"]["recall"] = None
+    return out
+
+
+STALL_CATEGORIES = ("ckpt", "merge", "restore_fault", "move", "paused")
+
+
+def decompose_deficit(
+    runs: Sequence[Mapping[str, Any]],
+    ref_ledgers: Sequence[Mapping[str, float]],
+    n_resamples: int,
+) -> dict[str, Any]:
+    """Where a policy's useful-GPU-hour deficit goes, averaged over seeds (all simulated).
+
+    ``runs`` are :func:`score_run` outputs of one policy, ``ref_ledgers`` the
+    event-free ledgers (GPU-hours) of the same seeds.  Per seed the identity
+    ``deficit = lost_work + (reference run-equivalent hours - run-equivalent hours)`` is exact
+    (useful hours are run-equivalent hours minus rolled-back hours).  The second
+    term is split into the increase of throttle loss, the increases of the stall
+    categories (checkpoint writes, multi-site averaging, restore after faults,
+    migration transfer and restore, pause time) over the event-free run, and a
+    ``residual`` that holds the rest: GPUs that sit idle because a rack or GPU
+    is down, jobs that wait for a placement, and stalls that the schedule
+    absorbed (a negative residual: part of the stall time cost no useful hours
+    at the end of the window).  Fault loss, response cost, throttle slowdown and
+    curtailment violation are also split by event type, with the alarms' response
+    cost and the pause time that outlasted the event it served.
+    """
+    n = len(runs)
+    if n == 0 or n != len(ref_ledgers):
+        raise ValueError("runs and ref_ledgers must be non-empty and the same length")
+    B = n_resamples
+
+    def per_seed(fn: Callable[[Mapping[str, Any], Mapping[str, float]], float]) -> list[float]:
+        return [fn(r, ref) for r, ref in zip(runs, ref_ledgers)]
+
+    def delta(cat: str) -> list[float]:
+        return per_seed(lambda r, ref: r["ledger_gpu_h"][cat] - ref[cat])
+
+    comp: dict[str, list[float]] = {
+        "lost_work": per_seed(lambda r, ref: r["summary"]["lost_gpu_hours"]),
+        "throttle_loss_increase": delta("throttle_loss"),
+    }
+    for cat in STALL_CATEGORIES:
+        comp[f"{cat}_increase"] = delta(cat)
+    deficit = per_seed(lambda r, ref: r["deficit_gpu_h"])
+    explained = [sum(comp[k][i] for k in comp) for i in range(n)]
+    comp["residual"] = [deficit[i] - explained[i] for i in range(n)]
+    out: dict[str, Any] = {
+        "n_seeds": n, "data_kind": "simulated",
+        "deficit_gpu_h": bootstrap_ci(deficit, B, 201),
+        "components_gpu_h": {k: bootstrap_ci(v, B, 210 + i) for i, (k, v) in enumerate(comp.items())},
+        "restart_wait_increase_job_gpu_h": bootstrap_ci(delta("restart_wait"), B, 230),
+        "identity_max_abs_error_gpu_h": float(max(
+            abs(r["deficit_gpu_h"] - (r["summary"]["lost_gpu_hours"] + (ref["run_equivalent"] - r["ledger_gpu_h"]["run_equivalent"])))
+            for r, ref in zip(runs, ref_ledgers))),
+        "note": "deficit = lost_work + throttle_loss_increase + sum of stall increases + residual; the first identity (deficit = lost_work + reference run-equivalent hours - run-equivalent hours) is exact",
+    }
+    by_kind: dict[str, Any] = {}
+    for ki, kind in enumerate(EVENT_TYPES):
+        rows = [[e for e in r["by_event"] if e["kind"] == kind] for r in runs]
+        if sum(len(x) for x in rows) == 0:
+            continue
+        ev_alarm: list[dict[str, float]] = []
+        for r in runs:
+            kind_of = {e["event_id"]: e["kind"] for e in r["by_event"]}
+            acc: dict[str, float] = {"total": 0.0}
+            for a in r["alarms"]:
+                if a["true"] and kind_of.get(a["event_id"]) == kind:
+                    acc["total"] += a["cost_gpu_h"]
+                    for act, v in a.get("cost_by_action", {}).items():
+                        acc[act] = acc.get(act, 0.0) + v
+            ev_alarm.append(acc)
+        acts = sorted({k for a in ev_alarm for k in a if k != "total"})
+        pause_after = [sum(p["after_event_gpu_h"] for p in r["pauses"] if p["kind"] == kind) for r in runs]
+        by_kind[kind] = {
+            "n_events": int(sum(len(x) for x in rows)),
+            "fault_loss_gpu_h": bootstrap_ci([sum(e["lost_gpu_h"] for e in x) for x in rows], B, 240 + ki),
+            "throttle_slowdown_gpu_h": bootstrap_ci([sum(e["throttle_slowdown_gpu_h"] for e in x) for x in rows], B, 250 + ki),
+            "violation_kwh": bootstrap_ci([sum(e["violation_kwh"] for e in x) for x in rows], B, 260 + ki),
+            "response_gpu_h": bootstrap_ci([a["total"] for a in ev_alarm], B, 270 + ki),
+            "response_gpu_h_by_action": {act: bootstrap_ci([a.get(act, 0.0) for a in ev_alarm], B, 280 + ki) for act in acts},
+            "pause_after_event_gpu_h": bootstrap_ci(pause_after, B, 290 + ki),
+        }
+    out["by_event_type"] = by_kind
+    out["false_alarm_response_gpu_h"] = bootstrap_ci(
+        [sum(a["cost_gpu_h"] for a in r["alarms"] if not a["true"]) for r in runs], B, 300)
+    out["unattributed_lost_gpu_h"] = bootstrap_ci([r["unattributed"]["lost_gpu_h"] for r in runs], B, 301)
+    out["unmatched_pause_gpu_h"] = bootstrap_ci([sum(p["gpu_h"] for p in r["pauses"] if p["event_id"] is None) for r in runs], B, 302)
+    return out
+
+
+def paired_difference(a: Sequence[float], b: Sequence[float], n_resamples: int, seed: int = 0) -> dict[str, Any]:
+    """Mean of ``a - b`` over seeds (paired) with a bootstrap interval."""
+    d = np.asarray(a, dtype=float) - np.asarray(b, dtype=float)
+    return bootstrap_ci(list(d), n_resamples, seed)
+
+
+def file_sha256(path: Path | str) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+__all__ = [
+    "Alarm", "Calibration", "ChannelBank", "EpisodeTracker", "ForecastWarningController", "OracleAlarm", "OracleController",
+    "OutageRun", "OutageSettings", "PersistenceForecaster", "PlacementView", "ResponsePlanner", "SeriesIndex", "TraceRecorder",
+    "ClassRule", "ResponseDesign", "ResponsePlannerV3", "StallLedger", "make_planner", "pause_records",
+    "CH_GPU_RESID", "GpuResidualChannel", "aggregate_runs", "attribute_faults", "gpu_unit_id", "bootstrap_ci", "build_event_table", "calibrate", "classify_alarms",
+    "curtailment_violation", "deep_merge", "detection_stats", "episodes_from_pmax", "exceedance_probability", "job_costs",
+    "load_outage_scenario", "match_events", "oracle_scenario", "oracle_settings", "merge_alarms", "openloop_pmax", "oracle_alarms_from_reference",
+    "paired_difference", "periodic_local_jobs", "decompose_deficit", "STALL_CATEGORIES", "replay_objective", "response_costs", "run_policy", "score_run",
+    "seed_scenario", "series_limits", "throttle_episodes", "throttle_slowdown_gpu_h", "window_probabilities",
+]
