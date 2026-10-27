@@ -599,3 +599,208 @@ def test_replay_objective_prices_a_gpu_alarm_by_the_job_that_holds_the_gpu(creep
     expected = job_costs(cfg.jobs[0], cfg.transfer)["checkpoint"]  # j1 is not flexible: one checkpoint of its 8 GPUs
     assert r["alarm_gpu_h"] == pytest.approx(expected)
     assert expected == pytest.approx(8 * cfg.jobs[0].checkpoint_duration_s / 3600.0)
+
+
+# ---------------------------------------------------------------------------
+# outage v3: per-class response design, same-decision checkpoint-and-act, accounting
+# ---------------------------------------------------------------------------
+
+SCENARIO_V3 = ROOT / "experiments" / "e003-heatwave" / "outage-scenario-v3.json"
+
+
+def v3_and_settings():
+    outage = load_outage_scenario(SCENARIO_V3)
+    return outage, OutageSettings.from_scenario(outage)
+
+
+def v3_fast(design=None, **changes):
+    """v3 settings with the control step as the decision interval; ``design`` replaces the scenario's response."""
+    from gpu_stack.research.heatwave_outage import ResponseDesign  # noqa: F401
+
+    outage, S = v3_and_settings()
+    S = fast_settings(S)
+    S = replace(S, response=design if design is not None else S.response, response_tick_s=None, **changes)
+    return outage, S
+
+
+def pf_run(outage, S, jobs, events, ref_events=None):
+    """Perfect-foresight run of a tiny scenario with the response in ``S``; returns (result, config, controller)."""
+    sc = tiny_scenario(outage, 7200, jobs, events)
+    base, cfg0 = run_policy(sc, None, 0)
+    So = oracle_settings(S, cfg0.control_dt_s)
+    alarms = oracle_alarms_from_reference(cfg0, base.events, [], So)
+    ctrl = OracleController(So, alarms)
+    res, cfg = run_policy(oracle_scenario(sc), ctrl, 0)
+    return res, cfg, ctrl
+
+
+def actions_of(res, name, status="applied"):
+    return [a for a in res.actions if a["action"] == name and a["status"] == status]
+
+
+def test_scenario_v3_is_simulated_and_has_a_consistent_response_and_disjoint_seeds():
+    outage, S = v3_and_settings()
+    assert outage["data_kind"] == "simulated" and outage["sim"]["data_kind"] == "simulated"
+    assert S.response is not None and S.response.name
+    assert S.tick_s == S.response_tick_s == outage["sim"]["controller_interval_s"]
+    assert S.tick_s <= S.decision_interval_s and abs(S.decision_interval_s / S.tick_s - round(S.decision_interval_s / S.tick_s)) < 1e-9
+    seeds = outage["seeds"]
+    groups = [set(seeds["train"]), set(seeds["design_extra"]), set(seeds["test"])]
+    assert all(groups) and sum(len(g) for g in groups) == len(set().union(*groups))
+    v2, _ = v2_and_settings()
+    assert seeds["test"] == v2["seeds"]["test"] and seeds["train"] == v2["seeds"]["train"]
+    assert outage["event_generation"] == v2["event_generation"]
+
+
+def test_response_design_round_trip_changes_and_validation():
+    from gpu_stack.research.heatwave_outage import ClassRule, ResponseDesign
+
+    _, S = v3_and_settings()
+    d = S.response
+    assert ResponseDesign.from_dict(d.to_dict()) == d
+    e = d.with_changes(rule_hardware=("move", "pause"), protect_ratio=2.0, clear_decisions=3)
+    assert e.rule("hardware") == ClassRule("move", "pause") and e.protect_ratio == 2.0 and e.clear_decisions == 3
+    assert d.rule("hardware") != e.rule("hardware")  # frozen: the original is unchanged
+    assert replace(S, response=e).clear_decisions_effective == 3
+    assert replace(S, response=d.with_changes(clear_decisions=None)).clear_decisions_effective == S.clear_decisions
+    with pytest.raises(ValueError):
+        ClassRule("explode", "none")
+    with pytest.raises(ValueError):
+        ClassRule("move", "move")
+    with pytest.raises(ValueError):
+        ResponseDesign("x", {"no-such-class": ClassRule()})
+    assert ResponseDesign("x", {}).rule("thermal").mode == "none"
+
+
+def test_checkpoint_and_pause_are_one_chain_with_no_unprotected_window():
+    from gpu_stack.research.heatwave_outage import ClassRule
+
+    outage, S0 = v3_and_settings()
+    design = S0.response.with_changes(rule_hardware=("pause", "checkpoint"), min_gap_s=0.0, protect_ratio=0.0)
+    outage, S = v3_fast(design)
+    job = make_job("f", n=16, duration=7200.0, flexible=True, ckpt_every=3000.0)
+    fault = HardwareFault("h1", "site-a", "a1", 2, 2900.0, 600.0)
+    res, cfg, ctrl = pf_run(outage, S, [job], [fault])
+    dt = cfg.control_dt_s
+    ck, pa = actions_of(res, "CheckpointNow"), actions_of(res, "PauseJob")
+    assert ck and pa
+    t_ck, t_pa = ck[0]["t_s"], pa[0]["t_s"]
+    assert t_ck < 2900.0 and 0 < t_pa - t_ck <= 2 * dt + 1e-9, "the pause follows the checkpoint within two control steps"
+    # the job is paused before the fault and the fault takes back at most what was run since the checkpoint
+    assert t_pa < 2900.0
+    ref, _ = run_policy(tiny_scenario(outage, 7200, [job], [fault]), None, 0)
+    assert res.summary()["lost_gpu_hours"] < 0.1 * ref.summary()["lost_gpu_hours"]
+    assert actions_of(res, "ResumeJob"), "the job is resumed once the warning ends"
+    assert ClassRule("pause", "checkpoint").mode == "pause"
+
+
+def test_checkpoint_only_design_never_pauses_or_moves_and_keeps_jobs_running():
+    outage, S0 = v3_and_settings()
+    design = S0.response.with_changes(**{f"rule_{c}": ("checkpoint", "checkpoint") for c in ("hardware", "power", "cooling", "thermal")})
+    outage, S = v3_fast(design)
+    job = make_job("f", n=16, duration=7200.0, flexible=True, ckpt_every=3000.0)
+    res, cfg, _ = pf_run(outage, S, [job], [HardwareFault("h1", "site-a", "a1", 2, 2900.0, 600.0)])
+    assert actions_of(res, "CheckpointNow")
+    assert not any(a["action"] in ("PauseJob", "MigrateJob", "ResumeJob") for a in res.actions)
+    assert all(not r["status"] == "paused" for r in res.jobs_table)
+
+
+def test_rule_none_takes_no_action():
+    outage, S0 = v3_and_settings()
+    design = S0.response.with_changes(rule_hardware=("none", "none"))
+    outage, S = v3_fast(design)
+    job = make_job("f", n=16, duration=7200.0, flexible=True, ckpt_every=3000.0)
+    res, _, _ = pf_run(outage, S, [job], [HardwareFault("h1", "site-a", "a1", 2, 2900.0, 600.0)])
+    assert not [a for a in res.actions if a["action"] in ("CheckpointNow", "PauseJob", "MigrateJob")]
+
+
+def test_move_goes_to_the_other_site_when_it_has_room_and_falls_back_when_it_is_full():
+    outage, S0 = v3_and_settings()
+    design = S0.response.with_changes(rule_hardware=("move", "checkpoint"), min_gap_s=0.0)
+    outage, S = v3_fast(design)
+    job = make_job("f", n=8, duration=7200.0, flexible=True, ckpt_every=3000.0)
+    fault = HardwareFault("h1", "site-a", "a1", 2, 2900.0, 600.0)
+    res, cfg, _ = pf_run(outage, S, [job], [fault])
+    moves = actions_of(res, "MigrateJob")
+    assert moves and moves[0]["detail"]["job_id"] == "f" and moves[0]["detail"].get("dest_site", "site-b") == "site-b"
+    n_b = sum(int(r.n_gpus) for r in cfg.layouts[1].racks)
+    filler = make_job("fill", n=n_b, duration=7200.0, site_id="site-b", flexible=False)
+    res2, _, _ = pf_run(outage, S, [job, filler], [fault])
+    assert not actions_of(res2, "MigrateJob")
+    assert [a for a in actions_of(res2, "CheckpointNow") if a["detail"]["job_id"] == "f"], "the fallback checkpoint is written"
+
+
+def test_protect_ratio_and_min_gap_gate_the_policy_checkpoint():
+    from types import SimpleNamespace
+
+    from gpu_stack.research.heatwave_outage import make_planner
+
+    outage, S0 = v3_and_settings()
+    job = make_job("j", n=8, duration=7200.0, ckpt_dur=30.0, step=4.0)
+    cfg = build_config(tiny_scenario(outage, 3600, [job]), seed=0)
+
+    def planner(**ch):
+        return make_planner(cfg, replace(S0, response=S0.response.with_changes(**ch)))
+
+    jv = lambda n: SimpleNamespace(status="running", steps_since_durable=n)  # noqa: E731
+    assert planner(protect_ratio=0.0, min_gap_s=0.0)._checkpoint_due(100.0, job, jv(1))
+    assert not planner(protect_ratio=0.0, min_gap_s=0.0)._checkpoint_due(100.0, job, jv(0)), "nothing to protect"
+    p = planner(protect_ratio=2.0, min_gap_s=0.0)  # needs 60 s of exposure = 15 steps of 4 s
+    assert not p._checkpoint_due(100.0, job, jv(14)) and p._checkpoint_due(100.0, job, jv(15))
+    assert p._checkpoint_due(100.0, job, jv(1), force=True)
+    g = planner(protect_ratio=0.0, min_gap_s=600.0)
+    assert g._checkpoint_due(100.0, job, jv(5))
+    g.last_checkpoint["j"] = 100.0
+    assert not g._checkpoint_due(600.0, job, jv(5)) and g._checkpoint_due(700.0, job, jv(5))
+    assert not g._checkpoint_due(700.0, job, SimpleNamespace(status="paused", steps_since_durable=5))
+
+
+def test_a_forecast_policy_response_does_not_depend_on_later_events():
+    """Moving a later event leaves every earlier action unchanged, while the perfect-foresight run does react to it."""
+    _, S0 = v3_and_settings()
+    outage, S = v3_fast(S0.response.with_changes(rule_curtail=("checkpoint", "checkpoint"), min_gap_s=0.0))
+    flex = make_job("f", n=16, duration=7200.0, flexible=True, ckpt_every=3000.0)
+    curtail = GridCurtailment("g1", "site-a", 1800.0, 900.0, 0.2, announce_lead_s=1500.0)
+    cut = 3500.0
+
+    def early_actions(fault_s, oracle):
+        sc = tiny_scenario(outage, 7200, [flex], [curtail, HardwareFault("h1", "site-a", "a1", 2, fault_s, 300.0)])
+        if oracle:
+            res, _, _ = pf_run(outage, S, [flex], [curtail, HardwareFault("h1", "site-a", "a1", 2, fault_s, 300.0)])
+        else:
+            ctrl = ForecastWarningController(S, PersistenceForecaster(), 0.5, None, "persistence")
+            res, _ = run_policy(sc, ctrl, 0)
+        return [(a["t_s"], a["action"], a["status"], str(a["detail"])) for a in res.actions if a["t_s"] < cut]
+
+    a, b = early_actions(3000.0, False), early_actions(3600.0, False)
+    assert a == b and a, "the warned run acts on the curtailment only, identically in both"
+    assert early_actions(3000.0, True) != early_actions(3600.0, True), "the oracle does read the event time (the test can see a leak)"
+
+
+def test_pause_records_and_deficit_decomposition_identity():
+    from gpu_stack.research.heatwave_outage import decompose_deficit, pause_records, response_costs
+
+    outage, S0 = v3_and_settings()
+    design = S0.response.with_changes(rule_hardware=("pause", "checkpoint"), min_gap_s=0.0)
+    outage, S = v3_fast(design)
+    job = make_job("f", n=16, duration=7200.0, flexible=True, ckpt_every=3000.0)
+    fault = HardwareFault("h1", "site-a", "a1", 2, 2900.0, 600.0)
+    sc = tiny_scenario(outage, 7200, [job], [fault])
+    base, cfg0 = run_policy(sc, None, 0)
+    table = build_event_table(cfg0, base.events, S)
+    So = oracle_settings(S, cfg0.control_dt_s)
+    ctrl = OracleController(So, oracle_alarms_from_reference(cfg0, base.events, [], So))
+    res, cfg = run_policy(oracle_scenario(sc), ctrl, 0)
+    free, _ = run_policy(tiny_scenario(outage, 7200, [job]), None, 0)
+    score = score_run(res, cfg, table, ctrl.export(), So, float(free.summary()["useful_gpu_hours"]))
+    pauses = score["pauses"]
+    assert pauses and pauses[0]["job_id"] == "f" and pauses[0]["gpu_h"] > 0.0 and pauses[0]["event_id"] == "h1"
+    assert 0.0 <= pauses[0]["after_event_gpu_h"] <= pauses[0]["gpu_h"]
+    dec = decompose_deficit([score], [free._run.ledger.to_gpu_hours()], 50)
+    assert dec["identity_max_abs_error_gpu_h"] < 1e-9 and dec["data_kind"] == "simulated"
+    comp = dec["components_gpu_h"]
+    assert comp["paused_increase"]["mean"] > 0.0
+    assert sum(comp[k]["mean"] for k in comp if k != "residual") + comp["residual"]["mean"] == pytest.approx(dec["deficit_gpu_h"]["mean"])
+    assert dec["by_event_type"]["hardware_fault"]["response_gpu_h_by_action"]["PauseJob"]["mean"] >= 0.0
+    costs = response_costs(res, {j.job_id: j for j in cfg.jobs}, cfg, ctrl.export()["meta_actions"])
+    assert [r["job_id"] for r in pause_records(costs, table, So)] == [p["job_id"] for p in pauses]

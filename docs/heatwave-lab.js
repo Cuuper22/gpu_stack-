@@ -215,7 +215,7 @@
   /* ---------------- outages ---------------- */
   function outagePane(O) {
     if (!O || O.status !== "ready") return { el: pending(), stop: function () {} };
-    var v2 = O.versions.v2, v1 = O.versions.v1;
+    var v3 = O.versions.v3, v2 = O.versions.v2, v1 = O.versions.v1;
     function policyTable(V, withPaired, cap) {
       return table(["policy", "useful GPU-hours", "GPU-hours lost to faults"].concat(withPaired ? ["lost, minus reactive"] : []).concat(["events warned in time", "false alarms per day"]),
         Object.keys(V.policies).map(function (k) {
@@ -225,6 +225,16 @@
         }), cap);
     }
     var box = h("div", { class: "hwl-pane" });
+    if (v3 && v3.status === "ready") {
+      box.append(h("h3", { class: "hwl-h", text: "Redesigned response: the action depends on the kind of trouble" }),
+        h("p", { class: "hwl-caption", text: "Simulated, not measured. Chosen on training episodes only: move the work away from cooling and thermal trouble, checkpoint ahead of hardware and power faults, do nothing ahead of grid curtailment. Same " + v3.n_test_seeds + " held-out episodes as below; the paired columns give a 95% interval against reacting." }),
+        table(["policy", "useful GPU-hours", "useful, minus reactive", "GPU-hours lost to faults", "lost, minus reactive", "false alarms per day"],
+          Object.keys(v3.policies).map(function (k) {
+            var p = v3.policies[k];
+            return [p.label, fmt(p.useful_gpu_h, 0), p.useful_gpu_h_vs_reactive ? ci(p.useful_gpu_h_vs_reactive, 1) : "n/a", fmt(p.lost_gpu_h, 1),
+              p.lost_gpu_h_vs_reactive ? ci(p.lost_gpu_h_vs_reactive, 1) : "n/a", p.false_alarms_per_day === null ? "n/a" : fmt(p.false_alarms_per_day, 1)];
+          }), "Outage response, third version: means over held-out episodes"));
+    }
     if (!v2 || v2.status !== "ready") {
       box.append(h("p", { class: "hwl-caption", text: "Simulated. Warn before trouble, checkpoint early, then move or pause the work." }), h("h3", { class: "hwl-h", text: "With each GPU's own temperature as a warning sign" }), pending());
     } else {
@@ -232,7 +242,7 @@
       box.append(h("p", { class: "hwl-caption", text: "Simulated, not measured. " + v2.n_test_seeds + " held-out episodes of " + fmt(v2.episode_hours) + " hours, " + v2.events_total + " events in them: " +
         Object.keys(ev).map(function (k) { return ev[k].n + " " + k + "s"; }).join(", ") + ". Of the " + v2.events_scheduled + " scheduled ones, " + v2.events_with_precursor +
         " showed a warning sign in the data first and " + (v2.events_scheduled - v2.events_with_precursor) + " showed nothing. A warning means: save a checkpoint early, then move the work to the other site or pause it. Means over the episodes; the paired column gives a 95% interval." }));
-      box.append(h("h3", { class: "hwl-h", text: "With each GPU's own temperature as a warning sign" }), policyTable(v2, true, "Outage response, second version: means over held-out episodes"));
+      box.append(h("h3", { class: "hwl-h", text: "Second version: each GPU's own temperature as a warning sign, response not yet redesigned" }), policyTable(v2, true, "Outage response, second version: means over held-out episodes"));
       var bt = v2.by_event_type;
       if (bt && bt.ts28m) {
         box.append(h("h3", { class: "hwl-h", text: "What the Timestral 28M warnings caught, by kind of event" }),

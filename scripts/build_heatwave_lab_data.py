@@ -5,7 +5,7 @@ is typed here). Results that do not exist yet become explicit "pending" entries,
 which the page shows as "result pending", never as a number.
 
   packing  experiments/e003-heatwave/results/packing-v1.json and lab-traces-v1.json  (simulated)
-  outage   experiments/e003-heatwave/results/outage-v1.json, outage-v2.json if present (simulated)
+  outage   experiments/e003-heatwave/results/outage-v1.json, outage-v2.json, outage-v3.json if present (simulated)
   cost     experiments/e003-heatwave/results/cost-v1.json (public price and carbon, modeled workload)
   audit    experiments/e003-heatwave/results/cost-audit-v1.json (published prices, calculator)
   heatwave --heatwave PATH: the Heatwave repository checkout, for results/forecast/multiscale.json,
@@ -125,7 +125,7 @@ EVENT_NAMES = {"hardware_fault": "hardware fault", "grid_curtailment": "grid cur
 
 def outage_block() -> dict:
     out = {"status": "ready", "data_kind": "simulated", "versions": {}}
-    for ver in ("v1", "v2"):
+    for ver in ("v1", "v2", "v3"):
         p = E3 / f"outage-{ver}.json"
         d = load(p)
         if d is None:
@@ -455,6 +455,24 @@ def story_numbers(doc: dict) -> list[dict]:
         add("outage.ts28m.useful_diff", f"{u['mean']:.1f} GPU-hours more, with a 95 percent interval from {u['lo']:.1f} to {u['hi']:.1f}", u["mean"], s + "paired_vs_reactive.ts28m.useful_gpu_h_minus_reactive")
         v1_ts = OUTG["versions"]["v1"]["policies"]["ts28m"]
         add("outage.v1.ts28m.warned", f"{100 * v1_ts['recall_in_time']:.0f} percent", v1_ts["recall_in_time"], "outage-v1.json result.policies.ts28m.overall.recall_in_time.value")
+    v3 = OUTG["versions"].get("v3", {})
+    if v3.get("status") == "ready" and v2.get("status") == "ready":
+        s = "gpu_stack:experiments/e003-heatwave/results/outage-v3.json result."
+        pol3 = v3["policies"]
+        pf3, pf2, ts3 = pol3["perfect_foresight"], v2["policies"]["perfect_foresight"], pol3["ts28m"]
+        add("outage.v2.perfect.deficit", f"{pf2['deficit_gpu_h']:.1f} short", pf2["deficit_gpu_h"], "outage-v2.json result.policies.perfect_foresight.overall.deficit_gpu_h.mean")
+        d3 = pf3["deficit_gpu_h"]
+        add("outage.v3.perfect.deficit", f"{abs(d3):.1f} GPU-hours {'above' if d3 < 0 else 'short of'}", d3, s + "policies.perfect_foresight.overall.deficit_gpu_h.mean (event-free minus policy)")
+        add("outage.v3.ts28m.lost", n1(ts3["lost_gpu_h"]), ts3["lost_gpu_h"], s + "policies.ts28m.overall.lost_gpu_h.mean")
+        lv = ts3["lost_gpu_h_vs_reactive"]
+        add("outage.v3.ts28m.lost_diff", f"{-lv['mean']:.1f} fewer, with a 95 percent interval from {-lv['hi']:.1f} to {-lv['lo']:.1f}", lv["mean"], s + "paired_vs_reactive.ts28m.lost_gpu_h_minus_reactive (sign flipped)")
+        u3 = ts3["useful_gpu_h_vs_reactive"]
+        add("outage.v3.ts28m.useful_diff", f"{u3['mean']:.1f} GPU-hours more, with a 95 percent interval from {u3['lo']:.1f} to {u3['hi']:.1f}", u3["mean"], s + "paired_vs_reactive.ts28m.useful_gpu_h_minus_reactive")
+        up = pf3["useful_gpu_h_vs_reactive"]
+        add("outage.v3.perfect.useful_diff", f"{up['mean']:.1f} more (interval {up['lo']:.1f} to {up['hi']:.1f})", up["mean"], s + "paired_vs_reactive.perfect_foresight.useful_gpu_h_minus_reactive")
+        add("outage.v3.ts28m.false_alarms", f"{ts3['false_alarms_per_day']:.1f} false alarms", ts3["false_alarms_per_day"], s + "policies.ts28m.overall.false_alarms_per_day.mean")
+        fa = [pol3[k]["false_alarms_per_day"] for k in ("naive", "arima")]
+        add("outage.v3.classical.false_alarms", f"{min(fa):.1f} to {max(fa):.1f}", max(fa), s + "policies.naive and policies.arima overall.false_alarms_per_day.mean")
     A = doc["ablation"]
     if A["status"] == "ready":
         s = "heatwave:results/ablation/ablation_real.json result.datasets."

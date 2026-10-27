@@ -119,6 +119,10 @@ test("claims the prose makes about intervals and counts hold in the data", async
   assert.equal(d.forecast.n_series_both_sizes_lower, d.forecast.n_series, "Timestral lower than every textbook method on every series");
   const u = d.outage.versions.v2.policies.ts28m.useful_gpu_h_vs_reactive;
   assert.ok(u.lo < 0 && u.hi > 0, "useful GPU-hours difference is inside its interval");
+  const u3 = d.outage.versions.v3.policies.ts28m.useful_gpu_h_vs_reactive;
+  assert.ok(u3.lo < 0 && u3.hi > 0, "v3 useful GPU-hours difference is inside its interval");
+  const l3 = d.outage.versions.v3.policies.ts28m.lost_gpu_h_vs_reactive;
+  assert.ok(l3.hi < 0, "v3 lost GPU-hours are lower than reacting");
   const lv = d.packing.learned_vs_reactive;
   assert.ok(lv["10"].vs_reactive.lo < 0 && lv["10"].vs_reactive.hi > 0, "the $10 difference spans zero");
   assert.ok(lv["40"].vs_reactive.lo > 0 && lv["160"].vs_reactive.lo > 0 && lv["2.5"].vs_reactive.hi < 0);

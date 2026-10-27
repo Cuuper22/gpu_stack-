@@ -1,0 +1,502 @@
+{
+  "schema": "gpu-stack.e003-heatwave-outage-scenario.v1",
+  "data_kind": "simulated",
+  "scenario_id": "e003-heatwave-outage-v3",
+  "description": "Outage-response experiment on the e003 two-site simulated cluster, response redesign. Same simulated seeds, event generation, warning channels (rack, site and per-GPU residual series of outage-scenario-v2.json) and simulator scenario as v2; what changes is the controller: a per-class response (checkpoint only, checkpoint then pause, or move) decided on a one-control-step tick, so a checkpoint and the action that follows it are one chain with no ten-minute gap. The response design was chosen on training seeds only (the four calibration seeds plus extra training seeds); held-out seeds are used once, for the final scoring. Every number here is a simulation assumption, not a measurement.",
+  "base_scenario": "sim-scenario-v3.json",
+  "base_overrides": {
+    "horizon_s": 54000,
+    "base_dt_s": 60.0,
+    "control_dt_s": 60.0,
+    "controller_interval_s": 60.0,
+    "outputs": {
+      "gpu_windows": []
+    },
+    "environment": {
+      "synthetic": {
+        "start_hour_utc": 17.0,
+        "sites": {
+          "site-a": {
+            "outdoor": {
+              "heatwaves": [
+                {
+                  "center_h": 6.0,
+                  "width_h": 3.0,
+                  "add_c": 8.0
+                }
+              ]
+            }
+          },
+          "site-b": {
+            "outdoor": {
+              "heatwaves": [
+                {
+                  "center_h": 5.0,
+                  "width_h": 3.0,
+                  "add_c": 7.0
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "jobs": {
+      "generate": {
+        "duration_range_s": [
+          1800,
+          21600
+        ]
+      }
+    }
+  },
+  "seeds": {
+    "train": [
+      101,
+      102,
+      103,
+      104
+    ],
+    "test": [
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      208,
+      209,
+      210
+    ],
+    "design_extra": [
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164
+    ]
+  },
+  "seed_streams": {
+    "job_seed_offset": 1000,
+    "environment_seed_offset": 2000,
+    "event_seed_offset": 3000,
+    "sim_seed_offset": 0
+  },
+  "event_generation": {
+    "warmup_s": 10800.0,
+    "tail_s": 3600.0,
+    "rates_per_site_per_day": {
+      "cooling_failure": 1.5,
+      "breaker_trip": 1.5,
+      "grid_curtailment": 1.5,
+      "hardware_fault": 3.0
+    },
+    "precursor_probability": 0.5,
+    "lead_range_s": [
+      1800.0,
+      5400.0
+    ],
+    "strength_ranges": {
+      "supply_temp_c": [
+        2.0,
+        4.0
+      ],
+      "gpu_temp_c": [
+        4.0,
+        8.0
+      ]
+    },
+    "duration_range_s": [
+      1800.0,
+      5400.0
+    ],
+    "remaining_capacity_range": [
+      0.15,
+      0.5
+    ],
+    "derate_range": [
+      0.5,
+      0.7
+    ],
+    "limit_fraction_range": [
+      0.4,
+      0.7
+    ],
+    "repair_range_s": [
+      3600.0,
+      14400.0
+    ]
+  },
+  "outage": {
+    "decision_interval_s": 600.0,
+    "context_steps": 18,
+    "horizon_steps": 6,
+    "clear_decisions": 2,
+    "recheckpoint_s": 1200.0,
+    "max_pause_s": 7200.0,
+    "calibration_quantile": 1.0,
+    "anomaly_baseline_window_s": 14400.0,
+    "anomaly_baseline_gap_s": 2700.0,
+    "anomaly_smooth_steps": 2,
+    "curtail_shed_margin": 0.02,
+    "oracle_extra_lead_steps": 2,
+    "episode_merge_gap_s": 1200.0,
+    "threshold_grid": [
+      0.05,
+      0.1,
+      0.2,
+      0.3,
+      0.5,
+      0.7,
+      0.9
+    ],
+    "observed_threshold": 0.5,
+    "classical": {
+      "seasonal_naive_season_length": 1,
+      "ets_season_length": 1,
+      "arima_order": [
+        2,
+        1,
+        1
+      ]
+    },
+    "timestral_sizes": [
+      "5M",
+      "28M"
+    ],
+    "bootstrap_resamples": 2000,
+    "per_gpu_channel": {
+      "min_peers": 3,
+      "peer_excess_floor_fraction_of_idle": 0.5,
+      "baseline_min_samples": 6,
+      "smooth_steps": 1
+    },
+    "response": {
+      "name": "v3",
+      "tick_s": 60.0,
+      "rules": {
+        "cooling": {
+          "mode": "move",
+          "fallback": "checkpoint"
+        },
+        "curtail": {
+          "mode": "none",
+          "fallback": "none"
+        },
+        "hardware": {
+          "mode": "checkpoint",
+          "fallback": "checkpoint"
+        },
+        "power": {
+          "mode": "checkpoint",
+          "fallback": "checkpoint"
+        },
+        "thermal": {
+          "mode": "move",
+          "fallback": "checkpoint"
+        }
+      },
+      "protect_ratio": 2.0,
+      "min_gap_s": 600.0,
+      "pause_tol_s": 90.0,
+      "clear_decisions": null
+    },
+    "design": {
+      "start": {
+        "name": "initial",
+        "tick_s": 60.0,
+        "rules": {
+          "hardware": {
+            "mode": "checkpoint",
+            "fallback": "checkpoint"
+          },
+          "power": {
+            "mode": "checkpoint",
+            "fallback": "checkpoint"
+          },
+          "cooling": {
+            "mode": "checkpoint",
+            "fallback": "checkpoint"
+          },
+          "thermal": {
+            "mode": "checkpoint",
+            "fallback": "checkpoint"
+          },
+          "curtail": {
+            "mode": "none",
+            "fallback": "none"
+          }
+        },
+        "protect_ratio": 0.0,
+        "min_gap_s": 1200.0,
+        "pause_tol_s": 90.0,
+        "clear_decisions": null
+      },
+      "margin_se": 1.0,
+      "timing_sensitivity": [
+        1,
+        0
+      ],
+      "warned_reference": {
+        "forecasters": {
+          "naive": 0.7
+        },
+        "note": "thresholds are the outage-v2 training choices; used only to score design candidates under realistic false alarms and misses"
+      },
+      "objective": "mean paired difference in deficit (event-free useful GPU-hours minus policy useful GPU-hours, each seed floored at zero) to the reactive run over all design seeds; perfect foresight steps use the oracle warning channel, warned steps use the mean over the warned reference forecasters",
+      "steps": [
+        {
+          "param": "rule_thermal+cooling",
+          "values": [
+            [
+              "checkpoint",
+              "checkpoint"
+            ],
+            [
+              "move",
+              "checkpoint"
+            ],
+            [
+              "pause",
+              "checkpoint"
+            ]
+          ],
+          "objective": "pf",
+          "reason": "thermal and cooling alarms: checkpoint only, move the job to the other site, or checkpoint and pause"
+        },
+        {
+          "param": "rule_hardware",
+          "values": [
+            [
+              "checkpoint",
+              "checkpoint"
+            ],
+            [
+              "move",
+              "checkpoint"
+            ],
+            [
+              "pause",
+              "checkpoint"
+            ]
+          ],
+          "objective": "pf",
+          "reason": "rack hardware alarms"
+        },
+        {
+          "param": "rule_power",
+          "values": [
+            [
+              "checkpoint",
+              "checkpoint"
+            ],
+            [
+              "move",
+              "checkpoint"
+            ],
+            [
+              "pause",
+              "checkpoint"
+            ]
+          ],
+          "objective": "pf",
+          "reason": "breaker and site power alarms"
+        },
+        {
+          "param": "rule_curtail",
+          "values": [
+            [
+              "none",
+              "none"
+            ],
+            [
+              "checkpoint",
+              "checkpoint"
+            ],
+            [
+              "pause",
+              "none"
+            ]
+          ],
+          "objective": "pf",
+          "reason": "grid curtailment alarms (violations are not charged in useful GPU-hours, so any action is a cost in this metric)"
+        },
+        {
+          "param": "protect_ratio",
+          "values": [
+            0.0,
+            0.5,
+            1.0,
+            2.0
+          ],
+          "objective": "warned",
+          "reason": "checkpoint only when the unprotected exposure is at least this multiple of the checkpoint write time"
+        },
+        {
+          "param": "min_gap_s",
+          "values": [
+            300.0,
+            600.0,
+            1200.0,
+            2400.0
+          ],
+          "objective": "warned",
+          "reason": "minimum time between two checkpoints of the same job"
+        },
+        {
+          "param": "clear_decisions",
+          "values": [
+            null,
+            1,
+            2,
+            3
+          ],
+          "objective": "warned",
+          "reason": "clear rule: forecast decisions below threshold before a paused job resumes (null = scenario value)"
+        },
+        {
+          "param": "rule_thermal+cooling",
+          "values": [
+            [
+              "checkpoint",
+              "checkpoint"
+            ],
+            [
+              "move",
+              "checkpoint"
+            ],
+            [
+              "pause",
+              "checkpoint"
+            ]
+          ],
+          "objective": "warned",
+          "reason": "repeat under the warned reference forecasters"
+        },
+        {
+          "param": "rule_hardware",
+          "values": [
+            [
+              "checkpoint",
+              "checkpoint"
+            ],
+            [
+              "move",
+              "checkpoint"
+            ],
+            [
+              "pause",
+              "checkpoint"
+            ]
+          ],
+          "objective": "warned",
+          "reason": "repeat under the warned reference forecasters"
+        },
+        {
+          "param": "rule_power",
+          "values": [
+            [
+              "checkpoint",
+              "checkpoint"
+            ],
+            [
+              "move",
+              "checkpoint"
+            ],
+            [
+              "pause",
+              "checkpoint"
+            ]
+          ],
+          "objective": "warned",
+          "reason": "repeat under the warned reference forecasters"
+        }
+      ],
+      "robustness": {
+        "forecasters": {
+          "ets": 0.9,
+          "ts5m": 0.9
+        },
+        "note": "closed-loop check of the v2 response, the start design and the chosen design with other forecasters on the same training seeds (thresholds are the outage-v2 training choices); not used to pick the design"
+      }
+    },
+    "tuning_seeds": 36
+  },
+  "assumptions": [
+    "Everything in this file is a simulation setting. No number here is a measurement of a real cluster.",
+    "The two-site cluster, job generator, thermal, breaker and power parameters come from sim-scenario-v2.json (not edited here). Power levels are read through the simulator at run time, so a recalibration of the simulator scenario flows through.",
+    "Job durations are drawn log-uniform between 1800 s and 21600 s (the base scenario uses 3600 s to 172800 s) so that a 15-hour window holds dozens of jobs; the job mix is otherwise the base scenario's, including its 10 percent of two-shard jobs that already follow the averaging rule.",
+    "The simulated clock starts at 17:00 UTC (late morning to midday local time); heat-wave centers and amplitudes are chosen to fall inside the 15-hour window and are simulation assumptions.",
+    "Event rates, precursor probability, precursor lead times and strengths, durations and severities are simulation assumptions chosen to produce several events per window; they are not rates of real facilities.",
+    "Controller decisions, forecasts and warnings use a 600 s interval; the simulator control step is 60 s and the base step is 60 s (the sim-scenario-v2.json steps are 10 s and 1 s).",
+    "Warning horizon 6 steps x 600 s = 60 min; forecast context 18 steps x 600 s = 3 h, equal to the 3 h warm-up before the first scheduled event.",
+    "Probability levels for the supply-temperature and GPU-temperature anomaly channels are the largest value (calibration_quantile 1.0) seen in event-free runs on training seeds. Level of the GPU temperature channel is the throttle threshold of the simulator scenario; level of the breaker load channel is 1.0 (rack power above rating); level of the site channel is the grid import limit including announced curtailments.",
+    "recheckpoint_s, clear_decisions, max_pause_s and oracle_extra_lead_steps are response-policy design choices that are not tuned.",
+    "Per-GPU channel (v2): one series per GPU, the GPU's temperature above rack air averaged over the decision interval (from the simulator's per-GPU history) minus its own gain times the median of its peers (same job, same rack). The gain is the median ratio to the peer median over the GPU's samples that are between anomaly_baseline_gap_s and anomaly_baseline_window_s old, with at least baseline_min_samples samples. A sample needs at least min_peers peers, a peer median above peer_excess_floor_fraction_of_idle times the idle-level excess (idle GPU power times the thermal scenario's GPU-to-air coefficient, both read from the simulator configuration) and an unchanged job group since the previous decision. Its level is the largest value seen in event-free runs on training seeds, as for the other anomaly channels."
+  ],
+  "derived_from": {
+    "file": "outage-scenario-v2.json",
+    "changes": [
+      "scenario_id and description",
+      "base_overrides.controller_interval_s 600 -> 60 (the controller is called every control step; forecasts and warnings still run every 600 s)",
+      "seeds.design_extra (extra training seeds for the response search)",
+      "outage.response (per-class response design)"
+    ]
+  }
+}
