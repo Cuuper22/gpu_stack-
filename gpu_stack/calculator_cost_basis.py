@@ -132,9 +132,10 @@ FACILITY_USD_PER_W: float = 11.3
 # ---------------------------------------------------------------------------
 
 # Measured average power of one 8-GPU H100 node during LLM training: median of
-# four listed averages (7.79, 7.67, 7.73 and 5.91 kW), against the 10.2 kW
-# rating. https://arxiv.org/pdf/2506.14551 (Table 2)
-H100_NODE_MEASURED_AVG_W: float = statistics.median([7_790.0, 7_670.0, 7_730.0, 5_910.0])
+# the five listed averages (7.79, 7.67, 7.73, 5.91 and 6.78 kW), against the
+# 10.2 kW rating. https://arxiv.org/pdf/2506.14551 (Table 2, re-read 2026-10-26)
+H100_NODE_MEASURED_SAMPLES_W: Tuple[float, ...] = (7_790.0, 7_670.0, 7_730.0, 5_910.0, 6_780.0)
+H100_NODE_MEASURED_AVG_W: float = statistics.median(H100_NODE_MEASURED_SAMPLES_W)
 H100_TDP_W: float = 700.0
 # The calculator's GPU load (an uncited assumption, kept at its earlier value).
 GPU_POWER_FRACTION: float = 0.80
@@ -159,7 +160,7 @@ LEGACY_DEFAULTS: Dict[str, float] = {
 __all__ = [
     "A100_PRICE_RANGE_USD", "A100_PRICE_USD", "ACCESSED", "DGX_H100_SYSTEM_USD",
     "ELECTRICITY_USD_PER_KWH", "FACILITY_USD_PER_W", "FACILITY_USEFUL_LIFE_YEARS",
-    "GPUS_PER_SYSTEM", "GPU_POWER_FRACTION", "H100_NODE_MEASURED_AVG_W",
+    "GPUS_PER_SYSTEM", "GPU_POWER_FRACTION", "H100_NODE_MEASURED_AVG_W", "H100_NODE_MEASURED_SAMPLES_W",
     "H100_PRICE_RANGE_USD", "H100_PRICE_USD", "H100_TDP_W", "HGX_H100_SYSTEM_USD",
     "LEGACY_DEFAULTS", "META_CLUSTER_GPUS", "NETWORK_PER_GPU_USD", "OPERATOR_SERVER_LIVES",
     "OTHER_HARDWARE_FRACTION", "OTHER_HARDWARE_FRACTION_EXACT", "OTHER_IT_PER_GPU_USD",

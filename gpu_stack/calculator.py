@@ -52,9 +52,11 @@ Reference (hardware specs):
 * NVIDIA A100 datasheet, A100 80GB SXM: "BFLOAT16 Tensor Core 312 TFLOPS | 624
   TFLOPS* (*with sparsity)", "Max TDP SXM 400W", 80 GB memory.
   https://www.nvidia.com/en-us/data-center/a100/
-* B200 is left out on purpose: NVIDIA's public pages list the 8-GPU system
-  power (about 14.3 kW for DGX B200) but no per-GPU TDP, and the datasheet
-  could not be read. Add it when a per-GPU figure can be cited.
+* B200 is not in the table. The HGX B200 summary now gives 1,000 W per GPU
+  (https://images.nvidia.com/aem-dam/Solutions/documents/HGX-B200-PCF-Summary.pdf,
+  accessed 2026-10-26), but a price and FLOP/s row would also need to be added;
+  the cost audit builds B200 and GB200 from cited rows inside its own script
+  (``experiments/e003-heatwave/cost_audit/run_cost_audit.py``).
 * Cost defaults come from ``gpu_stack.calculator_cost_basis`` (each with its URL
   and access date): U.S. industrial electricity 8.51 cents/kWh (EIA Electric
   Power Annual 2025, Table 2.10); H100 $37,500 and A100 $12,500 per card
@@ -236,8 +238,8 @@ INPUTS: Dict[str, InputSpec] = {
                   advanced=True, lo=0.2, hi=1.0),
         InputSpec("server_power_fraction", "Extra server power (CPUs, fans, network)", "fraction of GPU power",
                   basis.SERVER_POWER_FRACTION, TAG_ASSUMPTION,
-                  "Power drawn by the rest of the server, as a share of the GPUs' own power. Default 72% makes "
-                  "an 8-GPU H100 node draw 7.7 kW, the measured average during LLM training (the node is rated "
+                  "Power drawn by the rest of the server, as a share of the GPUs' own power. Default 71% makes "
+                  "an 8-GPU H100 node draw 7.7 kW (median 7.67 kW), the measured average during LLM training (the node is rated "
                   "10.2 kW).",
                   advanced=True, lo=0.0, hi=2.0),
     ]
@@ -431,10 +433,10 @@ def build_model() -> CalculatorModel:
         **pins,
     }
 
-    def run(target: str):
-        res = resolve(target, assignments=assignments, variants=GRAPH_VARIANTS)
+    def run(goal: str):
+        res = resolve(goal, assignments=assignments, variants=GRAPH_VARIANTS)
         if res.missing:
-            raise RuntimeError(f"{target}: graph left {sorted(res.missing)} unresolved")
+            raise RuntimeError(f"{goal}: graph left {sorted(res.missing)} unresolved")
         return res
 
     wall = run("training.wallclock")
@@ -657,9 +659,9 @@ def estimate(
     mfu : fraction of the chip's peak speed that training reaches. Default 0.40
         (assumption; real runs reach 30-55%).
     pue : datacenter overhead, total power / computer power. Default 1.2 (assumption).
-    electricity_price : USD per kWh. Default 0.0813 (EIA 2024 U.S. industrial average).
+    electricity_price : USD per kWh. Default 0.0851 (EIA 2025 U.S. industrial average).
     gpu_price : USD per GPU. Default depends on the GPU (assumption).
-    useful_life_years : years the hardware is used before replacement. Default 4 (assumption).
+    useful_life_years : years the hardware is used before replacement. Default 5.5 (median of eight operators' reported server lives).
     more : optional ``residual_fraction``, ``other_hardware_fraction``,
         ``gpu_power_fraction``, ``server_power_fraction``, ``peak_flops``, ``tdp_w``.
 

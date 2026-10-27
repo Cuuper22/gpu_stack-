@@ -138,8 +138,9 @@ class TestPythiaDgxH100RunClosureAssumption:
         assert non_roots == []
 
     def test_preset_covers_all_34_missing_roots_of_original_pack(self):
-        # The original pack has 34 missing root inputs: the 33 it had before
-        # the facility got its own useful life, plus econ.facility.useful_life.
+        # The original pack has 34 missing variables: the 33 it had before the
+        # facility got its own useful life, plus econ.cluster.facility_capex_rate
+        # (a symbolic boundary above econ.facility.useful_life).
         # This assumption closure must cover all of them directly or via
         # upstream decomposition.
         original = scenarios.pythia_70m_dgx_h100_us_2024_industrial_power
@@ -156,7 +157,7 @@ class TestPythiaDgxH100RunClosureAssumption:
             f"{sorted(full_result.missing)}"
         )
         assert len(original_missing) == 34
-        assert "econ.facility.useful_life" in original_missing
+        assert "econ.cluster.facility_capex_rate" in original_missing
 
     def test_water_latent_heat_is_physical_constant(self):
         # Water latent heat at 20 degC: NIST value ~2454 kJ/kg.
@@ -222,14 +223,14 @@ class TestPythiaDgxH100FullTcoPack:
         assert "eia" in source.lower() or "energy information" in source.lower()
 
     def test_pack_advertised_targets_include_cost_per_token(self):
-        targets = dict(scenarios.scenario_targets_for(FULL_TCO_PACK))
-        assert "cost_per_token" in targets
-        assert targets["cost_per_token"] == "econ.cost.per_token"
+        goals = dict(scenarios.scenario_targets_for(FULL_TCO_PACK))
+        assert "cost_per_token" in goals
+        assert goals["cost_per_token"] == "econ.cost.per_token"
 
     def test_pack_advertised_targets_are_registered_variables(self):
-        targets = scenarios.scenario_targets_for(FULL_TCO_PACK)
-        for label, target in targets:
-            assert target in Registry.variables, (FULL_TCO_PACK_NAME, label, target)
+        goals = scenarios.scenario_targets_for(FULL_TCO_PACK)
+        for label, goal in goals:
+            assert goal in Registry.variables, (FULL_TCO_PACK_NAME, label, goal)
 
     def test_pack_resolves_cost_per_token_with_no_missing_inputs(self):
         result = FULL_TCO_PACK.resolve("econ.cost.per_token")
@@ -263,8 +264,8 @@ class TestPythiaDgxH100FullTcoPack:
 
     def test_pack_resolves_all_advertised_targets_cleanly(self):
         failures = []
-        for label, target in scenarios.scenario_targets_for(FULL_TCO_PACK):
-            result = FULL_TCO_PACK.resolve(target)
+        for label, goal in scenarios.scenario_targets_for(FULL_TCO_PACK):
+            result = FULL_TCO_PACK.resolve(goal)
             if result.missing:
                 failures.append(f"{label}: missing {sorted(result.missing)}")
                 continue
@@ -365,8 +366,8 @@ class TestPythiaDgxH100FullTcoPack:
         assert FULL_TCO_PACK_NAME in scenarios.SCENARIO_TARGET_SETS
 
     def test_pack_scenario_target_labels_are_stable(self):
-        targets = scenarios.scenario_targets_for(FULL_TCO_PACK)
-        labels = tuple(label for label, _ in targets)
+        goals = scenarios.scenario_targets_for(FULL_TCO_PACK)
+        labels = tuple(label for label, _ in goals)
         assert labels == (
             "tokens_per_second",
             "job_dc_power",

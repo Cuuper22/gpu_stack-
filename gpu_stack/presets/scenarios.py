@@ -307,7 +307,7 @@ SCENARIO_TARGET_SETS = MappingProxyType(
 
 
 def scenario_targets_for(preset_or_name: Preset | str) -> ScenarioTargetSet:
-    """Look up the advertised (label, variable) targets for one scenario preset."""
+    """Look up the advertised (label, variable) goals for one scenario preset."""
     return targets_for(SCENARIO_TARGET_SETS, preset_or_name)
 
 

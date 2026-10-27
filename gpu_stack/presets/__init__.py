@@ -5,7 +5,7 @@ gpu_stack.presets
 Concrete, named scenario presets with provenance.
 
 A preset is a bundle of variable assignments: it fills in every input a
-resolver call needs to evaluate a target, so callers do not have to
+resolver call needs to evaluate a goal variable, so callers do not have to
 rediscover each number by hand. The machinery for building presets lives in
 `gpu_stack.core.presets`; this package holds the actual instances, grouped
 by domain: hardware, workload, economics, lithography exposure optics, and

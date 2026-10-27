@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from gpu_stack import calculator
+from gpu_stack import calculator_cost_basis as basis
 from gpu_stack.core.resolver import resolve
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,7 +24,7 @@ def test_default_scenario_is_sensible():
     assert e.total_cost == pytest.approx(e.electricity_cost + e.hardware_cost, rel=1e-9)
     assert e.cost_per_million_tokens == pytest.approx(e.total_cost / 2e12 * 1e6, rel=1e-9)
     # energy x price = electricity cost
-    assert e.energy_mwh * 1000 * 0.0813 == pytest.approx(e.electricity_cost, rel=1e-9)
+    assert e.energy_mwh * 1000 * e.inputs["electricity_price"] == pytest.approx(e.electricity_cost, rel=1e-9)
 
 
 def test_matches_a_direct_numeric_graph_resolve():
@@ -36,6 +37,10 @@ def test_matches_a_direct_numeric_graph_resolve():
         "econ.asset.residual_fraction": v["residual_fraction"],
         "econ.asset.useful_life": life_s,
     }).value
+    facility = resolve("econ.cluster.facility_capex_rate", assignments={
+        "econ.cluster.facility_capex": basis.FACILITY_USD_PER_W * v["tdp_w"] * (1 + v["server_power_fraction"]),
+        "econ.facility.useful_life": basis.FACILITY_USEFUL_LIFE_YEARS * calculator.SECONDS_PER_YEAR,
+    }).value
     assignments = {
         "arch.params_total_dense": v["params"], "training.total_tokens": v["tokens"], "par.n_gpus": v["n_gpus"],
         "arch.tokens_per_step": 4_194_304, "training.recompute_overhead": 1,
@@ -46,7 +51,7 @@ def test_matches_a_direct_numeric_graph_resolve():
         "gpu.peak_flops_power_limited": v["peak_flops"] * v["mfu"],
         "thermal.dc.total_power": v["pue"] * v["n_gpus"] * v["tdp_w"] * v["gpu_power_fraction"]
         * (1 + v["server_power_fraction"]),
-        "econ.job.capex_rate": v["n_gpus"] * float(amort),
+        "econ.job.capex_rate": v["n_gpus"] * (float(amort) + float(facility)),
     }
     variants = calculator.GRAPH_VARIANTS
     wall = float(resolve("training.wallclock", assignments=assignments, variants=variants).value)

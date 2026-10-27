@@ -52,7 +52,7 @@ def test_scenario_report_missing_families_groups_cost_per_token_roots():
     assert rc == 0
     assert "tokens_per_second: ok target=training.tokens_per_sec" in out
     assert "cost_per_token: issues target=econ.cost.per_token" in out
-    assert "missing=33" in out
+    assert "missing=34" in out
 
     clean_slice = out[
         out.index("tokens_per_second: ok"):
@@ -78,7 +78,8 @@ def test_scenario_report_missing_families_groups_cost_per_token_roots():
     ) in out
     assert (
         "family=econ.cluster boundary_category=symbolic-boundary "
-        "primitive_boundary=False count=1 names=econ.cluster.facility_capex"
+        "primitive_boundary=False count=2 "
+        "names=econ.cluster.facility_capex, econ.cluster.facility_capex_rate"
     ) in out
     assert (
         "family=econ.node boundary_category=primitive-root "
@@ -263,7 +264,7 @@ def test_scenario_audit_missing_families_groups_selected_cost_per_token():
     assert "pythia_70m_dgx_h100_us_2024_industrial_power: issues" in out
     assert (
         "cost_per_token: issues target=econ.cost.per_token "
-        "missing=33 violated_constraints=0"
+        "missing=34 violated_constraints=0"
     ) in out
     assert "unresolved inputs:" not in out
     assert "      missing families:" in out
@@ -277,7 +278,8 @@ def test_scenario_audit_missing_families_groups_selected_cost_per_token():
     ) in out
     assert (
         "family=econ.cluster boundary_category=symbolic-boundary "
-        "primitive_boundary=False count=1 names=econ.cluster.facility_capex"
+        "primitive_boundary=False count=2 "
+        "names=econ.cluster.facility_capex, econ.cluster.facility_capex_rate"
     ) in out
     assert (
         "family=thermal.water boundary_category=primitive-root "

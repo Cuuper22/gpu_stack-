@@ -154,9 +154,9 @@
    "id": "server_power_fraction",
    "label": "Extra server power (CPUs, fans, network)",
    "unit": "fraction of GPU power",
-   "default": 0.72,
+   "default": 0.71,
    "tag": "assumption",
-   "tooltip": "Power drawn by the rest of the server, as a share of the GPUs' own power. Default 72% makes an 8-GPU H100 node draw 7.7 kW, the measured average during LLM training (the node is rated 10.2 kW).",
+   "tooltip": "Power drawn by the rest of the server, as a share of the GPUs' own power. Default 71% makes an 8-GPU H100 node draw 7.7 kW (median 7.67 kW), the measured average during LLM training (the node is rated 10.2 kW).",
    "advanced": true,
    "min": 0.0,
    "max": 2.0
@@ -3592,16 +3592,16 @@
     "residual_fraction": 0.05,
     "other_hardware_fraction": 0.49,
     "gpu_power_fraction": 0.8,
-    "server_power_fraction": 0.72
+    "server_power_fraction": 0.71
    },
    "expected": {
     "training_days": 2.3990190112413807,
     "gpu_hours": 58958.291220268184,
-    "energy_mwh": 68.14635132403478,
-    "electricity_cost": 5799.254497675358,
-    "hardware_cost": 71950.43745984737,
-    "total_cost": 77749.6919575227,
-    "cost_per_million_tokens": 0.03887484597876143
+    "energy_mwh": 67.75015160703458,
+    "electricity_cost": 5765.53790175864,
+    "hardware_cost": 71909.51360337812,
+    "total_cost": 77675.05150513674,
+    "cost_per_million_tokens": 0.03883752575256845
    }
   },
   {
@@ -3620,16 +3620,16 @@
     "residual_fraction": 0.05,
     "other_hardware_fraction": 0.49,
     "gpu_power_fraction": 0.8,
-    "server_power_fraction": 0.72
+    "server_power_fraction": 0.71
    },
    "expected": {
     "training_days": 21.301443420584047,
     "gpu_hours": 1047008.5470085471,
-    "energy_mwh": 691.5282051282053,
-    "electricity_cost": 58849.05025641024,
-    "hardware_cost": 455671.61918580806,
-    "total_cost": 514520.6694422182,
-    "cost_per_million_tokens": 0.36751476388729937
+    "energy_mwh": 687.5076923076924,
+    "electricity_cost": 58506.9046153846,
+    "hardware_cost": 455256.336482314,
+    "total_cost": 513763.24109769834,
+    "cost_per_million_tokens": 0.3669737436412138
    }
   },
   {

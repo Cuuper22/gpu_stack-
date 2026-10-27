@@ -6,7 +6,7 @@ that adds or removes a variable moves these numbers, and that is the
 point: the change must be seen and the snapshot updated deliberately. If a
 change legitimately moves the numbers, update the expectations here — never
 delete the assertions. The second test resets the registry to zero and
-bootstraps it back, proving the full graph is reconstructible from code
+bootstraps it back, proving the full graph is rebuildable from code
 alone.
 """
 
