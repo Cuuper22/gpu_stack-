@@ -28,7 +28,9 @@
   <link rel="stylesheet" href="styles/calculator.css">
   <link rel="stylesheet" href="styles/figures.css">
   <link rel="stylesheet" href="styles/explain.css">
+  <link rel="stylesheet" href="styles/heatwave-lab.css">
   <script defer src="calculator.js"></script>
+  <script defer src="heatwave-lab.js"></script>
   <script defer src="app.js"></script>
   <script defer src="figures/index.js"></script>
   <script defer src="figures/hook-gpu-hours.js"></script>
@@ -46,6 +48,7 @@
   <nav class="phone-tabs" aria-label="Sections">
     <a href="#story" data-open="story" aria-current="page">Story</a>
     <a href="#calculator" data-open="calculator">Calculator</a>
+    <a href="#heatwave" data-open="heatwave">Heatwave</a>
     <a href="observatory.html">Lab</a>
   </nav>
 
@@ -58,6 +61,10 @@
       <a class="desktop-icon" href="#calculator" data-open="calculator">
         <span class="icon-image px-icon px-chip"></span>
         <span class="icon-label">Calculator</span>
+      </a>
+      <a class="desktop-icon" href="#heatwave" data-open="heatwave">
+        <span class="icon-image px-icon px-graph"></span>
+        <span class="icon-label">Heatwave</span>
       </a>
       <a class="desktop-icon" href="observatory.html">
         <span class="icon-image px-icon px-graph"></span>
@@ -153,6 +160,17 @@
             <p class="go-deeper"><a href="observatory.html">Open the Lab</a></p>
           </section>
 
+          <section class="story-section" id="story-heatwave">
+            <h2>What is a forecast worth to a GPU cluster?</h2>
+            <p>A training run doesn't draw power like a kettle. Inside every step the GPUs compute, then wait on each other, then compute again, and every <span class="term" data-term="checkpoint">save</span> is a dip. Over hours, jobs start and stop. The building heats up and the cooling answers late. The grid's price and <span class="term" data-term="carbon-intensity">carbon</span> swing on their own schedule. I wanted to know what a forecast of all that is worth when you act on it, so I built a small project called Heatwave on top of this one.</p>
+            <p>A <span class="term" data-term="quantile-forecast">quantile forecast</span> doesn't give one number. It gives 21: the level the power stays under 1 percent of the time, 5 percent, 10 percent and so on up to 99. Plan on the 90th and you expect to be caught short one time in ten. My forecaster was <span class="term" data-term="timestral">Timestral</span>, the open forecasting model Mistral released in October 2026, used as it comes. On all eleven series I tried, from one-second GPU power to hourly grid prices, it had lower forecast loss than the textbook methods. On H100 power sampled every second, its loss was 0.158 against 0.259 for the best of them.<!-- heatwave:results/forecast/multiscale.json elsayed_gpu_power timestral-28M vs ets, all horizons --></p>
+            <p>My laptop's GPU <span class="term" data-term="thermal-throttling">throttles itself</span> from about 84 degrees and roughly halves its clock when it does.<!-- heatwave:results/thermal/laptop_rc.json throttle.run1 --> In a test run, a 30-second temperature forecast warned before 6 of the 7 slowdowns, 18.5 seconds ahead on median, where watching the thermometer gave 10.5 seconds.<!-- heatwave:results/thermal/throttle_warning.json timestral-28M and reactive, test run2 --> Plain statistics did just as well as Timestral here. Thirty seconds isn't long enough for a big model to matter.</p>
+            <p>The rest happened in a simulated two-site cluster with a <span class="term" data-term="power-cap">power cap</span>, with power levels taken from published H100 measurements. Letting jobs in whenever the meter shows room packs the most work and spends 72 percent of the time over the cap. Planning on the forecast's 90th percentile packs about 17 percent less work and goes over the cap with about a sixth of the energy.<!-- gpu_stack:experiments/e003-heatwave/results/packing-v1.json policies reactive and timestral-5M/q0.9 --> Which percentile is right depends on what going over costs: a small learned rule that picks it as it goes was worth $747 more per run than reacting when each kilowatt-hour over the cap costs $40, and $295 less when it costs $2.50.<!-- packing-v1.json paired_net_value_difference reactive at 40 and 2.5 --></p>
+            <p>Moving the flexible part of the work to cheaper, cleaner hours of real California prices cut its electricity bill by 8.6 percent and its carbon by 10.8 percent, close to the 9.0 percent perfect foresight gets. Copying yesterday's prices got 8.3 percent, so the daily price pattern does most of the work. The whole bill moved by 0.22 percent, because hardware is most of it.<!-- gpu_stack:experiments/e003-heatwave/results/cost-v1.json caiso curves at lambda 0.5 --></p>
+            <!-- HEATWAVE PENDING: outage response (outage-v2), known-future inputs (ablation), fine-tuning. Add a paragraph each when the results exist. -->
+            <p class="go-deeper"><a href="#heatwave" data-open="heatwave">Open the Heatwave window</a></p>
+          </section>
+
           <section class="story-section" id="story-7">
             <h2>How did I build it?</h2>
             <figure class="figure">
@@ -180,6 +198,20 @@
         <div id="calculator-root"></div>
       </div>
     </section>
+
+    <section class="window os-window heatwave-window" id="win-heatwave" data-window="heatwave" aria-label="Heatwave" hidden>
+      <div class="title-bar">
+        <div class="title-text"><span class="px-icon px-graph"></span> heatwave.exe</div>
+        <div class="window-controls">
+          <button class="window-btn" type="button" data-window-action="min" aria-label="Minimize Heatwave">_</button>
+          <button class="window-btn" type="button" data-window-action="max" aria-label="Maximize Heatwave">□</button>
+          <button class="window-btn" type="button" data-window-action="close" aria-label="Close Heatwave">x</button>
+        </div>
+      </div>
+      <div class="window-content window-scroll" tabindex="0" role="region" aria-label="Heatwave">
+        <div id="heatwave-root"></div>
+      </div>
+    </section>
   </div>
 
   <footer class="taskbar" aria-label="CuperOS taskbar">
@@ -187,6 +219,7 @@
       <a class="start-button" href="https://cuuper22.github.io/"><span class="px-icon px-start"></span> Start</a>
       <button class="task-button" type="button" data-task="story"><span class="px-icon px-doc"></span> Story</button>
       <button class="task-button" type="button" data-task="calculator"><span class="px-icon px-chip"></span> Calculator</button>
+      <button class="task-button" type="button" data-task="heatwave"><span class="px-icon px-graph"></span> Heatwave</button>
       <a class="task-button" href="observatory.html"><span class="px-icon px-graph"></span> Lab</a>
     </div>
     <div class="taskbar-clock" id="clock">12:00 PM</div>

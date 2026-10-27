@@ -1,0 +1,54 @@
+/* Heatwave Lab window: CuperOS chrome, zero radius, Plex for reading, Plex Mono for numbers. */
+.heatwave-window { top: 56px; right: 24px; width: min(860px, 100% - 240px); height: calc(100% - 90px); }
+@media (max-width: 760px) {
+  .heatwave-window { position: static; width: 100%; height: auto; border: 0; box-shadow: none; background: var(--window-body); }
+}
+.hwl { font-family: var(--font-body); color: var(--text-dark); font-size: 15px; line-height: 1.55; padding: 12px; }
+.hwl-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 10px; }
+.hwl-btn {
+  font: 600 13px/1.2 var(--font-body); min-height: 36px; padding: 6px 12px; border-radius: 0;
+  background: var(--button-face); color: var(--text-dark); border: 2px outset var(--button-face); cursor: pointer;
+}
+.hwl-btn:hover { background: var(--button-hover); }
+.hwl-btn:focus-visible, .hwl select:focus-visible, .hwl input:focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 1px; }
+.hwl-btn[aria-selected="true"] { background: var(--title-bar); color: var(--text-light); border-style: inset; }
+.hwl-body { border: 2px inset var(--window-chrome); background: var(--pane-bright); padding: 12px; }
+.hwl-caption { margin: 0 0 10px; font-size: 13px; color: var(--text-soft); }
+.hwl-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 10px; }
+.hwl-label { font-weight: 600; flex: 1 1 100%; }
+.hwl-controls input[type="range"] { flex: 1 1 260px; accent-color: var(--title-bar); }
+.hwl-help { font-size: 13px; color: var(--text-soft); }
+.hwl select { font: 500 13px var(--font-body); min-height: 32px; border-radius: 0; border: 2px inset var(--window-chrome); background: var(--pane-bright); }
+.hwl-chart { display: block; width: 100%; min-width: 545px; height: auto; background: var(--window-body); border: 2px inset var(--window-chrome); }
+.hwl-body { overflow-x: auto; }
+.hwl-grid { stroke: var(--frame-line); stroke-width: 1; }
+.hwl-axis { font: 13px var(--font-mono, "IBM Plex Mono", monospace); fill: var(--text-soft); }
+.hwl-line { stroke-width: 2; }
+.hwl-cap { stroke-width: 1.5; stroke-dasharray: 6 4; }
+.hwl-s0 { stroke: var(--title-bar); }
+.hwl-s1 { stroke: var(--accent-cyan-deep); }
+.hwl-cursor { stroke: var(--accent-gold); stroke-width: 2; }
+.hwl-racks { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; margin: 10px 0; }
+.hwl-rack { border: 2px outset var(--button-face); padding: 6px; min-height: 52px; display: flex; flex-direction: column; justify-content: space-between; }
+.hwl-rack-id { font: 600 13px var(--font-mono, "IBM Plex Mono", monospace); }
+.hwl-rack-temp { font: 13px var(--font-mono, "IBM Plex Mono", monospace); }
+.hwl-table { border-collapse: collapse; width: 100%; font-size: 14px; margin: 8px 0; }
+.hwl-table th, .hwl-table td { border: 1px solid var(--frame-line); padding: 4px 6px; text-align: left; }
+.hwl-table td + td, .hwl-table th + th { font-family: var(--font-mono, "IBM Plex Mono", monospace); text-align: right; }
+.hwl-table th { background: var(--chrome-well); font-family: var(--font-body); }
+.hwl-note { font-size: 14px; margin: 6px 0 0; }
+.hwl-h { font: 700 15px var(--font-body); margin: 14px 0 4px; }
+.hwl-pending { font-style: italic; color: var(--text-soft); }
+.hwl-pareto { stroke-width: 2; }
+.hwl-p0 { stroke: var(--text-soft); } .hwl-p0-t { fill: var(--text-soft); }
+.hwl-p1 { stroke: var(--danger-red); } .hwl-p1-t { fill: var(--danger-red); }
+.hwl-p2 { stroke: var(--gold-line); } .hwl-p2-t { fill: var(--gold-line); }
+.hwl-p3 { stroke: oklch(0.55 0.12 300); } .hwl-p3-t { fill: oklch(0.55 0.12 300); }
+.hwl-p4 { stroke: oklch(0.5 0.12 150); } .hwl-p4-t { fill: oklch(0.5 0.12 150); }
+.hwl-p5 { stroke: var(--title-bar); } .hwl-p5-t { fill: var(--title-bar); }
+.hwl-p6 { stroke: var(--accent-cyan-deep); } .hwl-p6-t { fill: var(--accent-cyan-deep); }
+.hwl-p7 { stroke: var(--pixel-ink); stroke-dasharray: 4 3; } .hwl-p7-t { fill: var(--pixel-ink); }
+@media (max-width: 760px) {
+  .hwl { padding: 8px; }
+  .hwl-body { padding: 8px; }
+}

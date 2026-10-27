@@ -1,4 +1,4 @@
-// CuperOS desktop: two windows (Story, Calculator) and a link to the Lab.
+// CuperOS desktop: three windows (Story, Calculator, Heatwave) and a link to the Lab.
 // On phones the windows become plain full-width pages with a tab bar on top.
 (() => {
   "use strict";
@@ -31,6 +31,16 @@
     }
   }
 
+  function mountHeatwave() {
+    const root = document.getElementById("heatwave-root");
+    if (!root || root.dataset.mounted) return;
+    const api = window.GPUStackHeatwave;
+    if (api && typeof api.mount === "function") {
+      root.dataset.mounted = "1";
+      api.mount(root);
+    }
+  }
+
   function refresh() {
     tasks.forEach((button) => {
       const name = button.dataset.task;
@@ -57,6 +67,7 @@
     zCounter += 1;
     node.style.zIndex = String(zCounter);
     if (name === "calculator") mountCalculator();
+    if (name === "heatwave") mountHeatwave();
     refresh();
     if (options.updateHash !== false && window.history && window.history.replaceState) {
       const hash = name === "story" && !window.location.hash ? "" : `#${name}`;
@@ -118,7 +129,7 @@
     } else {
       windows.story.hidden = false;
       open("story", { updateHash: false });
-      if (wanted === "calculator") open("calculator", { updateHash: false });
+      if (wanted === "calculator" || wanted === "heatwave") open(wanted, { updateHash: false });
     }
     refresh();
   }
