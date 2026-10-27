@@ -1,0 +1,58 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "775824294538dd7090bef77219f8ffc4235574ac1dc67d03c379609abd423248",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "dab1fd2b0e4efc984d4dd6fbcf709dc5acac2b2c",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 9000,
+  "sim_scenario_sha256": "bb46cdf8daca9b2c12a7b16c458fd7170311bdfb81ec3430238c9077483c7a6f",
+  "e002_raw_sha256": "d4095c17409c6cea9de0fa1fe15b85c0957b3619f20c80b6efb508f979a7912e"
+ },
+ "result": {
+  "data_kind": "simulated",
+  "design_outdoor_c": 35.0,
+  "cap_load_fraction": 0.55,
+  "sites": {
+   "site-a": {
+    "site_id": "site-a",
+    "n_gpus": 104,
+    "idle_w": 39585.16332307179,
+    "full_w": 97683.61754063182,
+    "cap_w": 71539.3131427298,
+    "beta_w_per_gpu": 558.6389828611541,
+    "utc_offset_h": -7.0
+   },
+   "site-b": {
+    "site_id": "site-b",
+    "n_gpus": 80,
+    "idle_w": 30450.125633132066,
+    "full_w": 75150.40157972567,
+    "cap_w": 55035.277403758555,
+    "beta_w_per_gpu": 558.7534493324201,
+    "utc_offset_h": -5.0
+   }
+  },
+  "half_load_check": [
+   {
+    "site_id": "site-a",
+    "busy_gpus": 52,
+    "measured_w": 68664.69082728782,
+    "affine_prediction_w": 68634.3904318518,
+    "relative_error": -0.0004412805922658555
+   },
+   {
+    "site_id": "site-b",
+    "busy_gpus": 40,
+    "measured_w": 52802.98472436753,
+    "affine_prediction_w": 52800.26360642887,
+    "relative_error": -5.153341147037911e-05
+   }
+  ]
+ }
+}

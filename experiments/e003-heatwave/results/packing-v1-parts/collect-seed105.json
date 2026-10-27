@@ -1,0 +1,75 @@
+{
+ "provenance": {
+  "script": "experiments/e003-heatwave/run_packing.py",
+  "script_sha256": "775824294538dd7090bef77219f8ffc4235574ac1dc67d03c379609abd423248",
+  "module_sha256": "829eb96f9edcb39aede3c05d206b8d4e07b57c667513958dd977859795ade511",
+  "scenario_sha256": "c18c7d1b68329c97a7568f63cfd3cbe270bcb9dffb6fcbb1c03c37548a63e831",
+  "git": {
+   "commit": "dab1fd2b0e4efc984d4dd6fbcf709dc5acac2b2c",
+   "branch": "hw-pack",
+   "dirty": "false"
+  },
+  "data_kind": "simulated",
+  "seed": 105,
+  "role": "train-exploration",
+  "forecaster": "timestral-5M",
+  "policy": "random-q",
+  "options": {
+   "n_train": 6,
+   "n_test": 3,
+   "grid_stride": 2,
+   "subset_q": "0.5,0.9,0.99"
+  }
+ },
+ "result": {
+  "metrics": {
+   "data_kind": "simulated",
+   "window_s": [
+    90000.0,
+    147600.0
+   ],
+   "gpu_hours": 1673.9179476703519,
+   "gpu_hours_multisite_jobs": 120.94112777777747,
+   "value_usd": 4513.7076233110365,
+   "jobs_admitted": 48,
+   "jobs_completed": 55,
+   "violation_rate": 0.9791666666666666,
+   "violation_rate_by_site": [
+    0.8541666666666666,
+    0.734375
+   ],
+   "energy_above_cap_kwh": 42.717593335478064,
+   "energy_above_cap_kwh_by_site": [
+    34.05077689539047,
+    8.666816440087494
+   ],
+   "seconds_above_cap": 61110.0,
+   "max_excess_w": 17961.906137663886,
+   "stranded_kwh": 31.224722001359737,
+   "stranded_intervals": 192,
+   "mean_power_over_cap": 1.0042791299853335,
+   "energy_kwh": 2036.6863200779321,
+   "forecast_calls": 192,
+   "forecast_refresh_bins": 1,
+   "job_faults": 8
+  },
+  "wall_s": 138.0807900428772,
+  "n_situations": 16679,
+  "draws": {
+   "heatwaves": {
+    "site-a": {
+     "center_h": 33.74745332782218,
+     "width_h": 6.324929605875244,
+     "add_c": 9.956301944956746
+    },
+    "site-b": {
+     "center_h": 35.74745332782218,
+     "width_h": 7.633179477883406,
+     "add_c": 11.564333663838065
+    }
+   },
+   "n_events": 8,
+   "sim_seed": 1493465232
+  }
+ }
+}
